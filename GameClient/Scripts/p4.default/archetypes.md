@@ -7,11 +7,13 @@
     </h2>
 </html>
 
+___
 List:
 ------
-- [#archetype-entity-for-movement]Entity for Movement
+- [Entity for Movement](#archetype-entity-for-movement)
 
-##Archetype "Entity for movement"
+## Archetype "Entity for movement"
+
 ```c#
 //! NOT A CLASS FOR COMPILATION
 
