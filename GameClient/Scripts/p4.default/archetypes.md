@@ -6,6 +6,7 @@
     Patapon 4 - Default - Entity archetypes
     </h2>
 </html>
+
 List:
 ------
 - [#archetype-entity-for-movement]Entity for Movement
