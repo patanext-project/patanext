@@ -10,10 +10,10 @@
 
 ___
 ### Packages:
+In my new projects, I seperate codes in package, for a better maintenance of the code. (and it also look cleaner!) 
+
 -   [Core package](GameClient/Scripts/packet.p4.core)
 -   [Default package](GameClient/Scripts/packet.p4.default)
-___
-
 ___
 ### Modding:
 -   Create characters:
