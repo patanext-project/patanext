@@ -9,6 +9,12 @@
 </html>
 
 ___
+### Packages:
+-   [Core package](GameClient/Scripts/packet.p4.core)
+-   [Default package](GameClient/Scripts/packet.p4.default)
+___
+
+___
 ### Modding:
 -   Create characters:
     -   Implement a custom character for a mission
