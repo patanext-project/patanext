@@ -49,7 +49,7 @@ struct P4Default_EntityForMovementArchetype
     public P4Default_DEntityInputUnifiedData input;     // Needed for the coordinator and systems. (RW for the Coordinator and Input system, and R for the other Systems)
     public DWorldPositionData                position;  //< Rotation and Position can be combined to TWorldTransform (RW)
     public DWorldRotationData                rotation;  //^
-    public Rigidbody                         rigidbody; // Actually, I need to think if we reaaaally need a rigidbody
+    public Rigidbody2D                       rigidbody; // Actually, I need to think if we reaaaally need a rigidbody
     public DCharacterData                    character; //< A data struct from stormium. I don't know if I keep it.
     public DCharacterCollider2DComponent     charColl;  //^
 

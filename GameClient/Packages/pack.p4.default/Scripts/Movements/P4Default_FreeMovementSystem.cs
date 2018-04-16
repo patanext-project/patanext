@@ -19,7 +19,7 @@ namespace P4.Default.Movements
             public ComponentDataArray<P4Default_DEntityInputUnifiedData> UnifiedInputs;
             public ComponentDataArray<DWorldPositionData> Positions;
             public ComponentDataArray<DWorldRotationData> Rotations;
-            public ComponentArray<Rigidbody> Rigidbodies;
+            public ComponentArray<Rigidbody2D> Rigidbodies;
             public ComponentDataArray<DCharacterData> Characters;
             public ComponentDataArray<DCharacterInformationData> CharactersInformations;
             public ComponentArray<DCharacterCollider2DComponent> CharactersColliders;

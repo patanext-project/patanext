@@ -25,7 +25,7 @@ namespace P4.Default
             typeof(P4Default_DEntityInputUnifiedData),
             typeof(DWorldPositionData),
             typeof(DWorldRotationData),
-            typeof(Rigidbody),
+            typeof(Rigidbody2D),
             typeof(DCharacterData),
             typeof(DCharacterInformationData),
             typeof(DCharacterCollider2DComponent)

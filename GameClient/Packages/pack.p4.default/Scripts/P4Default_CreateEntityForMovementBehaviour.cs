@@ -10,7 +10,7 @@ namespace P4.Default
     [AddComponentMenu("Moddable/P4Default/EntityArchetype Creator/Entity For Movement")]
     [RequireComponent
     (
-        typeof(Rigidbody),
+        typeof(Rigidbody2D),
         typeof(DCharacterWrapper),
         typeof(DCharacterCollider2DComponent)
     )]

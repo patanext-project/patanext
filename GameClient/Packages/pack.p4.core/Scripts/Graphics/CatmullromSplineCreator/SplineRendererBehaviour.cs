@@ -60,7 +60,7 @@ namespace P4.Core.Graphics
         private void OnDestroy()
         {
             var goEntity = GetComponent<GameObjectEntity>();
-            World.Active.GetExistingManager<SplineSystem>().SendUpdateEvent(goEntity.Entity);
+            World.Active.GetExistingManager<SplineSystem>()?.SendUpdateEvent(goEntity.Entity);
         }
 
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
