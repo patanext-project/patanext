@@ -24,8 +24,6 @@ namespace P4.Core.RythmEngine
                 var entity = m_GroupCommands.Entities[index];
                 var input = m_GroupCommands.Inputs[index];
                 
-                input.EntityGroup.IsInit
-                
                 m_Barrier.PostUpdateCommands.DestroyEntity(entity);
             }
         }
