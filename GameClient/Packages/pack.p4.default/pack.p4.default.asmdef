@@ -1,0 +1,16 @@
+{
+    "name": "pack.p4.default",
+    "references": [
+        "packet.p4.core",
+        "packet.guerro.shared",
+        "Unity.Entities",
+        "Unity.Entities.Hybrid",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Jobs"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
