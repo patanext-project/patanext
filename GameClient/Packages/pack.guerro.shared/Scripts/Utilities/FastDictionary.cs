@@ -142,6 +142,22 @@ namespace System.Collections.Generic {
             }
         }
 
+        public ref TValue FastGet(TKey key)
+        {
+            if (buckets != null) {
+                int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+                for (int i = buckets[hashCode % buckets.Length]; i >= 0;) {
+                    ref var entry = ref entries[i];
+                    i = entry.next;
+                    if (entry.hashCode == hashCode && comparer.Equals(entry.key, key))
+                    {
+                        return ref entry.value;
+                    }
+                }
+            }
+            throw new KeyNotFoundException();
+        }
+
         public void Add(TKey key, TValue value) {
             Insert(key, value, true);
         }

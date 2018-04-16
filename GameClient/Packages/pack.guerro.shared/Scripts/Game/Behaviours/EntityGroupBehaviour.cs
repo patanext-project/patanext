@@ -13,7 +13,7 @@ namespace Packet.Guerro.Shared.Game.Behaviours
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Properties
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
-        public int SceneGroupId;
+        public int SceneGroupId = -1;
         public int GroupId;
         public int Version;
 
