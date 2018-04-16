@@ -1,8 +1,8 @@
 {
     "name": "pack.p4.default",
     "references": [
-        "packet.p4.core",
-        "packet.guerro.shared",
+        "pack.p4.core",
+        "pack.guerro.shared",
         "Unity.Entities",
         "Unity.Entities.Hybrid",
         "Unity.Mathematics",
