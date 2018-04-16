@@ -11,15 +11,16 @@ using Unity.Mathematics;
 
 namespace P4Main.Graphics.Editor
 {
+#if UNITY_EDITOR
     [CustomEditor(typeof(SplineRendererBehaviour)), CanEditMultipleObjects]
     public class CatmullRomSplineWorldEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             //DrawDefaultInspector();
-            
+
             serializedObject.Update();
-            
+
             foreach (SplineRendererBehaviour inspected in targets)
             {
                 EditorGUILayout.LabelField("Inspecting: " + inspected.name);
@@ -37,19 +38,19 @@ namespace P4Main.Graphics.Editor
                 if (EditorGUI.EndChangeCheck())
                     serializedObject.ApplyModifiedProperties();
                 // Write Field 'Is Looping'
-                inspected.IsLooping    = EditorGUILayout.Toggle("Is Looping", inspected.IsLooping);
+                inspected.IsLooping = EditorGUILayout.Toggle("Is Looping", inspected.IsLooping);
                 // Write Field 'Tension'
-                inspected.Tension      = EditorGUILayout.FloatField("Tension", inspected.Tension);
+                inspected.Tension = EditorGUILayout.FloatField("Tension", inspected.Tension);
                 // Write Field 'Usable segments/Step'
-                inspected.Step         = EditorGUILayout.IntField("Line Step", inspected.Step);
+                inspected.Step = EditorGUILayout.IntField("Line Step", inspected.Step);
 
                 EditorGUILayout.Space();
             }
         }
-        
+
         public virtual void OnSceneGUI()
         {
-            var inspected = (SplineRendererBehaviour)target;
+            var inspected = (SplineRendererBehaviour) target;
             var positions = new NativeArray<float3>(inspected.Points.Length, Allocator.TempJob);
 
             EditorGUI.BeginChangeCheck();
@@ -59,6 +60,7 @@ namespace P4Main.Graphics.Editor
                     continue;
                 positions[i] = Handles.PositionHandle(inspected.GetPoint(i), quaternion.identity);
             }
+
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(inspected, "(Spline) Change control point position");
@@ -70,7 +72,9 @@ namespace P4Main.Graphics.Editor
                     inspected.SetPoint(i, positions[i]);
                 }
             }
+
             positions.Dispose();
         }
     }
+#endif
 }

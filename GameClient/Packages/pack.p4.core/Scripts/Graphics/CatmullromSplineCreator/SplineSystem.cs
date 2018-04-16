@@ -13,17 +13,9 @@ namespace P4.Core.Graphics
 {
     [UpdateAfter(
         typeof(PreLateUpdate.DirectorUpdateAnimationEnd))]
-    //< Update after the 'LateUpdate', so all animations can be finished
-    public class SplineWorldSystem : JobComponentSystem
+    //< Update after the 'LateUpdate', so all animations can be finished 
+    public class SplineSystem : JobComponentSystem
     {
-        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
-        // Reactives
-        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
-        struct InitEvent : IComponentData
-        {
-            public Entity Id;
-        }
-
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Groups
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
@@ -38,22 +30,16 @@ namespace P4.Core.Graphics
             public int         Length;
         }
 
-        struct GroupEvents
-        {
-            public EntityArray                   Entities;
-            public ComponentDataArray<InitEvent> Inits;
-            public int                           Length;
-        }
-
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Fields
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         [Inject] private Group                m_group;
-        [Inject] private GroupEvents          m_GroupEvents;
+        [Inject] private EndFrameBarrier m_EndFrameBarrier;
         private          NativeList<float3>   m_finalFillerArray;
         private          TransformAccessArray m_orderedPoints;
         private          EntityArchetype      m_EventArchetype;
         private          int                  m_PointsLength;
+        private int m_Events;
 
         public JobHandle lastJobHandle;
 
@@ -74,10 +60,10 @@ namespace P4.Core.Graphics
         [ComputeJobOptimization]
         struct JobFillArray : IJob
         {
-            [ReadOnly]                            public ComponentDataArray<DSplineData> Datas;
-            [ReadOnly, DeallocateOnJobCompletion] public NativeArray<float3>             Points;
-            [ReadOnly, DeallocateOnJobCompletion] public NativeArray<int>                PointsIndexes;
-            public                                       NativeList<float3>              FinalFillerArray;
+            [ReadOnly, DeallocateOnJobCompletion] public NativeArray<DSplineData>    Datas;
+            [ReadOnly, DeallocateOnJobCompletion] public NativeArray<float3> Points;
+            [ReadOnly, DeallocateOnJobCompletion] public NativeArray<int>    PointsIndexes;
+            public                                       NativeList<float3>  FinalFillerArray;
 
             [ReadOnly, DeallocateOnJobCompletion]
             public NativeArray<int> FinalFillerArrayIndexes;
@@ -89,7 +75,8 @@ namespace P4.Core.Graphics
             {
                 for (int index = 0; index < Datas.Length; index++)
                 {
-                    var data                    = Datas[index];
+                    var data      = Datas[index];
+
                     var currentPointsIndex      = PointsIndexes[index];
                     var currentFillerArrayIndex = FinalFillerArrayIndexes[index];
                     var sliceValue              = data.Step;
@@ -118,9 +105,10 @@ namespace P4.Core.Graphics
         // Methods
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         public void SendUpdateEvent(Entity entity)
-        {
-            var eventEntity = EntityManager.CreateEntity(m_EventArchetype);
-            EntityManager.SetComponentData(eventEntity, new InitEvent {Id = entity});
+        {            
+            /*var eventEntity = EntityManager.CreateEntity(m_EventArchetype);
+            EntityManager.SetComponentData(eventEntity, new InitEvent {Id = entity});*/ // It's a lot bugged for now
+            m_Events++;
         }
 
         protected override void OnCreateManager(int capacity)
@@ -129,7 +117,7 @@ namespace P4.Core.Graphics
             m_finalFillerArray =  new NativeList<float3>(0, Allocator.Persistent);
             m_orderedPoints    =  new TransformAccessArray(0);
 
-            m_EventArchetype = EntityManager.CreateArchetype(typeof(InitEvent));
+            //m_EventArchetype = EntityManager.CreateArchetype(typeof(InitEvent));
 
             SendUpdateEvent(Entity.Null);
         }
@@ -172,9 +160,11 @@ namespace P4.Core.Graphics
             //< -------- -------- -------- -------- -------- -------- -------- ------- //
             // Check for any changes
             //> -------- -------- -------- -------- -------- -------- -------- ------- //
-            var hasChange = m_GroupEvents.Length > 0;
+            var hasChange = m_Events > 0;
             if (hasChange)
             {
+                m_orderedPoints = new TransformAccessArray(0);
+                
                 m_PointsLength = 0;
                 for (int i = 0, total = 0, totalLength = 0;
                     i != m_group.Length;
@@ -198,18 +188,11 @@ namespace P4.Core.Graphics
                 }
             }
 
-            //< -------- -------- -------- -------- -------- -------- -------- ------- //
-            // Reset 'change' event
-            //> -------- -------- -------- -------- -------- -------- -------- ------- //
-            for (int i = 0; i != m_GroupEvents.Length; i++)
-            {
-                Debug.Log(m_GroupEvents.Length + ", " + i);
-                EntityManager.DestroyEntity(m_GroupEvents.Entities[i]);
-            }
+            m_Events = 0;
 
             // If our transform access array was too big, we remove some old and useless items...
-            while (m_orderedPoints.length > m_PointsLength)
-                m_orderedPoints.RemoveAtSwapBack(m_orderedPoints.length - 1);
+            /*while (m_orderedPoints.length > m_PointsLength)
+                m_orderedPoints.RemoveAtSwapBack(m_orderedPoints.length - 1);*/
             //...
 
             //< -------- -------- -------- -------- -------- -------- -------- ------- //
@@ -229,6 +212,7 @@ namespace P4.Core.Graphics
             // Schedule the job
             inputDeps = convertPointsJob.Schedule(m_orderedPoints, inputDeps);
 
+            var datas = new NativeArray<DSplineData>(m_group.Length, Allocator.TempJob);
             var pointsIndexes           = new NativeArray<int>(m_group.Length, Allocator.TempJob);
             var finalFillerArrayIndexes = new NativeArray<int>(m_group.Length, Allocator.TempJob);
             for (int i = 0; i != m_group.Length; i++)
@@ -243,10 +227,12 @@ namespace P4.Core.Graphics
                 finalFillerArrayIndexes[i] =  fillerArrayLength;
                 currentCount               += renderer.Points.Length;
                 fillerArrayLength          += fillArray_addLength;
+
+                datas[i] = data;
             }
 
             var fillArrayJob = new JobFillArray();
-            fillArrayJob.Datas                   = m_group.SplineData;
+            fillArrayJob.Datas = datas;
             fillArrayJob.Points                  = pointsToConvert;
             fillArrayJob.PointsIndexes           = pointsIndexes;
             fillArrayJob.FinalFillerArray        = m_finalFillerArray;

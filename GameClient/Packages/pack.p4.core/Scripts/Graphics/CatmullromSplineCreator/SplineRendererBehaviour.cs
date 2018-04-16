@@ -30,6 +30,9 @@ namespace P4.Core.Graphics
         protected override void AwakeAfterFilling()
         {
             m_CurrentPointsLength = Points.Length;
+            
+            var goEntity = GetComponent<GameObjectEntity>();
+            World.Active.GetExistingManager<SplineSystem>().SendUpdateEvent(goEntity.Entity);
         }
 
         private void OnValidate()
@@ -45,7 +48,13 @@ namespace P4.Core.Graphics
             
             goEntity.EntityManager.SetComponentData(goEntity.Entity, GetData());
             
-            World.Active.GetExistingManager<SplineWorldSystem>().SendUpdateEvent(goEntity.Entity);
+            World.Active.GetExistingManager<SplineSystem>().SendUpdateEvent(goEntity.Entity);
+        }
+
+        private void OnDestroy()
+        {
+            var goEntity = GetComponent<GameObjectEntity>();
+            World.Active.GetExistingManager<SplineSystem>().SendUpdateEvent(goEntity.Entity);
         }
 
         public DSplineData GetData()

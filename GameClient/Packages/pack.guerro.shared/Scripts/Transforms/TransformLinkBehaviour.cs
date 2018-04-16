@@ -11,12 +11,19 @@ namespace _GameAssets.packet.guerro.shared.Scripts.Transforms
 
         private void Awake()
         {
-            Camera.onPreRender += (c) =>
-            {
-                if (SynchronizePosition) transform.position = ParentTransform.position;
-                if (SynchronizeRotation) transform.rotation = ParentTransform.rotation;
-                if (SynchronizeScale) transform.localScale  = ParentTransform.localScale;
-            };
+            Camera.onPreRender += __OnPreRender;
+        }
+        
+        private void __OnPreRender(Camera c)
+        {
+            if (SynchronizePosition) transform.position = ParentTransform.position;
+            if (SynchronizeRotation) transform.rotation = ParentTransform.rotation;
+            if (SynchronizeScale) transform.localScale  = ParentTransform.localScale;
+        }
+
+        private void OnDestroy()
+        {
+            Camera.onPreRender -= __OnPreRender;
         }
     }
 }
