@@ -39,5 +39,17 @@ namespace Guerro.Utilities
             else
                 entityManager.AddComponentData(entity, data);
         }
+
+        public static void SetOrCreateSharedComponentData<T>(this Entity entity, T data, World world = null)
+            where T : struct, ISharedComponentData
+        {
+            if (world == null)
+                world = World.Active;
+            var entityManager = world.GetExistingManager<EntityManager>();
+            if (entityManager.HasComponent<T>(entity))
+                entityManager.SetSharedComponentData(entity, data);     
+            else
+                entityManager.AddSharedComponentData(entity, data);
+        }
     }
 }

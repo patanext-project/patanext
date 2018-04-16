@@ -8,6 +8,10 @@ namespace Packet.Guerro.Shared.Network
     public struct NetworkEntity : ISharedComponentData
     {
         /// <summary>
+        /// Is the component created?
+        /// </summary>
+        public bool1 IsCreated;
+        /// <summary>
         /// Is the entity local?
         /// </summary>
         public bool1 IsLocal;
@@ -21,7 +25,7 @@ namespace Packet.Guerro.Shared.Network
         public int NetworkControlId;
     }
 
-    public class NetworkEntityComponent : SharedComponentDataWrapper<NetworkEntity>
+    public class NetworkEntityWrapper : SharedComponentDataWrapper<NetworkEntity>
     {
 
     }

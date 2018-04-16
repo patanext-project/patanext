@@ -9,8 +9,14 @@ namespace Packet.Guerro.Shared.Game
     public abstract class CGameEntityCreatorBehaviour<TSystem> : MonoBehaviour
         where TSystem : CGameEntityCreatorSystem
     {
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Fields
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         private GameObjectEntity m_GameObjectEntity;
 
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Unity Methods
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         private void Awake()
         {
             m_GameObjectEntity = GetComponent<GameObjectEntity>()
@@ -22,13 +28,19 @@ namespace Packet.Guerro.Shared.Game
             
         }
 
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Methods
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // to be filled by childs classes
         protected virtual void AwakeBeforeFilling()
         {
         }
+        // to be filled by childs classes
         protected virtual void AwakeAfterFilling()
         {
         }
 
+        // todo: write how it work, and what it does
         public virtual void FillEntityData()
         {
             var world  = World.Active;
@@ -68,8 +80,16 @@ namespace Packet.Guerro.Shared.Game
 
     public abstract class CGameEntityCreatorSystem : ComponentSystem
     {
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Methods
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         public abstract void FillEntityData(GameObject gameObject, Entity entity);
 
+        /// <summary>
+        /// Add an unity component to the entity and gameObject
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="types"></param>
         protected void AddComponents(GameObject gameObject, params Type[] types)
         {
             for (int i = 0; i != types.Length; ++i)
@@ -79,12 +99,24 @@ namespace Packet.Guerro.Shared.Game
             }
         }
 
+        /// <summary>
+        /// Add a component to the entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
         protected void AddComponentData<T>(Entity entity, T value)
             where T : struct, IComponentData
         {
             entity.SetOrCreateComponentData(value, World);
         }
-
+        
+        /// <summary>
+        /// Add a fixed array to the entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="length"></param>
+        /// <typeparam name="T"></typeparam>
         protected void AddFixedArray<T>(Entity entity, int length)
             where T : struct 
         {

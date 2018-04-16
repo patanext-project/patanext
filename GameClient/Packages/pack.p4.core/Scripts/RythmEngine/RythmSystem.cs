@@ -7,6 +7,9 @@ namespace P4.Core.RythmEngine
     [UsedImplicitly]
     public class RythmSystem : ComponentSystem
     {
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Groups
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         public struct GroupCommands
         {
             public EntityArray Entities;
@@ -14,9 +17,15 @@ namespace P4.Core.RythmEngine
             public int Length;
         }
 
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Fields
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         [Inject] private EndFrameBarrier m_Barrier;
         [Inject] private GroupCommands m_GroupCommands;
         
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Base Methods
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         protected override void OnUpdate()
         {
             for (int index = 0; index != m_GroupCommands.Length; ++index)

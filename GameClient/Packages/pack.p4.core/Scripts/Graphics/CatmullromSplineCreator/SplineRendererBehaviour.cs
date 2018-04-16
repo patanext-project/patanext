@@ -16,6 +16,9 @@ namespace P4.Core.Graphics
     
     public class SplineRendererBehaviour : CGameEntityCreatorBehaviour<SplineRendererCreatorSystem>
     {
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Fields
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         public int Step = 6;
         public float Tension = 0.5f;
         public bool IsLooping;
@@ -27,6 +30,9 @@ namespace P4.Core.Graphics
         
         internal int LastLineRendererPositionCount;
 
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Unity Methods
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         protected override void AwakeAfterFilling()
         {
             m_CurrentPointsLength = Points.Length;
@@ -57,6 +63,9 @@ namespace P4.Core.Graphics
             World.Active.GetExistingManager<SplineSystem>().SendUpdateEvent(goEntity.Entity);
         }
 
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Methods
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         public DSplineData GetData()
         {
             return new DSplineData
@@ -80,6 +89,9 @@ namespace P4.Core.Graphics
 
     public class SplineRendererCreatorSystem : CGameEntityCreatorSystem
     {
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Base Methods
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         protected override void OnUpdate()
         {
         }
@@ -89,7 +101,6 @@ namespace P4.Core.Graphics
             var component = gameObject.GetComponent<SplineRendererBehaviour>();
             
             AddComponentData(entity, component.GetData());
-            //AddFixedArray<DSplinePositionData>(entity, component.Points.Length);
         }
     }
 }
