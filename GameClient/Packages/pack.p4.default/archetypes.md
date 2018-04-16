@@ -31,8 +31,9 @@ List:
  * P4Default:
  * - P4.Default
  * - P4.Default.Movements
- * P4Core:
- * - P4.Core.ECS
+ * Games Shared:
+ * - Packet.Guerro.Shared.Characters
+ * - Packet.Guerro.Shared.Transforms
  * Unity:
  * - UnityEngine
  * - Unity.Entities
@@ -44,19 +45,19 @@ struct P4Default_EntityForMovementArchetype
     // ------ ------ ------ ------ ------ ------ ------ /.
     // Needed
     // ------ ------ ------ ------ ------ ------ ------ /.
-    public P4Default_DMovementDetailData detail;    // Needed for the coordinator and systems. (RW for the Coordinator and R for the Systems)
-    public P4Default_DEntityInputData    input;     // Needed for the coordinator and systems. (RW for the Coordinator and Input system, and R for the other Systems)
-    public DWorldPositionData           position;   //< Rotation and Position can be combined to TWorldTransform (RW)
-    public DWorldRotationData           rotation;   //^
-    public Rigidbody                    rigidbody;  // Actually, I need to think if we reaaaally need a rigidbody
-    public DCharacterData               character;  //< A data struct from stormium. I don't know if I keep it.
-    public DCharacterColliderShared     charColl;   //^
+    public P4Default_DMovementDetailData     detail;    // Needed for the coordinator and systems. (RW for the Coordinator and R for the Systems)
+    public P4Default_DEntityInputUnifiedData input;     // Needed for the coordinator and systems. (RW for the Coordinator and Input system, and R for the other Systems)
+    public DWorldPositionData                position;  //< Rotation and Position can be combined to TWorldTransform (RW)
+    public DWorldRotationData                rotation;  //^
+    public Rigidbody                         rigidbody; // Actually, I need to think if we reaaaally need a rigidbody
+    public DCharacterData                    character; //< A data struct from stormium. I don't know if I keep it.
+    public DCharacterCollider2DComponent     charColl;  //^
 
     // ------ ------ ------ ------ ------ ------ ------ /.
     // Optional
     // ------ ------ ------ ------ ------ ------ ------ /.
-    public P4Default_FreeMovementData   freeMovementComponent;  // Read-only
-    public P4Default_RythmMovementData  rythmMovementComponent; // Read-only
+    public P4Default_DFreeMovementData   freeMovementComponent;  // Read-only
+    public P4Default_DRythmMovementData  rythmMovementComponent; // Read-only
 
     // ------ ------ ------ ------ ------ ------ ------ /.
     // Automatically added
