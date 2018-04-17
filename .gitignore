@@ -1,6 +1,6 @@
-/[Ll]ibrary/
-/[Tt]emp/
-/[Oo]bj/
+*GameClient/[Ll]ibrary/
+*GameClient/[Tt]emp/
+*GameClient/[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
 /Assets/AssetStoreTools*

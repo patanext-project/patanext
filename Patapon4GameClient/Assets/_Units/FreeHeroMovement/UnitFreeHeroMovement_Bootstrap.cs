@@ -1,0 +1,37 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using Packet.Guerro.Shared.Game;
+using Packet.Guerro.Shared.Network;
+using Packet.Guerro.Shared.Network.Entities;
+using Unity.Entities;
+using UnityEngine;
+
+public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
+{
+    public GameObject PrefabCharacter;
+
+    private void Awake()
+    {
+        var characterGo = Instantiate(PrefabCharacter);
+        characterGo.SetActive(true);
+        
+        var characterEntity           = characterGo.GetComponent<GameObjectEntity>().Entity;
+        var entityManager             = World.Active.GetExistingManager<EntityManager>();
+        var networkEntityManager      = World.Active.GetExistingManager<CNetworkEntityManager>();
+        var controllableEntityManager = World.Active.GetExistingManager<CGameControllableEntityManager>();
+
+        var netData = new NetworkEntity
+        {
+            IsLocal          = true,
+            LocalControlId   = 0,
+            NetworkControlId = -1
+        };
+        var controlData = new ControllableEntity
+        {
+            ControlType = EEntityControl.Always
+        };
+
+        networkEntityManager.AddOrSetComponent(characterEntity, characterGo, netData);
+        controllableEntityManager.AddOrSetComponent(characterEntity, characterGo, controlData);
+    }
+}

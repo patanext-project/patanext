@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags: []
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - GameUI
+  - GOScreenshot
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: VeryBackground
+    uniqueID: 3967927791
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: BeforeEntities
+    uniqueID: 3268508855
+    locked: 0
+  - name: Entities
+    uniqueID: 3752999385
+    locked: 0
+  - name: AfterEntites
+    uniqueID: 1005137359
+    locked: 0

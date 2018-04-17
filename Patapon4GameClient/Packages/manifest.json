@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "com.unity.entities": "0.0.11",
+    "com.unity.2d.spriteshape": "1.0.10-preview",
+    "com.guerro.eudiframework": "0.0.1",
+    "com.unity.incrementalcompiler": "0.0.33",
+    "com.unity.package-manager-ui": "1.9.3",
+    "com.unity.ads": "exclude",
+    "com.unity.2d.animation": "1.0.15-preview"
+  },
+  "testables": [
+    "com.unity.collections",
+    "com.unity.entities",
+    "com.unity.jobs"
+  ],
+  "registry": "https://staging-packages.unity.com"
+}
