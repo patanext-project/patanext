@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\guerr\.Rider2017.3\system\resharper-host\local\Transient\ReSharperHost\v11\SolutionCaches\_Patapon4GameClient.-718792669.00" t="ExcludeRecursive" />
+    <e p="C:\Users\guerr\Documents\Projets\Patapon\Patapon4Unity\GithubRepository\Patapon4Unity\Patapon4GameClient" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
+      <e p="Assets" t="Include">
+        <e p="_Units" t="Include">
+          <e p="FreeHeroMovement" t="Include">
+            <e p="UnitFreeHeroMovement_Bootstrap.cs" t="Include" />
+          </e>
+          <e p="SplinesAndJob" t="Include">
+            <e p="HeavyTask.cs" t="Include" />
+          </e>
+        </e>
+        <e p="Packages" t="Include">
+          <e p="pack.guerro.shared" t="Include">
+            <e p="pack.guerro.shared.asmdef" t="Include" />
+            <e p="Scripts" t="Include">
+              <e p="Characters" t="Include">
+                <e p="ECSData" t="Include">
+                  <e p="DCharacterCollider2DComponent.cs" t="Include" />
+                  <e p="DCharacterCollider3DComponent.cs" t="Include" />
+                  <e p="DCharacterColliderComponentBase.cs" t="Include" />
+                  <e p="DCharacterInformationWrapper.cs" t="Include" />
+                  <e p="DCharacterWrapper.cs" t="Include" />
+                </e>
+              </e>
+              <e p="Game" t="Include">
+                <e p="Behaviours" t="Include">
+                  <e p="EntityGroupBehaviour.cs" t="Include" />
+                </e>
+                <e p="CGameEntityCreator.cs" t="Include" />
+                <e p="ECSData" t="Include">
+                  <e p="ControllableEntityWrapper.cs" t="Include" />
+                  <e p="EntityGroup.cs" t="Include" />
+                </e>
+                <e p="ECSManager" t="Include">
+                  <e p="CGameControllableEntityManager.cs" t="Include" />
+                  <e p="CGameEntityGroupManager.cs" t="Include" />
+                </e>
+              </e>
+              <e p="Inputs" t="Include">
+                <e p="SInputResult.cs" t="Include" />
+              </e>
+              <e p="Network" t="Include">
+                <e p="CDataUser.cs" t="Include" />
+                <e p="ECSData" t="Include">
+                  <e p="UserEntity.cs" t="Include" />
+                </e>
+                <e p="Entities" t="Include">
+                  <e p="CNetworkEntityManager.cs" t="Include" />
+                </e>
+                <e p="NetworkEntityWrapper.cs" t="Include" />
+              </e>
+              <e p="Rendering" t="Include">
+                <e p="AnimatorSortingGroupBehaviour.cs" t="Include" />
+                <e p="AnimatorSortingRendererBehaviour.cs" t="Include" />
+              </e>
+              <e p="Transforms" t="Include">
+                <e p="ECSData" t="Include">
+                  <e p="DWorldPositionWrapper.cs" t="Include" />
+                  <e p="DWorldRotationWrapper.cs" t="Include" />
+                </e>
+                <e p="ECSManager" t="Include">
+                  <e p="WorldTransformManager.cs" t="Include" />
+                </e>
+                <e p="TransformLinkBehaviour.cs" t="Include" />
+              </e>
+              <e p="Utilities" t="Include">
+                <e p="EntityChange.cs" t="Include" />
+                <e p="FastDictionary.cs" t="Include" />
+                <e p="FastEntitiesExtensions.cs" t="Include" />
+                <e p="FastEntityGameObjectExtensions.cs" t="Include" />
+                <e p="HashHelpers.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="pack.p4.core" t="Include">
+            <e p="pack.p4.core.asmdef" t="Include" />
+            <e p="Scripts" t="Include">
+              <e p="Graphics" t="Include">
+                <e p="CatmullromSplineCreator" t="Include">
+                  <e p="CGraphicalCatmullromSplineUtility.cs" t="Include" />
+                  <e p="Editor" t="Include">
+                    <e p="CatmullRomSplineWorldEditor.cs" t="Include" />
+                  </e>
+                  <e p="SplineRendererBehaviour.cs" t="Include" />
+                  <e p="SplineSystem.cs" t="Include" />
+                  <e p="SplineWorldConfigurator.cs" t="Include" />
+                </e>
+                <e p="EActivationZone.cs" t="Include" />
+              </e>
+              <e p="Network" t="Include">
+                <e p="ECSData" t="Include">
+                  <e p="P4UserEntityModules.cs" t="Include" />
+                </e>
+                <e p="ECSManager" t="Include">
+                  <e p="UserManager.cs" t="Include" />
+                </e>
+              </e>
+              <e p="RythmEngine" t="Include">
+                <e p="ECSData" t="Include">
+                  <e p="DRythmInputData.cs" t="Include" />
+                </e>
+                <e p="RythmSystem.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="pack.p4.default" t="Include">
+            <e p="pack.p4.default.asmdef" t="Include" />
+            <e p="Scripts" t="Include">
+              <e p="Movements" t="Include">
+                <e p="ECSData" t="Include">
+                  <e p="P4Default_DFreeMovementWrapper.cs" t="Include" />
+                  <e p="P4Default_DMovementDetailWrapper.cs" t="Include" />
+                </e>
+                <e p="P4Default_FreeMovementSystem.cs" t="Include" />
+                <e p="P4Default_MovementCoordinators.cs" t="Include" />
+              </e>
+              <e p="P4Default_CreateEntityForMovementBehaviour.cs" t="Include" />
+              <e p="P4Default_DEntityFreeInputWrapper.cs" t="Include" />
+              <e p="P4Default_DEntityInputUnifiedWrapper.cs" t="Include" />
+              <e p="P4Default_DEntityRythmInputWrapper.cs" t="Include" />
+            </e>
+            <e p="ViewModel" t="Include">
+              <e p="Prefabs" t="Include">
+                <e p="readme.txt" t="Include" />
+              </e>
+              <e p="Shaders" t="Include">
+                <e p="blurShader.shader" t="Include" />
+                <e p="DefaultColorFlash.shader" t="Include" />
+                <e p="UIDefaultPlus.shader" t="Include" />
+                <e p="UIOutline.shader" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Plugins" t="Include">
+            <e p="API" t="Include">
+              <e p="P4SystemOrder.cs" t="Include" />
+            </e>
+            <e p="Editor" t="Include">
+              <e p="JetBrains" t="Include">
+                <e p="Unity3DRider.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Extensions" t="Include">
+              <e p="Mini Profiler" t="Include">
+                <e p="CHANGELOG.txt" t="Include" />
+                <e p="readme.txt" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Scripts" t="Include">
+            <e p="ECSData" t="Include">
+              <e p="DefaultFreeMovementComponent.cs" t="Include" />
+              <e p="FreeMovementInputReceiverComponent.cs" t="Include" />
+              <e p="InputReceiverComponent.cs" t="Include" />
+              <e p="Interfaces" t="Include">
+                <e p="IFreeMovement.cs" t="Include" />
+              </e>
+            </e>
+            <e p="GameBootstrap.cs" t="Include" />
+            <e p="Systems" t="Include">
+              <e p="DataInputFreeMoveProcessorSystem.cs" t="Include" />
+              <e p="WBasicFreeMovementSystem.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="TestCompileToSystem.cs" t="Include" />
+      </e>
+      <e p="Library" t="ExcludeRecursive" />
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="pack.guerro.shared.csproj" t="IncludeRecursive" />
+      <e p="pack.p4.core.csproj" t="IncludeRecursive" />
+      <e p="pack.p4.default.csproj" t="IncludeRecursive" />
+      <e p="Packages" t="ExcludeRecursive" />
+      <e p="Patapon4GameClient.sln" t="IncludeFlat" />
+      <e p="Temp" t="ExcludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+      </e>
+    </e>
+  </component>
+</project>

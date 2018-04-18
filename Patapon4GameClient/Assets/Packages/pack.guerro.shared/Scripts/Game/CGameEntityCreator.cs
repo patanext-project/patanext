@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Guerro.Utilities;
+using Packages.pack.guerro.shared.Scripts.Utilities;
 using Unity.Entities;
 using UnityEngine;
 
@@ -47,7 +48,7 @@ namespace Packet.Guerro.Shared.Game
             var system = world.GetOrCreateManager<TSystem>();
             system.FillEntityData(gameObject, m_GameObjectEntity.Entity);
 
-            // todo: find a better way to update GameObjectEntity without disabling it? (this is really a bad way to do that)
+            /*// todo: find a better way to update GameObjectEntity without disabling it? (this is really a bad way to do that)
             var components = gameObject.GetComponents<ComponentDataWrapperBase>();
             var parameters = new object[] {m_GameObjectEntity.EntityManager, m_GameObjectEntity.Entity};
             for (int i = 0; i != components.Length; ++i)
@@ -69,6 +70,21 @@ namespace Packet.Guerro.Shared.Game
                     .Invoke(comp, parameters);
                 // ReSharper restore PossibleNullReferenceException
             }
+
+            var components = gameObject.GetComponents<Component>();
+            for (int i = 0; i != components.Length; ++i)
+            {
+                var compWrapper = components[i] as ComponentDataWrapperBase;
+                if (compWrapper != null)
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+            }*/
+            gameObject.Refresh();
         }
 
         private void OnDestroy()
