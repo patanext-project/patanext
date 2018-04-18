@@ -118,6 +118,10 @@
           <e p="pack.p4.default" t="Include">
             <e p="pack.p4.default.asmdef" t="Include" />
             <e p="Scripts" t="Include">
+              <e p="Inputs" t="Include">
+                <e p="P4Default_EntityInputFreeSystem.cs" t="Include" />
+                <e p="P4Default_EntityInputRythmSystem.cs" t="Include" />
+              </e>
               <e p="Movements" t="Include">
                 <e p="ECSData" t="Include">
                   <e p="P4Default_DFreeMovementWrapper.cs" t="Include" />
@@ -127,9 +131,9 @@
                 <e p="P4Default_MovementCoordinators.cs" t="Include" />
               </e>
               <e p="P4Default_CreateEntityForMovementBehaviour.cs" t="Include" />
-              <e p="P4Default_DEntityFreeInputWrapper.cs" t="Include" />
+              <e p="P4Default_DEntityInputFreeWrapper.cs" t="Include" />
+              <e p="P4Default_DEntityInputRythmWrapper.cs" t="Include" />
               <e p="P4Default_DEntityInputUnifiedWrapper.cs" t="Include" />
-              <e p="P4Default_DEntityRythmInputWrapper.cs" t="Include" />
             </e>
             <e p="ViewModel" t="Include">
               <e p="Prefabs" t="Include">

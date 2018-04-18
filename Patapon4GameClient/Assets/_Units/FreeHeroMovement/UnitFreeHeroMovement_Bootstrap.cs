@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using P4.Core.Graphics;
+using P4.Default;
+using P4.Default.Inputs;
 using P4.Default.Movements;
 using Packages.pack.guerro.shared.Scripts.Utilities;
 using Packet.Guerro.Shared.Game;
@@ -82,6 +84,13 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
         controllableEntityManager.AddOrSetComponent(characterEntity, characterGo, controlData);
 
         characterGo.AddComponentToEntity<P4Default_DFreeMovementWrapper>();
+        characterGo.AddComponentToEntity<P4Default_DEntityInputFreeWrapper>();
+
+        var cps = entityManager.GetComponentTypes(characterEntity);
+        foreach (var component in cps)
+        {
+            Debug.Log(component.GetManagedType());
+        }
         return characterGo;
     }
 }

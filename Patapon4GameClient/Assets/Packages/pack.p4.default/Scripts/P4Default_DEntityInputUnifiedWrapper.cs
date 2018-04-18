@@ -9,8 +9,8 @@ namespace P4.Default
     [Serializable]
     public struct P4Default_DEntityInputUnifiedData : IComponentData
     {
-        public P4Default_DEntityFreeInputData  FreeInput;
-        public P4Default_DEntityRythmInputData RythmInput;
+        public P4Default_DEntityInputFreeData  FreeInput;
+        public P4Default_DEntityInputRythmData RythmInput;
     }
     
     public class P4Default_DEntityInputUnifiedWrapper : ComponentDataWrapper<P4Default_DEntityInputUnifiedData>

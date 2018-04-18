@@ -363,7 +363,7 @@ MonoBehaviour:
   RotateGameObject: {fileID: 0}
   CanPushRigidbodies: 0
   HitCollider: {fileID: 0}
-  MovementCollider: {fileID: 0}
+  MovementCollider: {fileID: 421205068}
 --- !u!114 &421205063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -381,7 +381,7 @@ MonoBehaviour:
     FlyTime: 0
     PreviousRunVelocity: {x: 0, y: 0, z: 0}
     RunVelocity: {x: 0, y: 0, z: 0}
-    MaximumStepAngle: 0
+    MaximumStepAngle: 45
 --- !u!114 &421205064
 MonoBehaviour:
   m_ObjectHideFlags: 0

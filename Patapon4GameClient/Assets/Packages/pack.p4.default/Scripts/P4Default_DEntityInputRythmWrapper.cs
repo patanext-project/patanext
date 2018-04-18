@@ -5,7 +5,7 @@ using Unity.Entities;
 namespace P4.Default
 {
     [Serializable]
-    public struct P4Default_DEntityRythmInputData : IComponentData
+    public struct P4Default_DEntityInputRythmData : IComponentData
     {
         /// <summary>
         /// The result input when the entity has pressed the 'Pata' key
@@ -28,8 +28,8 @@ namespace P4.Default
         public SInputResult UpRythmKey;
     }
 
-    public class P4Default_DEntityRythmInputWrapper : ComponentDataWrapper<P4Default_DEntityRythmInputData>
+    public class P4Default_DEntityInputRythmWrapper : ComponentDataWrapper<P4Default_DEntityInputRythmData>
     {
-
+        
     }
 }
