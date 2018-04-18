@@ -1,6 +1,5 @@
 using Unity.Entities;
 using UnityEngine;
-using EudiFramework;
 using P4.Core.Network;
 using Packet.Guerro.Shared.Network;
 
@@ -11,7 +10,7 @@ namespace P4Main
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         public static void Init()
         {
-            Eudi.Globals.SetBindingFromInstance<UserManager>(new UserManager());
+            //Eudi.Globals.SetBindingFromInstance<UserManager>(new UserManager());
 
             // Lol
             var currentWorld = World.Active;

@@ -5,6 +5,10 @@
 *GameClient/[Bb]uilds/
 *GameClient/Assets/AssetStoreTools*
 
+# As I don't know how modules work in Github, I prefer to not put the files on my repository (for legal reasons)
+# Github repository: https://github.com/Unity-Technologies/InputSystem
+*com.unity.inputsystem/
+
 # Visual Studio 2015 cache directory
 /.vs/
 

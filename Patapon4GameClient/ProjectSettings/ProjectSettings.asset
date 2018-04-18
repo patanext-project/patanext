@@ -620,5 +620,5 @@ PlayerSettings:
   projectName: Patapon4Unity
   organizationId: stormium
   cloudEnabled: 0
-  enableNativePlatformBackendsForNewInputSystem: 0
-  disableOldInputManagerSupport: 0
+  enableNativePlatformBackendsForNewInputSystem: 1
+  disableOldInputManagerSupport: 1

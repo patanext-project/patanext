@@ -15,7 +15,8 @@
     "com.unity.jobs",
     "pack.guerro.shared",
     "pack.p4.core",
-    "pack.p4.default"
+    "pack.p4.default",
+    "com.unity.inputsystem"
   ],
   "registry": "https://staging-packages.unity.com"
 }
