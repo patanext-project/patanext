@@ -1,9 +1,9 @@
 *GameClient/[Ll]ibrary/
 *GameClient/[Tt]emp/
 *GameClient/[Oo]bj/
-/[Bb]uild/
-/[Bb]uilds/
-/Assets/AssetStoreTools*
+*GameClient/[Bb]uild/
+*GameClient/[Bb]uilds/
+*GameClient/Assets/AssetStoreTools*
 
 # Visual Studio 2015 cache directory
 /.vs/

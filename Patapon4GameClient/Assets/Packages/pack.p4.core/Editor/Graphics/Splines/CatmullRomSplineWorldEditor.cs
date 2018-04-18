@@ -8,10 +8,11 @@ using UnityEditor;
 using P4Main.Graphics;
 using Unity.Collections;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace P4Main.Graphics.Editor
 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && false == true
     [CustomEditor(typeof(SplineRendererBehaviour)), CanEditMultipleObjects]
     public class CatmullRomSplineWorldEditor : UnityEditor.Editor
     {
@@ -37,6 +38,10 @@ namespace P4Main.Graphics.Editor
                 EditorGUILayout.PropertyField(lineRenderer, true);
                 if (EditorGUI.EndChangeCheck())
                     serializedObject.ApplyModifiedProperties();
+                // Write Field 'RefreshType'
+                inspected.RefreshType = (EActivationZone)EditorGUILayout.EnumFlagsField("Refresh type", inspected.RefreshType);
+                // Write Field 
+                inspected.RefreshBounds = EditorGUILayout.BoundsField("Refresh Bounds", inspected.RefreshBounds);
                 // Write Field 'Is Looping'
                 inspected.IsLooping = EditorGUILayout.Toggle("Is Looping", inspected.IsLooping);
                 // Write Field 'Tension'

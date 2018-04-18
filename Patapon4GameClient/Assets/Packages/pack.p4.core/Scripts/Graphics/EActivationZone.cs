@@ -11,8 +11,8 @@
         /// </summary>
         Renderer = 1,
         /// <summary>
-        /// When the collider is in camera range, the component will get updated
+        /// When the bounds are in camera range, the component will get updated
         /// </summary>
-        BoxCollider = 2
+        Bounds = 2
     }
 }

@@ -768,9 +768,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4983598740993548}
   - component: {fileID: 210557315375604884}
-  - component: {fileID: 50888213999040502}
-  - component: {fileID: 66486330965768410}
   - component: {fileID: 95288985182563706}
+  - component: {fileID: 50636989360716126}
   m_Layer: 0
   m_Name: UberHero
   m_TagString: Player
@@ -2996,14 +2995,14 @@ Transform:
   m_Father: {fileID: 4816145909380760}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &50888213999040502
+--- !u!50 &50636989360716126
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1566939349238968}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -3091,40 +3090,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 7.5, y: 7.5}
   m_EdgeRadius: 0
---- !u!66 &66486330965768410
-CompositeCollider2D:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1566939349238968}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_GeometryType: 0
-  m_GenerationType: 0
-  m_EdgeRadius: 0
-  m_ColliderPaths:
-  - m_Collider: {fileID: 61525961473239472}
-    m_ColliderPaths:
-    - - X: 7687099
-        Y: 25490934
-      - X: -7687099
-        Y: 25490934
-      - X: -7687099
-        Y: -19712
-      - X: 7687099
-        Y: -19712
-  m_CompositePaths:
-    m_Paths:
-    - - {x: 0.7687099, y: 2.5490935}
-      - {x: -0.7687099, y: 2.5490935}
-      - {x: -0.7687099, y: -0.0019712}
-      - {x: 0.7687099, y: -0.0019712}
-  m_VertexDistance: 0.0005
 --- !u!95 &95288985182563706
 Animator:
   serializedVersion: 3
@@ -3289,6 +3254,8 @@ MonoBehaviour:
   Step: 6
   Tension: 0.5
   IsLooping: 0
+  RefreshType: 2
+  RefreshBoxCollider2D: {fileID: 61986208360423430}
   Points:
   - {fileID: 4791366162985250}
   - {fileID: 4134540157901158}
@@ -3308,6 +3275,8 @@ MonoBehaviour:
   Step: 6
   Tension: 0.5
   IsLooping: 0
+  RefreshType: 2
+  RefreshBoxCollider2D: {fileID: 61986208360423430}
   Points:
   - {fileID: 4531627839663888}
   - {fileID: 4030448100416598}
@@ -3340,6 +3309,8 @@ MonoBehaviour:
   Step: 6
   Tension: 0.5
   IsLooping: 0
+  RefreshType: 2
+  RefreshBoxCollider2D: {fileID: 61986208360423430}
   Points:
   - {fileID: 4744478459647714}
   - {fileID: 4209328247562774}
@@ -3381,6 +3352,8 @@ MonoBehaviour:
   Step: 6
   Tension: 0.5
   IsLooping: 0
+  RefreshType: 2
+  RefreshBoxCollider2D: {fileID: 61986208360423430}
   Points:
   - {fileID: 4470144649815948}
   - {fileID: 4123537278941392}
@@ -3402,6 +3375,8 @@ MonoBehaviour:
   Step: 6
   Tension: 0.5
   IsLooping: 0
+  RefreshType: 2
+  RefreshBoxCollider2D: {fileID: 61986208360423430}
   Points:
   - {fileID: 4956998602711786}
   - {fileID: 4068987917768978}
@@ -3528,11 +3503,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_RootBone: {fileID: 4019406312028658}
-  m_BoneTransforms:
-  - {fileID: 4019406312028658}
-  - {fileID: 4768433451399354}
-  - {fileID: 4645109482131248}
-  - {fileID: 4085314332725910}
+  m_BoneTransforms: []
 --- !u!114 &114897189523865478
 MonoBehaviour:
   m_ObjectHideFlags: 1

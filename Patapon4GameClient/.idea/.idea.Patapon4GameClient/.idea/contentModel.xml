@@ -69,6 +69,8 @@
                 <e p="TransformLinkBehaviour.cs" t="Include" />
               </e>
               <e p="Utilities" t="Include">
+                <e p="BoundsExtensions.cs" t="Include" />
+                <e p="CameraBoundsExtensions.cs" t="Include" />
                 <e p="EntityChange.cs" t="Include" />
                 <e p="FastDictionary.cs" t="Include" />
                 <e p="FastEntitiesExtensions.cs" t="Include" />
@@ -78,19 +80,24 @@
             </e>
           </e>
           <e p="pack.p4.core" t="Include">
+            <e p="Editor" t="Include">
+              <e p="Graphics" t="Include">
+                <e p="Splines" t="Include">
+                  <e p="CatmullRomSplineWorldEditor.cs" t="Include" />
+                </e>
+              </e>
+              <e p="pack.p4.core.editor.asmdef" t="Include" />
+            </e>
             <e p="pack.p4.core.asmdef" t="Include" />
             <e p="Scripts" t="Include">
               <e p="Graphics" t="Include">
-                <e p="CatmullromSplineCreator" t="Include">
+                <e p="EActivationZone.cs" t="Include" />
+                <e p="Splines" t="Include">
                   <e p="CGraphicalCatmullromSplineUtility.cs" t="Include" />
-                  <e p="Editor" t="Include">
-                    <e p="CatmullRomSplineWorldEditor.cs" t="Include" />
-                  </e>
                   <e p="SplineRendererBehaviour.cs" t="Include" />
                   <e p="SplineSystem.cs" t="Include" />
                   <e p="SplineWorldConfigurator.cs" t="Include" />
                 </e>
-                <e p="EActivationZone.cs" t="Include" />
               </e>
               <e p="Network" t="Include">
                 <e p="ECSData" t="Include">
@@ -174,6 +181,7 @@
       <e p="obj" t="ExcludeRecursive" />
       <e p="pack.guerro.shared.csproj" t="IncludeRecursive" />
       <e p="pack.p4.core.csproj" t="IncludeRecursive" />
+      <e p="pack.p4.core.editor.csproj" t="IncludeRecursive" />
       <e p="pack.p4.default.csproj" t="IncludeRecursive" />
       <e p="Packages" t="ExcludeRecursive" />
       <e p="Patapon4GameClient.sln" t="IncludeFlat" />

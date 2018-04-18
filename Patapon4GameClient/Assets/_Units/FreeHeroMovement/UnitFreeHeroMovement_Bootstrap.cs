@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using P4.Core.Graphics;
 using P4.Default.Movements;
 using Packages.pack.guerro.shared.Scripts.Utilities;
 using Packet.Guerro.Shared.Game;
@@ -12,6 +14,9 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
 {
     public GameObject PrefabCharacter;
 
+    private int m_Count;
+    private float m_Delay;
+
     private void Awake()
     {
         AddNewCharacter();
@@ -19,15 +24,37 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if ((Input.GetMouseButton(0) && m_Delay <= 0f)
+        || Input.GetMouseButtonDown(0))
         {
+            m_Delay = 0.01f;
+            
             var go = AddNewCharacter();
-            go.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.z = 0;
+            
+            go.transform.position = mousePos;
         }
+
+        m_Delay -= Time.deltaTime;
+
+        if (Input.mouseScrollDelta.y != 0f)
+        {
+            Camera.main.orthographicSize += Input.mouseScrollDelta.y * 12.5f * Time.deltaTime;
+        }
+    }
+
+    private void OnGUI()
+    {
+        GUI.color = Color.black;
+        GUI.Label(new Rect(5, 5, 300, 120), $"(Stress test) Characters: {m_Count}");
+        GUI.Label(new Rect(25, 25, 300, 120), $"Ignored splines: {World.Active.GetExistingManager<SplineSystem>().IgnoredSplines}");
     }
 
     public GameObject AddNewCharacter()
     {
+        m_Count++;
+        
         var characterGo = Instantiate(PrefabCharacter);
         characterGo.SetActive(true);
         
