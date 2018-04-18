@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace P4.Default.Movements
 {
@@ -63,7 +64,9 @@ namespace P4.Default.Movements
                 contactFilter.useNormalAngle = true;
                 contactFilter.SetNormalAngle(character.MaximumStepAngle - 0.5f, character.MaximumStepAngle + 0.5f);
 
+                Profiler.BeginSample("Check is touching ground");
                 var isGrounded = Physics2D.IsTouching(m_Group.CharactersColliders[i].MovementCollider, contactFilter);
+                Profiler.EndSample();
                 var velocity = rigidbody.velocity;
 
                 if (isGrounded)
