@@ -11,6 +11,7 @@ using Packet.Guerro.Shared.Network;
 using Packet.Guerro.Shared.Network.Entities;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
     private int m_Count;
     private float m_Delay;
 
+    public PlayableGraph PlayableGraph;
+    
     private void Awake()
     {
         AddNewCharacter();

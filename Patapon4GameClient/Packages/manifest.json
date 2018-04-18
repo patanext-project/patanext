@@ -12,7 +12,10 @@
   "testables": [
     "com.unity.collections",
     "com.unity.entities",
-    "com.unity.jobs"
+    "com.unity.jobs",
+    "pack.guerro.shared",
+    "pack.p4.core",
+    "pack.p4.default"
   ],
   "registry": "https://staging-packages.unity.com"
 }

@@ -1,0 +1,12 @@
+{
+	"name": "pack.p4.core",
+	"displayName":"Patapon4 Core",
+	"version": "0.0.1",
+	"unity": "2018.2",
+	"description": "This package hold the core of the game Patapon 4",
+	"keywords": [],
+    "dependencies": 
+    {
+        "com.unity.entities": "0.0.11"
+	}
+}

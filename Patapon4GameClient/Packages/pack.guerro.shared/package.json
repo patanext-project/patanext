@@ -1,0 +1,12 @@
+{
+	"name": "pack.guerro.shared",
+	"displayName":"ST/P4 Shared",
+	"version": "0.0.1",
+	"unity": "2018.2",
+	"description": "This package give some utilities for ECS based games",
+	"keywords": [],
+    "dependencies": 
+    {
+        "com.unity.entities": "0.0.11"
+	}
+}
