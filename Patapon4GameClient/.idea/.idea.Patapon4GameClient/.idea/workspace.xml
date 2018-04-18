@@ -33,22 +33,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UnitFreeHeroMovement_Bootstrap.cs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="UnitFreeHeroMovement_Bootstrap.cs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Assets/_Units/FreeHeroMovement/UnitFreeHeroMovement_Bootstrap.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="570">
-              <caret line="48" column="32" lean-forward="false" selection-start-line="48" selection-start-column="32" selection-end-line="48" selection-end-column="32" />
+            <state relative-caret-position="360">
+              <caret line="37" column="0" lean-forward="true" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
               <folding>
-                <marker date="1524061707067" expanded="false" signature="6:333" ph="..." />
-                <marker date="1524061707067" expanded="true" signature="394:2588" ph="{...}" />
-                <marker date="1524061707067" expanded="true" signature="514:553" ph="{...}" />
-                <marker date="1524061707067" expanded="true" signature="580:1152" ph="{...}" />
-                <marker date="1524061707067" expanded="true" signature="681:950" ph="{...}" />
-                <marker date="1524061707067" expanded="true" signature="1031:1146" ph="{...}" />
-                <marker date="1524061707067" expanded="true" signature="1178:1441" ph="{...}" />
-                <marker date="1524061707067" expanded="true" signature="1482:2586" ph="{...}" />
-                <marker date="1524061707067" expanded="true" signature="2056:2172" ph="{...}" />
-                <marker date="1524061707067" expanded="true" signature="2231:2290" ph="{...}" />
+                <marker date="1524065569166" expanded="false" signature="6:333" ph="..." />
+                <marker date="1524065569166" expanded="true" signature="394:2698" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="548:587" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="614:1262" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="650:1096" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="767:1046" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="1141:1256" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="1288:1551" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="1592:2696" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="2166:2282" ph="{...}" />
+                <marker date="1524065569166" expanded="true" signature="2341:2400" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -303,7 +304,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SplineSystem.cs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SplineSystem.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Packages/pack.p4.core/Scripts/Graphics/Splines/SplineSystem.cs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="570">
@@ -428,8 +429,8 @@
         <option value="$PROJECT_DIR$/Assets/Packages/pack.guerro.shared/Scripts/Utilities/BoundsExtensions.cs" />
         <option value="$PROJECT_DIR$/Assets/Packages/pack.p4.core/Scripts/Graphics/Splines/SplineRendererBehaviour.cs" />
         <option value="$PROJECT_DIR$/Assets/Packages/pack.guerro.shared/Scripts/Utilities/CameraBoundsExtensions.cs" />
-        <option value="$PROJECT_DIR$/Assets/_Units/FreeHeroMovement/UnitFreeHeroMovement_Bootstrap.cs" />
         <option value="$PROJECT_DIR$/Assets/Packages/pack.p4.core/Scripts/Graphics/Splines/SplineSystem.cs" />
+        <option value="$PROJECT_DIR$/Assets/_Units/FreeHeroMovement/UnitFreeHeroMovement_Bootstrap.cs" />
       </list>
     </option>
   </component>
@@ -589,12 +590,12 @@
       <updated>1523993078873</updated>
       <workItem from="1523993079976" duration="602000" />
       <workItem from="1524044278299" duration="11193000" />
-      <workItem from="1524056731813" duration="8377000" />
+      <workItem from="1524056731813" duration="8683000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20172000" />
+    <option name="totallyTimeSpent" value="20478000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -668,16 +669,17 @@
         <state relative-caret-position="420">
           <caret line="28" column="26" lean-forward="false" selection-start-line="28" selection-start-column="26" selection-end-line="28" selection-end-column="26" />
           <folding>
-            <marker date="1524061707067" expanded="false" signature="6:333" ph="..." />
-            <marker date="1524061707067" expanded="true" signature="394:2588" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="514:553" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="580:1152" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="681:950" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="1031:1146" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="1178:1441" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="1482:2586" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="2056:2172" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="2231:2290" ph="{...}" />
+            <marker date="1524065569166" expanded="false" signature="6:333" ph="..." />
+            <marker date="1524065569166" expanded="true" signature="394:2698" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="548:587" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="614:1262" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="650:1096" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="767:1046" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="1141:1256" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="1288:1551" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="1592:2696" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="2166:2282" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="2341:2400" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -1553,25 +1555,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/_Units/FreeHeroMovement/UnitFreeHeroMovement_Bootstrap.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="570">
-          <caret line="48" column="32" lean-forward="false" selection-start-line="48" selection-start-column="32" selection-end-line="48" selection-end-column="32" />
-          <folding>
-            <marker date="1524061707067" expanded="false" signature="6:333" ph="..." />
-            <marker date="1524061707067" expanded="true" signature="394:2588" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="514:553" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="580:1152" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="681:950" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="1031:1146" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="1178:1441" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="1482:2586" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="2056:2172" ph="{...}" />
-            <marker date="1524061707067" expanded="true" signature="2231:2290" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Packages/pack.p4.default/Scripts/Movements/P4Default_FreeMovementSystem.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="675">
@@ -1674,6 +1657,26 @@
             <marker date="1524065266950" expanded="true" signature="14747:14865" ph="{...}" />
             <marker date="1524065266950" expanded="true" signature="14879:14917" ph="/* ... ... */" />
             <marker date="1524065266950" expanded="true" signature="15249:16226" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/_Units/FreeHeroMovement/UnitFreeHeroMovement_Bootstrap.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="37" column="0" lean-forward="true" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+          <folding>
+            <marker date="1524065569166" expanded="false" signature="6:333" ph="..." />
+            <marker date="1524065569166" expanded="true" signature="394:2698" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="548:587" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="614:1262" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="650:1096" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="767:1046" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="1141:1256" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="1288:1551" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="1592:2696" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="2166:2282" ph="{...}" />
+            <marker date="1524065569166" expanded="true" signature="2341:2400" ph="{...}" />
           </folding>
         </state>
       </provider>

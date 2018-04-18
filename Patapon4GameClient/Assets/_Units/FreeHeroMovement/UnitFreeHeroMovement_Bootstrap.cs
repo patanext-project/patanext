@@ -13,6 +13,7 @@ using UnityEngine;
 public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
 {
     public GameObject PrefabCharacter;
+    public bool EnableStresstest;
 
     private int m_Count;
     private float m_Delay;
@@ -24,19 +25,22 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
 
     private void Update()
     {
-        if ((Input.GetMouseButton(0) && m_Delay <= 0f)
-        || Input.GetMouseButtonDown(0))
+        if (EnableStresstest)
         {
-            m_Delay = 0.01f;
-            
-            var go = AddNewCharacter();
-            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePos.z = 0;
-            
-            go.transform.position = mousePos;
-        }
+            if ((Input.GetMouseButton(0) && m_Delay <= 0f)
+                || Input.GetMouseButtonDown(0))
+            {
+                m_Delay = 0.01f;
 
-        m_Delay -= Time.deltaTime;
+                var go       = AddNewCharacter();
+                var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                mousePos.z = 0;
+
+                go.transform.position = mousePos;
+            }
+
+            m_Delay -= Time.deltaTime;
+        }
 
         if (Input.mouseScrollDelta.y != 0f)
         {
