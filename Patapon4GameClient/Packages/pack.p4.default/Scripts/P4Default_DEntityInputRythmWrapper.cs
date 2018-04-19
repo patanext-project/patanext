@@ -10,22 +10,22 @@ namespace P4.Default
         /// <summary>
         /// The result input when the entity has pressed the 'Pata' key
         /// </summary>
-        public SInputResult LeftRythmKey;
+        public SInputResult KeyAction1;
 
         /// <summary>
         /// The result input when the entity has pressed the 'Pon' key
         /// </summary>
-        public SInputResult RightRythmKey;
+        public SInputResult KeyAction2;
 
         /// <summary>
         /// The result input when the entity has pressed the 'Don' key
         /// </summary>
-        public SInputResult DownRythmKey;
+        public SInputResult KeyAction3;
 
         /// <summary>
         /// The result input when the entity has pressed the 'Chaka' key
         /// </summary>
-        public SInputResult UpRythmKey;
+        public SInputResult KeyAction4;
     }
 
     public class P4Default_DEntityInputRythmWrapper : ComponentDataWrapper<P4Default_DEntityInputRythmData>

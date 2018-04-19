@@ -11,6 +11,7 @@ using Packet.Guerro.Shared.Network;
 using Packet.Guerro.Shared.Network.Entities;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Experimental.Input;
 using UnityEngine.Playables;
 
 public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
@@ -21,10 +22,15 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
     private int m_Count;
     private float m_Delay;
 
-    public PlayableGraph PlayableGraph;
+    public InputAction WalkAction;
     
     private void Awake()
     {
+        foreach (var inputDevice in InputSystem.devices)
+        {
+            Debug.Log($"device:{inputDevice.id}\nuser:{inputDevice.userId}\nname:{inputDevice.description.deviceClass}");
+        }
+
         AddNewCharacter();
     }
 
