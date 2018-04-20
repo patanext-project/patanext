@@ -9,17 +9,16 @@
 
 The game client will have the possibility of having multiple clients on the same instance, thanks to ECS paradigm.
 
-## Fast FAQ
-### Why multiple clients?
+### Positives points:
 - Splitscreen, because why not? (The only problem for me would be how I could send the right sounds states...)
 - Even if I don't do that, some people will just open a new instance of the game to connect with another client.
 
-### Why NOT multiple clients?
-- People can farm easier with 2, 3, 4 accounts.
+### Negative points
+- People can farm easily with 2, 3, 4 accounts.
 - It's complicate to understand the concept of multiple clients for mods
 
 The client itself don't hold the data, it's just an identificator, we don't use an Entity for the ID, as modders will maybe use the first ID (0) to get the client.
-There will be a maximum of 4 clients per instances. (But I recommend to you to have a support for more clients, we never know!)
+There will be a maximum of 4 clients per instances. (But I recommend for your mods to have a support for more clients, we never know!)
 
 ___
 

@@ -155,6 +155,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabCharacter: {fileID: 421205060}
   EnableStresstest: 0
+  WalkAction:
+    m_Name: Walk
+    m_Bindings: []
+    m_BindingsStartIndex: 0
+    m_BindingsCount: 0
 --- !u!1001 &56612532
 Prefab:
   m_ObjectHideFlags: 0
@@ -2048,7 +2053,7 @@ Camera:
   far clip plane: 1000
   field of view: 8.566912
   orthographic: 1
-  orthographic size: 10.5
+  orthographic size: 15.049488
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2070,8 +2075,8 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1691548785}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.46, z: -10}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1114.66, y: -207.12, z: -51.7495}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

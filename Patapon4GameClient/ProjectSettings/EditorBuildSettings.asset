@@ -5,7 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/_Units/FreeHeroMovement/scene.unity
+    path: Assets/Units/FreeHeroMovement/scene.unity
     guid: ab78e47a8a4ac284f99bf19619658cf1
   m_configObjects: {}
