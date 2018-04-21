@@ -57,6 +57,7 @@ class ClientManager : Manager
     ClientEntity Create       (string UserLogin);
     // Retrieve
     ClientEntity Get          (int Index);
+    // Check
     bool         Exists       (ClientEntity Entity);
     bool         Exists       (int Id);
     // Destruction (reset)

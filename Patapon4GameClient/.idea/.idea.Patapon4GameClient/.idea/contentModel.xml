@@ -3,6 +3,7 @@
   <component name="ContentModelStore">
     <e p="C:\Users\guerr\.Rider2017.3\system\resharper-host\local\Transient\ReSharperHost\v11\SolutionCaches\_Patapon4GameClient.-718792669.00" t="ExcludeRecursive" />
     <e p="C:\Users\guerr\Documents\Projets\Patapon\Patapon4Unity\GithubRepository\Patapon4Unity\Patapon4GameClient" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor-firstpass.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -39,10 +40,20 @@
             </e>
           </e>
         </e>
+        <e p="Plugins" t="Include">
+          <e p="Editor" t="Include">
+            <e p="JetBrains" t="Include">
+              <e p="Unity3DRider.cs" t="Include" />
+            </e>
+          </e>
+        </e>
         <e p="TestCompileToSystem.cs" t="Include" />
         <e p="Units" t="Include">
           <e p="FreeHeroMovement" t="Include">
             <e p="UnitFreeHeroMovement_Bootstrap.cs" t="Include" />
+          </e>
+          <e p="InputSystemTest" t="Include">
+            <e p="Unit_InputSystemTest_Bootstrap.cs" t="Include" />
           </e>
           <e p="SplinesAndJob" t="Include">
             <e p="HeavyTask.cs" t="Include" />
@@ -322,6 +333,16 @@
                 <e p="DCharacterWrapper.cs" t="Include" />
               </e>
             </e>
+            <e p="Clients" t="Include">
+              <e p="ClientScriptBehaviourManager.cs" t="Include" />
+              <e p="ECSData" t="Include">
+                <e p="ClientEntity.cs" t="Include" />
+              </e>
+              <e p="ECSManager" t="Include">
+                <e p="ClientManager.cs" t="Include" />
+              </e>
+              <e p="SharedClientGroup.cs" t="Include" />
+            </e>
             <e p="Game" t="Include">
               <e p="Behaviours" t="Include">
                 <e p="EntityGroupBehaviour.cs" t="Include" />
@@ -337,7 +358,9 @@
               </e>
             </e>
             <e p="Inputs" t="Include">
-              <e p="SInputResult.cs" t="Include" />
+              <e p="ClientInputManager.cs" t="Include" />
+              <e p="InputEntries.cs" t="Include" />
+              <e p="InputManager.cs" t="Include" />
             </e>
             <e p="Network" t="Include">
               <e p="CDataUser.cs" t="Include" />

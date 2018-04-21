@@ -7,7 +7,7 @@ namespace P4.Default
     [Serializable]
     public struct P4Default_DEntityInputRythmData : IComponentData
     {
-        /// <summary>
+        /*/// <summary>
         /// The result input when the entity has pressed the 'Pata' key
         /// </summary>
         public SInputResult KeyAction1;
@@ -25,7 +25,7 @@ namespace P4.Default
         /// <summary>
         /// The result input when the entity has pressed the 'Chaka' key
         /// </summary>
-        public SInputResult KeyAction4;
+        public SInputResult KeyAction4;*/
     }
 
     public class P4Default_DEntityInputRythmWrapper : ComponentDataWrapper<P4Default_DEntityInputRythmData>
