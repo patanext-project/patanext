@@ -58,11 +58,11 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
     // todo: clean this, and set the base to ComponentSystem
     public partial class CModManager
     {
-        public class InternalRegisteration
+        public class InternalRegistration
         {
             public bool IsRunning { get; private set; }
 
-            internal InternalRegisteration()
+            internal InternalRegistration()
             {
                 IsRunning = false;
             }
@@ -88,7 +88,7 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
         /// </summary>
         private static int s_RegisterCount = 0;
 
-        private static InternalRegisteration s_CurrentInternalRegisteration;
+        private static InternalRegistration s_CurrentInternalRegistration;
 
         private static void RegisterModInternal(Assembly[] assemblies, SModInfoData data)
         {
@@ -128,16 +128,16 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
             }
         }
 
-        public static InternalRegisteration BeginInternalRegisteration()
+        public static InternalRegistration BeginInternalRegistration()
         {
-            if (s_RegisterCount != 0 || s_CurrentInternalRegisteration != null)
+            if (s_RegisterCount != 0 || s_CurrentInternalRegistration != null)
             {
                 throw new Exception("You now cannot register new internal packets.");
             }
 
             s_RegisterCount++;
 
-            return s_CurrentInternalRegisteration = new InternalRegisteration();
+            return s_CurrentInternalRegistration = new InternalRegistration();
         }
     }
 }

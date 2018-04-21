@@ -12,7 +12,7 @@ namespace P4Main
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         public static void Init()
         {
-            var register = CModManager.BeginInternalRegisteration();
+            var register = CModManager.BeginInternalRegistration();
             {
                 register.AddInternalPacket
                 (
