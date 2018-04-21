@@ -12,6 +12,8 @@
 // The dictionary class was a bit modified to be a bit faster (FastTryGet(), Insert() and getting a value is faster)
 // Modification by Guerro323
 
+using UnityEngine.Profiling;
+
 namespace System.Collections.Generic {
 
     using System;
@@ -259,6 +261,42 @@ namespace System.Collections.Generic {
                 }
             }
             return -1;
+        }
+
+        public ref TValue RefGet(TKey key)
+        {
+            var hasFoundOne = false;
+            if (buckets != null)
+            {
+                int hashCode;
+                if (keyIsInteger)
+                {
+                    hashCode = key.GetHashCode() & 0x7FFFFFFF;
+                    
+                    for (int i = buckets[hashCode % buckets.Length]; i >= 0;) {
+                        ref var entry = ref entries[i];
+                        if (entry.hashCode == hashCode)
+                        {
+                            return ref entry.value;
+                        }
+                        i = entry.next;
+                    }
+                }
+                else
+                {
+                    hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+                    
+                    for (int i = buckets[hashCode % buckets.Length]; i >= 0;) {
+                        ref var entry = ref entries[i];
+                        if (entry.hashCode == hashCode && comparer.Equals(entry.key, key))
+                        { 
+                            return ref entry.value;
+                        }
+                        i = entry.next;
+                    }
+                }
+            }    
+            throw new KeyNotFoundException();
         }
 
         public bool FastTryGet(TKey key, out TValue value) {

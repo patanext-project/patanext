@@ -209,7 +209,6 @@ namespace Assets.Units.InputSystemTest
                 inputManager.ActiveDevice = Gamepad.current;
 
             // There will be multiple inputs, so let's try to stress test a bit
-            Profiler.BeginSample("Forloop");
             for (int i = 0; i != 25; i++)
             {
                 IsJumping                  = inputManager.GetPush(InputJumpId).Value > 0.5f;
@@ -221,7 +220,6 @@ namespace Assets.Units.InputSystemTest
                 IsRythm3 = inputManager.GetPush(Action3Id).Value > 0.5f;
                 IsRythm4 = inputManager.GetPush(Action4Id).Value > 0.5f; 
             }
-            Profiler.EndSample();
         }
 
         private void OnGUI()

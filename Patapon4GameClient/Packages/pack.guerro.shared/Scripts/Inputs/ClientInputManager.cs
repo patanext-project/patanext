@@ -53,15 +53,15 @@ namespace Packet.Guerro.Shared.Inputs
 
         [Inject] private CInputManager m_InputManager;
 
-        public CInputManager.Map GetMap(int inputId)
+        public ref CInputManager.Map GetMap(int inputId)
         {
-            var map = m_InputManager.GetMap(inputId);
-            if (CurrentSettingsIsValid(map, ref map))
+            ref var map = ref m_InputManager.GetMap(inputId);
+            if (CurrentSettingsIsValid(ref map, ref map))
             {
                 // do nothing lol
             }
 
-            return map;
+            return ref map;
 
             /*if (map.DefaultSettings.ResultType != type)
             {
@@ -79,7 +79,7 @@ namespace Packet.Guerro.Shared.Inputs
             where TInputResult : CInputManager.IInputResult
         {
             var type = typeof(TInputResult);
-            var map = GetMap(inputId);
+            ref var map = ref GetMap(inputId);
             
             switch (map.DefaultSettings)
             {
@@ -102,19 +102,19 @@ namespace Packet.Guerro.Shared.Inputs
 
         public CInputManager.Result.Push GetPush(int inputId)
         {
-            var map  = GetMap(inputId);
+            ref var map = ref GetMap(inputId);
             return ProcessPushInternal((CInputManager.Settings.Push)map.DefaultSettings);
         }
         
         public CInputManager.Result.Axis1D GetAxis1D(int inputId)
         {
-            var map = GetMap(inputId);
+            ref var map = ref GetMap(inputId);
             return ProcessAxis1DInternal((CInputManager.Settings.Axis1D)map.DefaultSettings);
         }
         
         public CInputManager.Result.Axis2D GetAxis2D(int inputId)
         {
-            var map = GetMap(inputId);
+            ref var map = ref GetMap(inputId);
             return ProcessAxis2DInternal((CInputManager.Settings.Axis2D)map.DefaultSettings);
         }
 
@@ -205,7 +205,7 @@ namespace Packet.Guerro.Shared.Inputs
             */
             for (int i = 0; i != length; i++)
             {
-                var result = GetControlAndValue(device, paths[i]);
+                ref var result = ref GetControlAndValue(device, paths[i]);
                 if (result.Control != null)
                 {
                     if (math.distance(result.Value, 0) > highestDistanceToZero)
@@ -222,10 +222,11 @@ namespace Packet.Guerro.Shared.Inputs
             return inputControl;
         }
 
-        private bool CurrentSettingsIsValid(CInputManager.Map inputMap, ref CInputManager.Map clientSettings)
+        private bool CurrentSettingsIsValid(ref CInputManager.Map inputMap, ref CInputManager.Map clientSettings)
         {
             // Check if we have the key first
-            if (m_clientSettings.FastTryGet(inputMap.NameId, out var ourSettings))
+            CInputManager.Map ourSettings = default(CInputManager.Map);
+            if (m_clientSettings.RefFastTryGet(inputMap.NameId, ref ourSettings))
             {
                 // Check the type
                 if (inputMap.SettingType == ourSettings.SettingType)
@@ -296,23 +297,23 @@ namespace Packet.Guerro.Shared.Inputs
         private FastDictionary<int, InternalResult> m_CachedResults
             = new FastDictionary<int, InternalResult>();
 
-        private InternalResult CacheInternal(InputControl control, float value)
+        private ref InternalResult CacheInternal(InputControl control, float value)
         {            
             var hash = control.name.GetHashCode();
             var result = new InternalResult(control, value);
             m_CachedResults[hash] = result;
-            return result;
+            return ref m_CachedResults.RefGet(hash);
         }
 
         private InternalResult cachedResult;
         
-        private InternalResult GetControlAndValue(InputDevice device, string path)
+        private ref InternalResult GetControlAndValue(InputDevice device, string path)
         {
             if (m_CachedResults.RefFastTryGet(path.GetHashCode(), ref cachedResult))
             {
                 if (cachedResult.FrameCount == UpdateTimeManager.FrameCount)
                 {
-                    return cachedResult;
+                    return ref cachedResult;
                 }
             }
 
@@ -320,39 +321,39 @@ namespace Packet.Guerro.Shared.Inputs
             {
                 var gamepad = m_CachedGamepad;
                 
-                if (path == s_dpadleft) return CacheInternal(gamepad.dpad.left, gamepad.dpad.left.ReadValue());
-                if (path == s_dpadright) return CacheInternal(gamepad.dpad.right, gamepad.dpad.right.ReadValue());
-                if (path == s_dpaddown) return CacheInternal(gamepad.dpad.down, gamepad.dpad.down.ReadValue());
-                if (path == s_dpadup) return CacheInternal(gamepad.dpad.up, gamepad.dpad.up.ReadValue());
+                if (path == s_dpadleft) return ref CacheInternal(gamepad.dpad.left, gamepad.dpad.left.ReadValue());
+                if (path == s_dpadright) return ref CacheInternal(gamepad.dpad.right, gamepad.dpad.right.ReadValue());
+                if (path == s_dpaddown) return ref CacheInternal(gamepad.dpad.down, gamepad.dpad.down.ReadValue());
+                if (path == s_dpadup) return ref CacheInternal(gamepad.dpad.up, gamepad.dpad.up.ReadValue());
                 
-                if (path == s_buttonWest) return CacheInternal(gamepad.buttonWest, gamepad.buttonWest.ReadValue());
-                if (path == s_buttonEast) return CacheInternal(gamepad.buttonEast, gamepad.buttonEast.ReadValue());
-                if (path == s_buttonSouth) return CacheInternal(gamepad.buttonSouth, gamepad.buttonSouth.ReadValue());
-                if (path == s_buttonNorth) return CacheInternal(gamepad.buttonNorth, gamepad.buttonNorth.ReadValue());
+                if (path == s_buttonWest) return ref CacheInternal(gamepad.buttonWest, gamepad.buttonWest.ReadValue());
+                if (path == s_buttonEast) return ref CacheInternal(gamepad.buttonEast, gamepad.buttonEast.ReadValue());
+                if (path == s_buttonSouth) return ref CacheInternal(gamepad.buttonSouth, gamepad.buttonSouth.ReadValue());
+                if (path == s_buttonNorth) return ref CacheInternal(gamepad.buttonNorth, gamepad.buttonNorth.ReadValue());
             }
 
             if (m_DeviceType == 1)
             {
                 var keyboard = m_CachedKeyboard;
                 
-                if (path == s_space) return CacheInternal(keyboard.spaceKey, keyboard.spaceKey.ReadValue());
+                if (path == s_space) return ref CacheInternal(keyboard.spaceKey, keyboard.spaceKey.ReadValue());
                 
-                if (path == s_leftArrow) return CacheInternal(keyboard.leftArrowKey, keyboard.leftArrowKey.ReadValue());
-                if (path == s_leftArrow) return CacheInternal(keyboard.leftArrowKey, keyboard.leftArrowKey.ReadValue());
-                if (path == s_buttonSouth) return CacheInternal(keyboard.rightArrowKey, keyboard.rightArrowKey.ReadValue());
-                if (path == s_buttonNorth) return CacheInternal(keyboard.downArrowKey, keyboard.downArrowKey.ReadValue());
-                if (path == s_buttonNorth) return CacheInternal(keyboard.upArrowKey, keyboard.upArrowKey.ReadValue());
+                if (path == s_leftArrow) return ref CacheInternal(keyboard.leftArrowKey, keyboard.leftArrowKey.ReadValue());
+                if (path == s_leftArrow) return ref CacheInternal(keyboard.leftArrowKey, keyboard.leftArrowKey.ReadValue());
+                if (path == s_buttonSouth) return ref CacheInternal(keyboard.rightArrowKey, keyboard.rightArrowKey.ReadValue());
+                if (path == s_buttonNorth) return ref CacheInternal(keyboard.downArrowKey, keyboard.downArrowKey.ReadValue());
+                if (path == s_buttonNorth) return ref CacheInternal(keyboard.upArrowKey, keyboard.upArrowKey.ReadValue());
                 
-                if (path == s_numpad0) return CacheInternal(keyboard.numpad0Key, keyboard.numpad0Key.ReadValue());
-                if (path == s_numpad1) return CacheInternal(keyboard.numpad1Key, keyboard.numpad1Key.ReadValue());
-                if (path == s_numpad2) return CacheInternal(keyboard.numpad2Key, keyboard.numpad2Key.ReadValue());
-                if (path == s_numpad3) return CacheInternal(keyboard.numpad3Key, keyboard.numpad3Key.ReadValue());
-                if (path == s_numpad4) return CacheInternal(keyboard.numpad4Key, keyboard.numpad4Key.ReadValue());
-                if (path == s_numpad5) return CacheInternal(keyboard.numpad5Key, keyboard.numpad5Key.ReadValue());
-                if (path == s_numpad6) return CacheInternal(keyboard.numpad6Key, keyboard.numpad6Key.ReadValue());
-                if (path == s_numpad7) return CacheInternal(keyboard.numpad7Key, keyboard.numpad7Key.ReadValue());
-                if (path == s_numpad8) return CacheInternal(keyboard.numpad8Key, keyboard.numpad8Key.ReadValue());
-                if (path == s_numpad9) return CacheInternal(keyboard.numpad9Key, keyboard.numpad9Key.ReadValue());
+                if (path == s_numpad0) return ref CacheInternal(keyboard.numpad0Key, keyboard.numpad0Key.ReadValue());
+                if (path == s_numpad1) return ref CacheInternal(keyboard.numpad1Key, keyboard.numpad1Key.ReadValue());
+                if (path == s_numpad2) return ref CacheInternal(keyboard.numpad2Key, keyboard.numpad2Key.ReadValue());
+                if (path == s_numpad3) return ref CacheInternal(keyboard.numpad3Key, keyboard.numpad3Key.ReadValue());
+                if (path == s_numpad4) return ref CacheInternal(keyboard.numpad4Key, keyboard.numpad4Key.ReadValue());
+                if (path == s_numpad5) return ref CacheInternal(keyboard.numpad5Key, keyboard.numpad5Key.ReadValue());
+                if (path == s_numpad6) return ref CacheInternal(keyboard.numpad6Key, keyboard.numpad6Key.ReadValue());
+                if (path == s_numpad7) return ref CacheInternal(keyboard.numpad7Key, keyboard.numpad7Key.ReadValue());
+                if (path == s_numpad8) return ref CacheInternal(keyboard.numpad8Key, keyboard.numpad8Key.ReadValue());
+                if (path == s_numpad9) return ref CacheInternal(keyboard.numpad9Key, keyboard.numpad9Key.ReadValue());
 
                 // Default
                 var array = keyboard.allControls;
@@ -360,13 +361,13 @@ namespace Packet.Guerro.Shared.Inputs
                 {
                     var inputControl = array[i];
                     if (inputControl.name == path)
-                        return CacheInternal(inputControl, (float)inputControl.ReadValueAsObject());
+                        return ref CacheInternal(inputControl, (float)inputControl.ReadValueAsObject());
                 }
             }
             
             // Default
             var control = device[path];
-            return CacheInternal(control, (float)control.ReadValueAsObject());
+            return ref CacheInternal(control, (float)control.ReadValueAsObject());
         }
     }
 }

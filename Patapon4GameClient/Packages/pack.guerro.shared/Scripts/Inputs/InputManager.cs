@@ -76,9 +76,9 @@ namespace Packet.Guerro.Shared.Inputs
         {
         }
 
-        public Map GetMap(int id)
+        public ref Map GetMap(int id)
         {
-            return s_Maps[id];
+            return ref s_Maps.RefGet(id);
         }
 
         public Map GetMap(string nameId)
