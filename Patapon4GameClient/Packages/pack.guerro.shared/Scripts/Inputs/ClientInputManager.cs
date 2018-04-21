@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Packages.pack.guerro.shared.Scripts.Clients;
 using Packages.pack.guerro.shared.Scripts.Utilities;
+using Packages.pack.guerro.shared.Scripts.Utilities.ECSManager;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -28,12 +29,31 @@ namespace Packet.Guerro.Shared.Inputs
 
         public IReadOnlyDictionary<string, CInputManager.Map> ClientSettings;
 
-        public InputDevice ActiveDevice;
+        private InputDevice m_ActiveDevice;
+        public InputDevice ActiveDevice
+        {
+            get { return m_ActiveDevice; }
+            set
+            {
+                if (value is Gamepad gamepad)
+                {
+                    m_DeviceType = 0;
+                    m_CachedGamepad = gamepad;
+                }
+
+                if (value is Keyboard keyboard)
+                {
+                    m_DeviceType = 1;
+                    m_CachedKeyboard = keyboard;
+                }
+
+                m_ActiveDevice = value;
+            }
+        }
 
         [Inject] private CInputManager m_InputManager;
 
-        public TInputResult Get<TInputResult>(int inputId)
-            where TInputResult : CInputManager.IInputResult
+        public CInputManager.Map GetMap(int inputId)
         {
             var map = m_InputManager.GetMap(inputId);
             if (CurrentSettingsIsValid(map, ref map))
@@ -41,45 +61,61 @@ namespace Packet.Guerro.Shared.Inputs
                 // do nothing lol
             }
 
-            if (map.DefaultSettings.ResultType != typeof(TInputResult))
+            return map;
+
+            /*if (map.DefaultSettings.ResultType != type)
             {
                 Debug.LogError(
                     $"Wrong type of 'InputResult' ({map.DefaultSettings.ResultType.Name} against {typeof(TInputResult).Name})");
 
                 return default(TInputResult);
-            }
-
+            }*/
+        }
+        
+        /*
+         * Generate more garbage and boxing by casting/uncasting...
+         */
+        public TInputResult UnoptimizedGet<TInputResult>(int inputId)
+            where TInputResult : CInputManager.IInputResult
+        {
             var type = typeof(TInputResult);
+            var map = GetMap(inputId);
+            
             switch (map.DefaultSettings)
             {
-                // This is ugly, how I could do that better?
                 case CInputManager.Settings.Push push when type == s_TypePush:
                 {
-                    // UGLY, Are there any way to prevent boxing?
-                    // I could emit dynamic code, but it would be really ugly (but more performant).
-                    var value = (TInputResult) (object) ProcessPushInternal(push);
-
-                    return value;
+                    return (TInputResult) (object) ProcessPushInternal(push);
                 }
                 case CInputManager.Settings.Axis1D axis1D when type == s_TypeAxis1D:
                 {
-                    // UGLY, Are there any way to prevent boxing?
-                    // I could emit dynamic code, but it would be really ugly (but more performant).
-                    var value = (TInputResult) (object) ProcessAxis1DInternal(axis1D);
-                    
-                    return value;
+                    return (TInputResult) (object) ProcessAxis1DInternal(axis1D);
                 }
                 case CInputManager.Settings.Axis2D axis2D when type == s_TypeAxis2D:
                 {
-                    // UGLY, Are there any way to prevent boxing?
-                    // I could emit dynamic code, but it would be really ugly (but more performant).
-                    var value = (TInputResult) (object) ProcessAxis2DInternal(axis2D);
-                    
-                    return value;
+                    return (TInputResult) (object) ProcessAxis2DInternal(axis2D);
                 }
             }
 
             return default(TInputResult);
+        }
+
+        public CInputManager.Result.Push GetPush(int inputId)
+        {
+            var map  = GetMap(inputId);
+            return ProcessPushInternal((CInputManager.Settings.Push)map.DefaultSettings);
+        }
+        
+        public CInputManager.Result.Axis1D GetAxis1D(int inputId)
+        {
+            var map = GetMap(inputId);
+            return ProcessAxis1DInternal((CInputManager.Settings.Axis1D)map.DefaultSettings);
+        }
+        
+        public CInputManager.Result.Axis2D GetAxis2D(int inputId)
+        {
+            var map = GetMap(inputId);
+            return ProcessAxis2DInternal((CInputManager.Settings.Axis2D)map.DefaultSettings);
         }
 
         //
@@ -169,14 +205,14 @@ namespace Packet.Guerro.Shared.Inputs
             */
             for (int i = 0; i != length; i++)
             {
-                var controlValueTuple = GetControlAndValue(device, paths[i]);
-                if (controlValueTuple.control != null)
+                var result = GetControlAndValue(device, paths[i]);
+                if (result.Control != null)
                 {
-                    if (math.distance(controlValueTuple.value, 0) > highestDistanceToZero)
+                    if (math.distance(result.Value, 0) > highestDistanceToZero)
                     {
-                        highestDistanceToZero = math.distance(controlValueTuple.value, 0);
-                        finalValue            = controlValueTuple.value;
-                        inputControl          = controlValueTuple.control;
+                        highestDistanceToZero = math.distance(result.Value, 0);
+                        finalValue            = result.Value;
+                        inputControl          = result.Control;
                     }
                 }
             }
@@ -210,33 +246,127 @@ namespace Packet.Guerro.Shared.Inputs
 
     public partial class ClientInputManager
     {
-        private (InputControl control, float value) GetControlAndValue(InputDevice device, string path)
+        private struct InternalResult
         {
-            if (device is Gamepad gamepad)
+            public InputControl Control;
+            public float  Value;
+            public int FrameCount;
+
+            public InternalResult(InputControl control, float value)
             {
-                if (path == "dpad/left") return (gamepad.dpad.left, gamepad.dpad.left.ReadValue());
-                if (path == "dpad/right") return (gamepad.dpad.right, gamepad.dpad.right.ReadValue());
-                if (path == "dpad/down") return (gamepad.dpad.down, gamepad.dpad.down.ReadValue());
-                if (path == "dpad/up") return (gamepad.dpad.up, gamepad.dpad.up.ReadValue());
+                Control = control;
+                Value = value;
                 
-                if (path == "buttonWest") return (gamepad.buttonWest, gamepad.buttonWest.ReadValue());
-                if (path == "buttonEast") return (gamepad.buttonEast, gamepad.buttonEast.ReadValue());
-                if (path == "buttonSouth") return (gamepad.buttonSouth, gamepad.buttonSouth.ReadValue());
-                if (path == "buttonNorth") return (gamepad.buttonNorth, gamepad.buttonNorth.ReadValue());
+                FrameCount = UpdateTimeManager.FrameCount;
+            }
+        }
+
+        private int m_DeviceType = 0;
+        private Gamepad m_CachedGamepad;
+        private Keyboard m_CachedKeyboard;
+        
+        private static string s_dpadleft = "dpad/left";
+        private static string s_dpadright = "dpad/right";
+        private static string s_dpaddown = "dpad/down";
+        private static string s_dpadup = "dpad/up";
+        
+        private static string s_buttonWest = "buttonWest";
+        private static string s_buttonEast = "buttonEast";
+        private static string s_buttonSouth = "buttonSouth";
+        private static string s_buttonNorth = "buttonNorth";
+        
+        private static string s_space  = "space";
+
+        private static string s_leftArrow = "leftArrow";
+        private static string s_rightArrow = "rightArrow";
+        private static string s_downArrow = "downArrow";
+        private static string s_upArrow = "upArrow";        
+        
+        private static string s_numpad0 = "numpad0";
+        private static string s_numpad1 = "numpad1";
+        private static string s_numpad2 = "numpad2";
+        private static string s_numpad3 = "numpad3";
+        private static string s_numpad4 = "numpad4";
+        private static string s_numpad5 = "numpad5";
+        private static string s_numpad6 = "numpad6";
+        private static string s_numpad7 = "numpad7";
+        private static string s_numpad8 = "numpad8";
+        private static string s_numpad9 = "numpad9";
+
+        private FastDictionary<int, InternalResult> m_CachedResults
+            = new FastDictionary<int, InternalResult>();
+
+        private InternalResult CacheInternal(InputControl control, float value)
+        {            
+            var hash = control.name.GetHashCode();
+            var result = new InternalResult(control, value);
+            m_CachedResults[hash] = result;
+            return result;
+        }
+
+        private InternalResult cachedResult;
+        
+        private InternalResult GetControlAndValue(InputDevice device, string path)
+        {
+            if (m_CachedResults.RefFastTryGet(path.GetHashCode(), ref cachedResult))
+            {
+                if (cachedResult.FrameCount == UpdateTimeManager.FrameCount)
+                {
+                    return cachedResult;
+                }
             }
 
-            if (device is Keyboard keyboard)
+            if (m_DeviceType == 0)
             {
-                foreach (var inputControl in keyboard.allControls)
+                var gamepad = m_CachedGamepad;
+                
+                if (path == s_dpadleft) return CacheInternal(gamepad.dpad.left, gamepad.dpad.left.ReadValue());
+                if (path == s_dpadright) return CacheInternal(gamepad.dpad.right, gamepad.dpad.right.ReadValue());
+                if (path == s_dpaddown) return CacheInternal(gamepad.dpad.down, gamepad.dpad.down.ReadValue());
+                if (path == s_dpadup) return CacheInternal(gamepad.dpad.up, gamepad.dpad.up.ReadValue());
+                
+                if (path == s_buttonWest) return CacheInternal(gamepad.buttonWest, gamepad.buttonWest.ReadValue());
+                if (path == s_buttonEast) return CacheInternal(gamepad.buttonEast, gamepad.buttonEast.ReadValue());
+                if (path == s_buttonSouth) return CacheInternal(gamepad.buttonSouth, gamepad.buttonSouth.ReadValue());
+                if (path == s_buttonNorth) return CacheInternal(gamepad.buttonNorth, gamepad.buttonNorth.ReadValue());
+            }
+
+            if (m_DeviceType == 1)
+            {
+                var keyboard = m_CachedKeyboard;
+                
+                if (path == s_space) return CacheInternal(keyboard.spaceKey, keyboard.spaceKey.ReadValue());
+                
+                if (path == s_leftArrow) return CacheInternal(keyboard.leftArrowKey, keyboard.leftArrowKey.ReadValue());
+                if (path == s_leftArrow) return CacheInternal(keyboard.leftArrowKey, keyboard.leftArrowKey.ReadValue());
+                if (path == s_buttonSouth) return CacheInternal(keyboard.rightArrowKey, keyboard.rightArrowKey.ReadValue());
+                if (path == s_buttonNorth) return CacheInternal(keyboard.downArrowKey, keyboard.downArrowKey.ReadValue());
+                if (path == s_buttonNorth) return CacheInternal(keyboard.upArrowKey, keyboard.upArrowKey.ReadValue());
+                
+                if (path == s_numpad0) return CacheInternal(keyboard.numpad0Key, keyboard.numpad0Key.ReadValue());
+                if (path == s_numpad1) return CacheInternal(keyboard.numpad1Key, keyboard.numpad1Key.ReadValue());
+                if (path == s_numpad2) return CacheInternal(keyboard.numpad2Key, keyboard.numpad2Key.ReadValue());
+                if (path == s_numpad3) return CacheInternal(keyboard.numpad3Key, keyboard.numpad3Key.ReadValue());
+                if (path == s_numpad4) return CacheInternal(keyboard.numpad4Key, keyboard.numpad4Key.ReadValue());
+                if (path == s_numpad5) return CacheInternal(keyboard.numpad5Key, keyboard.numpad5Key.ReadValue());
+                if (path == s_numpad6) return CacheInternal(keyboard.numpad6Key, keyboard.numpad6Key.ReadValue());
+                if (path == s_numpad7) return CacheInternal(keyboard.numpad7Key, keyboard.numpad7Key.ReadValue());
+                if (path == s_numpad8) return CacheInternal(keyboard.numpad8Key, keyboard.numpad8Key.ReadValue());
+                if (path == s_numpad9) return CacheInternal(keyboard.numpad9Key, keyboard.numpad9Key.ReadValue());
+
+                // Default
+                var array = keyboard.allControls;
+                for (int i = 0; i != array.Count; i++)
                 {
+                    var inputControl = array[i];
                     if (inputControl.name == path)
-                        return (inputControl, (float)inputControl.ReadValueAsObject());
+                        return CacheInternal(inputControl, (float)inputControl.ReadValueAsObject());
                 }
             }
             
             // Default
             var control = device[path];
-            return (control, (float)control.ReadValueAsObject());
+            return CacheInternal(control, (float)control.ReadValueAsObject());
         }
     }
 }

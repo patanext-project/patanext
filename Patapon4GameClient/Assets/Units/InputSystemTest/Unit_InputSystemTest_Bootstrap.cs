@@ -122,7 +122,7 @@ namespace Assets.Units.InputSystemTest
                             new[] {"buttonNorth"}
                         }
                     }
-                ),      
+                ),
                 new CInputManager.Settings.Axis1D
                 (
                     nameId: "horizontal",
@@ -209,20 +209,19 @@ namespace Assets.Units.InputSystemTest
                 inputManager.ActiveDevice = Gamepad.current;
 
             // There will be multiple inputs, so let's try to stress test a bit
+            Profiler.BeginSample("Forloop");
             for (int i = 0; i != 25; i++)
             {
-                IsJumping = inputManager
-                            .Get<CInputManager.Result.Push>(InputJumpId).Value > 0.5f;
-                HorizontalValue = inputManager
-                                  .Get<CInputManager.Result.Axis1D>(InputHorizontalId).Value;
-                HorizontalAndVerticalValue = inputManager
-                                             .Get<CInputManager.Result.Axis2D>(InputHorizontalAndVerticalId).Value;
+                IsJumping                  = inputManager.GetPush(InputJumpId).Value > 0.5f;
+                HorizontalValue            = inputManager.GetAxis1D(InputHorizontalId).Value;
+                HorizontalAndVerticalValue = inputManager.GetAxis2D(InputHorizontalAndVerticalId).Value;
 
-                IsRythm1 = inputManager.Get<CInputManager.Result.Push>(Action1Id).Value > 0.5f;
-                IsRythm2 = inputManager.Get<CInputManager.Result.Push>(Action2Id).Value > 0.5f;
-                IsRythm3 = inputManager.Get<CInputManager.Result.Push>(Action3Id).Value > 0.5f;
-                IsRythm4 = inputManager.Get<CInputManager.Result.Push>(Action4Id).Value > 0.5f;
+                IsRythm1 = inputManager.GetPush(Action1Id).Value > 0.5f;
+                IsRythm2 = inputManager.GetPush(Action2Id).Value > 0.5f;
+                IsRythm3 = inputManager.GetPush(Action3Id).Value > 0.5f;
+                IsRythm4 = inputManager.GetPush(Action4Id).Value > 0.5f; 
             }
+            Profiler.EndSample();
         }
 
         private void OnGUI()

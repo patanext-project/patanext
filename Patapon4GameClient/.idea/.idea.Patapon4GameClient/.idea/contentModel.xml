@@ -389,6 +389,9 @@
             <e p="Utilities" t="Include">
               <e p="BoundsExtensions.cs" t="Include" />
               <e p="CameraBoundsExtensions.cs" t="Include" />
+              <e p="ECSManager" t="Include">
+                <e p="UpdateTimeManager.cs" t="Include" />
+              </e>
               <e p="EntityChange.cs" t="Include" />
               <e p="FastDictionary.cs" t="Include" />
               <e p="FastEntitiesExtensions.cs" t="Include" />

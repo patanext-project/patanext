@@ -33,6 +33,8 @@ namespace System.Collections.Generic {
             public TValue value;         // Value of entry
         }
 
+        private bool keyIsInteger = typeof(TKey) == typeof(int);
+
         private int[] buckets;
         private Entry[] entries;
         private int count;
@@ -260,15 +262,73 @@ namespace System.Collections.Generic {
         }
 
         public bool FastTryGet(TKey key, out TValue value) {
-            if (buckets != null) {
-                int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
-                for (int i = buckets[hashCode % buckets.Length]; i >= 0;) {
-                    ref var entry = ref entries[i];
-                    i = entry.next;
-                    if (entry.hashCode == hashCode && comparer.Equals(entry.key, key))
-                    { 
-                        value = entry.value;
-                        return true;
+            if (buckets != null)
+            {
+                int hashCode;
+                if (keyIsInteger)
+                {
+                    hashCode = key.GetHashCode() & 0x7FFFFFFF;
+                    
+                    for (int i = buckets[hashCode % buckets.Length]; i >= 0;) {
+                        ref var entry = ref entries[i];
+                        if (entry.hashCode == hashCode)
+                        { 
+                            value = entry.value;
+                            return true;
+                        }
+                        i = entry.next;
+                    }
+                }
+                else
+                {
+                    hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+                    
+                    for (int i = buckets[hashCode % buckets.Length]; i >= 0;) {
+                        ref var entry = ref entries[i];
+                        if (entry.hashCode == hashCode && comparer.Equals(entry.key, key))
+                        { 
+                            value = entry.value;
+                            return true;
+                        }
+                        i = entry.next;
+                    }
+                }
+            }
+
+            value = default(TValue);
+            return false;
+        }
+        
+        public bool RefFastTryGet(TKey key, ref TValue value) {
+            if (buckets != null)
+            {
+                int hashCode;
+                if (keyIsInteger)
+                {
+                    hashCode = key.GetHashCode() & 0x7FFFFFFF;
+                    
+                    for (int i = buckets[hashCode % buckets.Length]; i >= 0;) {
+                        ref var entry = ref entries[i];
+                        if (entry.hashCode == hashCode)
+                        { 
+                            value = entry.value;
+                            return true;
+                        }
+                        i = entry.next;
+                    }
+                }
+                else
+                {
+                    hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+                    
+                    for (int i = buckets[hashCode % buckets.Length]; i >= 0;) {
+                        ref var entry = ref entries[i];
+                        if (entry.hashCode == hashCode && comparer.Equals(entry.key, key))
+                        { 
+                            value = entry.value;
+                            return true;
+                        }
+                        i = entry.next;
                     }
                 }
             }
@@ -287,7 +347,18 @@ namespace System.Collections.Generic {
 
         private void Insert(TKey key, TValue value, bool add) {
             if (buckets == null) Initialize(0);
-            int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+            int hashCode;
+
+            if (keyIsInteger)
+            {
+                hashCode = key.GetHashCode() & 0x7FFFFFFF;
+            }
+            else
+            {
+                hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+            }
+
+            
             int targetBucket = hashCode % buckets.Length;
 
 #if FEATURE_RANDOMIZED_STRING_HASHING
