@@ -270,7 +270,7 @@ public class InputManager
         object GetValueBoxed();
     }
 
-    public interface IInputSetting
+    public class InputSetting<...> : InputSettingBase
     {
         Type ResultType;
         string NameId;
@@ -298,15 +298,15 @@ public class InputManager
 
     public static class Setting
     {
-        public struct Push : IInputSetting {
+        public struct Push : InputSetting<...> {
             
         }
 
-        public struct Axis1D : IInputSetting {
+        public struct Axis1D : InputSetting<...> {
 
         }
 
-        public struct Axis2D : IInputSetting {
+        public struct Axis2D : InputSetting<...> {
 
         }
     }

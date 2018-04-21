@@ -24,7 +24,7 @@ namespace Packet.Guerro.Shared.Inputs
             
         }
 
-        public void RegisterFromList(List<IInputSetting> informationMap)
+        public void RegisterFromList(List<InputSettingBase> informationMap)
         {
             for (int i = 0; i != informationMap.Count; i++)
             {
@@ -32,14 +32,14 @@ namespace Packet.Guerro.Shared.Inputs
             }
         }
 
-        public void RegisterSingle(IInputSetting setting)
+        public void RegisterSingle(InputSettingBase setting)
         {
             var id = GetStockIdInternal(setting.NameId);
             var map = new Map
             {
                 Id = id,
                 NameId = setting.NameId,
-                UnknowSetting = setting
+                DefaultSettings = setting
             };
 
             switch (setting)
@@ -47,15 +47,16 @@ namespace Packet.Guerro.Shared.Inputs
                 case Settings.Axis1D axis1D:
                 {
                     map.SettingType = Settings.EType.Axis1D;
-                    
-                    map.Axis1DSetting = axis1D;
+                    break;
+                }
+                case Settings.Axis2D axis2D:
+                {
+                    map.SettingType = Settings.EType.Axis2D;
                     break;
                 }
                 case Settings.Push push:
                 {
                     map.SettingType = Settings.EType.Push;
-                    
-                    map.PushSetting = push;
                     break;
                 }
             }
@@ -143,9 +144,7 @@ namespace Packet.Guerro.Shared.Inputs
             public string NameId;
             public int Id;
             
-            public IInputSetting UnknowSetting;
-            public Settings.Push PushSetting;
-            public Settings.Axis1D Axis1DSetting;
+            public InputSettingBase DefaultSettings;
 
             public Settings.EType SettingType;
 

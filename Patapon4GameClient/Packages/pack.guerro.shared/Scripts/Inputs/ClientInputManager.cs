@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Packages.pack.guerro.shared.Scripts.Clients;
+using Packages.pack.guerro.shared.Scripts.Utilities;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Experimental.Input;
 using UnityEngine.Experimental.Input.Controls;
 using UnityEngine.Experimental.Input.Utilities;
+using UnityEngine.Profiling;
 
 namespace Packet.Guerro.Shared.Inputs
 {
-    public class ClientInputManager : ClientScriptBehaviourManager
+    public partial class ClientInputManager : ClientScriptBehaviourManager
     {
         private static string s_LayoutKeyboard = "<keyboard>",
                               s_LayoutGamepad  = "<gamepad>",
@@ -39,35 +41,41 @@ namespace Packet.Guerro.Shared.Inputs
                 // do nothing lol
             }
 
-            if (map.UnknowSetting.ResultType != typeof(TInputResult))
+            if (map.DefaultSettings.ResultType != typeof(TInputResult))
             {
                 Debug.LogError(
-                    $"Wrong type of 'InputResult' ({map.UnknowSetting.ResultType.Name} against {typeof(TInputResult).Name})");
+                    $"Wrong type of 'InputResult' ({map.DefaultSettings.ResultType.Name} against {typeof(TInputResult).Name})");
 
                 return default(TInputResult);
             }
 
             var type = typeof(TInputResult);
-            switch (map.UnknowSetting)
+            switch (map.DefaultSettings)
             {
                 // This is ugly, how I could do that better?
                 case CInputManager.Settings.Push push when type == s_TypePush:
                 {
                     // UGLY, Are there any way to prevent boxing?
                     // I could emit dynamic code, but it would be really ugly (but more performant).
-                    return (TInputResult) (object) ProcessPushInternal(push);
+                    var value = (TInputResult) (object) ProcessPushInternal(push);
+
+                    return value;
                 }
                 case CInputManager.Settings.Axis1D axis1D when type == s_TypeAxis1D:
                 {
                     // UGLY, Are there any way to prevent boxing?
                     // I could emit dynamic code, but it would be really ugly (but more performant).
-                    return (TInputResult) (object) ProcessAxis1DInternal(axis1D);
+                    var value = (TInputResult) (object) ProcessAxis1DInternal(axis1D);
+                    
+                    return value;
                 }
                 case CInputManager.Settings.Axis2D axis2D when type == s_TypeAxis2D:
                 {
                     // UGLY, Are there any way to prevent boxing?
                     // I could emit dynamic code, but it would be really ugly (but more performant).
-                    return (TInputResult) (object) ProcessAxis2DInternal(axis2D);
+                    var value = (TInputResult) (object) ProcessAxis2DInternal(axis2D);
+                    
+                    return value;
                 }
             }
 
@@ -81,7 +89,7 @@ namespace Packet.Guerro.Shared.Inputs
         {
             var layout = GetActiveLayout();
 
-            var innerList    = push.Defaults[layout];
+            var innerList    = push.GetLayout(layout);
             var inputControl = GetValueAndControl(ActiveDevice, innerList, out var value);
 
             return new CInputManager.Result.Push()
@@ -94,13 +102,13 @@ namespace Packet.Guerro.Shared.Inputs
         {
             var layout = GetActiveLayout();
 
-            var innerList  = axis1D.Defaults[layout];
+            var innerList  = axis1D.GetLayout(layout);
             var finalValue = 0f;
             for (int i = 0; i != 2; i++) //< 1 Dimension, so 2 values to get
             {
-                var internedString = GetDimensionStringId(i);
-
+                var internedString = InputDimension.GetDimensionStringId(i);
                 var inputControl = GetValueAndControl(ActiveDevice, innerList[internedString], out var value);
+                
                 if (i % 2 == 0) finalValue -= value;
                 else finalValue            += value;
             }
@@ -115,11 +123,11 @@ namespace Packet.Guerro.Shared.Inputs
         {
             var layout = GetActiveLayout();
 
-            var innerList  = axis2D.Defaults[layout];
+            var innerList  = axis2D.GetLayout(layout);
             var finalValue = new Vector2();
             for (int i = 0, dimension = 0; i != 4; i++) //< 1 Dimension, so 2 values to get
             {
-                var internedString = GetDimensionStringId(i);
+                var internedString = InputDimension.GetDimensionStringId(i);
 
                 var inputControl = GetValueAndControl(ActiveDevice, innerList[internedString], out var value);
                 if (i % 2 == 0) finalValue[dimension] -= value;
@@ -148,15 +156,6 @@ namespace Packet.Guerro.Shared.Inputs
             return layout;
         }
 
-        public InternedString GetDimensionStringId(int index)
-        {
-            if (index == 0) return new InternedString("-x");
-            if (index == 1) return new InternedString("+x");
-            if (index == 2) return new InternedString("-y");
-            if (index == 3) return new InternedString("+y");
-            return new InternedString("?d");
-        }
-
         public InputControl GetValueAndControl(InputDevice device, ReadOnlyCollection<string> paths, out float value)
         {
             float        highestDistanceToZero = 0f, finalValue = 0f;
@@ -170,19 +169,14 @@ namespace Packet.Guerro.Shared.Inputs
             */
             for (int i = 0; i != length; i++)
             {
-                var asAxisButton = device[paths[i]] as AxisControl;
-                // todo...
-                var asKeyButton = device[paths[i]] as KeyControl;
-
-                if (asAxisButton != null)
+                var controlValueTuple = GetControlAndValue(device, paths[i]);
+                if (controlValueTuple.control != null)
                 {
-                    var val = asAxisButton.ReadValue();
-
-                    if (math.distance(val, 0) > highestDistanceToZero)
+                    if (math.distance(controlValueTuple.value, 0) > highestDistanceToZero)
                     {
-                        highestDistanceToZero = math.distance(val, 0);
-                        finalValue            = val;
-                        inputControl          = asAxisButton;
+                        highestDistanceToZero = math.distance(controlValueTuple.value, 0);
+                        finalValue            = controlValueTuple.value;
+                        inputControl          = controlValueTuple.control;
                     }
                 }
             }
@@ -198,7 +192,7 @@ namespace Packet.Guerro.Shared.Inputs
             if (m_clientSettings.FastTryGet(inputMap.NameId, out var ourSettings))
             {
                 // Check the type
-                if (inputMap.GetType() == ourSettings.GetType())
+                if (inputMap.SettingType == ourSettings.SettingType)
                 {
                     clientSettings = ourSettings;
                     return true;
@@ -211,6 +205,38 @@ namespace Packet.Guerro.Shared.Inputs
         protected override void OnUpdate()
         {
 
+        }
+    }
+
+    public partial class ClientInputManager
+    {
+        private (InputControl control, float value) GetControlAndValue(InputDevice device, string path)
+        {
+            if (device is Gamepad gamepad)
+            {
+                if (path == "dpad/left") return (gamepad.dpad.left, gamepad.dpad.left.ReadValue());
+                if (path == "dpad/right") return (gamepad.dpad.right, gamepad.dpad.right.ReadValue());
+                if (path == "dpad/down") return (gamepad.dpad.down, gamepad.dpad.down.ReadValue());
+                if (path == "dpad/up") return (gamepad.dpad.up, gamepad.dpad.up.ReadValue());
+                
+                if (path == "buttonWest") return (gamepad.buttonWest, gamepad.buttonWest.ReadValue());
+                if (path == "buttonEast") return (gamepad.buttonEast, gamepad.buttonEast.ReadValue());
+                if (path == "buttonSouth") return (gamepad.buttonSouth, gamepad.buttonSouth.ReadValue());
+                if (path == "buttonNorth") return (gamepad.buttonNorth, gamepad.buttonNorth.ReadValue());
+            }
+
+            if (device is Keyboard keyboard)
+            {
+                foreach (var inputControl in keyboard.allControls)
+                {
+                    if (inputControl.name == path)
+                        return (inputControl, (float)inputControl.ReadValueAsObject());
+                }
+            }
+            
+            // Default
+            var control = device[path];
+            return (control, (float)control.ReadValueAsObject());
         }
     }
 }

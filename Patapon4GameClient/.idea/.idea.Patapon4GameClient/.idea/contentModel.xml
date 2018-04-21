@@ -394,6 +394,7 @@
               <e p="FastEntitiesExtensions.cs" t="Include" />
               <e p="FastEntityGameObjectExtensions.cs" t="Include" />
               <e p="HashHelpers.cs" t="Include" />
+              <e p="InputDimension.cs" t="Include" />
             </e>
           </e>
         </e>
