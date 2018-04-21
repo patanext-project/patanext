@@ -1,6 +1,8 @@
+using System.Reflection;
 using Unity.Entities;
 using UnityEngine;
 using P4.Core.Network;
+using Packages.pack.guerro.shared.Scripts.Modding;
 using Packet.Guerro.Shared.Network;
 
 namespace P4Main
@@ -10,6 +12,29 @@ namespace P4Main
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         public static void Init()
         {
+            var register = CModManager.BeginInternalRegisteration();
+            {
+                register.AddInternalPacket
+                (
+                    "Patapon Default Assets",
+                    "pack.p4.default",
+                    new[]
+                    {
+                        Assembly.GetAssembly(typeof(P4.Default.Bootstrap))
+                    }
+                );
+                register.AddInternalPacket
+                (
+                    "Patapon Core",
+                    "pack.p4.core",
+                    new[]
+                    {
+                        Assembly.GetAssembly(typeof(P4.Core.Bootstrap))
+                    }
+                );
+            }
+            register.End();
+            
             //Eudi.Globals.SetBindingFromInstance<UserManager>(new UserManager());
 
             // Lol
