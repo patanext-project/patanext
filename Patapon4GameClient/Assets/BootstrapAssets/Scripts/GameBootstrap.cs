@@ -3,13 +3,17 @@ using Unity.Entities;
 using UnityEngine;
 using P4.Core.Network;
 using Packages.pack.guerro.shared.Scripts.Modding;
+using Packet.Guerro.Shared;
 using Packet.Guerro.Shared.Network;
 
 namespace P4Main
 {
     public class GameBoostrap
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        /*
+         * Logically, the automatic world creation should be done before this.
+         */
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Init()
         {
             var register = CModManager.BeginInternalRegistration();
