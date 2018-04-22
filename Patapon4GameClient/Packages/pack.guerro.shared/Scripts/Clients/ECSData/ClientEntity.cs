@@ -6,6 +6,7 @@ using Unity.Mathematics;
 
 namespace Packet.Guerro.Shared.Clients
 {
+    [Serializable]
     public struct ClientEntity : IComponentData, IEquatable<ClientEntity>
     {
         public int ReferenceId;

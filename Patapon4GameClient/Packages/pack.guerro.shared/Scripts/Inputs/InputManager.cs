@@ -185,6 +185,11 @@ namespace Packet.Guerro.Shared.Inputs
             internal InputAction InputAction;
 
             public readonly int InputId;
+            
+            /// <summary>
+            /// Replace the standard inputsystem start/cancel event by a custom one
+            /// </summary>
+            public bool HackyStartCancel;
 
             public InputAction.Phase     Phase                => InputAction.phase;
             public InputControl          LastTriggerControl   => InputAction.lastTriggerControl;
@@ -212,9 +217,13 @@ namespace Packet.Guerro.Shared.Inputs
                     }
 
                     InputAction = newAction;
-                    
-                    InputAction.started   += OnStart;
-                    InputAction.cancelled += OnCancel;
+
+                    if (!HackyStartCancel)
+                    {
+                        InputAction.started   += OnStart;
+                        InputAction.cancelled += OnCancel;
+                    }
+
                     InputAction.performed += OnPerform;
                     
                     InputAction.Enable();
@@ -228,7 +237,6 @@ namespace Packet.Guerro.Shared.Inputs
 
             internal void OnStart(InputAction.CallbackContext context)
             {
-                Debug.Log("On start");
                 Started?.Invoke(context, InputId);
             }
 
@@ -239,6 +247,11 @@ namespace Packet.Guerro.Shared.Inputs
 
             internal void OnPerform(InputAction.CallbackContext context)
             {
+                if (context.GetValue<float>() != 0)
+                    OnStart(context);
+                else
+                    OnCancel(context);
+                
                 Performed?.Invoke(context, InputId);
             }
         }

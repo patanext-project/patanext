@@ -92,7 +92,7 @@ namespace P4.Default.Inputs
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         private void OnInputStarted(InputAction.CallbackContext ctx, int inputId)
         {
-            Debug.Log($"Started input: {inputId}");
+            Debug.Log($"Started input: {ctx.GetValue<float>()}");
         }
 
         private void OnInputEnded(InputAction.CallbackContext ctx, int inputId)
@@ -108,9 +108,9 @@ namespace P4.Default.Inputs
             {
                 var id = m_actionInputIds[i];
                 var inputAction = inputManager.CreateInputAction(id);
+                inputAction.HackyStartCancel = true;
                 inputAction.Started   += OnInputStarted;
                 inputAction.Cancelled += OnInputEnded;
-                inputAction.Performed += OnInputStarted;
             }
         }
     }

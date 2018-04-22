@@ -6,6 +6,7 @@ using P4.Default;
 using P4.Default.Inputs;
 using P4.Default.Movements;
 using Packages.pack.guerro.shared.Scripts.Utilities;
+using Packet.Guerro.Shared.Clients;
 using Packet.Guerro.Shared.Game;
 using Packet.Guerro.Shared.Network;
 using Packet.Guerro.Shared.Network.Entities;
@@ -21,15 +22,13 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
 
     private int m_Count;
     private float m_Delay;
-
-    public InputAction WalkAction;
+    
+    public ClientEntity ClientId;
     
     private void Awake()
-    {
-        foreach (var inputDevice in InputSystem.devices) 
-        {
-            Debug.Log($"device:{inputDevice.id}\nuser:{inputDevice.userId}\nname:{inputDevice.description.deviceClass}");
-        }
+    {        
+        var clientManager = World.Active.GetExistingManager<ClientManager>();
+        ClientId = clientManager.Create("debug");
 
         AddNewCharacter();
     }

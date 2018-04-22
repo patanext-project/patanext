@@ -533,7 +533,8 @@ PlayerSettings:
   webGLUseEmbeddedResources: 0
   webGLCompressionFormat: 1
   webGLLinkerTarget: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    1: UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP
   platformArchitecture: {}
   scriptingBackend:
     Standalone: 0

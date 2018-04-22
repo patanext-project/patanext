@@ -217,6 +217,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d009a7e39445f44abb9b0efa1fce31e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InputJumpId: 0
+  InputHorizontalId: 0
+  InputHorizontalAndVerticalId: 0
+  Action1Id: 0
+  Action2Id: 0
+  Action3Id: 0
+  Action4Id: 0
+  IsJumping: 0
+  HorizontalValue: 0
+  HorizontalAndVerticalValue: {x: 0, y: 0}
+  IsRythm1: 0
+  IsRythm2: 0
+  IsRythm3: 0
+  IsRythm4: 0
 --- !u!4 &1297435513
 Transform:
   m_ObjectHideFlags: 0
