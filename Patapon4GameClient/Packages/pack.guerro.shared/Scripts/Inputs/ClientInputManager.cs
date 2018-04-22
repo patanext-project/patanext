@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Packages.pack.guerro.shared.Scripts.Clients;
 using Packages.pack.guerro.shared.Scripts.Utilities;
 using Packages.pack.guerro.shared.Scripts.Utilities.ECSManager;
@@ -9,6 +10,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Experimental.Input;
 using UnityEngine.Experimental.Input.Controls;
+using UnityEngine.Experimental.Input.LowLevel;
 using UnityEngine.Experimental.Input.Utilities;
 using UnityEngine.Profiling;
 
@@ -18,7 +20,7 @@ namespace Packet.Guerro.Shared.Inputs
     {
         private static string s_LayoutKeyboard = "<keyboard>",
                               s_LayoutGamepad  = "<gamepad>",
-                              s_LayoutMice     = "<mice>";
+                              s_LayoutMouse    = "<mouse>";
 
         private static Type s_TypePush   = typeof(CInputManager.Result.Push),
                             s_TypeAxis1D = typeof(CInputManager.Result.Axis1D),
@@ -47,7 +49,13 @@ namespace Packet.Guerro.Shared.Inputs
                     m_CachedKeyboard = keyboard;
                 }
 
-                m_ActiveDevice = value;
+                if (m_ActiveDevice != value)
+                {
+                    m_ActiveDevice = value;
+                    
+                    UpdateInputActionsInternal();
+                    m_InputManager.CallOnClientDeviceChanged(this);
+                }
             }
         }
 
@@ -58,18 +66,9 @@ namespace Packet.Guerro.Shared.Inputs
             ref var map = ref m_InputManager.GetMap(inputId);
             if (CurrentSettingsIsValid(ref map, ref map))
             {
-                // do nothing lol
             }
 
             return ref map;
-
-            /*if (map.DefaultSettings.ResultType != type)
-            {
-                Debug.LogError(
-                    $"Wrong type of 'InputResult' ({map.DefaultSettings.ResultType.Name} against {typeof(TInputResult).Name})");
-
-                return default(TInputResult);
-            }*/
         }
         
         /*
@@ -205,7 +204,7 @@ namespace Packet.Guerro.Shared.Inputs
             */
             for (int i = 0; i != length; i++)
             {
-                ref var result = ref GetControlAndValue(device, paths[i]);
+                ref var result = ref GetControlAndValueInternal(device, paths[i]);
                 if (result.Control != null)
                 {
                     if (math.distance(result.Value, 0) > highestDistanceToZero)
@@ -239,14 +238,154 @@ namespace Packet.Guerro.Shared.Inputs
             return false;
         }
 
-        protected override void OnUpdate()
+        private void UpdateInputActionsInternal()
         {
+            foreach (var action in m_CachedInputActions)
+            {
+                var id       = action.Key;
+                var val      = action.Value;
+                var map      = GetMap(id);
+                var layout   = GetActiveLayout();
+                var settings = map.DefaultSettings;
 
+                var needUpdate = val.Device != m_ActiveDevice;
+
+                var bindingCount    = val.CustomAction.InputAction.bindings.Count;
+                var correctBindings = 0;
+                foreach (var control in val.CustomAction.InputAction.bindings)
+                {
+                    if (settings is CInputManager.Settings.Push push)
+                    {
+                        var innerList = push.RWDefaults[layout];
+
+                        // If players don't make change every 0.1s, performance should be fine
+                        if (innerList.Any(innerValue => control.path == innerValue))
+                        {
+                            correctBindings++;
+                        }
+                    }
+                }
+
+                if (bindingCount != correctBindings)
+                    needUpdate = true;
+
+                if (needUpdate)
+                {
+                    val.Device = m_ActiveDevice;
+                    
+                    var inputAction = new InputAction();
+                    SetInputActionBindingsInternal(inputAction, settings);
+                    val.CustomAction.SwitchAction(inputAction);
+                }
+            }
+        }
+
+        private void SetInputActionBindingsInternal(InputAction inputAction, CInputManager.InputSettingBase settings)
+        {
+            var wasEnabled = inputAction.enabled;
+            inputAction.Disable();
+
+            var layout = GetActiveLayout();
+            if (settings is CInputManager.Settings.Push push)
+            {
+                var innerList = push.RWDefaults[layout];
+                for (int i = 0; i != innerList.Length; i++)
+                {
+                    var path = $"{m_ActiveDevice.name}/{innerList[i]}";
+                    if (path.StartsWith("/"))
+                        path = path.Remove(0, 1);
+
+                    if (inputAction.bindings.Count >= innerList.Length)
+                        inputAction.ApplyBindingOverride(i, path);
+                    else
+                        inputAction.AddBinding(path);
+                }
+            }
+
+            foreach (var binding in inputAction.bindings)
+            {
+                Debug.Log(binding.path);
+            }
+
+            if (wasEnabled) inputAction.Enable();
         }
     }
 
     public partial class ClientInputManager
     {
+        protected override void OnCreateManager(int capacity)
+        {
+            InputSystem.onEvent += OnInputEvent;
+            
+            // Set default device
+            m_ActiveDevice = Keyboard.current;
+            m_DeviceType = 1;
+            m_CachedKeyboard = Keyboard.current;
+        }
+
+        protected override void OnUpdate()
+        {
+            
+        }
+
+        protected override void OnDestroyManager()
+        {
+            InputSystem.onEvent -= OnInputEvent;
+        }
+
+        private void OnInputEvent(InputEventPtr ev)
+        {
+            var device = InputSystem.TryGetDeviceById(ev.deviceId);
+            if (device == ActiveDevice)
+                m_InputManager.CallOnClientDeviceUpdate(this);
+        }
+
+        /// <summary>
+        /// Only working with push inputs
+        /// </summary>
+        /// <param name="inputId"></param>
+        /// <param name="???"></param>
+        /// <returns></returns>
+        public CInputManager.CustomInputAction CreateInputAction(int inputId)
+        {
+            var cache = new CacheInputAction();
+            cache.Device = m_ActiveDevice;
+            cache.Version = 0;
+            cache.CustomAction = new CInputManager.CustomInputAction();
+              
+            var inputAction = new InputAction();
+            SetInputActionBindingsInternal(inputAction, GetMap(inputId).DefaultSettings);
+            cache.CustomAction.SwitchAction(inputAction);
+
+            m_CachedInputActions[m_CachedInputActions.Count] = cache;
+
+            return cache.CustomAction;
+        }
+
+        public CInputManager.CustomInputAction GetInputAction(int actionId)
+        {
+            var inputAction = default(CacheInputAction);
+            if (!m_CachedInputActions.RefFastTryGet(actionId, ref inputAction))
+            {
+                throw new KeyNotFoundException();
+            }
+
+            return inputAction.CustomAction;
+        }
+    }
+
+    public partial class ClientInputManager
+    {
+        private struct CacheInputAction
+        {
+            public InputDevice Device;
+            public CInputManager.CustomInputAction CustomAction;
+            /// <summary>
+            /// To match the client settings, current device, we verify the version.
+            /// </summary>
+            public int Version;
+        }
+        
         private struct InternalResult
         {
             public InputControl Control;
@@ -296,6 +435,9 @@ namespace Packet.Guerro.Shared.Inputs
 
         private FastDictionary<int, InternalResult> m_CachedResults
             = new FastDictionary<int, InternalResult>();
+        
+        private FastDictionary<int, CacheInputAction> m_CachedInputActions
+             = new FastDictionary<int, CacheInputAction>();
 
         private ref InternalResult CacheInternal(InputControl control, float value)
         {            
@@ -307,7 +449,7 @@ namespace Packet.Guerro.Shared.Inputs
 
         private InternalResult cachedResult;
         
-        private ref InternalResult GetControlAndValue(InputDevice device, string path)
+        private ref InternalResult GetControlAndValueInternal(InputDevice device, string path)
         {
             if (m_CachedResults.RefFastTryGet(path.GetHashCode(), ref cachedResult))
             {

@@ -21,6 +21,36 @@ namespace Packages.pack.guerro.shared.Scripts.Clients
         }
     }
 
+	public abstract class ClientDataContainer
+	{
+		public ClientEntity Client { get; private set; }
+		public ClientWorld World { get; private set; }
+
+		protected virtual void OnCreateContainer()
+		{
+		}
+
+		protected virtual void OnDestroyContainer()
+		{
+		}
+
+		internal void CreateInternal()
+		{
+			OnCreateContainer();
+		}
+
+		internal void DestroyInternal()
+		{
+			OnDestroyContainer();
+		}
+
+		internal void AddContainerForClient(ClientEntity clientEntity, ClientWorld world)
+		{
+			Client = clientEntity;
+			World = world;
+		}
+	}
+
     public class ClientWorld
     {
         // Well, it somewhat copy the same code of Entity/World.cs
@@ -37,6 +67,9 @@ namespace Packages.pack.guerro.shared.Scripts.Clients
             new ReadOnlyCollection<ClientComponentSystem>(m_BehaviourManagers);
 
         private List<ClientComponentSystem> m_BehaviourManagers = new List<ClientComponentSystem>();
+
+	    private FastDictionary<Type, ClientDataContainer> m_ClientDataContainers =
+		    new FastDictionary<Type, ClientDataContainer>();
 
         //@TODO: What about multiple managers of the same type...
 	    FastDictionary<Type, ClientComponentSystem> m_BehaviourManagerLookup =
@@ -138,6 +171,7 @@ namespace Packages.pack.guerro.shared.Scripts.Clients
 			m_BehaviourManagerLookup = null;
 		}
 
+	    #region Managers Creation/Destruction
 	    //
 	    // Internal
 	    //
@@ -296,5 +330,155 @@ namespace Packages.pack.guerro.shared.Scripts.Clients
 			RemoveManagerInteral(manager);
 			RemoveManagerExtraInternal(manager);
 		}
+	    #endregion
+	   
+#region Containers Creation/Destruction
+	    //
+	    // Internal
+	    //
+	    ClientDataContainer CreateContainerInternal (Type type, int capacity, object[] constructorArguments)
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (constructorArguments != null && constructorArguments.Length != 0)
+			{
+				var constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+				if (constructors.Length == 1 && constructors[0].IsPrivate)
+					throw new MissingMethodException($"Constructing {type} failed because the constructor was private, it must be public.");
+			}
+#endif
+
+		    ClientDataContainer container;
+		    try
+		    {
+			    container = Activator.CreateInstance(type, constructorArguments) as ClientDataContainer;
+
+		    }
+		    catch
+		    {
+		        throw;
+		    }
+
+			m_ClientDataContainers[type] = container;
+
+		    try
+		    {
+			    container.AddContainerForClient(Client, this);
+		        CreateContainerExtraInternal(container);
+
+		    }
+		    catch
+		    {
+		        RemoveContainerInteral(container);
+		        throw;
+		    }
+
+		    ++m_Version;
+			return container;
+		}
+
+	    ClientDataContainer GetExistingContainerInternal (Type type)
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+		    if (!IsCreated)
+		        throw new ArgumentException("During destruction ");
+#endif
+
+			ClientDataContainer Container ;
+			if (m_ClientDataContainers.TryGetValue(type, out Container))
+				return Container;
+
+			return null;
+		}
+
+	    ClientDataContainer GetOrCreateContainerInternal (Type type)
+		{
+			var Container = GetExistingContainerInternal(type);
+
+			return Container ?? CreateContainerInternal(type, GetCapacityForType(type), null);
+		}
+
+	    void RemoveContainerInteral(ClientDataContainer container)
+		{
+			var type = container.GetType();
+			if (!m_ClientDataContainers.Remove(type))
+				throw new ArgumentException($"Container does not exist in the world");
+		    ++m_Version;
+
+			m_ClientDataContainers.Remove(type);
+		}
+
+	    //
+	    // Extra internal
+	    //
+	    void RemoveContainerExtraInternal(ClientDataContainer container)
+	    {
+		    container.DestroyInternal();
+	    }
+	    
+	    void CreateContainerExtraInternal(ClientDataContainer container)
+	    {
+		    container.CreateInternal();
+	    }
+
+	    //
+	    // Public
+	    //
+		public ClientDataContainer CreateContainer(Type type, params object[] constructorArgumnents)
+		{
+			return CreateContainerInternal(type, GetCapacityForType(type), constructorArgumnents);
+		}
+
+		public T CreateContainer<T>(params object[] constructorArgumnents) where T : ClientDataContainer
+		{
+			return (T)CreateContainerInternal(typeof(T), GetCapacityForType(typeof(T)), constructorArgumnents);
+		}
+
+		public T GetOrCreateContainer<T> () where T : ClientDataContainer
+		{
+			return (T)GetOrCreateContainerInternal (typeof(T));
+		}
+
+		public ClientDataContainer GetOrCreateContainer(Type type)
+		{
+			return GetOrCreateContainerInternal (type);
+		}
+
+		public T GetExistingContainer<T> () where T : ClientDataContainer
+		{
+			return (T)GetExistingContainerInternal (typeof(T));
+		}
+
+		public ClientDataContainer GetExistingContainer(Type type)
+		{
+			return GetExistingContainerInternal (type);
+		}
+
+		public void DestroyContainer(ClientDataContainer Container)
+		{
+			RemoveContainerInteral(Container);
+			RemoveContainerExtraInternal(Container);
+		}
+
+	    public T SetContainer<T>(T container)
+	    	where T : ClientDataContainer
+	    {
+		    if (m_ClientDataContainers.ContainsKey(typeof(T)))
+		    {
+			    if (m_ClientDataContainers[typeof(T)] != container)
+			    {
+				    container.AddContainerForClient(Client, this);
+				    container.CreateInternal();
+			    }
+		    }
+		    else
+		    {
+			    container.AddContainerForClient(Client, this);
+			    container.CreateInternal();
+		    }
+		    
+		    m_ClientDataContainers[typeof(T)] = container;
+		    return container;
+	    }
+	    #endregion
     }
 }

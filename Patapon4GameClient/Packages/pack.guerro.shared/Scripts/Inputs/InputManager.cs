@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Packages.pack.guerro.shared.Scripts.Clients;
+using Packet.Guerro.Shared.Clients;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -10,7 +11,17 @@ using UnityEngine.iOS;
 namespace Packet.Guerro.Shared.Inputs
 {    
     public partial class CInputManager : ComponentSystem
-    {        
+    {
+        
+        public static event Action<ClientInputManager> OnClientDeviceUpdate;
+        public static event Action<ClientInputManager> OnClientSettingsChanged;
+        public static event Action<ClientInputManager> OnClientDeviceChanged;
+        
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        // Group
+        // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        [Inject] private SharedClientGroup m_ClientGroup;
+        
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Register
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
@@ -73,8 +84,9 @@ namespace Packet.Guerro.Shared.Inputs
             return s_MapsStringLookup[inputMapName];
         }
 
-        public void Get<TInput>(int id)
+        public CustomInputAction Get(int id)
         {
+            throw new NotImplementedException();
         }
 
         public ref Map GetMap(int id)
@@ -91,20 +103,32 @@ namespace Packet.Guerro.Shared.Inputs
         {
             s_Maps = new FastDictionary<int, Map>();
             s_MapsStringLookup = new FastDictionary<string, int>();
+            s_InputActions = new FastDictionary<int, List<CustomInputAction>>();
         }
 
         protected override void OnUpdate()
         {
-            
+            for (int i = 0; i != m_ClientGroup.Length; i++)
+            {
+                var client = m_ClientGroup.Clients[i];
+                var clientInputManager = client.GetWorld().GetOrCreateManager<ClientInputManager>();
+                clientInputManager.Update();
+            }
         }
 
         protected override void OnDestroyManager()
         {
+            OnClientDeviceUpdate = null;
+            OnClientSettingsChanged = null;
+            OnClientDeviceChanged = null;
+            
             s_Maps.Clear();
             s_MapsStringLookup.Clear();
+            s_InputActions.Clear();
 
             s_Maps = null;
             s_MapsStringLookup = null;
+            s_InputActions = null;
         }
     }
     
@@ -124,6 +148,21 @@ namespace Packet.Guerro.Shared.Inputs
             
             return s_Maps.Count;
         }
+
+        internal void CallOnClientDeviceUpdate(ClientInputManager origin)
+        {
+            OnClientDeviceUpdate?.Invoke(origin);
+        }
+        
+        internal void CallOnClientSettingsChanged(ClientInputManager origin)
+        {
+            OnClientSettingsChanged?.Invoke(origin);
+        }
+        
+        internal void CallOnClientDeviceChanged(ClientInputManager origin)
+        {
+            OnClientDeviceChanged?.Invoke(origin);
+        }
     }
 
     // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
@@ -133,6 +172,7 @@ namespace Packet.Guerro.Shared.Inputs
     {
         private static FastDictionary<string, int> s_MapsStringLookup;
         private static FastDictionary<int, Map> s_Maps;
+        private static FastDictionary<int, List<CustomInputAction>> s_InputActions;
     }
     
     // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
@@ -140,6 +180,62 @@ namespace Packet.Guerro.Shared.Inputs
     // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.  
     public partial class CInputManager
     {
+        public class CustomInputAction
+        {
+            internal InputAction InputAction;
+
+            public InputAction.Phase     Phase                => InputAction.phase;
+            public InputControl          LastTriggerControl   => InputAction.lastTriggerControl;
+            public double                LastTriggerTime      => InputAction.lastTriggerTime;
+            public double                LastTriggerStartTime => InputAction.lastTriggerStartTime;
+            public double                LastTriggerDuration  => InputAction.lastTriggerDuration;
+            public InputBinding          LastTriggerBinding   => InputAction.lastTriggerBinding;
+            public IInputBindingModifier LastTriggerModifier  => InputAction.lastTriggerModifier;
+
+            public event InputActionListener Started;
+            public event InputActionListener Cancelled;
+            public event InputActionListener Performed;
+
+            internal void SwitchAction(InputAction newAction)
+            {
+                if (newAction != InputAction)
+                {
+                    if (InputAction != null)
+                    {
+                        InputAction.started   -= OnStart;
+                        InputAction.cancelled -= OnCancel;
+                        InputAction.performed -= OnPerform;
+                        
+                        InputAction.Disable();
+                    }
+
+                    InputAction = newAction;
+                    
+                    InputAction.started   += OnStart;
+                    InputAction.cancelled += OnCancel;
+                    InputAction.performed += OnPerform;
+                    
+                    InputAction.Enable();
+                }
+            }
+
+            internal void OnStart(InputAction.CallbackContext context)
+            {
+                Started?.Invoke(context);
+            }
+
+            internal void OnCancel(InputAction.CallbackContext context)
+            {
+                Cancelled?.Invoke(context);
+            }
+
+            internal void OnPerform(InputAction.CallbackContext context)
+            {
+                Debug.Log("Was performed.");
+                Performed?.Invoke(context);
+            }
+        }
+
         public struct Map : IEquatable<Map>
         {
             public string NameId;

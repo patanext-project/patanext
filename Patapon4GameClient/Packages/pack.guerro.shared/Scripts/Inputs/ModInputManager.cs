@@ -229,6 +229,11 @@ namespace Packet.Guerro.Shared.Inputs
 
             m_InputManager.RegisterSingle(setting);
         }
+        
+        public int GetId(string s)
+        {
+            return m_InputManager.GetId(ModWorld.Mod.NameId + "." + s);
+        }
 
         protected override void OnUpdate()
         {

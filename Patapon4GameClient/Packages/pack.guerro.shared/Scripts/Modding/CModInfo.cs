@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using Packet.Guerro.Shared;
+using Packet.Guerro.Shared.Inputs;
 using Unity.Entities;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -15,6 +16,9 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 {
     public class CModInfo
     {
+        [AttributeUsage(AttributeTargets.Field)]
+        public class InjectAttribute : Attribute {}
+        
         private Assembly[] m_Assemblies;
 
         public int Id { get; }
@@ -64,16 +68,21 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
             get
             {
                 var assembly = Assembly.GetCallingAssembly();
-                return World.Active.GetOrCreateManager<CModManager>().GetAssemblyMod(assembly).ToWorld();
+                return World.Active.GetOrCreateManager<CModManager>().GetAssemblyMod(assembly).GetWorld();
             }
         }
     }
 
     public static class CModInfoExtensions
     {
-        public static ModWorld ToWorld(this CModInfo modInfo)
+        public static ModWorld GetWorld(this CModInfo modInfo)
         {
             return World.Active.GetOrCreateManager<CModManager>().GetModWorld(modInfo);
+        }
+
+        public static ModInputManager GetInputManager(this CModInfo modInfo)
+        {
+            return modInfo.GetWorld().GetOrCreateManager<ModInputManager>();
         }
     }
 }

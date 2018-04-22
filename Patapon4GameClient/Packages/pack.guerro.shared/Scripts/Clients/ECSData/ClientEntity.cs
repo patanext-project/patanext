@@ -1,5 +1,6 @@
 ﻿using System;
 using Packages.pack.guerro.shared.Scripts.Clients;
+using Packet.Guerro.Shared.Inputs;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -52,6 +53,11 @@ namespace Packet.Guerro.Shared.Clients
                 world = World.Active;
 
             return world.GetExistingManager<ClientManager>().GetWorld(clientEntity);
+        }
+        
+        public static ClientInputManager GetInputManager(this ClientEntity clientEntity)
+        {
+            return clientEntity.GetWorld().GetOrCreateManager<ClientInputManager>();
         }
     }
 }

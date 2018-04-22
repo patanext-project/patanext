@@ -70,7 +70,8 @@ namespace Packet.Guerro.Shared.ECS
             );
             // ReSharper restore AssignNullToNotNullAttribute
 
-            PlayerLoopManager.RegisterDomainUnload(DomainUnloadShutdown, 10000);
+            Application.quitting += DomainUnloadShutdown;
+            //PlayerLoopManager.RegisterDomainUnload(DomainUnloadShutdown, 10000);
 
             var assembly = Assembly.GetAssembly(typeof(CWorldBootstrap));
             var allTypes = assembly.GetTypes();

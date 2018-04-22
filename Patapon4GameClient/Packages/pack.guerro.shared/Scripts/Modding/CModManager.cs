@@ -157,13 +157,30 @@ namespace Packet.Guerro.Shared
 
                 foreach (var systemType in systemTypes)
                 {
+                    if (!systemType.IsSubclassOf(typeof(ClientComponentSystem)))
+                    {                       
+                        var manager = World.Active.GetOrCreateManager(systemType);
+                        
+                        var allFields = modWorld.GetType().GetFields();
+                        foreach (var field in allFields)
+                        {
+                            var shouldBeInjected = field
+                                                   .CustomAttributes
+                                                   .Count(a => a.GetType() == typeof(CModInfo.InjectAttribute)) > 0;
+                            if (shouldBeInjected)
+                            {
+                                field.SetValue(manager, modInfo);
+                            }
+                        }
+                    }
+                }
+                // ugly, but we need to force the dependency order (ComponentSystem > Others)
+                foreach (var systemType in systemTypes)
+                {
                     if (systemType.IsSubclassOf(typeof(ModComponentSystem)))
                     {
                         modWorld.CreateManager(systemType);
-                    }
-                    else if (!systemType.IsSubclassOf(typeof(ClientComponentSystem)))
-                    {
-                        World.Active.GetOrCreateManager(systemType);
+                      
                     }
                 }
 
