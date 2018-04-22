@@ -4,6 +4,7 @@ using UnityEngine;
 using P4.Core.Network;
 using Packages.pack.guerro.shared.Scripts.Modding;
 using Packet.Guerro.Shared;
+using Packet.Guerro.Shared.ECS;
 using Packet.Guerro.Shared.Network;
 
 namespace P4Main
@@ -16,17 +17,10 @@ namespace P4Main
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Init()
         {
+            CWorldBootstrap.Init();
+            
             var register = CModManager.BeginInternalRegistration();
             {
-                register.AddInternalPacket
-                (
-                    "Patapon Default Assets",
-                    "pack.p4.default",
-                    new[]
-                    {
-                        Assembly.GetAssembly(typeof(P4.Default.Bootstrap))
-                    }
-                );
                 register.AddInternalPacket
                 (
                     "Patapon Core",
@@ -34,6 +28,15 @@ namespace P4Main
                     new[]
                     {
                         Assembly.GetAssembly(typeof(P4.Core.Bootstrap))
+                    }
+                );
+                register.AddInternalPacket
+                (
+                    "Patapon Default Assets",
+                    "pack.p4.default",
+                    new[]
+                    {
+                        Assembly.GetAssembly(typeof(P4.Default.Bootstrap))
                     }
                 );
             }

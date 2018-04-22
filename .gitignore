@@ -12,6 +12,8 @@ GitIgnore/
 # Github repository: https://github.com/Unity-Technologies/InputSystem
 *com.unity.inputsystem/
 
+Plugins/
+
 # Visual Studio 2015 cache directory
 /.vs/
 

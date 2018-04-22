@@ -1,4 +1,5 @@
 ﻿using System;
+using Packages.pack.guerro.shared.Scripts.Clients;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -43,6 +44,14 @@ namespace Packet.Guerro.Shared.Clients
                 world = World.Active;
 
             return world.GetExistingManager<ClientManager>().Exists(clientEntity);
+        }
+        
+        public static ClientWorld GetWorld(this ClientEntity clientEntity, World world = null)
+        {
+            if (world == null)
+                world = World.Active;
+
+            return world.GetExistingManager<ClientManager>().GetWorld(clientEntity);
         }
     }
 }

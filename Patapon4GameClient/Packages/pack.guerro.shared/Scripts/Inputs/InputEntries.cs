@@ -19,9 +19,9 @@ namespace Packet.Guerro.Shared.Inputs
 
             protected string LastLayout;
 
-            public abstract string NameId      { get; }
-            public abstract string DisplayName { get; }
-            public abstract string Translation { get; }
+            public string NameId      { get; internal set; }
+            public string DisplayName { get; internal set; }
+            public string Translation { get; internal set; }
 
             public abstract FastDictionary<string, object> GetDefaults();
 
@@ -101,10 +101,6 @@ namespace Packet.Guerro.Shared.Inputs
             
             public class Push : InputSetting<ReadOnlyCollection<string>, Result.Push>
             {
-                public override string NameId      { get; }
-                public override string DisplayName { get; }
-                public override string Translation { get; }
-
                 public Push(string nameId, string displayName, string translation, FastDictionary<string, string[]> defaults)
                 {
                     NameId      = nameId;
@@ -133,10 +129,6 @@ namespace Packet.Guerro.Shared.Inputs
 
             public class Axis1D : InputSetting<ReadOnlyDictionary<string, ReadOnlyCollection<string>>, Result.Axis1D>
             {
-                public override string NameId      { get; }
-                public override string DisplayName { get; }
-                public override string Translation { get; }
-
                 public Axis1D(string                                                   nameId, string displayName,
                               string                                                   translation,
                               FastDictionary<string, FastDictionary<string, string[]>> defaults)
@@ -202,10 +194,6 @@ namespace Packet.Guerro.Shared.Inputs
             
             public class Axis2D : InputSetting<ReadOnlyDictionary<string, ReadOnlyCollection<string>>, Result.Axis2D>
             {
-                public override string NameId { get; }
-                public override string DisplayName { get; }
-                public override string Translation { get; }
-
                 public Axis2D(string                                                   nameId, string displayName,
                               string                                                   translation,
                               FastDictionary<string, FastDictionary<string, string[]>> defaults)

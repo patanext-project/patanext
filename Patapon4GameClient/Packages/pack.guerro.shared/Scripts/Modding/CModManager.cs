@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Packages.pack.guerro.shared.Scripts.Clients;
 using Packages.pack.guerro.shared.Scripts.Modding;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Packet.Guerro.Shared
 {
@@ -24,6 +26,16 @@ namespace Packet.Guerro.Shared
         public CModInfo GetAssemblyMod(Assembly assembly)
         {
             return m_LoadedModsLookup[assembly];
+        }
+        
+        /// <summary>
+        /// Get the world of the target mod
+        /// </summary>
+        /// <param name="modInfo">The target mod</param>
+        /// <returns>The world of the mod</returns>
+        public ModWorld GetModWorld(CModInfo modInfo)
+        {
+            return ModWorld.GetOrCreate(modInfo);
         }
 
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
@@ -93,7 +105,7 @@ namespace Packet.Guerro.Shared
 
         private static InternalRegistration s_CurrentInternalRegistration;
 
-        private static void RegisterModInternal(Assembly[] assemblies, SModInfoData data)
+        internal static void RegisterModInternal(Assembly[] assemblies, SModInfoData data)
         {
             var modInfo = new CModInfo(data, m_LoadedMods.Count);
             
@@ -129,6 +141,34 @@ namespace Packet.Guerro.Shared
                     bootstrap.RegisterInternal();
                 }
             }
+            
+            // Create the world
+            var modWorld = ModWorld.GetOrCreate(modInfo);
+            Debug.Assert(modWorld != null, "modWorld == null");
+            
+            // Create the systems
+            foreach (var assembly in assemblies)
+            {
+                var systemTypes = assembly.GetTypes().Where(t => 
+                    t.IsSubclassOf(typeof(ComponentSystemBase)) && 
+                    !t.IsAbstract && 
+                    !t.ContainsGenericParameters && 
+                    t.GetCustomAttributes(typeof(DisableAutoCreationAttribute), true).Length == 0);
+
+                foreach (var systemType in systemTypes)
+                {
+                    if (systemType.IsSubclassOf(typeof(ModScriptBehaviourManager)))
+                    {
+                        modWorld.CreateManager(systemType);
+                    }
+                    else if (!systemType.IsSubclassOf(typeof(ClientScriptBehaviourManager)))
+                    {
+                        World.Active.GetOrCreateManager(systemType);
+                    }
+                }
+
+            }
+            ScriptBehaviourUpdateOrder.UpdatePlayerLoop(World.Active);
         }
 
         /// <summary>

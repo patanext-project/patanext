@@ -24,12 +24,13 @@ namespace Packet.Guerro.Shared.Inputs
             
         }
 
-        public void RegisterFromList(List<InputSettingBase> informationMap)
+        public void RegisterFromList(List<InputSettingBase> informationMap, bool autoClear = true)
         {
             for (int i = 0; i != informationMap.Count; i++)
             {
                 RegisterSingle(informationMap[i]);
             }
+            if (autoClear) informationMap.Clear();
         }
 
         public void RegisterSingle(InputSettingBase setting)

@@ -26,7 +26,7 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
     
     private void Awake()
     {
-        foreach (var inputDevice in InputSystem.devices)
+        foreach (var inputDevice in InputSystem.devices) 
         {
             Debug.Log($"device:{inputDevice.id}\nuser:{inputDevice.userId}\nname:{inputDevice.description.deviceClass}");
         }

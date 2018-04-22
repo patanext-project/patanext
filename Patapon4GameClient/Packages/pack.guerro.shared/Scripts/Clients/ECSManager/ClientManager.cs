@@ -4,6 +4,7 @@ using Packages.pack.guerro.shared.Scripts.Clients;
 using Packet.Guerro.Shared.Game;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine.Experimental.Input;
 
 namespace Packet.Guerro.Shared.Clients
 {
@@ -28,6 +29,9 @@ namespace Packet.Guerro.Shared.Clients
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         public int Count { get; private set; }
         
+        public delegate void OnNewClientEvent(ClientEntity clientId);
+        public static event OnNewClientEvent OnNewClient;
+        
         // internal
         private FastDictionary<int, ClientEntity> m_AllClients;
         private NativeList<ClientEntity> m_AllLivingClients;
@@ -49,6 +53,8 @@ namespace Packet.Guerro.Shared.Clients
         protected override void OnDestroyManager()
         {
             base.OnDestroyManager();
+
+            OnNewClient = null;
             
             m_AllClients.Clear();
             m_PooledClients.Dispose();
@@ -60,13 +66,19 @@ namespace Packet.Guerro.Shared.Clients
         public ClientEntity Connect(string login, string password)
         {
             // todo: implement connect
-            return Create(login);
+            var clientId = Create(login);
+
+            OnNewClient?.Invoke(clientId);
+            
+            return clientId;
         }
 
         public ClientEntity Create(string userLogin)
         {
             var clientId = CreateInternal();
 
+            OnNewClient?.Invoke(clientId);
+            
             return clientId;
         }
         
