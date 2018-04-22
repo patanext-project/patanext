@@ -27,6 +27,8 @@ namespace Packet.Guerro.Shared.Inputs
 
             public abstract bool ContainsLayout(string layoutType);
 
+            public abstract void Refresh();
+
             public abstract void Dispose();            
         }
         
@@ -101,14 +103,25 @@ namespace Packet.Guerro.Shared.Inputs
             
             public class Push : InputSetting<ReadOnlyCollection<string>, Result.Push>
             {
+                internal FastDictionary<string, string[]> RWDefaults;
+
+                internal Push(string nameId)
+                {
+                    NameId = nameId;
+                    DisplayName = string.Empty;
+                    Translation = string.Empty;
+                    
+                    RWDefaults = new FastDictionary<string, string[]>();
+                }
+                
                 public Push(string nameId, string displayName, string translation, FastDictionary<string, string[]> defaults)
                 {
                     NameId      = nameId;
                     DisplayName = displayName;
                     Translation = translation;
 
-                    Defaults = new ReadOnlyDictionary<string, ReadOnlyCollection<string>>
-                        (defaults.ToDictionary(k => k.Key, v => new ReadOnlyCollection<string>(v.Value)));
+                    RWDefaults = defaults;
+                    Refresh();
                 }
                 
                 public override FastDictionary<string, object> GetDefaults()
@@ -121,6 +134,12 @@ namespace Packet.Guerro.Shared.Inputs
                     return Defaults.ContainsKey(layoutType);
                 }
 
+                public override void Refresh()
+                {
+                    Defaults = new ReadOnlyDictionary<string, ReadOnlyCollection<string>>
+                        (RWDefaults.ToDictionary(k => k.Key, v => new ReadOnlyCollection<string>(v.Value)));      
+                }
+
                 public override void Dispose()
                 {
                     Defaults = null;
@@ -129,6 +148,17 @@ namespace Packet.Guerro.Shared.Inputs
 
             public class Axis1D : InputSetting<ReadOnlyDictionary<string, ReadOnlyCollection<string>>, Result.Axis1D>
             {
+                internal FastDictionary<string, FastDictionary<string, string[]>> RWDefaults;
+                
+                internal Axis1D(string nameId)
+                {
+                    NameId      = nameId;
+                    DisplayName = string.Empty;
+                    Translation = string.Empty;
+                    
+                    RWDefaults = new FastDictionary<string, FastDictionary<string, string[]>>();
+                }
+                
                 public Axis1D(string                                                   nameId, string displayName,
                               string                                                   translation,
                               FastDictionary<string, FastDictionary<string, string[]>> defaults)
@@ -159,9 +189,25 @@ namespace Packet.Guerro.Shared.Inputs
                     }  
 
                     // I'm not proud of that, seriously, it's ugly
+                    RWDefaults = defaults;
+                    Refresh();
+                }
+
+                public override FastDictionary<string, object> GetDefaults()
+                {
+                    throw new System.NotImplementedException();
+                }
+
+                public override bool ContainsLayout(string layoutType)
+                {
+                    return Defaults.ContainsKey(layoutType);
+                }
+
+                public override void Refresh()
+                {
                     Defaults = new ReadOnlyDictionary<string, ReadOnlyDictionary<string, ReadOnlyCollection<string>>>
                     (
-                        defaults.ToDictionary
+                        RWDefaults.ToDictionary
                         (
                             k => k.Key,
                             v => new ReadOnlyDictionary<string, ReadOnlyCollection<string>>
@@ -176,16 +222,6 @@ namespace Packet.Guerro.Shared.Inputs
                     );
                 }
 
-                public override FastDictionary<string, object> GetDefaults()
-                {
-                    throw new System.NotImplementedException();
-                }
-
-                public override bool ContainsLayout(string layoutType)
-                {
-                    return Defaults.ContainsKey(layoutType);
-                }
-
                 public override void Dispose()
                 {
                     Defaults = null;
@@ -194,6 +230,17 @@ namespace Packet.Guerro.Shared.Inputs
             
             public class Axis2D : InputSetting<ReadOnlyDictionary<string, ReadOnlyCollection<string>>, Result.Axis2D>
             {
+                internal FastDictionary<string, FastDictionary<string, string[]>> RWDefaults;
+                
+                internal Axis2D(string nameId)
+                {
+                    NameId      = nameId;
+                    DisplayName = string.Empty;
+                    Translation = string.Empty;
+                    
+                    RWDefaults = new FastDictionary<string, FastDictionary<string, string[]>>();
+                }
+                
                 public Axis2D(string                                                   nameId, string displayName,
                               string                                                   translation,
                               FastDictionary<string, FastDictionary<string, string[]>> defaults)
@@ -227,9 +274,25 @@ namespace Packet.Guerro.Shared.Inputs
                     }  
                     
                     // I'm not proud of that, seriously, it's ugly
+                    RWDefaults = defaults;
+                    Refresh();
+                }
+
+                public override FastDictionary<string, object> GetDefaults()
+                {
+                    throw new System.NotImplementedException();
+                }
+                
+                public override bool ContainsLayout(string layoutType)
+                {
+                    return Defaults.ContainsKey(layoutType);
+                }
+
+                public override void Refresh()
+                {
                     Defaults = new ReadOnlyDictionary<string, ReadOnlyDictionary<string, ReadOnlyCollection<string>>>
                     (
-                        defaults.ToDictionary
+                        RWDefaults.ToDictionary
                         (
                             k => k.Key,
                             v => new ReadOnlyDictionary<string, ReadOnlyCollection<string>>
@@ -242,16 +305,6 @@ namespace Packet.Guerro.Shared.Inputs
                             )
                         )
                     );
-                }
-
-                public override FastDictionary<string, object> GetDefaults()
-                {
-                    throw new System.NotImplementedException();
-                }
-                
-                public override bool ContainsLayout(string layoutType)
-                {
-                    return Defaults.ContainsKey(layoutType);
                 }
 
                 public override void Dispose()

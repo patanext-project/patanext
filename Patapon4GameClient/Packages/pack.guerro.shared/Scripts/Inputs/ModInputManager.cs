@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Newtonsoft.Json.Linq;
 using Packages.pack.guerro.shared.Scripts.Modding;
 using Unity.Entities;
 using UnityEngine;
@@ -11,15 +13,150 @@ namespace Packet.Guerro.Shared.Inputs
     {
         [Inject] private CInputManager m_InputManager;
 
-        private FastDictionary<string, string> GetInformationFromJson(string json)
+        private FastDictionary<string, CInputManager.InputSettingBase> GetInformationFromJson(string json)
         {
-            var dico = new FastDictionary<string, string>();
-            JsonUtility.
+            var dico       = new FastDictionary<string, CInputManager.InputSettingBase>();
+            var jsonObject = JObject.Parse(json);
+            foreach (var id in jsonObject)
+            {
+                CInputManager.InputSettingBase setting = null;
+                var valueArray = id.Value as JObject;
+                foreach (var property in valueArray)
+                {
+                    var propertyName  = property.Key;
+                    var propertyValue = property.Value.Value<string>();
+                    if (propertyName == "type")
+                    {
+                        if (propertyValue == "push") setting   = new CInputManager.Settings.Push(id.Key);
+                        if (propertyValue == "axis1d") setting = new CInputManager.Settings.Axis1D(id.Key);
+                        if (propertyValue == "axis2d") setting = new CInputManager.Settings.Axis2D(id.Key);
+                    }
+
+                    if (setting == null)
+                        throw new Exception($"An input setting ({id.Key}) was invalid.");
+
+                    if (propertyName == "displayName")
+                    {
+                        setting.DisplayName = propertyValue;
+                    }
+
+                    if (propertyName == "translation")
+                    {
+                        setting.Translation = propertyValue;
+                    }
+                }
+
+                dico[id.Key] = setting;
+            }
+
+            return dico;
         }
-        
+
+        private void RegisterDefaultsFromJson
+        (
+            string                                                 layout,
+            string                                                 json,
+            FastDictionary<string, CInputManager.InputSettingBase> informations
+        )
+        {
+            var jsonObject = JObject.Parse(json);
+            foreach (var id in jsonObject)
+            {
+                if (informations.ContainsKey(id.Key))
+                {
+                    // TODO: Refactor this, it's ugly, very ugly
+                    if (informations[id.Key] is CInputManager.Settings.Push push)
+                    {
+                        var valueArray = id.Value as JObject;
+                        foreach (var property in valueArray)
+                        {
+                            var propertyName  = property.Key;
+                            var propertyValue = property.Value.Value<string>();
+                            if (propertyName == "default")
+                            {
+                                push.RWDefaults[layout] =
+                                    propertyValue
+                                        .Replace(" ", string.Empty)
+                                        .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                            }
+                        }
+                    }
+
+                    if (informations[id.Key] is CInputManager.Settings.Axis1D axis1D)
+                    {
+                        var valueArray = id.Value as JObject;
+                        foreach (var property in valueArray)
+                        {
+                            var propertyName  = property.Key;
+                            var propertyValue = property.Value.Value<string>();
+                            if (propertyName == "-x")
+                            {
+                                axis1D.RWDefaults[layout]["-x"] =
+                                    propertyValue
+                                        .Replace(" ", string.Empty)
+                                        .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                            }
+
+                            if (propertyName == "+x")
+                            {
+                                axis1D.RWDefaults[layout]["+x"] =
+                                    propertyValue
+                                        .Replace(" ", string.Empty)
+                                        .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                            }
+                        }
+                    }
+
+                    if (informations[id.Key] is CInputManager.Settings.Axis2D axis2D)
+                    {
+                        var valueArray = id.Value as JObject;
+                        foreach (var property in valueArray)
+                        {
+                            var propertyName  = property.Key;
+                            var propertyValue = property.Value.Value<string>();
+                            if (propertyName == "-x")
+                            {
+                                axis2D.RWDefaults[layout]["-x"] =
+                                    propertyValue
+                                        .Replace(" ", string.Empty)
+                                        .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                            }
+
+                            if (propertyName == "+x")
+                            {
+                                axis2D.RWDefaults[layout]["+x"] =
+                                    propertyValue
+                                        .Replace(" ", string.Empty)
+                                        .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                            }
+
+                            if (propertyName == "-y")
+                            {
+                                axis2D.RWDefaults[layout]["-y"] =
+                                    propertyValue
+                                        .Replace(" ", string.Empty)
+                                        .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                            }
+
+                            if (propertyName == "+y")
+                            {
+                                axis2D.RWDefaults[layout]["+y"] =
+                                    propertyValue
+                                        .Replace(" ", string.Empty)
+                                        .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Register
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        /*
+         * Omg, it's ugly
+         */
         public void RegisterFromFile(string path, bool customPath = false)
         {
             if (customPath)
@@ -34,10 +171,26 @@ namespace Packet.Guerro.Shared.Inputs
                 var correspondingFiles = Directory.GetFiles(directoryPath, $"{path}.layout.*.json");
                 foreach (var file in correspondingFiles)
                 {
-                    layoutFiles[file] = File.ReadAllText(file);
+                    var fileName = Path.GetFileName(file);
+                    layoutFiles
+                        [
+                            "<" + fileName.Replace($"{path}.layout.", string.Empty)
+                                    .Replace(".json", string.Empty) + ">"
+                        ]
+                        = File.ReadAllText(file);
                 }
 
                 var informations = GetInformationFromJson(mainFile);
+                foreach (var layoutText in layoutFiles)
+                {
+                    RegisterDefaultsFromJson(layoutText.Key, layoutText.Value, informations);
+                }
+
+                var list = informations.Values.ToList();
+                foreach (var value in list)
+                {
+                    RegisterSingle(value);
+                }
                 
                 informations.Clear();
                 layoutFiles.Clear();
@@ -70,7 +223,18 @@ namespace Packet.Guerro.Shared.Inputs
                 setting.NameId = ModWorld.Mod.NameId + "." + setting.NameId;
             }
             
+            setting.Refresh();
+            
             Debug.Log("New input added: " + setting.NameId);
+            if (setting is CInputManager.Settings.Push push)
+            {
+                foreach (var dico in push.RWDefaults)
+                {
+                    Debug.Log(dico.Key);
+                    foreach (var vl in dico.Value)
+                        Debug.Log(vl);
+                }
+            }
 
             m_InputManager.RegisterSingle(setting);
         }

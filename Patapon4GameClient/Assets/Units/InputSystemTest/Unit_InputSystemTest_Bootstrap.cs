@@ -56,74 +56,6 @@ namespace Assets.Units.InputSystemTest
                         }
                     }
                 ),
-                new CInputManager.Settings.Push
-                (
-                    nameId: "action1",
-                    displayName: "Jump",
-                    translation: "%m.inputs.jump",
-                    defaults: new FastDictionary<string, string[]>
-                    {
-                        {
-                            "<keyboard>",
-                            new[] {"numpad4"}
-                        },
-                        {
-                            "<gamepad>",
-                            new[] {"buttonWest"}
-                        }
-                    }
-                ),
-                new CInputManager.Settings.Push
-                (
-                    nameId: "action2",
-                    displayName: "Jump",
-                    translation: "%m.inputs.jump",
-                    defaults: new FastDictionary<string, string[]>
-                    {
-                        {
-                            "<keyboard>",
-                            new[] {"numpad6"}
-                        },
-                        {
-                            "<gamepad>",
-                            new[] {"buttonEast"}
-                        }
-                    }
-                ),
-                new CInputManager.Settings.Push
-                (
-                    nameId: "action3",
-                    displayName: "Jump",
-                    translation: "%m.inputs.jump",
-                    defaults: new FastDictionary<string, string[]>
-                    {
-                        {
-                            "<keyboard>",
-                            new[] {"numpad2"}
-                        },
-                        {
-                            "<gamepad>",
-                            new[] {"buttonSouth"}
-                        }
-                    }
-                ),
-                new CInputManager.Settings.Push
-                (
-                    nameId: "action4",
-                    displayName: "Jump",
-                    translation: "%m.inputs.jump",
-                    defaults: new FastDictionary<string, string[]>
-                    {
-                        {
-                            "<keyboard>",
-                            new[] {"numpad8"}
-                        },
-                        {
-                            "<gamepad>",
-                            new[] {"buttonNorth"}
-                        }
-                    }
-                ),
                 new CInputManager.Settings.Axis1D
                 (
                     nameId: "horizontal",
@@ -187,10 +119,10 @@ namespace Assets.Units.InputSystemTest
             InputHorizontalId            = inputManager.GetId("horizontal");
             InputHorizontalAndVerticalId = inputManager.GetId("horizontal&vertical");
 
-            Action1Id = inputManager.GetId("action1");
-            Action2Id = inputManager.GetId("action2");
-            Action3Id = inputManager.GetId("action3");
-            Action4Id = inputManager.GetId("action4");
+            Action1Id = inputManager.GetId("pack.p4.default.action1");
+            Action2Id = inputManager.GetId("pack.p4.default.action2");
+            Action3Id = inputManager.GetId("pack.p4.default.action3");
+            Action4Id = inputManager.GetId("pack.p4.default.action4");
 
             // Create a client
             var clientManager = World.Active.GetExistingManager<ClientManager>();
