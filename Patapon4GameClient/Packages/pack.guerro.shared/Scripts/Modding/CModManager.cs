@@ -173,11 +173,7 @@ namespace Packet.Guerro.Shared
                             }
                         }
                     }
-                }
-                // ugly, but we need to force the dependency order (ComponentSystem > Others)
-                foreach (var systemType in systemTypes)
-                {
-                    if (systemType.IsSubclassOf(typeof(ModComponentSystem)))
+                    else if (systemType.IsSubclassOf(typeof(ModComponentSystem)))
                     {
                         modWorld.CreateManager(systemType);
                       

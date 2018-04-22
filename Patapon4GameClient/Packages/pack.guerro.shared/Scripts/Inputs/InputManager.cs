@@ -184,6 +184,8 @@ namespace Packet.Guerro.Shared.Inputs
         {
             internal InputAction InputAction;
 
+            public readonly int InputId;
+
             public InputAction.Phase     Phase                => InputAction.phase;
             public InputControl          LastTriggerControl   => InputAction.lastTriggerControl;
             public double                LastTriggerTime      => InputAction.lastTriggerTime;
@@ -192,9 +194,9 @@ namespace Packet.Guerro.Shared.Inputs
             public InputBinding          LastTriggerBinding   => InputAction.lastTriggerBinding;
             public IInputBindingModifier LastTriggerModifier  => InputAction.lastTriggerModifier;
 
-            public event InputActionListener Started;
-            public event InputActionListener Cancelled;
-            public event InputActionListener Performed;
+            public event Action<InputAction.CallbackContext, int> Started;
+            public event Action<InputAction.CallbackContext, int> Cancelled;
+            public event Action<InputAction.CallbackContext, int> Performed;
 
             internal void SwitchAction(InputAction newAction)
             {
@@ -218,21 +220,26 @@ namespace Packet.Guerro.Shared.Inputs
                     InputAction.Enable();
                 }
             }
+            
+            public CustomInputAction(int inputId)
+            {
+                InputId = inputId;
+            }
 
             internal void OnStart(InputAction.CallbackContext context)
             {
-                Started?.Invoke(context);
+                Debug.Log("On start");
+                Started?.Invoke(context, InputId);
             }
 
             internal void OnCancel(InputAction.CallbackContext context)
             {
-                Cancelled?.Invoke(context);
+                Cancelled?.Invoke(context, InputId);
             }
 
             internal void OnPerform(InputAction.CallbackContext context)
             {
-                Debug.Log("Was performed.");
-                Performed?.Invoke(context);
+                Performed?.Invoke(context, InputId);
             }
         }
 

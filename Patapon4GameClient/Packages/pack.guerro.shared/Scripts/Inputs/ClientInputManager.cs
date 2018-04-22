@@ -242,9 +242,8 @@ namespace Packet.Guerro.Shared.Inputs
         {
             foreach (var action in m_CachedInputActions)
             {
-                var id       = action.Key;
                 var val      = action.Value;
-                var map      = GetMap(id);
+                var map      = GetMap(action.Value.CustomAction.InputId);
                 var layout   = GetActiveLayout();
                 var settings = map.DefaultSettings;
 
@@ -304,7 +303,7 @@ namespace Packet.Guerro.Shared.Inputs
 
             foreach (var binding in inputAction.bindings)
             {
-                Debug.Log(binding.path);
+                Debug.Log(inputAction.bindings.Count + ", " + binding.path);
             }
 
             if (wasEnabled) inputAction.Enable();
@@ -348,10 +347,16 @@ namespace Packet.Guerro.Shared.Inputs
         /// <returns></returns>
         public CInputManager.CustomInputAction CreateInputAction(int inputId)
         {
+            Debug.Log($"Going to register id: {inputId}");
+            
+            // todo: See if this should return an exception or null instead?
+            if (m_CachedInputActions.ContainsKey(inputId))
+                return GetInputAction(inputId);
+            
             var cache = new CacheInputAction();
             cache.Device = m_ActiveDevice;
             cache.Version = 0;
-            cache.CustomAction = new CInputManager.CustomInputAction();
+            cache.CustomAction = new CInputManager.CustomInputAction(inputId);
               
             var inputAction = new InputAction();
             SetInputActionBindingsInternal(inputAction, GetMap(inputId).DefaultSettings);

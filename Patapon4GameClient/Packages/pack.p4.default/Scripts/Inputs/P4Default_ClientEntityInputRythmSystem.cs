@@ -7,6 +7,7 @@ using Packet.Guerro.Shared.Inputs;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Experimental.Input;
+using UnityEngine.Experimental.Input.Utilities;
 
 namespace P4.Default.Inputs
 {
@@ -17,25 +18,13 @@ namespace P4.Default.Inputs
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         public class ClientContainer : ClientDataContainer
         {
-            public int[] InputIds;
-            public InputAction[] InputActions;
 
             protected override void OnCreateContainer()
             {
-                InputIds = new int[4];
-                InputActions = new InputAction[4];
             }
 
             protected override void OnDestroyContainer()
             {
-                if (InputActions != null)
-                {
-                    for (int i = 0; i != InputActions.Length; i++)
-                        InputActions[i].Disable();
-                }
-
-                InputIds = null;
-                InputActions = null;
             }
         }
 
@@ -53,6 +42,10 @@ namespace P4.Default.Inputs
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Fields
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        public ReadOnlyArray<int> InputIds => new ReadOnlyArray<int>(m_actionInputIds);
+
+        private int[] m_actionInputIds;
+
         [Inject] private ClientGroup   m_ClientGroup;
         [Inject] private CInputManager m_InputManager;
 
@@ -63,14 +56,18 @@ namespace P4.Default.Inputs
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         protected override void OnCreateManager(int capacity)
         {
-            ClientManager.OnNewClient             += OnNewClient;
-            CInputManager.OnClientDeviceChanged   += InputOnClientUpdate;
-            CInputManager.OnClientSettingsChanged += InputOnClientUpdate;
-            
+            ClientManager.OnNewClient += OnNewClient;
+
             m_ModInfo = CModInfo.CurrentMod;
 
             var modInputManager = m_ModInfo.GetInputManager();
             modInputManager.RegisterFromFile("rythm_inputs");
+
+            m_actionInputIds = new int[4];
+            for (int i = 0; i != 4; i++)
+            {
+                m_actionInputIds[i] = modInputManager.GetId("action" + (i + 1));
+            }
         }
 
         protected override void OnUpdate()
@@ -93,22 +90,28 @@ namespace P4.Default.Inputs
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Methods from events
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
-        private void InputOnClientUpdate(ClientInputManager clientInputManager)
+        private void OnInputStarted(InputAction.CallbackContext ctx, int inputId)
         {
-            var container   = clientInputManager.ClientWorld.GetExistingContainer<ClientContainer>();
-            //var inputAction = clientInputManager.GetInputAction();
+            Debug.Log($"Started input: {inputId}");
+        }
+
+        private void OnInputEnded(InputAction.CallbackContext ctx, int inputId)
+        {
+            Debug.Log($"Ended input: {inputId}");
         }
 
         private void OnNewClient(ClientEntity clientId)
         {
-            var inputData = clientId.GetWorld().SetContainer<ClientContainer>(new ClientContainer());
+            var inputManager = clientId.GetInputManager();
+            var inputData    = clientId.GetWorld().SetContainer(new ClientContainer());
             for (int i = 0; i != 4; i++)
             {
-                inputData.InputIds[i] = m_ModInfo.GetInputManager().GetId("action" + i);
+                var id = m_actionInputIds[i];
+                var inputAction = inputManager.CreateInputAction(id);
+                inputAction.Started   += OnInputStarted;
+                inputAction.Cancelled += OnInputEnded;
+                inputAction.Performed += OnInputStarted;
             }
-
-            var clientInputManager = clientId.GetInputManager();
-            clientInputManager.CreateInputAction(inputData.InputIds[0]).Performed += context => Debug.Log("On perform");
         }
     }
 }
