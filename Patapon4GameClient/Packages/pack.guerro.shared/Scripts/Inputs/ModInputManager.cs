@@ -226,15 +226,6 @@ namespace Packet.Guerro.Shared.Inputs
             setting.Refresh();
             
             Debug.Log("New input added: " + setting.NameId);
-            if (setting is CInputManager.Settings.Push push)
-            {
-                foreach (var dico in push.RWDefaults)
-                {
-                    Debug.Log(dico.Key);
-                    foreach (var vl in dico.Value)
-                        Debug.Log(vl);
-                }
-            }
 
             m_InputManager.RegisterSingle(setting);
         }
