@@ -14,7 +14,7 @@ using UnityEngine.Profiling;
 
 namespace Packet.Guerro.Shared.Inputs
 {
-    public partial class ClientInputManager : ClientScriptBehaviourManager
+    public partial class ClientInputManager : ClientComponentSystem
     {
         private static string s_LayoutKeyboard = "<keyboard>",
                               s_LayoutGamepad  = "<gamepad>",

@@ -3,45 +3,47 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using JetBrains.Annotations;
-using Packages.pack.guerro.shared.Scripts.Clients;
 using Packet.Guerro.Shared.Clients;
-using Unity.Entities;
 using UnityEngine;
+using Unity.Entities;
 
-namespace Packages.pack.guerro.shared.Scripts.Modding
+namespace Packages.pack.guerro.shared.Scripts.Clients
 {
-    public abstract class ModScriptBehaviourManager : ComponentSystem
+    public abstract class ClientComponentSystem : ComponentSystem
     {
-	    public ModWorld ModWorld;
+	    public ClientWorld ClientWorld;
+	    
+        [Inject] protected SharedClientGroup ClientGroup;
 
-        internal void AddManagerForMod(ModWorld modWorld)
+        internal void AddManagerForClient(ClientWorld clientWorld)
         {
-	        ModWorld = modWorld;
+	        ClientWorld = clientWorld;
         }
     }
 
-    public class ModWorld
+    public class ClientWorld
     {
         // Well, it somewhat copy the same code of Entity/World.cs
-	    public CModInfo Mod { get; private set; }
-
+	    public ClientEntity Client   { get; private set; }
+	    public int          ClientId { get; private set; }
+	    
 	    [NotNull]
 	    private static MethodInfo s_DestroyInstance;
 
 	    [NotNull]
 	    private static MethodInfo s_CreateInstance;
 	    
-        public IEnumerable<ModScriptBehaviourManager> BehaviourManagers =>
-            new ReadOnlyCollection<ModScriptBehaviourManager>(m_BehaviourManagers);
+        public IEnumerable<ClientComponentSystem> BehaviourManagers =>
+            new ReadOnlyCollection<ClientComponentSystem>(m_BehaviourManagers);
 
-        private List<ModScriptBehaviourManager> m_BehaviourManagers = new List<ModScriptBehaviourManager>();
+        private List<ClientComponentSystem> m_BehaviourManagers = new List<ClientComponentSystem>();
 
         //@TODO: What about multiple managers of the same type...
-        Dictionary<Type, ModScriptBehaviourManager> m_BehaviourManagerLookup =
-            new Dictionary<Type, ModScriptBehaviourManager>();
+	    FastDictionary<Type, ClientComponentSystem> m_BehaviourManagerLookup =
+            new FastDictionary<Type, ClientComponentSystem>();
 	    
-	    static FastDictionary<int, ModWorld> s_WorldsModIdLookup =
-		    new FastDictionary<int, ModWorld>();
+	    static FastDictionary<ClientEntity, ClientWorld> s_WorldsClientIdLookup =
+		    new FastDictionary<ClientEntity, ClientWorld>();
 
         int m_DefaultCapacity = 10;
         bool m_AllowGetManager = true;
@@ -49,7 +51,7 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
         public int Version { get { return m_Version; } }
         int m_Version = 0;
 	    
-	    internal static readonly List<ModWorld> AllWorlds = new List<ModWorld>();
+	    internal static readonly List<ClientWorld> AllWorlds = new List<ClientWorld>();
 
         int GetCapacityForType(Type type)
         {
@@ -61,7 +63,7 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
             m_DefaultCapacity = value;
         }
 
-	    static ModWorld()
+	    static ClientWorld()
 	    {
 		    // ReSharper disable AssignNullToNotNullAttribute
 		    s_DestroyInstance = typeof(ScriptBehaviourManager)
@@ -76,21 +78,21 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 		    // ReSharper restore AssignNullToNotNullAttribute
 	    }
 
-	    public static ModWorld GetOrCreate(CModInfo modInfo)
+	    public static ClientWorld GetOrCreate(ClientEntity clientEntity)
 	    {
-		    if (s_WorldsModIdLookup.TryGetValue(modInfo.Id, out var world))
+		    if (s_WorldsClientIdLookup.TryGetValue(clientEntity, out var world))
 		    {
 			    return world;
 		    }
 
-		    return new ModWorld(modInfo);
+		    return new ClientWorld(clientEntity);
 	    }
 
-        public ModWorld(CModInfo modInfo)
+        public ClientWorld(ClientEntity clientEntity)
         {
-	        Mod = modInfo;
-	        
-	        s_WorldsModIdLookup[Mod.Id] = this;
+	        ClientId = (Client = clientEntity).ReferenceId;
+
+	        s_WorldsClientIdLookup[clientEntity] = this;
 	        AllWorlds.Add(this);
         }
 
@@ -139,7 +141,7 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 	    //
 	    // Internal
 	    //
-	    ModScriptBehaviourManager CreateManagerInternal (Type type, int capacity, object[] constructorArguments)
+	    ClientComponentSystem CreateManagerInternal (Type type, int capacity, object[] constructorArguments)
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (!m_AllowGetManager)
@@ -154,10 +156,10 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 #endif
 
 		    m_AllowGetManager = true;
-		    ModScriptBehaviourManager manager;
+		    ClientComponentSystem manager;
 		    try
 		    {
-		        manager = Activator.CreateInstance(type, constructorArguments) as ModScriptBehaviourManager;
+		        manager = Activator.CreateInstance(type, constructorArguments) as ClientComponentSystem;
 
 		    }
 		    catch
@@ -171,7 +173,7 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 
 		    try
 		    {
-			    manager.AddManagerForMod(this);
+			    manager.AddManagerForClient(this);
 		        CreateManagerExtraInternal(manager, capacity);
 
 		    }
@@ -185,7 +187,7 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 			return manager;
 		}
 
-	    ModScriptBehaviourManager GetExistingManagerInternal (Type type)
+	    ClientComponentSystem GetExistingManagerInternal (Type type)
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 		    if (!IsCreated)
@@ -194,21 +196,21 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 				throw new ArgumentException("During destruction of a system you are not allowed to get or create more systems.");
 #endif
 
-			ModScriptBehaviourManager manager ;
+			ClientComponentSystem manager ;
 			if (m_BehaviourManagerLookup.TryGetValue(type, out manager))
 				return manager;
 
 			return null;
 		}
 
-	    ModScriptBehaviourManager GetOrCreateManagerInternal (Type type)
+	    ClientComponentSystem GetOrCreateManagerInternal (Type type)
 		{
 			var manager = GetExistingManagerInternal(type);
 
 			return manager ?? CreateManagerInternal(type, GetCapacityForType(type), null);
 		}
 
-	    void AddTypeLookup(Type type, ModScriptBehaviourManager manager)
+	    void AddTypeLookup(Type type, ClientComponentSystem manager)
 	    {
 	        while (type != typeof(ScriptBehaviourManager))
 	        {
@@ -219,7 +221,7 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 	        }
 	    }
 
-	    void RemoveManagerInteral(ModScriptBehaviourManager manager)
+	    void RemoveManagerInteral(ClientComponentSystem manager)
 		{
 			if (!m_BehaviourManagers.Remove(manager))
 				throw new ArgumentException($"manager does not exist in the world");
@@ -246,12 +248,12 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 	    //
 	    // Extra internal
 	    //
-	    void RemoveManagerExtraInternal(ModScriptBehaviourManager manager)
+	    void RemoveManagerExtraInternal(ClientComponentSystem manager)
 	    {
 		    s_DestroyInstance.Invoke(manager, null);
 	    }
 	    
-	    void CreateManagerExtraInternal(ModScriptBehaviourManager manager, int capacity)
+	    void CreateManagerExtraInternal(ClientComponentSystem manager, int capacity)
 	    {
 		    s_CreateInstance.Invoke(manager, new object[]{ World.Active, capacity });
 	    }
@@ -259,37 +261,37 @@ namespace Packages.pack.guerro.shared.Scripts.Modding
 	    //
 	    // Public
 	    //
-		public ModScriptBehaviourManager CreateManager(Type type, params object[] constructorArgumnents)
+		public ClientComponentSystem CreateManager(Type type, params object[] constructorArgumnents)
 		{
 			return CreateManagerInternal(type, GetCapacityForType(type), constructorArgumnents);
 		}
 
-		public T CreateManager<T>(params object[] constructorArgumnents) where T : ModScriptBehaviourManager
+		public T CreateManager<T>(params object[] constructorArgumnents) where T : ClientComponentSystem
 		{
 			return (T)CreateManagerInternal(typeof(T), GetCapacityForType(typeof(T)), constructorArgumnents);
 		}
 
-		public T GetOrCreateManager<T> () where T : ModScriptBehaviourManager
+		public T GetOrCreateManager<T> () where T : ClientComponentSystem
 		{
 			return (T)GetOrCreateManagerInternal (typeof(T));
 		}
 
-		public ModScriptBehaviourManager GetOrCreateManager(Type type)
+		public ClientComponentSystem GetOrCreateManager(Type type)
 		{
 			return GetOrCreateManagerInternal (type);
 		}
 
-		public T GetExistingManager<T> () where T : ModScriptBehaviourManager
+		public T GetExistingManager<T> () where T : ClientComponentSystem
 		{
 			return (T)GetExistingManagerInternal (typeof(T));
 		}
 
-		public ModScriptBehaviourManager GetExistingManager(Type type)
+		public ClientComponentSystem GetExistingManager(Type type)
 		{
 			return GetExistingManagerInternal (type);
 		}
 
-		public void DestroyManager(ModScriptBehaviourManager manager)
+		public void DestroyManager(ClientComponentSystem manager)
 		{
 			RemoveManagerInteral(manager);
 			RemoveManagerExtraInternal(manager);

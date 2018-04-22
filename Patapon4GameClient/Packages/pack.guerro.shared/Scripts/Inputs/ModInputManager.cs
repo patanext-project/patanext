@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Packet.Guerro.Shared.Inputs
 {
-    public class ModInputManager : ModScriptBehaviourManager
+    public class ModInputManager : ModComponentSystem
     {
         [Inject] private CInputManager m_InputManager;
 

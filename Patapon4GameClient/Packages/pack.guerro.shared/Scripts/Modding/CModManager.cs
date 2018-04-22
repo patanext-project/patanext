@@ -157,11 +157,11 @@ namespace Packet.Guerro.Shared
 
                 foreach (var systemType in systemTypes)
                 {
-                    if (systemType.IsSubclassOf(typeof(ModScriptBehaviourManager)))
+                    if (systemType.IsSubclassOf(typeof(ModComponentSystem)))
                     {
                         modWorld.CreateManager(systemType);
                     }
-                    else if (!systemType.IsSubclassOf(typeof(ClientScriptBehaviourManager)))
+                    else if (!systemType.IsSubclassOf(typeof(ClientComponentSystem)))
                     {
                         World.Active.GetOrCreateManager(systemType);
                     }

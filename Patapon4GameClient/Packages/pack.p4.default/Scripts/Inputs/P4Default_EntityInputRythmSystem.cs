@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Packages.pack.guerro.shared.Scripts.Clients;
 using Packages.pack.guerro.shared.Scripts.Modding;
 using Packet.Guerro.Shared.Clients;
 using Packet.Guerro.Shared.Inputs;
@@ -6,7 +7,7 @@ using Unity.Entities;
 
 namespace P4.Default.Inputs
 {
-    public class P4Default_EntityInputRythmSystem : ComponentSystem
+    public class P4Default_EntityInputRythmSystem : ClientComponentSystem
     {
         protected override void OnCreateManager(int capacity)
         {
@@ -104,7 +105,6 @@ namespace P4.Default.Inputs
         protected void OnNewClient(ClientEntity clientId)
         {
             var clientWorld = clientId.GetWorld();
-            //var clientInputManager = clientWorld.GetExistingManager<P4Default_Rythm>();
         }
     }
 }
