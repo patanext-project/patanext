@@ -1,10 +1,14 @@
 ﻿using JetBrains.Annotations;
 using P4.Core.RythmEngine;
+using Packet.Guerro.Shared.Game;
 using Unity.Entities;
+using UnityEngine;
 
 namespace P4.Core.RythmEngine
 {
     [UsedImplicitly]
+    [AlwaysUpdateSystem]
+    [UpdateAfter(typeof(RythmBeatSystem))]
     public class RythmSystem : ComponentSystem
     {
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
@@ -33,8 +37,27 @@ namespace P4.Core.RythmEngine
                 var entity = m_GroupCommands.Entities[index];
                 var input = m_GroupCommands.Inputs[index];
                 
-                m_Barrier.PostUpdateCommands.DestroyEntity(entity);
+                Debug.Log($"New rythm input! {input.Key} from group {input.EntityGroup.ReferenceId}");
+                
+                EntityManager.DestroyEntity(entity);
             }
+        }
+
+        internal void AddBeatEvent()
+        {
+            
+        }
+
+        public void AddClientInputEvent(int key, EntityGroup entityGroup)
+        {
+            var archetype = EntityManager.CreateArchetype(typeof(DRythmInputData));
+            
+            var entity = EntityManager.CreateEntity(archetype);
+            EntityManager.SetComponentData(entity, new DRythmInputData()
+            {
+                Key = key,
+                EntityGroup = entityGroup
+            });
         }
     }
 }

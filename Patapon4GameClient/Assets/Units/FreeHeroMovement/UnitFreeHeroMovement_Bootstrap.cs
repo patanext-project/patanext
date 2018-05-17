@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Guerro.Utilities;
 using P4.Core.Graphics;
 using P4.Default;
 using P4.Default.Inputs;
@@ -26,10 +27,7 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
     public ClientEntity ClientId;
     
     private void Awake()
-    {        
-        var clientManager = World.Active.GetExistingManager<ClientManager>();
-        ClientId = clientManager.Create("debug");
-
+    {                
         AddNewCharacter();
     }
 
@@ -90,15 +88,23 @@ public class UnitFreeHeroMovement_Bootstrap : MonoBehaviour
 
         networkEntityManager.AddOrSetComponent(characterEntity, characterGo, netData);
         controllableEntityManager.AddOrSetComponent(characterEntity, characterGo, controlData);
-
+        
+        characterEntity.SetOrCreateComponentData(new ClientEntityAttach
+        {
+            AttachedTo = ClientId
+        });
+        
         characterGo.AddComponentToEntity<P4Default_DFreeMovementWrapper>();
         characterGo.AddComponentToEntity<P4Default_DEntityInputFreeWrapper>();
-
-        var cps = entityManager.GetComponentTypes(characterEntity);
-        foreach (var component in cps)
+        characterGo.AddComponentToEntity<P4Default_DEntityInputRythmWrapper>();
+        
+        characterEntity = characterGo.GetComponent<GameObjectEntity>().Entity;
+        
+        characterEntity.SetComponentData<ClientEntityAttach>(new ClientEntityAttach()
         {
-            Debug.Log(component.GetManagedType());
-        }
+            AttachedTo = ClientId
+        });
+
         return characterGo;
     }
 }

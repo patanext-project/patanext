@@ -1,5 +1,7 @@
 ﻿using System;
+using Guerro.Utilities;
 using Packages.pack.guerro.shared.Scripts.Clients;
+using Packet.Guerro.Shared.Game;
 using Packet.Guerro.Shared.Inputs;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,13 +11,15 @@ namespace Packet.Guerro.Shared.Clients
     [Serializable]
     public struct ClientEntity : IComponentData, IEquatable<ClientEntity>
     {
+        internal Entity CachedEntity;
+        
         public int ReferenceId;
         public int Version;
         public bool1 IsCreated;
 
         public bool Equals(ClientEntity other)
         {
-            return ReferenceId == other.ReferenceId && Version == other.Version && IsCreated == other.IsCreated;
+            return ReferenceId == other.ReferenceId && Version == other.Version;
         }
 
         public override bool Equals(object obj)
@@ -59,6 +63,16 @@ namespace Packet.Guerro.Shared.Clients
         public static ClientInputManager GetInputManager(this ClientEntity clientEntity)
         {
             return clientEntity.GetWorld().GetOrCreateManager<ClientInputManager>();
+        }
+
+        public static EntityGroup GetGroup(this ClientEntity clientEntity)
+        {
+            return clientEntity.CachedEntity.GetComponentData<EntityGroup>();
+        }
+
+        public static Entity GetAttachedEntity(this ClientEntity clientEntity)
+        {
+            return clientEntity.CachedEntity;
         }
     }
 }

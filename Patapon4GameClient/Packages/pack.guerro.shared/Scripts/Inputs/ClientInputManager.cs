@@ -356,7 +356,7 @@ namespace Packet.Guerro.Shared.Inputs
             var cache = new CacheInputAction();
             cache.Device = m_ActiveDevice;
             cache.Version = 0;
-            cache.CustomAction = new CInputManager.CustomInputAction(inputId);
+            cache.CustomAction = new CInputManager.CustomInputAction(inputId, ClientWorld.Client);
               
             var inputAction = new InputAction();
             SetInputActionBindingsInternal(inputAction, GetMap(inputId).DefaultSettings);

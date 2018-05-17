@@ -4,6 +4,7 @@ using UnityEngine;
 using P4.Core.Network;
 using Packages.pack.guerro.shared.Scripts.Modding;
 using Packet.Guerro.Shared;
+using Packet.Guerro.Shared.Clients;
 using Packet.Guerro.Shared.ECS;
 using Packet.Guerro.Shared.Network;
 
@@ -43,6 +44,12 @@ namespace P4Main
             register.End();
             
             //Eudi.Globals.SetBindingFromInstance<UserManager>(new UserManager());
+
+            ClientManager.EnableMultiClient = false;
+            
+            // Register default client, and because we hate MultiClient, we aren't going to use it.
+            var clientManager = World.Active.GetOrCreateManager<ClientManager>();
+            clientManager.Create("MainUser");
 
             // Lol
             var currentWorld = World.Active;

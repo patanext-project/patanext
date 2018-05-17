@@ -57,7 +57,7 @@ namespace Packages.pack.guerro.shared.Scripts.Utilities
                                                 Type                  componentType = null,
                                                 Component             component     = default(Component),
                                                 bool                  updateEntity  = true)
-        {
+        {            
             if (componentType == null)
             {
                 if (component == null)
@@ -95,10 +95,14 @@ namespace Packages.pack.guerro.shared.Scripts.Utilities
             }
 
             if (updateEntity)
-                gameObjectEntity.OnEnable();
+            {
+                /*gameObjectEntity.OnDisable();
+                gameObjectEntity.OnEnable();*/
+                gameObjectEntity.Refresh();
+            }
         }
 
-        public static void Refresh(this GameObject gameObject, GameObjectEntity gameObjectEntity = null)
+        public static void CustomRefresh(this GameObject gameObject, GameObjectEntity gameObjectEntity = null)
         {
             gameObjectEntity = gameObjectEntity ?? gameObject.GetComponent<GameObjectEntity>();
 
@@ -109,13 +113,13 @@ namespace Packages.pack.guerro.shared.Scripts.Utilities
 
                 AddComponentToEntity(gameObjectEntity, comp, updateEntity: false);
             }
-
-            gameObjectEntity.OnEnable();
+            
+            gameObjectEntity.Refresh();
         }
 
-        public static void Refresh(this GameObjectEntity gameObjectEntity)
+        public static void CustomRefresh(this GameObjectEntity gameObjectEntity)
         {
-            Refresh(gameObjectEntity.gameObject, gameObjectEntity);
+            CustomRefresh(gameObjectEntity.gameObject, gameObjectEntity);
         }
     }
 }

@@ -71,13 +71,21 @@ namespace Packet.Guerro.Shared.ECS
             // ReSharper restore AssignNullToNotNullAttribute
 
             Application.quitting += DomainUnloadShutdown;
-            //PlayerLoopManager.RegisterDomainUnload(DomainUnloadShutdown, 10000);
+            PlayerLoopManager.RegisterDomainUnload(DomainUnloadShutdown, 10000);
 
-            var assembly = Assembly.GetAssembly(typeof(CWorldBootstrap));
-            var allTypes = assembly.GetTypes();
+            var assemblyEntity = AppDomain.CurrentDomain.GetAssemblies()
+                                          .Where(a => a.FullName.StartsWith("Unity.Entities"))
+                                          .ToArray();
+            var assemblyShared = Assembly.GetAssembly(typeof(CWorldBootstrap));
 
             // Create all ComponentSystem
-            CModManager.RegisterModInternal(new[] {assembly}, new SModInfoData()
+            CModManager.RegisterModInternal(assemblyEntity, new SModInfoData()
+            {
+                DisplayName        = "Unity Entities",
+                NameId             = "com.unity.entities",
+                IsIntegratedPacket = true,
+            });
+            CModManager.RegisterModInternal(new[] {assemblyShared}, new SModInfoData()
             {
                 DisplayName        = "Game Shared",
                 NameId             = "pack.guerro.shared",

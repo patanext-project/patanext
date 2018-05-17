@@ -1,0 +1,43 @@
+{
+    "timestamp.default":
+    [
+        {
+            "key":"don",
+            "time": "25%"
+        },
+        {
+            "key":"don",
+            "time": "40%"
+        },
+        {
+            "key":"don",
+            "time": "60%"
+        },
+        {
+            "key":"don",
+            "time": "80%"
+        },
+        {
+            "key":"don",
+            "time": "90%"
+        }
+    ],
+    "timestamp.bpm.120":
+    [
+        {
+            "time": "1b"
+        },
+        {
+            "time": "1.75b"
+        },
+        {
+            "time": "2.75b"
+        },
+        {
+            "time": "3b"
+        },
+        {
+            "time": "4b"
+        }
+    ]
+}

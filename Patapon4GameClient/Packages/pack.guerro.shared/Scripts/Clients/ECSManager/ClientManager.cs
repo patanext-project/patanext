@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Guerro.Utilities;
 using Packages.pack.guerro.shared.Scripts.Clients;
 using Packet.Guerro.Shared.Game;
+using Packet.Guerro.Shared.Game.Behaviours;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.Experimental.Input;
@@ -18,15 +20,35 @@ namespace Packet.Guerro.Shared.Clients
             public int FilterMainClient;
             public int FilterLivableClients;
         }
+
+        [Inject] private SharedClientGroup m_ClientGroup;
         
         protected override void OnUpdate()
         {
-            
+            if (m_ClientGroup.Length > 1 && !EnableMultiClient)
+                throw new Exception("There is more than one client.");
         }
         
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Fields
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
+        
+        /// <summary>
+        /// Only available if 'EnableMultiClient' is set to false
+        /// </summary>
+        public static ClientEntity MainClient;
+
+        private static bool s_EnableMultiClient;
+        public static bool EnableMultiClient
+        {
+            get => s_EnableMultiClient;
+            set
+            {
+                // todo: add events
+                s_EnableMultiClient = value;
+            }
+        }
+        
         public int Count { get; private set; }
         
         public delegate void OnNewClientEvent(ClientEntity clientId);
@@ -37,6 +59,8 @@ namespace Packet.Guerro.Shared.Clients
         private NativeList<ClientEntity> m_AllLivingClients;
         private NativeQueue<ClientEntity> m_PooledClients;
         private int m_MaxId;
+
+        [Inject] private CGameEntityGroupManager m_GroupManager;
         
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Methods
@@ -46,7 +70,7 @@ namespace Packet.Guerro.Shared.Clients
             base.OnCreateManager(capacity);
             
             m_AllClients = new FastDictionary<int, ClientEntity>();
-            m_AllLivingClients = new NativeList<ClientEntity>();
+            m_AllLivingClients = new NativeList<ClientEntity>(Allocator.Persistent);
             m_PooledClients = new NativeQueue<ClientEntity>(Allocator.Persistent);
         }
 
@@ -65,6 +89,9 @@ namespace Packet.Guerro.Shared.Clients
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         public ClientEntity Connect(string login, string password)
         {
+            if (!EnableMultiClient && m_AllClients.Count > 0)
+                throw new Exception("Too much clients");
+            
             // todo: implement connect
             var clientId = Create(login);
 
@@ -75,6 +102,9 @@ namespace Packet.Guerro.Shared.Clients
 
         public ClientEntity Create(string userLogin)
         {
+            if (!EnableMultiClient && m_AllClients.Count > 0)
+                throw new Exception("Too much clients");
+            
             var clientId = CreateInternal();
 
             OnNewClient?.Invoke(clientId);
@@ -88,12 +118,28 @@ namespace Packet.Guerro.Shared.Clients
             // get from pool
             if (!m_PooledClients.TryDequeue(out var clientEntity))
             {
+                var entity = EntityManager.CreateEntity(typeof(ClientEntity), typeof(EntityGroup));
+                var group = m_GroupManager.CreateGroup();
+                
+                m_GroupManager.AttachTo(entity, group);
+                
                 clientEntity.ReferenceId = m_MaxId++;
+                clientEntity.CachedEntity = entity;
             }
 
             clientEntity.IsCreated = true;
+            
+            clientEntity.CachedEntity.SetComponentData(clientEntity);
 
-            new ClientWorld(clientEntity);
+            ClientWorld.GetOrCreate(clientEntity);
+
+            if (!EnableMultiClient)
+            {
+                MainClient = clientEntity;
+            }
+
+            m_AllClients[MainClient.ReferenceId] = clientEntity;
+            m_AllLivingClients.Add(clientEntity);
             
             return clientEntity;
         }
@@ -132,7 +178,13 @@ namespace Packet.Guerro.Shared.Clients
 
         public bool Exists(int id)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i != m_AllLivingClients.Length; i++)
+            {
+                if (m_AllLivingClients[i].ReferenceId == id)
+                    return true;
+            }
+
+            return false;
         }
         
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.

@@ -6,4 +6,9 @@ namespace Packet.Guerro.Shared.Clients
     {
         public ClientEntity AttachedTo;
     }
+
+    public class ClientEntityAttachWrapper : ComponentDataWrapper<ClientEntityAttach>
+    {
+        
+    }
 }

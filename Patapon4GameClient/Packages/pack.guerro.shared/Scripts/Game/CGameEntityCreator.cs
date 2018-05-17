@@ -84,7 +84,7 @@ namespace Packet.Guerro.Shared.Game
                     
                 }
             }*/
-            gameObject.Refresh();
+            gameObject.CustomRefresh();;
         }
 
         private void OnDestroy()

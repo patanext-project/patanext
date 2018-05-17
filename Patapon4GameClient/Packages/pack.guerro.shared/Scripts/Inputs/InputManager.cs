@@ -185,6 +185,7 @@ namespace Packet.Guerro.Shared.Inputs
             internal InputAction InputAction;
 
             public readonly int InputId;
+            public readonly ClientEntity ClientEntity;
             
             /// <summary>
             /// Replace the standard inputsystem start/cancel event by a custom one
@@ -199,9 +200,9 @@ namespace Packet.Guerro.Shared.Inputs
             public InputBinding          LastTriggerBinding   => InputAction.lastTriggerBinding;
             public IInputBindingModifier LastTriggerModifier  => InputAction.lastTriggerModifier;
 
-            public event Action<InputAction.CallbackContext, int> Started;
-            public event Action<InputAction.CallbackContext, int> Cancelled;
-            public event Action<InputAction.CallbackContext, int> Performed;
+            public event Action<InputAction.CallbackContext, ClientEntity, int> Started;
+            public event Action<InputAction.CallbackContext, ClientEntity, int> Cancelled;
+            public event Action<InputAction.CallbackContext, ClientEntity, int> Performed;
 
             internal void SwitchAction(InputAction newAction)
             {
@@ -230,19 +231,20 @@ namespace Packet.Guerro.Shared.Inputs
                 }
             }
             
-            public CustomInputAction(int inputId)
+            public CustomInputAction(int inputId, ClientEntity attachedClientEntity)
             {
                 InputId = inputId;
+                ClientEntity = attachedClientEntity;
             }
 
             internal void OnStart(InputAction.CallbackContext context)
             {
-                Started?.Invoke(context, InputId);
+                Started?.Invoke(context, ClientEntity, InputId);
             }
 
             internal void OnCancel(InputAction.CallbackContext context)
             {
-                Cancelled?.Invoke(context, InputId);
+                Cancelled?.Invoke(context, ClientEntity, InputId);
             }
 
             internal void OnPerform(InputAction.CallbackContext context)
@@ -252,7 +254,7 @@ namespace Packet.Guerro.Shared.Inputs
                 else
                     OnCancel(context);
                 
-                Performed?.Invoke(context, InputId);
+                Performed?.Invoke(context, ClientEntity, InputId);
             }
         }
 

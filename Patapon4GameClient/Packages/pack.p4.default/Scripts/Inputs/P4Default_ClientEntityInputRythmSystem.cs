@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using P4.Core.RythmEngine;
 using Packages.pack.guerro.shared.Scripts.Clients;
 using Packages.pack.guerro.shared.Scripts.Modding;
 using Packet.Guerro.Shared.Clients;
@@ -31,7 +32,7 @@ namespace P4.Default.Inputs
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Groups
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
-        public struct ClientGroup
+        public struct Group
         {
             public ComponentDataArray<ClientEntityAttach>              AttachData;
             public ComponentDataArray<P4Default_DEntityInputRythmData> InputData;
@@ -46,8 +47,9 @@ namespace P4.Default.Inputs
 
         private int[] m_actionInputIds;
 
-        [Inject] private ClientGroup   m_ClientGroup;
+        [Inject] private Group         m_Group;
         [Inject] private CInputManager m_InputManager;
+        [Inject] private RythmSystem m_RythmSystem;
 
         [CModInfo.Inject] private CModInfo m_ModInfo;
 
@@ -72,9 +74,9 @@ namespace P4.Default.Inputs
 
         protected override void OnUpdate()
         {
-            for (int i = 0; i != m_ClientGroup.Length; i++)
+            for (int i = 0; i != m_Group.Length; i++)
             {
-                var client = m_ClientGroup.AttachData[i].AttachedTo;
+                var client = m_Group.AttachData[i].AttachedTo;
                 if (!client.IsAlive())
                     continue;
 
@@ -90,14 +92,48 @@ namespace P4.Default.Inputs
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
         // Methods from events
         // -------- -------- -------- -------- -------- -------- -------- -------- -------- /.
-        private void OnInputStarted(InputAction.CallbackContext ctx, int inputId)
+        private void OnInputStarted(InputAction.CallbackContext ctx, ClientEntity client, int inputId)
         {
-            Debug.Log($"Started input: {ctx.GetValue<float>()}");
+            var index = Array.IndexOf(m_actionInputIds, inputId);
+
+            for (int i = 0; i != m_Group.Length; i++)
+            {
+                var clientAttach = m_Group.AttachData[i];
+                if (!clientAttach.AttachedTo.Equals(client))
+                    continue;
+
+                var inputData = m_Group.InputData[i];
+
+                if (index == 0) inputData.KeyAction1 = P4Default_EEntityInputRythmActionState.Pressed;
+                if (index == 1) inputData.KeyAction2 = P4Default_EEntityInputRythmActionState.Pressed;
+                if (index == 2) inputData.KeyAction3 = P4Default_EEntityInputRythmActionState.Pressed;
+                if (index == 3) inputData.KeyAction4 = P4Default_EEntityInputRythmActionState.Pressed;
+
+                m_Group.InputData[i] = inputData;
+            }
+ 
+            m_RythmSystem.AddClientInputEvent(index, client.GetGroup());
         }
 
-        private void OnInputEnded(InputAction.CallbackContext ctx, int inputId)
+        private void OnInputEnded(InputAction.CallbackContext ctx, ClientEntity client, int inputId)
         {
-            Debug.Log($"Ended input: {inputId}");
+            var index = Array.IndexOf(m_actionInputIds, inputId);
+
+            for (int i = 0; i != m_Group.Length; i++)
+            {
+                var clientAttach = m_Group.AttachData[i];
+                if (!clientAttach.AttachedTo.Equals(client))
+                    continue;
+
+                var inputData = m_Group.InputData[i];
+
+                if (index == 0) inputData.KeyAction1 = P4Default_EEntityInputRythmActionState.None;
+                if (index == 1) inputData.KeyAction2 = P4Default_EEntityInputRythmActionState.None;
+                if (index == 2) inputData.KeyAction3 = P4Default_EEntityInputRythmActionState.None;
+                if (index == 3) inputData.KeyAction4 = P4Default_EEntityInputRythmActionState.None;
+
+                m_Group.InputData[i] = inputData;
+            }
         }
 
         private void OnNewClient(ClientEntity clientId)
@@ -106,11 +142,12 @@ namespace P4.Default.Inputs
             var inputData    = clientId.GetWorld().SetContainer(new ClientContainer());
             for (int i = 0; i != 4; i++)
             {
-                var id = m_actionInputIds[i];
+                var id          = m_actionInputIds[i];
                 var inputAction = inputManager.CreateInputAction(id);
-                inputAction.HackyStartCancel = true;
-                inputAction.Started   += OnInputStarted;
-                inputAction.Cancelled += OnInputEnded;
+
+                inputAction.HackyStartCancel =  true;
+                inputAction.Started          += OnInputStarted;
+                inputAction.Cancelled        += OnInputEnded;
             }
         }
     }

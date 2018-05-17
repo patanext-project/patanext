@@ -4,7 +4,7 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: GameSprite-Default
   m_Shader: {fileID: 4800000, guid: 146df692b04dc3b46a9628f85ab242e4, type: 3}
@@ -66,7 +66,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EffectAmount: 1
+    - _EffectAmount: 0
     - _EnableExternalAlpha: 0
     - _FlashAmount: 0
     - _FullAlpha: 0
