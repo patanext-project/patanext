@@ -1,6 +1,32 @@
 This page is more like a personnal page for me, and for now (because as you see, it's **very pseudo cody**).    
 It's for the organization of the rythm engine.
 
+Rythm engine will be located inside P4Default packet.
+I don't want it to be located inside P4Core, as I want modders to create their own rythm engine if they want.
+
+# Rythm inputs files
+Folder location:
+```
+/<Your Mod>
+├── RythmInputs/
+│   ├── <rythm input file>.json // If we use json files
+│   ├── <rythm input asset>.asset // If we use unity assets files
+```
+
+Example: `pon.json`
+### Json structure file (will give use less possibility to custom it)?
+```
+{
+
+}
+```
+
+### Unity assetbundle file?
+Structure:
+```
+
+```
+
 ```c#
 // Rythm Input processor
 void OnInputStart(ctx, inputId)

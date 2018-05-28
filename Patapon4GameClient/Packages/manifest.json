@@ -8,15 +8,14 @@
     "com.unity.ads": "exclude",
     "com.unity.2d.animation": "1.0.15-preview",
     "com.unity.textmeshpro": "1.2.2",
-    "com.unity.vectorgraphics": "1.0.0-preview.8"
+    "com.unity.vectorgraphics": "1.0.0-preview.8",
+    "package.guerro.shared": "file:../../../../Common/Packages/package.guerro.shared",
+    "package.patapon.core": "file:../../../../Common/Packages/package.patapon.core"
   },
   "testables": [
     "com.unity.collections",
     "com.unity.entities",
     "com.unity.jobs",
-    "pack.guerro.shared",
-    "pack.p4.core",
-    "pack.p4.default",
     "com.unity.inputsystem"
   ],
   "registry": "https://staging-packages.unity.com"

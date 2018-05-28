@@ -1,17 +1,17 @@
 {
-    "name": "pack.p4.core",
+    "name": "pack.patapon.default",
     "references": [
-        "pack.guerro.shared",
+        "package.patapon.core",
+        "package.guerro.shared",
         "Unity.Entities",
         "Unity.Entities.Hybrid",
-        "Unity.Transforms",
         "Unity.Mathematics",
         "Unity.Collections",
         "Unity.Jobs",
-        "Unity.Burst"
+        "Unity.InputSystem"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": true
+    "allowUnsafeCode": false
 }
