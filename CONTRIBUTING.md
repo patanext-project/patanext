@@ -35,7 +35,7 @@ This repository offer you an empty project to run *Patapon 4 The Last Battle*.
 5. Have fun!
 
 # Pull Requests
-Pull requests on this repositories are only accepted if there are typos.  
+Pull requests on this repository are only accepted if there are typos.  
 Send the pull requests on the correct repositories (see the Issues section.)
 
 # Issues
