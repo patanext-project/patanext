@@ -18,6 +18,7 @@
         "com.unity.timeline": "1.3.0-preview.2",
         "com.unity.ugui": "1.0.0",
         "com.unity.vectorgraphics": "2.0.0-preview.11",
+        "package.patapon.masterserver.shared": "https://github.com/guerro323/package.patapon.masterserver.shared.git",
         "package.patapon.core": "https://github.com/guerro323/package.patapon.core.git",
         "package.stormiumteam.gamebase": "https://github.com/StormiumTeam/package.stormiumteam.gamebase.git",
         "package.stormiumteam.networking": "https://github.com/StormiumTeam/package.stormiumteam.networking.git",
