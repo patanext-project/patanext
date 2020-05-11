@@ -69,9 +69,6 @@ nupkg/
 *.userosscache
 *.sln.docstates
 
-# temp
-ok/
-
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -87,3 +84,5 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
+
+.vs/

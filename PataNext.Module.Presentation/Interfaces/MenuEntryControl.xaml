@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="PataNext.Module.Presentation.Controls.MenuEntryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PataNext.Module.Presentation.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="1080" d:DesignWidth="1920">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5*" />
+            <RowDefinition Height="25*" />
+            <RowDefinition Height="12.5*" />
+            <RowDefinition Height="100*" />
+        </Grid.RowDefinitions>
+        <Viewbox Grid.Row="1">
+            <Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Name="svg3244" Width="138.735" Height="56.774437" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Canvas.RenderTransform>
+                    <TranslateTransform X="0" Y="0"/>
+                </Canvas.RenderTransform>
+                <Canvas.Resources/>
+                <!--Unknown tag: sodipodi:namedview-->
+                <!--Unknown tag: metadata-->
+                <Canvas Name="layer1">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform X="-71.365577" Y="-160.00706"/>
+                    </Canvas.RenderTransform>
+                    <Path Name="path1754" Fill="#FFFEFEFE" StrokeThickness="0.363082" StrokeMiterLimit="4" StrokeLineJoin="Round" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Data="m 136.51446 165.8837 -1.46606 7.00113 c -1.16494 0.56218 -1.90589 1.74094 -1.90738 3.03444 0.002 1.35059 0.80856 2.57007 2.05104 3.09955 l -0.58394 5.14077 c -4.66884 -0.34358 -8.99584 1.757 -8.99584 1.757 l 2.74041 3.1626 c 3.2185 -2.43347 4.30309 -2.09135 4.30309 -2.09135 0.0836 1.03241 0.7767 2.90732 0.7767 2.90732 h 6.10764 c 0 0 0.69695 -1.81059 0.78341 -2.80758 0 0 1.13418 -0.44186 4.3527 1.99161 l 2.74092 -3.1626 c 0 0 -4.32772 -2.10058 -8.99635 -1.757 l -0.58394 -5.13715 c 1.24369 -0.53 2.05088 -1.75126 2.05104 -3.10317 -8e-4 -1.29406 -0.74193 -2.47357 -1.90738 -3.03599 z m 0 9.07594 c 0.51061 -1.8e-4 0.94788 0.30046 1.15445 0.73225 0.0401 0.12139 0.0609 0.24835 0.0615 0.37621 1e-5 0.67155 -0.5444 1.21595 -1.21594 1.21594 -0.67155 1e-5 -1.21596 -0.54439 -1.21595 -1.21594 2.4e-4 -0.12507 0.0198 -0.24935 0.0579 -0.36846 0.20483 -0.436 0.64447 -0.73997 1.15807 -0.74 z"/>
+                    <Path Name="path1752" Fill="#FFB81C31" StrokeThickness="0.363082" StrokeMiterLimit="4" StrokeLineJoin="Round" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Data="m 114.78866 160.00706 3.52743 7.26157 3.63079 4.14962 -8.71369 -3.00809 4.77181 4.66794 4.56458 2.28203 -7.78092 0.10387 4.46122 2.17868 4.25297 0.82992 -4.97902 2.48977 4.04575 0.62219 0.93327 -0.3111 1.65985 -0.20774 -4.56458 4.35736 3.6313 0.10387 1.14102 -1.30225 h 0.93327 l 2.04743 -0.26458 c 1.40437 -0.39377 3.02777 -1.00952 4.86378 -1.01802 l 0.57878 -2.57556 c -2.27006 0.2477 -12.29702 0.6602 -8.11217 -12.16412 z"/>
+                    <Path Name="path1750" Fill="#FFB81C31" StrokeThickness="0.363082" StrokeMiterLimit="4" StrokeLineJoin="Round" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Data="m 158.24027 160.00706 -10.89288 8.19536 c 4.2097 12.90044 -5.95691 12.4067 -8.14679 12.15999 l 0.56328 2.57969 c 1.85659 0.002 3.49724 0.62067 4.91442 1.01802 l 2.04691 0.26458 h 0.93379 l 1.14101 1.30225 3.63079 -0.10387 -4.56458 -4.35736 1.65985 0.20774 0.93379 0.3111 4.04523 -0.62219 -4.97902 -2.48977 4.25349 -0.82992 4.46071 -2.17868 -7.78041 -0.10387 4.56458 -2.28203 4.7718 -4.66794 -8.71419 3.00809 3.63078 -4.14962 z"/>
+                    <Canvas Name="g4862487753" Opacity="1">
+                        <Canvas.RenderTransform>
+                            <MatrixTransform Matrix="-0.11126131 0 0 -0.11126131 176.84889 68.414968"/>
+                        </Canvas.RenderTransform>
+                        <Canvas Name="g490256979" Opacity="1">
+                            <Canvas.RenderTransform>
+                                <TranslateTransform X="-1035.795" Y="-733.9562"/>
+                            </Canvas.RenderTransform>
+                            <Path Name="path232991" Fill="#FFB81C31" StrokeThickness="2.05304" StrokeMiterLimit="4" StrokeLineJoin="Round" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Data="m 422.62037 -541.11727 -43.87428 94.26961 h 63.70899 15.90625 l 1.23024 -4.16883 -4.12434 -3.71492 5.15483 -4.26113 -1.97948 -2.74965 -16.07227 -33.30859 -14.18359 -8.18945 14.76367 41.49804 h -41.2832 l 20.75318 -54.08008 7.38744 4.77539 -2.15921 -10.40166 z">
+                                <Path.RenderTransform>
+                                    <MatrixTransform Matrix="2.4145441 0 0 2.4145441 376.24752 707.01156"/>
+                                </Path.RenderTransform>
+                            </Path>
+                            <Path Name="path1108290499602" Fill="#FFB81C31" StrokeThickness="4.95162" StrokeMiterLimit="4" StrokeLineJoin="Round" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Data="m 236.1875 976.69141 -22.38477 71.43159 44.77344 0.1875 z">
+                                <Path.RenderTransform>
+                                    <MatrixTransform Matrix="1.0011171 0 0 1.0011171 1160.2317 -1475.3065"/>
+                                </Path.RenderTransform>
+                            </Path>
+                        </Canvas>
+                    </Canvas>
+                    <Path Name="path201993" Fill="#FFFFFFFF" StrokeThickness="0.581208" Data="m 83.066727 215.03561 h -4.00596 z m -2.83629 -8.55538 2.83629 8.55538 h -4.00596 l -7.69519 -23.86113 20.45851 7.47107 z m -3.18502 -9.57831 2.13885 6.46304 5.29335 -3.78947 z"/>
+                    <Path Name="path202149" Fill="#FFFFFFFF" StrokeThickness="0.581208" Data="m 100.48704 215.03561 -1.441413 -3.98161 -5.67258 -2.41167 -2.27834 6.39328 h -3.55699 l 8.36939 -23.86113 8.136913 23.86113 z m -5.998073 -9.55505 3.33467 1.45156 -1.96302 -5.26428 z"/>
+                    <Path Name="path1744" Fill="#FFFFFFFF" StrokeThickness="0.58157" Data="m 121.15881 191.11782 -0.49713 0.16847 -15.55977 5.13353 1.10071 3.67885 4.49481 -1.51774 -5.61774 16.39125 h 4.05556 l 6.14123 -17.92655 4.31033 -1.53944 z"/>
+                    <Path Name="path2021492" Fill="#FFFFFFFF" StrokeThickness="0.581208" Data="m 127.20992 215.0356 -1.44141 -3.98161 -5.67258 -2.41167 -2.27834 6.39328 h -3.55699 l 8.36939 -23.86113 8.13691 23.86113 z m -5.99807 -9.55505 3.33467 1.45156 -1.96302 -5.26428 z"/>
+                    <Path Name="path1785" Fill="#FFFEFEFE" StrokeThickness="0.567063" Stroke="#FFFFFFFF" Data="m 160.70912 192.14283 h 3.44012 l -7.79502 21.97933 -4.49114 -12.49805 -5.91224 13.01975 h -3.70472 l 9.14823 -22.54639 4.73304 12.43 z"/>
+                    <Path Name="path1787" Fill="#FFFEFEFE" StrokeThickness="0.567063" Data="m 179.24828 191.56689 -21.54287 13.18783 20.37292 10.28088 1.43764 -3.54279 -10.4004 -5.27513 h 6.40012 v -3.8344 h -6.57996 l 9.0625 -5.54694 z"/>
+                    <Path Name="path1789" Fill="#FFFEFEFE" StrokeThickness="0.567063" Data="m 179.594 191.40463 4.11344 11.83028 -4.06848 11.80069 h 4.00182 l 2.06861 -6.03928 2.06602 6.03928 h 4.00234 l -4.06848 -11.80069 4.11292 -11.83028 h -0.39842 -3.6034 l -2.11098 6.06629 -2.11357 -6.06629 z"/>
+                    <Path Name="path17441" Fill="#FFFFFFFF" StrokeThickness="0.58157" Data="m 210.10058 189.00115 -0.49713 0.16847 -16.88269 7.51479 1.10071 3.67884 4.49481 -1.78232 -5.61774 16.39125 h 4.05556 l 6.14123 -17.92655 4.31033 -2.3332 z"/>
+                </Canvas>
+            </Canvas>
+        </Viewbox>
+        <Viewbox Grid.Row="2">
+            <Label Content="Select a BGM to play!" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Null}" Foreground="White" FontFamily="AR CENA"/>
+        </Viewbox>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50*" />
+                <ColumnDefinition Width="100*" />
+                <ColumnDefinition Width="50*" />
+            </Grid.ColumnDefinitions>
+            <Viewbox Grid.Column="1" VerticalAlignment="Top">
+                <StackPanel Width="800"  Height="Auto">
+                    <Button x:Name="RefreshList" Height="50" FontSize="20" Content="Refresh List" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" FontWeight="Bold" Margin="0,5,0,5"/>
+                    <ItemsControl x:Name="BgmList" ItemsSource="{Binding BgmEntries, FallbackValue=123}" Margin="0,5,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button x:Name="SelectBgm" Height="50" FontSize="20" Content="{Binding Path=., FallbackValue=BGM }" Margin="0,2,0,2"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Viewbox>
+        </Grid>
+    </Grid>
+</UserControl>
