@@ -9,6 +9,7 @@ using GameHost.Entities;
 using GameHost.Injection;
 using PataNext.Module.Simulation;
 using PataNext.Module.Simulation.RhythmEngine;
+using PataNext.Module.Simulation.RhythmEngine.Data;
 
 [assembly: ModuleDescription("PataNext Simulation", "guerro", typeof(CustomModule))]
 
@@ -24,6 +25,11 @@ namespace PataNext.Module.Simulation
 			simulationClient.Connect();
 
 			simulationClient.InjectAssembly(GetType().Assembly);
+
+			var inputClient = new GameInputThreadingClient();
+			inputClient.Connect();
+
+			inputClient.InjectAssembly(GetType().Assembly);
 		}
 	}
 
@@ -41,8 +47,9 @@ namespace PataNext.Module.Simulation
 		{
 			var ent = World.Mgr.CreateEntity();
 			ent.Set(new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(2))});
-			ent.Set(new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5)});
+			ent.Set(new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
 			ent.Set(new RhythmEngineLocalState());
+			ent.Set(new RhythmEngineLocalCommandBuffer());
 		}
 	}
 }
