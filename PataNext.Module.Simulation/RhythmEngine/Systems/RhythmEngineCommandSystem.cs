@@ -86,9 +86,10 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				// this is so laggy clients don't have a weird things when their command has been on another beat on the server
 				var targetBeat = commandProgression[^1].FlowBeat + 1;
 
-				executingCommand.ActivationBeatStart = targetBeat;
 				executingCommand.Previous            = executingCommand.CommandTarget;
 				executingCommand.CommandTarget       = cmdOutput[0];
+				executingCommand.ActivationBeatStart = targetBeat;
+				executingCommand.ActivationBeatEnd   = targetBeat + executingCommand.CommandTarget.Get<RhythmCommandDefinition>().Duration;
 				executingCommand.WaitingForApply     = true;
 
 				var power = 0.0f;
@@ -137,13 +138,13 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				var rhythmActiveAtFlowBeat = executing.ActivationBeatStart;
 
 				var checkStopBeat = Math.Max(state.LastPressure.FlowBeat + mercy,
-					RhythmEngineUtility.GetFlowBeat(TimeSpan.FromMilliseconds(commandState.EndTimeMs * TimeSpan.TicksPerMillisecond), settings.BeatInterval) + cmdMercy);
+					RhythmEngineUtility.GetFlowBeat(new TimeSpan(commandState.EndTimeMs * TimeSpan.TicksPerMillisecond), settings.BeatInterval) + cmdMercy);
 				if (true) // todo: !isServer && simulateTagFromEntity.Exists(entity)
 				{
 					checkStopBeat = Math.Max(checkStopBeat,
-						RhythmEngineUtility.GetFlowBeat(TimeSpan.FromMilliseconds(commandState.EndTimeMs * TimeSpan.TicksPerMillisecond), settings.BeatInterval));
+						RhythmEngineUtility.GetFlowBeat(new TimeSpan(commandState.EndTimeMs * TimeSpan.TicksPerMillisecond), settings.BeatInterval));
 				}
-
+				
 				var flowBeat       = RhythmEngineUtility.GetFlowBeat(state, settings);
 				var activationBeat = RhythmEngineUtility.GetActivationBeat(state, settings);
 				if (state.IsRecovery(flowBeat)
@@ -151,11 +152,17 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				    || (executing.CommandTarget == default && entity.Get<RhythmEnginePredictedCommandBuffer>().Any() && rhythmActiveAtFlowBeat < state.LastPressure.FlowBeat)
 				    || (!entity.Get<RhythmEnginePredictedCommandBuffer>().Any()))
 				{
+					if (commandState.StartTimeMs > 0)
+					{
+						Console.WriteLine($@"{rhythmActiveAtFlowBeat} {flowBeat} {checkStopBeat} {activationBeat}");
+					}
+
 					commandState.Reset();
 				}
 
 				if (executing.CommandTarget == default || state.IsRecovery(flowBeat))
 				{
+					Console.WriteLine("reset 1");
 					commandState.Reset();
 					return;
 				}

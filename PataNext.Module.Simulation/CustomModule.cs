@@ -11,6 +11,7 @@ using PataNext.Module.Simulation;
 using PataNext.Module.Simulation.RhythmEngine;
 using PataNext.Module.Simulation.RhythmEngine.Data;
 using PataponGameHost.RhythmEngine.Components;
+using SoLoud;
 
 [assembly: ModuleDescription("PataNext Simulation", "guerro", typeof(CustomModule))]
 
@@ -38,14 +39,25 @@ namespace PataNext.Module.Simulation
 	public class TestModSystem : AppSystem
 	{
 		private IManagedWorldTime worldTime;
+		private Soloud soloud;
+		private SoLoud.Wav wav;
+
+		private CModule module;
 
 		public TestModSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref worldTime);
+			DependencyResolver.Add(() => ref module);
+			soloud = new Soloud();
+			soloud.init();
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
+			wav = new Wav();
+			Console.WriteLine(module.Storage.Value.CurrentPath + "/on_new_beat.ogg");
+			wav.load(module.Storage.Value.CurrentPath + "/on_new_beat.ogg");
+			
 			for (var i = 0; i != 1; i++)
 			{
 				var ent = World.Mgr.CreateEntity();
@@ -103,6 +115,16 @@ namespace PataNext.Module.Simulation
 			
 			foreach (var r in results)
 				Console.WriteLine(r);
+		}
+
+		protected override void OnUpdate()
+		{
+			base.OnUpdate();
+
+			if (!World.Mgr.Get<RhythmEngineOnNewBeat>().IsEmpty && wav != null)
+			{
+				soloud.play(wav, 1);
+			}
 		}
 	}
 }

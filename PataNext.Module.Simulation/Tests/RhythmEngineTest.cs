@@ -84,13 +84,14 @@ namespace PataNext.Module.Simulation.Tests
 		{
 			foreach (ref readonly var entity in engineSet.GetEntities())
 			{
-				var state = entity.Get<RhythmEngineLocalState>();
+				ref var state = ref entity.Get<RhythmEngineLocalState>();
 				var settings = entity.Get<RhythmEngineSettings>();
 				var buffer = entity.Get<RhythmEngineLocalCommandBuffer>();
 				foreach (ref var input in World.Mgr.Get<OnInput>())
 				{
 					var pressure = new FlowPressure(input.Key, state.Elapsed, settings.BeatInterval);
 					buffer.Add(pressure);
+					state.LastPressure = pressure;
 
 					Console.WriteLine($"(key={pressure.KeyId}, flowbeat={pressure.FlowBeat}, score={pressure.Score})");
 				}
