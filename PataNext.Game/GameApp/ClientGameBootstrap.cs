@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Loader;
 using DryIoc;
@@ -20,19 +21,21 @@ namespace PataponGameHost
 		/// Kinda ugly, but it give us the possibility to make sure internal assemblies override external assemblies...
 		/// </summary>
 		public List<Assembly> OverrideExternalAssemblies = new List<Assembly>();
-		
+
 		private GameWindow window;
 		private Instance   instance;
 
 		protected override void RunGame()
 		{
-			window = new GameFrame(Context);
-			
+			var disposableObjects = new List<IDisposable>();
+
+			window = new GameFrame(Context, disposableObjects);
+
 			Context.Bind<Instance, Instance>(Instance.CreateInstance<Instance>("Client", Context));
 			Context.Bind<INativeWindow, GameWindow>(window);
 			Context.Bind<IGameWindow, GameWindow>(window);
 
-			GameAppShared.Init(Context, out var disposableObjects);
+			GameAppShared.Init(Context, ref disposableObjects);
 
 			var inputClient = new GameInputThreadingClient();
 			inputClient.Connect();
@@ -43,20 +46,17 @@ namespace PataponGameHost
 			var simulationClient = new GameSimulationThreadingClient();
 			simulationClient.Connect();
 
-			simulationClient.InjectInstance(Context.Container.Resolve<Instance>());
+			simulationClient.AddInstance(Context.Container.Resolve<Instance>());
 
 			var mainThreadClient = new MainThreadClient();
 
-			window.UpdateFrame += args =>
-			{
-				mainThreadClient.Listener.Update();
-			};
+			window.UpdateFrame += args => { mainThreadClient.Listener.Update(); };
 
 			window.Run();
 
 			foreach (var obj in disposableObjects)
 				obj.Dispose();
-			
+
 			Dispose();
 		}
 

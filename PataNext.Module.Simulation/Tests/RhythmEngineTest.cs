@@ -49,7 +49,7 @@ namespace PataNext.Module.Simulation.Tests
 				{
 					var app = (GameSimulationThreadingHost) host.Host;
 
-					foreach (var world in app.worldCollectionPerInstance)
+					foreach (var world in app.MappedWorldCollection)
 					{
 						targetAppWorld     = world.Value;
 						targetAppScheduler = app.GetScheduler();

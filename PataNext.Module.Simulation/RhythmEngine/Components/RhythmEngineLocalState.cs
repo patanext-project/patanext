@@ -1,11 +1,13 @@
 ﻿using System;
+using PataNext.Module.Simulation.RhythmEngine.Data;
 
 namespace PataNext.Module.Simulation.RhythmEngine
 {
 	public interface IRhythmEngineState
 	{
-		public int      RecoveryActivationBeat { get; set; }
-		public TimeSpan Elapsed                { get; set; }
+		public FlowPressure LastPressure           { get; set; }
+		public int          RecoveryActivationBeat { get; set; }
+		public TimeSpan     Elapsed                { get; set; }
 
 		bool CanRunCommands                 => Elapsed > TimeSpan.Zero;
 		bool IsRecovery(int activationBeat) => RecoveryActivationBeat > activationBeat;
@@ -13,8 +15,9 @@ namespace PataNext.Module.Simulation.RhythmEngine
 
 	public struct RhythmEngineLocalState : IRhythmEngineState
 	{
-		public int      RecoveryActivationBeat { get; set; }
-		public TimeSpan Elapsed                { get; set; }
+		public FlowPressure LastPressure           { get; set; }
+		public int          RecoveryActivationBeat { get; set; }
+		public TimeSpan     Elapsed                { get; set; }
 
 		public bool CanRunCommands => Elapsed > TimeSpan.Zero;
 

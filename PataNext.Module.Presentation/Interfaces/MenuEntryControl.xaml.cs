@@ -11,7 +11,7 @@ using PataponGameHost.Storage;
 
 namespace PataNext.Module.Presentation.Controls
 {
-	public partial class MenuEntryControl : LoadableUserControl
+	public partial class MenuEntryControl : LoadableUserControl<MenuEntryControl.ViewModel>
 	{
 		public override void OnLoad()
 		{

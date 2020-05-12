@@ -2,10 +2,14 @@
 using DefaultEcs;
 using DefaultEcs.System;
 using DefaultEcs.Threading;
+using GameHost.Core;
 using GameHost.Core.Ecs;
+using GameHost.Core.Threading;
+using PataponGameHost.RhythmEngine.Components;
 
 namespace PataNext.Module.Simulation.RhythmEngine
 {
+	[UpdateAfter(typeof(RhythmEngineCheckCommandValidity))]
 	public class RhythmEngineResizeCommandBufferSystem : RhythmEngineSystemBase
 	{
 		private System system;
@@ -26,7 +30,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 
 		public class System : AEntitySystem<float>
 		{
-			public System(EntitySet set) : base(set)
+			public System(EntitySet set) : base(set, new DefaultParallelRunner(Processor.GetWorkerCount(0.5)))
 			{
 			}
 
@@ -44,7 +48,6 @@ namespace PataNext.Module.Simulation.RhythmEngine
 					    || state.IsRecovery(flowBeat))
 					{
 						progression.RemoveAt(j--);
-						Console.WriteLine("removed!");
 					}
 				}
 			}

@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using DefaultEcs;
 using GameHost.Applications;
+using GameHost.Core.Applications;
 using GameHost.Core.Game;
+using GameHost.Core.Threading;
 using GameHost.Entities;
 using GameHost.Event;
 using GameHost.Injection;
@@ -20,28 +25,75 @@ namespace PataponGameHost
 {	
 	public class GameFrame : GameWindow
 	{
-		public readonly World World;
-		
+		public class FrameListener : IFrameListener
+		{
+			private SimpleFrameListener super  = new SimpleFrameListener();
+			private List<WorkerFrame>   frames = new List<WorkerFrame>();
+
+			public bool Add(WorkerFrame frame)
+			{
+				return super.Add(frame);
+			}
+
+			public int LastCollectionIndex;
+			public double Delta;
+			
+			public List<WorkerFrame> DequeueAll()
+			{
+				frames.Clear();
+				super.DequeueAll(frames);
+				foreach (var frame in frames)
+				{
+					if (frame.CollectionIndex != LastCollectionIndex)
+					{
+						Delta = 0;
+						LastCollectionIndex = frame.CollectionIndex;
+					}
+
+					Delta = Math.Max(frame.Delta.TotalSeconds, Delta);
+				}
+				
+				return frames;
+			}
+		}
+
 		private Context context;
+
+		private List<IDisposable> disposables;
+		
 		private GameRenderThreadingHost renderHost;
 		private GameAudioThreadingHost audioHost;
+
+		private FrameListener renderFrameListener;
+		private FrameListener simulationFrameListener;
+		private FrameListener inputFrameListener;
 		
-		public GameFrame(Context context) : base(new GameWindowSettings
+		public GameFrame(Context context, List<IDisposable> disposableList) : base(new GameWindowSettings
 		{
 			IsMultiThreaded = false,
 			RenderFrequency = 500,
-			UpdateFrequency = 500
-		}, new NativeWindowSettings
+			UpdateFrequency = 500,
+		}, new Func<NativeWindowSettings>(() =>
 		{
-			Title = "PataNext.Game",
-			Size  = new OpenToolkit.Mathematics.Vector2i {X = 1280, Y = 720},
-			API   = ContextAPI.OpenGL,
-		})
+			var s = new NativeWindowSettings
+			{
+				Title        = "PataNext.Game",
+				Size         = new OpenToolkit.Mathematics.Vector2i {X = 1280, Y = 720},
+				API          = ContextAPI.OpenGL,
+				IsFullscreen = true,
+				//WindowBorder = WindowBorder.Hidden
+			};
+			//GLFW.WindowHint(WindowHintBool.TransparentFramebuffer, true);
+			
+			return s;
+		})())
 		{
 			this.context = context;
-			
+			this.disposables = disposableList;
+
 			VSync = VSyncMode.Off;
-			World = new World();
+			
+			
 		}
 
 		protected override unsafe void OnLoad()
@@ -56,18 +108,12 @@ namespace PataponGameHost
 			
 			audioHost = new GameAudioThreadingHost(context, TimeSpan.FromSeconds(1f / 100));
 			audioHost.Listen();
-		}
 
-		protected override void OnClosing(CancelEventArgs args)
-		{
-			base.OnClosing(args);
-			renderHost.Dispose();
-			audioHost.Dispose();
-		}
+			disposables.Add(renderHost);
+			disposables.Add(audioHost);
 
-		private const string LibraryName = "glfw3-x64.dll";
-		[DllImport(LibraryName)]
-		public static extern unsafe int glfwGetWin32Window(OpenToolkit.Windowing.GraphicsLibraryFramework.Window* window);
+			//this.WindowState = WindowState.Fullscreen;
+		}
 
 		protected override void OnResize(ResizeEventArgs e)
 		{
@@ -77,33 +123,30 @@ namespace PataponGameHost
 
 		protected override unsafe void OnRenderFrame(FrameEventArgs args)
 		{
-			Title = $"PataNext.Game (Vsync: {VSync}) FPS: {1f / args.Time:0} (input: {GamePerformance.GetFps("input")}FPS) (sim: {GamePerformance.GetFps("simulation")}FPS)";
+			void setListener<T>(ref FrameListener listener)
+				where T : GameThreadedHostApplicationBase<T>
+			{
+				if (listener != null)
+					return;
 
-			/*base.OnRenderFrame(args);
+				if (!ThreadingHost.TypeToThread.TryGetValue(typeof(T), out var host))
+					return;
+				
+				var client = (T) host.Host;
 
-			gui.Update((DateTime.Now - startTime).TotalSeconds);
-			gui.PrepareRender();
+				using var threadLocker = client.SynchronizeThread();
+				if (client.Worker != null)
+					client.Worker.FrameListener.TryAdd(listener = new FrameListener());
+			}
+			
+			setListener<GameSimulationThreadingHost>(ref simulationFrameListener);
+			setListener<GameRenderThreadingHost>(ref renderFrameListener);
+			setListener<GameInputThreadingHost>(ref inputFrameListener);
 
-			GL.Enable(EnableCap.DepthTest);
-			GL.DepthFunc(DepthFunction.Lequal);
-			GL.ClearDepth(1.0f);
-			GL.DepthMask(true);
-			GL.Disable(EnableCap.CullFace);
-			GL.Disable(EnableCap.StencilTest);
-			GL.Disable(EnableCap.Blend);
-			GL.Disable(EnableCap.ScissorTest);
-
-			GL.UseProgram(0);
-			GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-			GL.Viewport(0, 0, Size.X, Size.Y);
-			GL.ColorMask(true, true, true, true);
-
-			GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-			gui.Render();
-
-			SwapBuffers();*/
+			simulationFrameListener.DequeueAll();
+			renderFrameListener.DequeueAll();
+			
+			Title = $"PataNext (Render, Frame={renderFrameListener.Delta:0.00}ms) (Simulation, Frame={simulationFrameListener.Delta:0.00}ms) (Input, Frame={inputFrameListener.Delta:0.00}ms)";
 		}
 
 		protected override void Dispose(bool disposing)
