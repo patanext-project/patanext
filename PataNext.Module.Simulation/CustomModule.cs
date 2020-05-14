@@ -39,8 +39,6 @@ namespace PataNext.Module.Simulation
 	public class TestModSystem : AppSystem
 	{
 		private IManagedWorldTime worldTime;
-		private Soloud soloud;
-		private SoLoud.Wav wav;
 
 		private CModule module;
 
@@ -48,16 +46,10 @@ namespace PataNext.Module.Simulation
 		{
 			DependencyResolver.Add(() => ref worldTime);
 			DependencyResolver.Add(() => ref module);
-			soloud = new Soloud();
-			soloud.init();
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
-			wav = new Wav();
-			Console.WriteLine(module.Storage.Value.CurrentPath + "/on_new_beat.ogg");
-			wav.load(module.Storage.Value.CurrentPath + "/on_new_beat.ogg");
-			
 			for (var i = 0; i != 1; i++)
 			{
 				var ent = World.Mgr.CreateEntity();
@@ -120,11 +112,6 @@ namespace PataNext.Module.Simulation
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
-
-			if (!World.Mgr.Get<RhythmEngineOnNewBeat>().IsEmpty && wav != null)
-			{
-				soloud.play(wav, 1);
-			}
 		}
 	}
 }

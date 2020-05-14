@@ -50,17 +50,5 @@ namespace PataponGameHost.Storage
 
 	public class BgmResource : Resource
 	{
-		private         bool isCompleted;
-		public override bool IsCompleted => isCompleted;
-
-		public void Start()
-		{
-			Debug.Assert(!isCompleted, "!isCompleted");
-		}
-
-		protected override T GetMetadata<T>()
-		{
-			return default;
-		}
 	}
 }

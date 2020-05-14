@@ -93,7 +93,7 @@ namespace PataNext.Module.Simulation.Tests
 					buffer.Add(pressure);
 					state.LastPressure = pressure;
 
-					Console.WriteLine($"(key={pressure.KeyId}, flowbeat={pressure.FlowBeat}, score={pressure.Score})");
+					//Console.WriteLine($"(key={pressure.KeyId}, flowbeat={pressure.FlowBeat}, score={pressure.Score})");
 				}
 			}
 

@@ -98,8 +98,8 @@ namespace PataNext.Module.Presentation.Controls
 				DependencyResolver.Add(() => ref inputBackend);
 				DependencyResolver.Add(() => ref loadFileSystem, new GetSystemFromTargetWorldStrategy(() =>
 				{
-					if (ThreadingHost.TypeToThread.TryGetValue(typeof(GameRenderThreadingHost), out var host))
-						return ((GameRenderThreadingHost) host.Host).MappedWorldCollection.FirstOrDefault().Value;
+					if (ThreadingHost.TryGetListener(out GameRenderThreadingHost host))
+						return host.MappedWorldCollection.FirstOrDefault().Value;
 					return null;
 				}));
 			}

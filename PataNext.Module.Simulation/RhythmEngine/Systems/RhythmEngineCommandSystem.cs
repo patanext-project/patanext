@@ -49,7 +49,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 			private EntitySet    commandSet;
 			private List<Entity> tempCmdOutput;
 
-			public GetNextCommandSystem(EntitySet set) : base(set, new DefaultParallelRunner(Processor.GetWorkerCount(0.5)))
+			public GetNextCommandSystem(EntitySet set) : base(set, new DefaultParallelRunner(Processor.GetWorkerCount(1.0)))
 			{
 				commandSet = set.World.GetEntities()
 				                .With<RhythmCommandDefinition>()
@@ -102,7 +102,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 						power += 0.33f;
 				}
 
-				Console.WriteLine($"next: {executingCommand.CommandTarget}");
+				//Console.WriteLine($"next: {executingCommand.CommandTarget}");
 
 				executingCommand.Power = power / commandProgression.Count;
 				commandProgression.Clear();
@@ -111,7 +111,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 
 		public class ApplyCommandSystem : AEntitySystem<float>
 		{
-			public ApplyCommandSystem(EntitySet set) : base(set)
+			public ApplyCommandSystem(EntitySet set) : base(set, new DefaultParallelRunner(Processor.GetWorkerCount(0.5)))
 			{
 
 			}
@@ -149,20 +149,14 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				var activationBeat = RhythmEngineUtility.GetActivationBeat(state, settings);
 				if (state.IsRecovery(flowBeat)
 				    || (rhythmActiveAtFlowBeat < flowBeat && checkStopBeat < activationBeat)
-				    || (executing.CommandTarget == default && entity.Get<RhythmEnginePredictedCommandBuffer>().Any() && rhythmActiveAtFlowBeat < state.LastPressure.FlowBeat)
-				    || (!entity.Get<RhythmEnginePredictedCommandBuffer>().Any()))
+				    || (executing.CommandTarget == default && entity.Get<RhythmEnginePredictedCommandBuffer>().Count != 0 && rhythmActiveAtFlowBeat < state.LastPressure.FlowBeat)
+				    || (entity.Get<RhythmEnginePredictedCommandBuffer>().Count == 0))
 				{
-					if (commandState.StartTimeMs > 0)
-					{
-						Console.WriteLine($@"{rhythmActiveAtFlowBeat} {flowBeat} {checkStopBeat} {activationBeat}");
-					}
-
 					commandState.Reset();
 				}
 
 				if (executing.CommandTarget == default || state.IsRecovery(flowBeat))
 				{
-					Console.WriteLine("reset 1");
 					commandState.Reset();
 					return;
 				}
@@ -170,8 +164,6 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				if (!executing.WaitingForApply)
 					return;
 				executing.WaitingForApply = false;
-				
-				Console.WriteLine($"apply command!");
 
 				var beatLength = executing.CommandTarget.Get<RhythmCommandDefinition>().Duration;
 
