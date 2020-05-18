@@ -1,7 +1,7 @@
 
 <html>
     <p align="center">
-    <img src="wiki_resources/logo_banner.png" alt="Super Logo!" width="320" height="155" />
+    <img src="wiki_resources/patanext_logo_banner.png" alt="PataNext Logo!" width="320" height="155" />
     </p>
     <h2 align="center">
     PataNext
