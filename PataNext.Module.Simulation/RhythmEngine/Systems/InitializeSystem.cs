@@ -7,11 +7,11 @@ using GameHost.Entities;
 namespace PataNext.Module.Simulation.RhythmEngine
 {
 	[RestrictToApplication(typeof(GameSimulationThreadingHost))]
-	public class RhythmEngineInitializeSystem : AppSystem
+	public class InitializeSystem : AppSystem
 	{
 		private EntitySet engineOnNewBeatSet;
 		
-		public RhythmEngineInitializeSystem(WorldCollection collection) : base(collection)
+		public InitializeSystem(WorldCollection collection) : base(collection)
 		{
 			engineOnNewBeatSet = collection.Mgr.GetEntities()
 			                               .With<RhythmEngineController>()

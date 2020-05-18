@@ -10,12 +10,12 @@ using GameHost.Entities;
 
 namespace PataNext.Module.Simulation.RhythmEngine
 {
-	[UpdateAfter(typeof(RhythmEngineManageComponentTagSystem))]
-	public class RhythmEngineProcessSystem : RhythmEngineSystemBase
+	[UpdateAfter(typeof(ManageComponentTagSystem))]
+	public class ProcessEngineSystem : RhythmEngineSystemBase
 	{
 		private IManagedWorldTime worldTime;
 
-		public RhythmEngineProcessSystem(WorldCollection collection) : base(collection)
+		public ProcessEngineSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref worldTime);
 		}
@@ -33,11 +33,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 			                         .AsSet());
 		}
 
-		protected override void OnUpdate()
-		{
-			base.OnUpdate();
-			system.Update(worldTime);
-		}
+		protected override void OnUpdate() => system.Update(worldTime);
 
 		private class System : AEntitySystem<IManagedWorldTime>
 		{
@@ -50,10 +46,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				recorder = new EntityCommandRecorder();
 			}
 
-			protected override void PreUpdate(IManagedWorldTime state)
-			{
-				recorder.Clear();
-			}
+			protected override void PreUpdate(IManagedWorldTime state) => recorder.Clear();
 
 			protected override void Update(IManagedWorldTime wt, in Entity entity)
 			{
@@ -75,10 +68,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				}
 			}
 
-			protected override void PostUpdate(IManagedWorldTime state)
-			{
-				recorder.Execute(world);
-			}
+			protected override void PostUpdate(IManagedWorldTime state) => recorder.Execute(world);
 
 			public override void Dispose()
 			{

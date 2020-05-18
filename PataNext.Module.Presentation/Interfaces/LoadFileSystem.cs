@@ -62,7 +62,6 @@ namespace PataNext.Module.Presentation.Controls
 								continue;
 
 							var result = Encoding.UTF8.GetString(await file.GetContentAsync());
-							//Console.WriteLine(result);
 							scheduler.Add(() => Xaml.Value = result);
 						}
 					});

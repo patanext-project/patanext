@@ -9,7 +9,7 @@ using PataponGameHost.RhythmEngine.Components;
 
 namespace PataNext.Module.Simulation.RhythmEngine
 {
-	[UpdateAfter(typeof(RhythmEngineCheckCommandValidity))]
+	[UpdateAfter(typeof(ProcessCommandSystem))]
 	public class RhythmEngineResizeCommandBufferSystem : RhythmEngineSystemBase
 	{
 		private System system;

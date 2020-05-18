@@ -11,12 +11,12 @@ using PataponGameHost.RhythmEngine.Components;
 
 namespace PataNext.Module.Simulation.RhythmEngine
 {
-	public class RhythmEngineCheckCommandValidity : RhythmEngineSystemBase
+	public class ProcessCommandSystem : RhythmEngineSystemBase
 	{
 		private readonly GetNextCommandSystem getNextCommandSystem;
 		private readonly ApplyCommandSystem   applyCommandSystem;
 
-		public RhythmEngineCheckCommandValidity(WorldCollection collection) : base(collection)
+		public ProcessCommandSystem(WorldCollection collection) : base(collection)
 		{
 			getNextCommandSystem = new GetNextCommandSystem(World.Mgr.GetEntities()
 			                                                     .With<RhythmEngineIsPlaying>()
@@ -101,9 +101,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 					else
 						power += 0.33f;
 				}
-
-				//Console.WriteLine($"next: {executingCommand.CommandTarget}");
-
+				
 				executingCommand.Power = power / commandProgression.Count;
 				commandProgression.Clear();
 			}

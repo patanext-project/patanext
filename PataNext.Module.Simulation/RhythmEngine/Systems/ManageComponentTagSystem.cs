@@ -3,7 +3,7 @@ using GameHost.Core.Ecs;
 
 namespace PataNext.Module.Simulation.RhythmEngine
 {
-	public class RhythmEngineManageComponentTagSystem : RhythmEngineSystemBase
+	public class ManageComponentTagSystem : RhythmEngineSystemBase
 	{
 		private EntitySet engineSet;
 
@@ -28,7 +28,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 			}
 		}
 
-		public RhythmEngineManageComponentTagSystem(WorldCollection collection) : base(collection)
+		public ManageComponentTagSystem(WorldCollection collection) : base(collection)
 		{
 		}
 	}
