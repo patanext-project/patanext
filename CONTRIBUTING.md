@@ -1,6 +1,6 @@
-**NOTE: This file is not yet finished** 
+**NOTE: This file is not yet finished and is currently in rework (since the game is being remade into my framework)** 
 
-For contributing new features to the game, please check the project Trello to see which feature you can develop.
+For contributing new features to the game, please check the project roadmap to see which feature you can develop.
 
 # Guidelines
 

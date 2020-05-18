@@ -4,22 +4,22 @@
     <img src="wiki_resources/logo_banner.png" alt="Super Logo!" width="320" height="155" />
     </p>
     <h2 align="center">
-    Patapon 4 - The Last Battle
+    PataNext
     </h2>
 </html>
 
 ___
 ### Welcome!
-Patapon 4 The Last Battle (or P4TLB, TLB for short) is a community based project based on the [PATAPON](https://en.wikipedia.org/wiki/Patapon) series originally made by Rolito and Pyramid.
+PataNext (also knew as Patapon 4 The Last Battle or P4TLB/TLB) is a community based project based on the [PATAPON](https://en.wikipedia.org/wiki/Patapon) series originally made by Rolito and Pyramid.
 
 ___
-### Packages:
-This game (also Stormium) use a package system, for a better code maintenance.
+### Framework:
+This game use my own framework, called GameHost (which will soon be public once I'll fix the mess)
 
--   [Core package](https://github.com/guerro323/package.patapon.core)
--   [Gamebase package](https://github.com/StormiumTeam/package.stormiumteam.gamebase)
--   [Networking package](https://github.com/StormiumTeam/package.stormiumteam.networking)
--   [Shared package](https://github.com/StormiumTeam/package.stormiumteam.shared)
+___
+### Roadmap:
+-   [GameHost Migration](https://github.com/guerro323/patanext/projects/4)
+
 ___
 ### Importants links:
 
