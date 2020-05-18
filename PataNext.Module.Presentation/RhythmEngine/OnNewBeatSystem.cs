@@ -10,6 +10,7 @@ using GameHost.Core.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.Modding;
 using GameHost.Core.Threading;
+using GameHost.HostSerialization;
 using GameHost.Injection;
 using GameHost.IO;
 using PataNext.Module.Simulation.RhythmEngine;
@@ -19,15 +20,15 @@ namespace PataNext.Module.Presentation.RhythmEngine
 	[RestrictToApplication(typeof(GameRenderThreadingHost))]
 	public class OnNewBeatSystem : AppSystem
 	{
+		private PresentationHostWorld presentationHost;
 		private Instance runningInstance;
-		private GameSimulationThreadingClient client;
 		private LoadAudioResourceSystem loadAudio;
 		private CModule module;
 		public OnNewBeatSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref runningInstance);
-			DependencyResolver.Add(() => ref client);
 			DependencyResolver.Add(() => ref loadAudio);
+			DependencyResolver.Add(() => ref presentationHost);
 			DependencyResolver.Add(() => ref module);
 		}
 		
@@ -41,13 +42,18 @@ namespace PataNext.Module.Presentation.RhythmEngine
 
 		protected override void OnUpdate()
 		{
-			using (client.SynchronizeThread(out var host))
+			foreach (ref readonly var world in presentationHost.ActiveWorlds)
 			{
-				if (!host.MappedWorldCollection.TryGetValue(runningInstance, out var hostWorld))
-					return;
-				
-				if (hostWorld.Mgr.Get<RhythmEngineOnNewBeat>().Length > 0)
-					Console.WriteLine("on new beat!");
+				foreach (var chunk in world.Chunks)
+				{
+					if (chunk.Span.Length == 0)
+						continue;
+					
+					if (chunk.Components.TryGetValue(typeof(RhythmEngineOnNewBeat), out var componentArray))
+					{
+						Console.WriteLine("new beat!");
+					}
+				}
 			}
 		}
 	}

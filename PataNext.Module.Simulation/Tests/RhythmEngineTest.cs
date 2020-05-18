@@ -89,6 +89,9 @@ namespace PataNext.Module.Simulation.Tests
 				var buffer = entity.Get<RhythmEngineLocalCommandBuffer>();
 				foreach (ref var input in World.Mgr.Get<OnInput>())
 				{
+					World.Mgr.CreateEntity();
+					
+					
 					var pressure = new FlowPressure(input.Key, state.Elapsed, settings.BeatInterval);
 					buffer.Add(pressure);
 					state.LastPressure = pressure;

@@ -1,6 +1,8 @@
-﻿namespace PataNext.Module.Simulation.RhythmEngine
+﻿using RevolutionSnapshot.Core.ECS;
+
+namespace PataNext.Module.Simulation.RhythmEngine
 {
-	public struct RhythmEngineOnNewBeat
+	public struct RhythmEngineOnNewBeat : IRevolutionComponent
 	{
 		public int Previous, Next;
 	}
