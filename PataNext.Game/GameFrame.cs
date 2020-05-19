@@ -1,23 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using DefaultEcs;
 using GameHost.Applications;
-using GameHost.Core.Applications;
-using GameHost.Core.Game;
 using GameHost.Core.Threading;
-using GameHost.Entities;
-using GameHost.Event;
 using GameHost.Injection;
-using GameHost.UI;
-using GameHost.UI.Noesis;
 using OpenToolkit.Graphics.OpenGL4;
 using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 

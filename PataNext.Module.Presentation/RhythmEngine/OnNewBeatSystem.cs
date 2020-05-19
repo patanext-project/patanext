@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using DefaultEcs;
-using DryIoc;
 using GameHost;
 using GameHost.Applications;
 using GameHost.Audio;
 using GameHost.Core.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.Modding;
-using GameHost.Core.Threading;
 using GameHost.HostSerialization;
-using GameHost.Injection;
 using GameHost.IO;
 using PataNext.Module.Simulation.RhythmEngine;
 
@@ -20,10 +15,11 @@ namespace PataNext.Module.Presentation.RhythmEngine
 	[RestrictToApplication(typeof(GameRenderThreadingHost))]
 	public class OnNewBeatSystem : AppSystem
 	{
-		private PresentationHostWorld presentationHost;
-		private Instance runningInstance;
+		private PresentationHostWorld   presentationHost;
+		private Instance                runningInstance;
 		private LoadAudioResourceSystem loadAudio;
-		private CModule module;
+		private CModule                 module;
+
 		public OnNewBeatSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref runningInstance);
@@ -31,7 +27,7 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			DependencyResolver.Add(() => ref presentationHost);
 			DependencyResolver.Add(() => ref module);
 		}
-		
+
 		private ResourceHandle<AudioResource> newBeatSound;
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
@@ -40,19 +36,24 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			newBeatSound = loadAudio.Start("on_new_beat.ogg", module.Storage.Value);
 		}
 
+		private readonly Query queryNewBeats = new Query {All = new[] {typeof(RhythmEngineOnNewBeat), typeof(RhythmEngineController)}};
+
 		protected override void OnUpdate()
 		{
 			foreach (ref readonly var world in presentationHost.ActiveWorlds)
 			{
-				foreach (var chunk in world.Chunks)
+				var hasBeenFound = false;
+				foreach (var _ in world.QueryChunks(queryNewBeats))
 				{
-					if (chunk.Span.Length == 0)
-						continue;
-					
-					if (chunk.Components.TryGetValue(typeof(RhythmEngineOnNewBeat), out var componentArray))
-					{
-						Console.WriteLine("new beat!");
-					}
+					hasBeenFound = true;
+					break;
+				}
+
+				// There may be chance that the render client lagged, so we need to be sure that we only play one sound
+				if (hasBeenFound)
+				{
+					Console.WriteLine("on new beat!");
+					break;
 				}
 			}
 		}

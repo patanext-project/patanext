@@ -1,4 +1,5 @@
 ﻿using System;
+using RevolutionSnapshot.Core.ECS;
 
 namespace PataNext.Module.Simulation.RhythmEngine
 {
@@ -9,7 +10,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 		Playing = 2
 	}
 
-	public struct RhythmEngineController
+	public struct RhythmEngineController : IRevolutionComponent
 	{
 		public RhythmEngineState State;
 		public TimeSpan          StartTime;

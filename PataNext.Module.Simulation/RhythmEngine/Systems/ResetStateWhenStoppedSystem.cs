@@ -1,7 +1,5 @@
 ﻿using DefaultEcs;
 using DefaultEcs.System;
-using GameHost.Applications;
-using GameHost.Core.Applications;
 using GameHost.Core.Ecs;
 using PataponGameHost.RhythmEngine.Components;
 
@@ -34,8 +32,8 @@ namespace PataNext.Module.Simulation.RhythmEngine.Systems
 				if (controller.State != RhythmEngineState.Stopped)
 					return;
 
-				entity.Get<GameComboState>()   = default;
-				entity.Get<GameCommandState>() = default;
+				entity.Set<GameComboState>();
+				entity.Set<GameCommandState>();
 			}
 		}
 	}

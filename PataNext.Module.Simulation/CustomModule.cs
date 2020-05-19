@@ -11,7 +11,6 @@ using PataNext.Module.Simulation;
 using PataNext.Module.Simulation.RhythmEngine;
 using PataNext.Module.Simulation.RhythmEngine.Data;
 using PataponGameHost.RhythmEngine.Components;
-using SoLoud;
 
 [assembly: ModuleDescription("PataNext Simulation", "guerro", typeof(CustomModule))]
 

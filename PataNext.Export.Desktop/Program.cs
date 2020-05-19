@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using GameHost.Core.Threading;
-using GameHost.Injection;
+﻿using GameHost.Injection;
 using PataNext.Module.Presentation;
 using PataponGameHost;
 

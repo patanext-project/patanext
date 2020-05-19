@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Core.Applications;
 using GameHost.Core.Ecs;
-using GameHost.Core.IO;
 using GameHost.Core.Threading;
 using GameHost.Entities;
-using GameHost.Injection;
 using NetFabric.Hyperlinq;
 using PataponGameHost.Storage;
-using Enumerable = System.Linq.Enumerable;
 
 namespace PataponGameHost.Applications.MainThread
 {

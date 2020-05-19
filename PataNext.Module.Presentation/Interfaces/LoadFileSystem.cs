@@ -14,7 +14,6 @@ using GameHost.Injection;
 using GameHost.Injection.Dependency;
 using GameHost.Input.OpenTKBackend;
 using GameHost.IO;
-using NetFabric.Hyperlinq;
 using OpenToolkit.Windowing.Common.Input;
 
 namespace PataNext.Module.Presentation.Controls

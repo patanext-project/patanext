@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Core;
 using GameHost.Core.Applications;
-using GameHost.Core.Bindables;
 using GameHost.Core.Ecs;
 using GameHost.Core.IO;
 using GameHost.Core.Threading;
-using GameHost.IO;
 using GameHost.UI.Noesis;
 using OpenToolkit.Windowing.Common;
 using PataponGameHost.Applications.MainThread;

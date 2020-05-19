@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using GameHost.Core;
+﻿using System.Collections.Generic;
 using PataNext.Module.Simulation.RhythmEngine.Data;
 
 namespace PataNext.Module.Simulation.RhythmEngine

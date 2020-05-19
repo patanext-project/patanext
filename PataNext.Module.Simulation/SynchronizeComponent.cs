@@ -16,6 +16,7 @@ namespace PataNext.Module.Simulation
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
+			restrictedHost.Implementation.SubscribeComponent<RhythmEngineController>();
 			restrictedHost.Implementation.SubscribeComponent<RhythmEngineOnNewBeat>();
 		}
 	}

@@ -1,5 +1,4 @@
-﻿using System;
-using DefaultEcs;
+﻿using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Core.Modding;
 using GameHost.Injection;

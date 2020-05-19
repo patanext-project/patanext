@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PataponGameHost.RhythmEngine.Components
+﻿namespace PataponGameHost.RhythmEngine.Components
 {
 	public struct GameCommandState
 	{

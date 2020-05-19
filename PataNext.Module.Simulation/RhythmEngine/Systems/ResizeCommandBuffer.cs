@@ -1,11 +1,9 @@
-﻿using System;
-using DefaultEcs;
+﻿using DefaultEcs;
 using DefaultEcs.System;
 using DefaultEcs.Threading;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
-using PataponGameHost.RhythmEngine.Components;
 
 namespace PataNext.Module.Simulation.RhythmEngine
 {
