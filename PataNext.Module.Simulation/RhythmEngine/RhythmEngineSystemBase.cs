@@ -3,7 +3,7 @@ using GameHost.Core;
 using GameHost.Core.Applications;
 using GameHost.Core.Ecs;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	[RestrictToApplication(typeof(GameSimulationThreadingHost))]
 	[UpdateAfter(typeof(InitializeSystem))]

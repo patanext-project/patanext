@@ -1,7 +1,7 @@
 ﻿using DefaultEcs;
 using GameHost.Core.Ecs;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	public class ManageComponentTagSystem : RhythmEngineSystemBase
 	{
@@ -21,7 +21,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 			foreach (ref readonly var entity in engineSet.GetEntities())
 			{
 				ref readonly var controller = ref entity.Get<RhythmEngineController>();
-				if (controller.State == RhythmEngineState.Playing)
+				if (controller.State == EngineControllerState.Playing)
 					entity.Set(new RhythmEngineIsPlaying());
 				else
 					entity.Remove<RhythmEngineIsPlaying>();

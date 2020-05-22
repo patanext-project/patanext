@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DefaultEcs;
+using RevolutionSnapshot.Core.ECS;
 
 namespace PataponGameHost.RhythmEngine.Components
 {

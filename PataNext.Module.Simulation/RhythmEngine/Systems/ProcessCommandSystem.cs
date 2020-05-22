@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using Collections.Pooled;
 using DefaultEcs;
 using DefaultEcs.System;
 using DefaultEcs.Threading;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
-using PataNext.Module.Simulation.RhythmEngine.Data;
+using PataNext.Module.RhythmEngine.Data;
 using PataponGameHost.RhythmEngine.Components;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	public class ProcessCommandSystem : RhythmEngineSystemBase
 	{
@@ -46,7 +48,8 @@ namespace PataNext.Module.Simulation.RhythmEngine
 		public class GetNextCommandSystem : AEntitySystem<float>
 		{
 			private EntitySet    commandSet;
-			private List<Entity> tempCmdOutput;
+
+			private ThreadLocal<List<Entity>> cmdOutput = new ThreadLocal<List<Entity>>(() => new List<Entity>());
 
 			public GetNextCommandSystem(EntitySet set) : base(set, new DefaultParallelRunner(Processor.GetWorkerCount(1.0)))
 			{
@@ -66,17 +69,19 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				ref var executingCommand  = ref entity.Get<RhythmEngineExecutingCommand>();
 				ref var predictedCommands = ref entity.Get<RhythmEnginePredictedCommandBuffer>();
 
-				var cmdOutput = new List<Entity>();
-				RhythmCommandUtility.GetCommand(commandSet, commandProgression, cmdOutput, false);
+				var output = this.cmdOutput.Value;
+				output.Clear();
+				
+				RhythmCommandUtility.GetCommand(commandSet, commandProgression, output, false);
 
 				predictedCommands.Clear();
-				predictedCommands.AddRange(cmdOutput);
+				predictedCommands.AddRange(output);
 				if (predictedCommands.Count == 0)
 				{
-					RhythmCommandUtility.GetCommand(commandSet, commandProgression, cmdOutput, true);
-					if (cmdOutput.Count > 0)
+					RhythmCommandUtility.GetCommand(commandSet, commandProgression, output, true);
+					if (output.Count > 0)
 					{
-						predictedCommands.AddRange(cmdOutput);
+						predictedCommands.AddRange(output);
 					}
 
 					return;
@@ -86,7 +91,7 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				var targetBeat = commandProgression[^1].FlowBeat + 1;
 
 				executingCommand.Previous            = executingCommand.CommandTarget;
-				executingCommand.CommandTarget       = cmdOutput[0];
+				executingCommand.CommandTarget       = output[0];
 				executingCommand.ActivationBeatStart = targetBeat;
 				executingCommand.ActivationBeatEnd   = targetBeat + executingCommand.CommandTarget.Get<RhythmCommandDefinition>().Duration;
 				executingCommand.WaitingForApply     = true;
@@ -103,6 +108,12 @@ namespace PataNext.Module.Simulation.RhythmEngine
 				
 				executingCommand.Power = power / commandProgression.Count;
 				commandProgression.Clear();
+			}
+
+			public override void Dispose()
+			{
+				base.Dispose();
+				cmdOutput.Dispose();
 			}
 		}
 

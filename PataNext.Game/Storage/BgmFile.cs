@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.IO;
+using System.IO.Compression;
+using System.Text.Json;
 using System.Threading.Tasks;
 using GameHost.Core.IO;
 using GameHost.IO;
@@ -7,11 +10,12 @@ namespace PataponGameHost.Storage
 {
 	public class BgmFile : IFile
 	{
-		private readonly IFile parent;
+		private readonly IFile    parent;
+		private readonly FileInfo cachedInfo;
 
 		public BgmDescription Description { get; private set; }
 
-		public string Name => parent.Name;
+		public string Name     => parent.Name;
 		public string FullName => parent.FullName;
 
 		public Task<byte[]> GetContentAsync() => parent.GetContentAsync();
@@ -19,13 +23,48 @@ namespace PataponGameHost.Storage
 		public BgmFile(IFile parent)
 		{
 			this.parent = parent;
+
+			cachedInfo = new FileInfo(FullName);
 		}
 
 		public async Task ComputeDescription()
 		{
-			var       fileContent = await GetContentAsync();
-			using var document    = JsonDocument.Parse(fileContent);
+			Func<Task> call = cachedInfo.Extension switch
+			{
+				".zip" => FromZip,
+				".json" => FromJson,
+				_ => throw new NotImplementedException($"No convert implemented for '{cachedInfo.Extension}' extension")
+			};
 
+			await call();
+		}
+
+		private async Task FromZip()
+		{
+			using var archive   = ZipFile.OpenRead(FullName);
+			var       descEntry = archive.GetEntry("description.json");
+
+			// TODO: file errors should be more explicit to the end user
+			if (descEntry == null)
+				throw new NullReferenceException(nameof(descEntry));
+
+			await using (var stream = descEntry.Open())
+			{
+				using (var document = await JsonDocument.ParseAsync(stream))
+					await ReadDescription(document);
+			}
+		}
+
+		private async Task FromJson()
+		{
+			var fileContent = await GetContentAsync();
+
+			using var document = JsonDocument.Parse(fileContent);
+			await ReadDescription(document);
+		}
+
+		private async Task ReadDescription(JsonDocument document)
+		{
 			var root = document.RootElement;
 
 			Description = new BgmDescription

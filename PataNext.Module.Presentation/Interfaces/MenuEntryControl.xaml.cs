@@ -11,7 +11,7 @@ using PataponGameHost.Storage;
 
 namespace PataNext.Module.Presentation.Controls
 {
-	public partial class MenuEntryControl : LoadableUserControl<MenuEntryControl.ViewModel>
+	public class MenuEntryControl : LoadableUserControl<MenuEntryControl.ViewModel>
 	{
 		public override void OnLoad()
 		{
@@ -38,12 +38,10 @@ namespace PataNext.Module.Presentation.Controls
 
 		public override void OnUnload()
 		{
-
 		}
 
 		public override void Dispose()
 		{
-
 		}
 
 		private void onRefreshList(object sender, RoutedEventArgs args)
@@ -64,7 +62,7 @@ namespace PataNext.Module.Presentation.Controls
 		public class ViewModel : NotifyPropertyChangedBase
 		{
 			private ObservableCollection<BgmEntry> bgmEntries;
-			
+
 			public IEnumerable<BgmEntry> BgmEntries
 			{
 				get => bgmEntries;

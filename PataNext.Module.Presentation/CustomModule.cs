@@ -11,9 +11,9 @@ namespace PataNext.Module.Presentation
 		{
 			var renderClient = new GameRenderThreadingClient();
 			renderClient.Connect();
-			
+
 			renderClient.InjectAssembly(GetType().Assembly);
-			
+
 			var inputClient = new GameInputThreadingClient();
 			inputClient.Connect();
 

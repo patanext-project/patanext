@@ -8,8 +8,8 @@ using GameHost.Core.Modding;
 using GameHost.Entities;
 using GameHost.Injection;
 using PataNext.Module.Simulation;
-using PataNext.Module.Simulation.RhythmEngine;
-using PataNext.Module.Simulation.RhythmEngine.Data;
+using PataNext.Module.RhythmEngine;
+using PataNext.Module.RhythmEngine.Data;
 using PataponGameHost.RhythmEngine.Components;
 
 [assembly: ModuleDescription("PataNext Simulation", "guerro", typeof(CustomModule))]
@@ -52,7 +52,7 @@ namespace PataNext.Module.Simulation
 			for (var i = 0; i != 1; i++)
 			{
 				var ent = World.Mgr.CreateEntity();
-				ent.Set(new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(2))});
+				ent.Set(new RhythmEngineController {State      = EngineControllerState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(2))});
 				ent.Set(new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
 				ent.Set(new RhythmEngineLocalState());
 				ent.Set(new RhythmEngineExecutingCommand());
@@ -72,6 +72,7 @@ namespace PataNext.Module.Simulation
 			}));
 			Console.WriteLine(march.Get<RhythmCommandDefinition>());
 
+			// TODO: Should be moved into an unit test project
 			var results = new List<bool>();
 			results.Add(RhythmCommandUtility.SameAsSequence(march.Get<RhythmCommandDefinition>().Actions, new[]
 			{

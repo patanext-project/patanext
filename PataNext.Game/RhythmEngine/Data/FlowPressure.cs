@@ -1,6 +1,7 @@
 ﻿using System;
+using PataNext.Module.RhythmEngine;
 
-namespace PataNext.Module.Simulation.RhythmEngine.Data
+namespace PataNext.Module.RhythmEngine.Data
 {
 	public struct FlowPressure
 	{

@@ -1,7 +1,8 @@
 ﻿using System;
-using PataNext.Module.Simulation.RhythmEngine.Data;
+using PataNext.Module.RhythmEngine.Data;
+using RevolutionSnapshot.Core.ECS;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	public interface IRhythmEngineState
 	{

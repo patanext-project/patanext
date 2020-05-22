@@ -7,7 +7,7 @@ using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
 using GameHost.Entities;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	[UpdateAfter(typeof(ManageComponentTagSystem))]
 	public class ProcessEngineSystem : RhythmEngineSystemBase

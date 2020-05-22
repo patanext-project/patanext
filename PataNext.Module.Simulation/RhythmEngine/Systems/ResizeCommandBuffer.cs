@@ -5,7 +5,7 @@ using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	[UpdateAfter(typeof(ProcessCommandSystem))]
 	public class RhythmEngineResizeCommandBufferSystem : RhythmEngineSystemBase

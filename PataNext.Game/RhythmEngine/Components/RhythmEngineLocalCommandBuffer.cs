@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using PataNext.Module.Simulation.RhythmEngine.Data;
+using PataNext.Module.RhythmEngine.Data;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	// todo: we should make it as a struct
 	public class RhythmEngineLocalCommandBuffer : List<FlowPressure>

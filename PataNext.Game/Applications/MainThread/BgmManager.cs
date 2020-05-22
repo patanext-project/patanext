@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DefaultEcs;
 using GameHost.Applications;
@@ -59,8 +60,11 @@ namespace PataponGameHost.Applications.MainThread
 		{
 			scheduler.Add(bgmSet.DisposeAllEntities);
 
-			var files = (await storage.GetFilesAsync("*.json")).ToList();
-			foreach (var bgmFile in files.Select(f => new BgmFile(f)))
+			var fileList = (await storage.GetFilesAsync("*.zip"))
+			               .Concat(await storage.GetFilesAsync("*.json"))
+			               .ToList();
+			
+			foreach (var bgmFile in fileList.Select(f => new BgmFile(f)))
 			{
 				await bgmFile.ComputeDescription();
 

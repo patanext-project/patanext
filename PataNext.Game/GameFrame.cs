@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using GameHost.Applications;
 using GameHost.Core.Threading;
 using GameHost.Injection;
+using ImTools;
 using OpenToolkit.Graphics.OpenGL4;
+using OpenToolkit.Mathematics;
 using OpenToolkit.Windowing.Common;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
@@ -24,6 +26,7 @@ namespace PataponGameHost
 
 			public int LastCollectionIndex;
 			public double Delta;
+			public double SD;
 			
 			public List<WorkerFrame> DequeueAll()
 			{
@@ -39,7 +42,9 @@ namespace PataponGameHost
 
 					Delta = Math.Max(frame.Delta.TotalSeconds, Delta);
 				}
-				
+
+				SD = MathHelper.Lerp((float) SD, (float) Delta, (float) Delta * 10);
+
 				return frames;
 			}
 		}
@@ -71,6 +76,7 @@ namespace PataponGameHost
 				//WindowBorder = WindowBorder.Hidden
 			};
 			//GLFW.WindowHint(WindowHintBool.TransparentFramebuffer, true);
+			GLFW.WindowHint(WindowHintInt.Samples, 8);
 			
 			return s;
 		})())
@@ -79,8 +85,6 @@ namespace PataponGameHost
 			this.disposables = disposableList;
 
 			VSync = VSyncMode.Off;
-			
-			
 		}
 
 		protected override unsafe void OnLoad()
@@ -133,7 +137,7 @@ namespace PataponGameHost
 			simulationFrameListener.DequeueAll();
 			renderFrameListener.DequeueAll();
 			
-			Title = $"PataNext (Render, Frame={renderFrameListener.Delta:0.00}ms) (Simulation, Frame={simulationFrameListener.Delta:0.00}ms) (Input, Frame={inputFrameListener.Delta:0.00}ms)";
+			Title = $"PataNext (Render, {1/renderFrameListener.SD:0000.}FPS) (Simulation, {1/simulationFrameListener.SD:0000.}FPS) (Input, Frame={inputFrameListener.Delta:0.00}ms)";
 		}
 
 		protected override void Dispose(bool disposing)

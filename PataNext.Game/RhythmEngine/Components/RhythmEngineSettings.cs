@@ -1,6 +1,7 @@
 ﻿using System;
+using RevolutionSnapshot.Core.ECS;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	public struct RhythmEngineSettings
 	{

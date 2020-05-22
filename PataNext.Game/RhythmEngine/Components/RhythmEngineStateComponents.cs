@@ -1,4 +1,6 @@
-﻿namespace PataNext.Module.Simulation.RhythmEngine
+﻿using RevolutionSnapshot.Core.ECS;
+
+namespace PataNext.Module.RhythmEngine
 {
 	/// <summary>
 	/// Tag component

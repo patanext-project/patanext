@@ -19,10 +19,15 @@ namespace PataNext.Module.Presentation.Controls
 	[UpdateAfter(typeof(NoesisInitializationSystem))]
 	public class MenuEntryControlSystem : AppSystem
 	{
-		private INativeWindow    window;
-		private IScheduler       scheduler;
 		private MainThreadClient client;
-		private LoadFileSystem loadFileSystem;
+		private Entity           entityView;
+
+		private MenuEntryControl.BgmEntry[] files = new MenuEntryControl.BgmEntry[0];
+		private LoadFileSystem              loadFileSystem;
+		private IScheduler                  scheduler;
+
+		private IStorage      storage;
+		private INativeWindow window;
 
 		public MenuEntryControlSystem(WorldCollection collection) : base(collection)
 		{
@@ -31,11 +36,6 @@ namespace PataNext.Module.Presentation.Controls
 			DependencyResolver.Add(() => ref client);
 			DependencyResolver.Add(() => ref loadFileSystem);
 		}
-
-		private MenuEntryControl.BgmEntry[] files = new MenuEntryControl.BgmEntry[0];
-
-		private IStorage         storage;
-		private Entity entityView;
 
 		private void onBgmFileChange()
 		{
@@ -62,7 +62,7 @@ namespace PataNext.Module.Presentation.Controls
 
 				client.Listener.WorldCollection.Mgr.CreateEntity().Set<RefreshBgmList>();
 			}
-			
+
 			loadFileSystem.Xaml.Subscribe(OnXamlFound, true);
 		}
 
@@ -70,7 +70,7 @@ namespace PataNext.Module.Presentation.Controls
 		{
 			if (next == null)
 				return;
-			
+
 			void addXaml()
 			{
 				var view = new NoesisOpenTkRenderer(window);
@@ -82,7 +82,7 @@ namespace PataNext.Module.Presentation.Controls
 					var oldRenderer = entityView.Get<NoesisOpenTkRenderer>();
 					oldRenderer.Dispose();
 				}
-				
+
 				entityView.Set(view);
 				entityView.Set((MenuEntryControl) view.View.Content);
 			}

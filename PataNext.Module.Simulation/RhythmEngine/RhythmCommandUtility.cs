@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using DefaultEcs;
-using PataNext.Module.Simulation.RhythmEngine.Data;
+using PataNext.Module.RhythmEngine.Data;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	public static class RhythmCommandUtility
 	{

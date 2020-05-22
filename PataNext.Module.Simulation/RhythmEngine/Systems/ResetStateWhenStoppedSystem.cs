@@ -3,7 +3,7 @@ using DefaultEcs.System;
 using GameHost.Core.Ecs;
 using PataponGameHost.RhythmEngine.Components;
 
-namespace PataNext.Module.Simulation.RhythmEngine.Systems
+namespace PataNext.Module.RhythmEngine.Systems
 {
 	public class ResetStateWhenStoppedSystem : RhythmEngineSystemBase
 	{
@@ -29,7 +29,7 @@ namespace PataNext.Module.Simulation.RhythmEngine.Systems
 			protected override void Update(float _, in Entity entity)
 			{
 				ref readonly var controller = ref entity.Get<RhythmEngineController>();
-				if (controller.State != RhythmEngineState.Stopped)
+				if (controller.State != EngineControllerState.Stopped)
 					return;
 
 				entity.Set<GameComboState>();

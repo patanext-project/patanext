@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PataNext.Module.Simulation.RhythmEngine
+namespace PataNext.Module.RhythmEngine
 {
 	public static class RhythmEngineUtility
 	{
