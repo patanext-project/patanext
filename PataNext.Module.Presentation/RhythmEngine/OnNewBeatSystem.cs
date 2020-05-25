@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Audio;
 using GameHost.Core.Applications;
@@ -19,12 +20,12 @@ namespace PataNext.Module.Presentation.RhythmEngine
 		private          CModule                 module;
 
 		private ResourceHandle<AudioResource> newBeatSound;
-		private PresentationHostWorld         presentationHost;
+		private PresentationWorld         presentation;
 
 		public OnNewBeatSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref loadAudio);
-			DependencyResolver.Add(() => ref presentationHost);
+			DependencyResolver.Add(() => ref presentation);
 			DependencyResolver.Add(() => ref module);
 		}
 
@@ -32,23 +33,16 @@ namespace PataNext.Module.Presentation.RhythmEngine
 		{
 			base.OnDependenciesResolved(dependencies);
 			newBeatSound = loadAudio.Start("on_new_beat.ogg", new StorageCollection {module.DllStorage, module.Storage.Value});
+
+			presentation.World.SubscribeComponentAdded<RhythmEngineOnNewBeat>(OnNewBeat);
 		}
 
-		protected override void OnUpdate()
+		private void OnNewBeat(in Entity entity, in RhythmEngineOnNewBeat n)
 		{
-			foreach (ref readonly var snapshot in presentationHost.ActiveWorlds)
-			{
-				if (!snapshot.QueryChunks(queryNewBeats).MoveNext())
-					continue;
-
-				var play = World.Mgr.CreateEntity();
-				play.Set(newBeatSound.Result);
-				play.Set(new AudioVolumeComponent(1));
-				play.Set(new PlayFlatAudioComponent());
-
-				// There may be chance that the render client lagged, so we need to be sure that we only play one sound
-				break;
-			}
+			var play = World.Mgr.CreateEntity();
+			play.Set(newBeatSound.Result);
+			play.Set(new AudioVolumeComponent(1));
+			play.Set(new PlayFlatAudioComponent());
 		}
 	}
 }

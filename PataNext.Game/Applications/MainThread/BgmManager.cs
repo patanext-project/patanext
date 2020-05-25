@@ -15,12 +15,12 @@ namespace PataponGameHost.Applications.MainThread
 	[RestrictToApplication(typeof(MainThreadHost))]
 	public class BgmManager : AppSystem
 	{
-		private BgmStorage storage;
+		private BgmContainerStorage containerStorage;
 		private IScheduler scheduler;
 
 		public BgmManager(WorldCollection worldCollection) : base(worldCollection)
 		{
-			DependencyResolver.Add(() => ref storage);
+			DependencyResolver.Add(() => ref containerStorage);
 			DependencyResolver.Add(() => ref scheduler);
 		}
 
@@ -60,8 +60,8 @@ namespace PataponGameHost.Applications.MainThread
 		{
 			scheduler.Add(bgmSet.DisposeAllEntities);
 
-			var fileList = (await storage.GetFilesAsync("*.zip"))
-			               .Concat(await storage.GetFilesAsync("*.json"))
+			var fileList = (await containerStorage.GetFilesAsync("*.zip"))
+			               .Concat(await containerStorage.GetFilesAsync("*.json"))
 			               .ToList();
 			
 			foreach (var bgmFile in fileList.Select(f => new BgmFile(f)))

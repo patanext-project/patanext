@@ -19,8 +19,8 @@ namespace PataponGameHost
 		public static void Init(Context context, ref List<IDisposable> disposableObjects)
 		{
 			var currentStorage = context.Container.Resolve<IStorage>();
-			context.Bind(new BgmStorage(currentStorage.GetOrCreateDirectoryAsync("Bgm").Result));
-			Debug.Assert(context.Container.Resolve<BgmStorage>() != null, "context.Container.Resolve<BgmStorage>() != null");
+			context.Bind(new BgmContainerStorage(currentStorage.GetOrCreateDirectoryAsync("Bgm").Result));
+			Debug.Assert(context.Container.Resolve<BgmContainerStorage>() != null, "context.Container.Resolve<BgmStorage>() != null");
 
 			var inputThread = new GameInputThreadingHost(context);
 			inputThread.Listen();

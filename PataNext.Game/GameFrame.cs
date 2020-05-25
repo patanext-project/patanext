@@ -43,7 +43,7 @@ namespace PataponGameHost
 					Delta = Math.Max(frame.Delta.TotalSeconds, Delta);
 				}
 
-				SD = MathHelper.Lerp((float) SD, (float) Delta, (float) Delta * 10);
+				SD = MathHelper.Lerp((float) SD, (float) Delta, (float) Delta * 25);
 
 				return frames;
 			}
@@ -137,7 +137,7 @@ namespace PataponGameHost
 			simulationFrameListener.DequeueAll();
 			renderFrameListener.DequeueAll();
 			
-			Title = $"PataNext (Render, {1/renderFrameListener.SD:0000.}FPS) (Simulation, {1/simulationFrameListener.SD:0000.}FPS) (Input, Frame={inputFrameListener.Delta:0.00}ms)";
+			Title = $"PataNext (Render, {1/renderFrameListener.SD:0000.}FPS) (Simulation, {simulationFrameListener.Delta:0.00}ms) (Input, {inputFrameListener.Delta:0.00}ms)";
 		}
 
 		protected override void Dispose(bool disposing)

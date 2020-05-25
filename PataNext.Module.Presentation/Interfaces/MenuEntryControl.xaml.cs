@@ -6,6 +6,7 @@ using GameHost.Applications;
 using GameHost.Core.Threading;
 using GameHost.UI.Noesis;
 using Noesis;
+using PataNext.Module.Presentation.BGM;
 using PataponGameHost.Applications.MainThread;
 using PataponGameHost.Storage;
 
@@ -56,7 +57,22 @@ namespace PataNext.Module.Presentation.Controls
 		private void onBgmSelected(object sender, RoutedEventArgs args)
 		{
 			var entry = (BgmEntry) ((Button) sender).Content;
-			ThreadingHost.Synchronize<MainThreadHost>(application => { Console.WriteLine("load " + entry.Content.Id); }, null);
+			ThreadingHost.Synchronize<MainThreadHost>(async application =>
+			{
+				Console.WriteLine("load " + entry.Content.Id);
+
+				foreach (var ent in ThreadingHost.GetListener<MainThreadHost>().WorldCollection.Mgr)
+				{
+					if (!ent.Has<BgmFile>())
+						continue;
+
+					var bgmFile = ent.Get<BgmFile>();
+					if (bgmFile.Description.Id != entry.Content.Id)
+						continue;
+
+					var director = await BgmDirector.Create(bgmFile);
+				}
+			}, null);
 		}
 
 		public class ViewModel : NotifyPropertyChangedBase

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Collections.Pooled;
+using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Audio;
 using GameHost.Core.Applications;
@@ -26,7 +27,7 @@ namespace PataNext.Module.Presentation.RhythmEngine
 
 		private LoadAudioResourceSystem loadAudio;
 		private CustomModule            module;
-		private PresentationHostWorld   presentation;
+		private PresentationWorld   presentation;
 
 		public ShoutDrumSystem(WorldCollection collection) : base(collection)
 		{
@@ -56,28 +57,21 @@ namespace PataNext.Module.Presentation.RhythmEngine
 					audioOnPressureVoice[key][rank] = loadAudio.Start($"voice_{key}_{rank}.wav", storage);
 				}
 			}
+
+			presentation.World.SubscribeComponentChanged<PlayerInput>(OnPlayerInputChanged);
 		}
 
-		protected override void OnUpdate()
+		private void OnPlayerInputChanged(in Entity entity, in PlayerInput prev, in PlayerInput next)
 		{
-			base.OnUpdate();
-
-			foreach (ref readonly var world in presentation.ActiveWorlds)
+			for (var i = 0; i < next.Actions.Length; i++)
 			{
-				if (!world.QueryEntities(playerQuery).TryGetFirst(out var playerEntity))
+				if (!next.Actions[i].WasPressed)
 					continue;
 
-				ref readonly var playerInput = ref playerEntity.GetComponent<PlayerInput>();
-				for (var i = 0; i < playerInput.Actions.Length; i++)
-				{
-					if (!playerInput.Actions[i].WasPressed)
-						continue;
-
-					var play = World.Mgr.CreateEntity();
-					play.Set(audioOnPressureDrum[i + 1][0].Result);
-					play.Set(new AudioVolumeComponent(1));
-					play.Set(new PlayFlatAudioComponent());
-				}
+				var play = World.Mgr.CreateEntity();
+				play.Set(audioOnPressureDrum[i + 1][0].Result);
+				play.Set(new AudioVolumeComponent(1));
+				play.Set(new PlayFlatAudioComponent());
 			}
 		}
 	}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text.Json;
@@ -13,7 +14,8 @@ namespace PataponGameHost.Storage
 		private readonly IFile    parent;
 		private readonly FileInfo cachedInfo;
 
-		public BgmDescription Description { get; private set; }
+		public BgmDescription Description  { get; private set; }
+		public JsonElement    DirectorJson { get; private set; }
 
 		public string Name     => parent.Name;
 		public string FullName => parent.FullName;
@@ -65,7 +67,29 @@ namespace PataponGameHost.Storage
 
 		private async Task ReadDescription(JsonDocument document)
 		{
-			var root = document.RootElement;
+			var    root = document.RootElement;
+			string storePath;
+			if (cachedInfo.Extension == ".zip")
+			{
+				storePath = "zip://";
+			}
+			else if (root.TryGetProperty("store", out var storeProperty))
+			{
+				storePath = storeProperty.GetString();
+			}
+			else
+			{
+				storePath = $"relative://{root.GetProperty("id").GetString()}/";
+			}
+
+			if (root.TryGetProperty("director", out var director))
+			{
+				DirectorJson = director;
+			}
+			else
+			{
+				DirectorJson = JsonDocument.Parse("{}").RootElement;
+			}
 
 			Description = new BgmDescription
 			{
@@ -73,6 +97,7 @@ namespace PataponGameHost.Storage
 				Name        = root.GetProperty("name").GetString(),
 				Author      = root.GetProperty("author").GetString(),
 				Description = root.GetProperty("description").GetString(),
+				StorePath   = storePath
 			};
 		}
 	}
@@ -83,6 +108,7 @@ namespace PataponGameHost.Storage
 		public string Name;
 		public string Author;
 		public string Description;
+		public string StorePath;
 	}
 
 	public class BgmResource : Resource

@@ -1,14 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using GameHost.Core.IO;
 
 namespace PataponGameHost.Storage
 {
-	public class BgmStorage : IStorage
+	/// <summary>
+	/// A bgm container contains multiple BGMs
+	/// </summary>
+	public class BgmContainerStorage : IStorage
 	{
 		private IStorage parent;
 
-		public BgmStorage(IStorage parent)
+		public BgmContainerStorage(IStorage parent)
 		{
 			this.parent = parent;
 		}
