@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Collections.Pooled;
 using DefaultEcs;
+using DefaultEcs.Command;
 using DefaultEcs.System;
 using DefaultEcs.Threading;
 using GameHost.Core.Ecs;
@@ -50,17 +51,21 @@ namespace PataNext.Module.RhythmEngine
 			private EntitySet    commandSet;
 
 			private ThreadLocal<List<Entity>> cmdOutput = new ThreadLocal<List<Entity>>(() => new List<Entity>());
+			private EntityCommandRecorder recorder;
 
 			public GetNextCommandSystem(EntitySet set) : base(set, new DefaultParallelRunner(Processor.GetWorkerCount(1.0)))
 			{
 				commandSet = set.World.GetEntities()
 				                .With<RhythmCommandDefinition>()
 				                .AsSet();
+				
+				recorder = new EntityCommandRecorder();
 			}
 
 			protected override void Update(float _, in Entity entity)
 			{
 				ref readonly var state = ref entity.Get<RhythmEngineLocalState>();
+				ref readonly var settings = ref entity.Get<RhythmEngineSettings>();
 				if (!state.CanRunCommands)
 					return;
 
@@ -72,13 +77,13 @@ namespace PataNext.Module.RhythmEngine
 				var output = this.cmdOutput.Value;
 				output.Clear();
 				
-				RhythmCommandUtility.GetCommand(commandSet, commandProgression, output, false);
+				RhythmCommandUtility.GetCommand(commandSet, commandProgression, output, false, settings.BeatInterval);
 
 				predictedCommands.Clear();
 				predictedCommands.AddRange(output);
 				if (predictedCommands.Count == 0)
 				{
-					RhythmCommandUtility.GetCommand(commandSet, commandProgression, output, true);
+					RhythmCommandUtility.GetCommand(commandSet, commandProgression, output, true, settings.BeatInterval);
 					if (output.Count > 0)
 					{
 						predictedCommands.AddRange(output);
@@ -96,6 +101,11 @@ namespace PataNext.Module.RhythmEngine
 				executingCommand.ActivationBeatEnd   = targetBeat + executingCommand.CommandTarget.Get<RhythmCommandDefinition>().Duration;
 				executingCommand.WaitingForApply     = true;
 
+				var record = recorder.Record(entity);
+				record.NotifyChanged<RhythmEngineExecutingCommand>();
+				record.NotifyChanged<RhythmEnginePredictedCommandBuffer>();
+				record.NotifyChanged<RhythmEngineLocalCommandBuffer>();
+
 				var power = 0.0f;
 				for (var i = 0; i != commandProgression.Count; i++)
 				{
@@ -110,10 +120,16 @@ namespace PataNext.Module.RhythmEngine
 				commandProgression.Clear();
 			}
 
+			protected override void PostUpdate(float state)
+			{
+				recorder.Execute(commandSet.World);
+			}
+
 			public override void Dispose()
 			{
 				base.Dispose();
 				cmdOutput.Dispose();
+				recorder.Dispose();
 			}
 		}
 

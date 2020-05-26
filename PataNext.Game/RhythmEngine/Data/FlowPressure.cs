@@ -3,11 +3,23 @@ using PataNext.Module.RhythmEngine;
 
 namespace PataNext.Module.RhythmEngine.Data
 {
+	public struct ComputedSliderFlowPressure
+	{
+		public bool IsSlider => End.IsSliderEnd;
+		
+		public FlowPressure Start, End;
+	}
+
 	public struct FlowPressure
 	{
 		public const float  Error   = 0.99f;
 		public const double Perfect = 0.275f;
 
+		/// <summary>
+		/// Is this the end of a slider?
+		/// </summary>
+		public bool IsSliderEnd;
+		
 		/// <summary>
 		///     Our custom Rhythm Key (Pata 1, Pon 2, Don 3, Chaka 4)
 		/// </summary>
@@ -39,6 +51,8 @@ namespace PataNext.Module.RhythmEngine.Data
 
 			KeyId = keyId;
 			Time  = time;
+
+			IsSliderEnd = false;
 		}
 
 		public float GetAbsoluteScore()

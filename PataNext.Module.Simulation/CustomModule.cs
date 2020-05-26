@@ -65,15 +65,28 @@ namespace PataNext.Module.Simulation
 			var march = World.Mgr.CreateEntity();
 			march.Set(new RhythmCommandDefinition("march", stackalloc[]
 			{
-				new RhythmCommandAction(0, 1),
-				new RhythmCommandAction(1, 1),
-				new RhythmCommandAction(2, 1),
-				new RhythmCommandAction(3, 2),
+				new RhythmCommandAction(0, RhythmKeys.Pata),
+				new RhythmCommandAction(1, RhythmKeys.Pata),
+				new RhythmCommandAction(2, RhythmKeys.Pata),
+				new RhythmCommandAction(3, RhythmKeys.Pon),
 			}));
-			Console.WriteLine(march.Get<RhythmCommandDefinition>());
+			march.Set(new RhythmCommandDefinition("defend", stackalloc[]
+			{
+				new RhythmCommandAction(0, RhythmKeys.Chaka),
+				new RhythmCommandAction(1, RhythmKeys.Chaka),
+				new RhythmCommandAction(2, RhythmKeys.Pata),
+				new RhythmCommandAction(3, RhythmKeys.Pon),
+			}));
+			march.Set(new RhythmCommandDefinition("attack", stackalloc[]
+			{
+				new RhythmCommandAction(0, RhythmKeys.Pon),
+				new RhythmCommandAction(1, RhythmKeys.Pon),
+				new RhythmCommandAction(2, RhythmKeys.Pata),
+				new RhythmCommandAction(3, RhythmKeys.Pon),
+			}));
 
 			// TODO: Should be moved into an unit test project
-			var results = new List<bool>();
+			/*var results = new List<bool>();
 			results.Add(RhythmCommandUtility.SameAsSequence(march.Get<RhythmCommandDefinition>().Actions, new[]
 			{
 				new FlowPressure {FlowBeat = 4, KeyId = 1}
@@ -106,7 +119,7 @@ namespace PataNext.Module.Simulation
 			})());
 			
 			foreach (var r in results)
-				Console.WriteLine(r);
+				Console.WriteLine(r);*/
 		}
 
 		protected override void OnUpdate()

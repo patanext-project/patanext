@@ -43,7 +43,7 @@ namespace PataNext.Module.RhythmEngine
 				if (interval == default) throw new InvalidOperationException($"{nameof(interval)} is set to 0, which is not allowed in FlowRhythmEngine.GetScore()");
 			}
 
-			return (float) ((correctedTime + -Math.Sign(correctedTime) * halvedInterval) / halvedInterval);
+			return (float) ((correctedTime - Math.Sign(correctedTime) * halvedInterval) / halvedInterval);
 		}
 
 		public static int GetActivationBeat<TState>(in TState state, in RhythmEngineSettings settings)

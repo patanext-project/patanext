@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using DefaultEcs;
+using GameHost.HostSerialization.imp;
+using RevolutionSnapshot.Core;
 using RevolutionSnapshot.Core.ECS;
 
 namespace PataponGameHost.RhythmEngine.Components
 {
-	public struct RhythmEngineExecutingCommand
+	public struct RhythmEngineExecutingCommand : ITransformEntities<RhythmEngineExecutingCommand>
 	{
 		public Entity Previous;
 		public Entity CommandTarget;
@@ -38,6 +40,12 @@ namespace PataponGameHost.RhythmEngine.Components
 		{
 			get => PowerInteger * 0.01;
 			set => PowerInteger = (int) Math.Clamp(value * 100, 0, 100);
+		}
+
+		public void TransformFrom(TwoWayDictionary<Entity, Entity> fromToMap, RhythmEngineExecutingCommand other)
+		{
+			fromToMap.TryGetValue(other.Previous, out Previous);
+			fromToMap.TryGetValue(other.CommandTarget, out CommandTarget);
 		}
 
 		public override string ToString()

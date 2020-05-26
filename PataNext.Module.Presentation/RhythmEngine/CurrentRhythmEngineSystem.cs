@@ -5,8 +5,10 @@ using GameHost.Applications;
 using GameHost.Core.Applications;
 using GameHost.Core.Bindables;
 using GameHost.Core.Ecs;
+using GameHost.Entities;
 using GameHost.HostSerialization;
 using PataNext.Module.RhythmEngine;
+using PataponGameHost.RhythmEngine.Components;
 using RevolutionSnapshot.Core.ECS;
 
 namespace PataNext.Module.Presentation.RhythmEngine
@@ -53,8 +55,23 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			CurrentBgmId.Value  = "topkek";
 
 			// compute engine data...
+			information = default;
+
 			information.Entity      = engineEntity;
 			information.ActiveBgmId = "topkek";
+			information.Elapsed     = engineEntity.Get<RhythmEngineLocalState>().Elapsed;
+
+			if (engineEntity.TryGet(out RhythmEngineExecutingCommand executingCommand))
+			{
+				information.NextCommandId = null;
+				if (executingCommand.CommandTarget != default
+				    && executingCommand.CommandTarget.TryGet(out RhythmCommandDefinition definition))
+					information.NextCommandId = definition.Identifier;
+
+				var settings = engineEntity.Get<RhythmEngineSettings>();
+				information.NextCommandStartTime = executingCommand.ActivationBeatStart * settings.BeatInterval;
+				information.NextCommandEndTime   = executingCommand.ActivationBeatEnd * settings.BeatInterval;
+			}
 		}
 	}
 
@@ -62,5 +79,11 @@ namespace PataNext.Module.Presentation.RhythmEngine
 	{
 		public Entity Entity;
 		public string ActiveBgmId;
+
+		public TimeSpan Elapsed;
+
+		public string   NextCommandId;
+		public TimeSpan NextCommandStartTime;
+		public TimeSpan NextCommandEndTime;
 	}
 }

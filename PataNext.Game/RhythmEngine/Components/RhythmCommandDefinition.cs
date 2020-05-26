@@ -1,16 +1,64 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using GameHost.HostSerialization;
+using PataNext.Module.RhythmEngine.Data;
 
 namespace PataNext.Module.RhythmEngine
 {
-	public struct ActionRange
+	public struct Beat
 	{
-		public int Start, End;
+		public int Target;
 
-		public ActionRange(int start, int end)
+		private double offset;
+		private int    sliderLength;
+
+		public double Offset
 		{
-			Start = start;
-			End   = end;
+			get => offset;
+			set => offset = Math.Clamp(value, -1, 1);
+		}
+
+		/// <summary>
+		/// How long is this beat? (in beats)
+		/// </summary>
+		public int SliderLength
+		{
+			get => sliderLength;
+			set => sliderLength = Math.Max(0, value);
+		}
+
+		private static float unlerp(TimeSpan a, TimeSpan b, TimeSpan x)
+		{
+			if (a != b)
+				return (float) (x.Ticks - a.Ticks) / (b.Ticks - a.Ticks);
+			return 0.0f;
+		}
+
+		private static bool isValid(int beat, double offset, TimeSpan commandStart, TimeSpan elapsed, TimeSpan beatInterval)
+		{
+			elapsed -= commandStart;
+
+			var targetTimed = beat * beatInterval;
+			var targetStart = targetTimed + beatInterval * Math.Clamp(offset, -0.9, +0.9);
+			var score       = Math.Abs(unlerp(targetStart, targetStart + beatInterval, elapsed));
+			
+			return Math.Abs(score) < 1;
+		}
+
+		public bool IsStartValid(TimeSpan commandStart, TimeSpan elapsed, TimeSpan beatInterval)
+		{
+			return isValid(Target, offset, commandStart, elapsed, beatInterval);
+		}
+
+		public bool IsSliderValid(TimeSpan commandStart, TimeSpan elapsed, TimeSpan beatInterval)
+		{
+			return isValid(Target + SliderLength, offset, commandStart, elapsed, beatInterval);
+		}
+
+		public bool IsValid(ComputedSliderFlowPressure computed, TimeSpan start, TimeSpan beatInterval)
+		{
+			return IsStartValid(start, computed.Start.Time, beatInterval)
+			       && (!computed.IsSlider || IsSliderValid(start, computed.End.Time, beatInterval));
 		}
 	}
 
@@ -19,65 +67,36 @@ namespace PataNext.Module.RhythmEngine
 	/// </summary>
 	public struct RhythmCommandAction
 	{
-		/// <summary>
-		/// How much this 
-		/// </summary>
-		public ActionRange BeatRange;
+		public Beat Beat;
 
 		/// <summary>
 		/// The key required for this action to success
 		/// </summary>
 		public int Key;
 
-		/// <summary>
-		/// The maximum interval allowed between each action...
-		/// </summary>
-		public TimeSpan AllowedInterval;
-
 		public RhythmCommandAction(int beat, int key)
 		{
-			BeatRange       = new ActionRange(beat, beat);
+			Beat = new Beat {Target = beat};
 			Key             = key;
-			AllowedInterval = TimeSpan.MinValue;
 		}
 
-		public RhythmCommandAction(int beat, int beatLength, int key)
+		public RhythmCommandAction(Beat beat, int key)
 		{
-			BeatRange       = new ActionRange(beat, beat + beatLength);
-			Key             = key;
-			AllowedInterval = TimeSpan.MinValue;
-		}
-
-		public RhythmCommandAction(int beat, int beatLength, int key, TimeSpan allowedInterval)
-		{
-			BeatRange       = new ActionRange(beat, beat + beatLength);
-			Key             = key;
-			AllowedInterval = allowedInterval;
-		}
-
-		public int BeatStart => BeatRange.Start;
-		public int BeatEnd => BeatRange.End;
-		
-		public bool ContainsInRange(int beatVal)
-		{
-			return BeatRange.Start <= beatVal && BeatRange.End >= beatVal;
+			Beat = beat;
+			Key  = key;
 		}
 
 		public override string ToString()
 		{
-			return $"(K={Key} {BeatStart}..{BeatEnd}, I={AllowedInterval})";
+			return $"(K={Key} {Beat.Target}.{Beat.Offset}-->{Beat.Target + Beat.SliderLength}.{Beat.Offset})";
 		}
 	}
 
-	public class RhythmCommandDefinition
+	public struct RhythmCommandDefinition : ICopyable<RhythmCommandDefinition>
 	{
-		public          string                                   Identifier;
-		public readonly ReadOnlyCollection<RhythmCommandAction> Actions;
-		public readonly int Duration;
-
-		private RhythmCommandDefinition()
-		{
-		}
+		public string                                  Identifier;
+		public ReadOnlyCollection<RhythmCommandAction> Actions  { get; private set; }
+		public int                                     Duration { get; private set; }
 
 		public RhythmCommandDefinition(string identifier, Span<RhythmCommandAction> sequences, int duration = 4)
 		{
@@ -86,9 +105,16 @@ namespace PataNext.Module.RhythmEngine
 			Duration   = duration;
 		}
 
+		public void CopyTo(ref RhythmCommandDefinition other)
+		{
+			other.Identifier = Identifier;
+			other.Duration   = Duration;
+			other.Actions    = Actions;
+		}
+
 		public override string ToString()
 		{
-			var str = $"Command: {Identifier} {{0}}";
+			var str    = $"Command: {Identifier} {{0}}";
 			var cmdStr = string.Empty;
 			for (var i = 0; i != Actions.Count; i++)
 			{
