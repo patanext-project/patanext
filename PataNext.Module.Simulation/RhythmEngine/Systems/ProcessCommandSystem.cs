@@ -189,7 +189,7 @@ namespace PataNext.Module.RhythmEngine
 					return;
 				executing.WaitingForApply = false;
 
-				Console.WriteLine("command applied!");
+				Console.WriteLine("command applied! " + executing.CommandTarget.Get<RhythmCommandDefinition>().Identifier);
 
 				var beatLength = executing.CommandTarget.Get<RhythmCommandDefinition>().Duration;
 

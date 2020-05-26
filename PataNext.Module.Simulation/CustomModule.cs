@@ -61,65 +61,33 @@ namespace PataNext.Module.Simulation
 				ent.Set(new RhythmEngineLocalCommandBuffer());
 				ent.Set(new RhythmEnginePredictedCommandBuffer());
 			}
-
-			var march = World.Mgr.CreateEntity();
-			march.Set(new RhythmCommandDefinition("march", stackalloc[]
-			{
-				new RhythmCommandAction(0, RhythmKeys.Pata),
-				new RhythmCommandAction(1, RhythmKeys.Pata),
-				new RhythmCommandAction(2, RhythmKeys.Pata),
-				new RhythmCommandAction(3, RhythmKeys.Pon),
-			}));
-			march.Set(new RhythmCommandDefinition("defend", stackalloc[]
-			{
-				new RhythmCommandAction(0, RhythmKeys.Chaka),
-				new RhythmCommandAction(1, RhythmKeys.Chaka),
-				new RhythmCommandAction(2, RhythmKeys.Pata),
-				new RhythmCommandAction(3, RhythmKeys.Pon),
-			}));
-			march.Set(new RhythmCommandDefinition("attack", stackalloc[]
-			{
-				new RhythmCommandAction(0, RhythmKeys.Pon),
-				new RhythmCommandAction(1, RhythmKeys.Pon),
-				new RhythmCommandAction(2, RhythmKeys.Pata),
-				new RhythmCommandAction(3, RhythmKeys.Pon),
-			}));
-
-			// TODO: Should be moved into an unit test project
-			/*var results = new List<bool>();
-			results.Add(RhythmCommandUtility.SameAsSequence(march.Get<RhythmCommandDefinition>().Actions, new[]
-			{
-				new FlowPressure {FlowBeat = 4, KeyId = 1}
-			}));
-			results.Add(RhythmCommandUtility.CanBePredicted(march.Get<RhythmCommandDefinition>().Actions, new[]
-			{
-				new FlowPressure {FlowBeat = 4, KeyId = 1}
-			}));
-			results.Add(RhythmCommandUtility.SameAsSequence(march.Get<RhythmCommandDefinition>().Actions, new[]
-			{
-				new FlowPressure {FlowBeat = 8, KeyId = 1},
-				new FlowPressure {FlowBeat = 9, KeyId = 1},
-				new FlowPressure {FlowBeat = 10, KeyId = 1},
-				new FlowPressure {FlowBeat = 11, KeyId = 2},
-			}));
-			results.Add(new Func<bool>(() =>
-			{
-				var set = World.Mgr.GetEntities().With<RhythmCommandDefinition>().AsSet();
-				var returnCommands = new List<Entity>();
-				
-				RhythmCommandUtility.GetCommand(set, new[]
-				{
-					new FlowPressure {FlowBeat = 8, KeyId  = 1},
-					new FlowPressure {FlowBeat = 9, KeyId  = 1},
-					new FlowPressure {FlowBeat = 10, KeyId = 1},
-					new FlowPressure {FlowBeat = 11, KeyId = 2},
-				}, returnCommands, false);
-				
-				return returnCommands.Count > 0;
-			})());
 			
-			foreach (var r in results)
-				Console.WriteLine(r);*/
+			World.Mgr.CreateEntity().Set(new RhythmCommandDefinition("march", stackalloc[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Pata),
+				RhythmCommandAction.With(1, RhythmKeys.Pata),
+				RhythmCommandAction.With(2, RhythmKeys.Pata),
+				RhythmCommandAction.With(3, RhythmKeys.Pon),
+			}));
+			World.Mgr.CreateEntity().Set(new RhythmCommandDefinition("defend", stackalloc[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Chaka),
+				RhythmCommandAction.With(1, RhythmKeys.Chaka),
+				RhythmCommandAction.With(2, RhythmKeys.Pata),
+				RhythmCommandAction.With(3, RhythmKeys.Pon),
+			}));
+			World.Mgr.CreateEntity().Set(new RhythmCommandDefinition("attack", stackalloc[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Pon),
+				RhythmCommandAction.With(1, RhythmKeys.Pon),
+				RhythmCommandAction.With(2, RhythmKeys.Pata),
+				RhythmCommandAction.With(3, RhythmKeys.Pon),
+			}));
+			World.Mgr.CreateEntity().Set(new RhythmCommandDefinition("fast_defend", stackalloc[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Chaka),
+				RhythmCommandAction.WithSlider(1, 1, RhythmKeys.Pon),
+			}));
 		}
 
 		protected override void OnUpdate()

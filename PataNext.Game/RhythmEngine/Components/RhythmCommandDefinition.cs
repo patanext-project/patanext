@@ -41,7 +41,7 @@ namespace PataNext.Module.RhythmEngine
 			var targetTimed = beat * beatInterval;
 			var targetStart = targetTimed + beatInterval * Math.Clamp(offset, -0.9, +0.9);
 			var score       = Math.Abs(unlerp(targetStart, targetStart + beatInterval, elapsed));
-			
+
 			return Math.Abs(score) < 1;
 		}
 
@@ -58,7 +58,7 @@ namespace PataNext.Module.RhythmEngine
 		public bool IsValid(ComputedSliderFlowPressure computed, TimeSpan start, TimeSpan beatInterval)
 		{
 			return IsStartValid(start, computed.Start.Time, beatInterval)
-			       && (!computed.IsSlider || IsSliderValid(start, computed.End.Time, beatInterval));
+			       && (!computed.IsSlider && sliderLength == 0 || IsSliderValid(start, computed.End.Time, beatInterval));
 		}
 	}
 
@@ -77,7 +77,7 @@ namespace PataNext.Module.RhythmEngine
 		public RhythmCommandAction(int beat, int key)
 		{
 			Beat = new Beat {Target = beat};
-			Key             = key;
+			Key  = key;
 		}
 
 		public RhythmCommandAction(Beat beat, int key)
@@ -89,6 +89,26 @@ namespace PataNext.Module.RhythmEngine
 		public override string ToString()
 		{
 			return $"(K={Key} {Beat.Target}.{Beat.Offset}-->{Beat.Target + Beat.SliderLength}.{Beat.Offset})";
+		}
+
+		public static RhythmCommandAction With(int beatTarget, int key)
+		{
+			return new RhythmCommandAction(beatTarget, key);
+		}
+
+		public static RhythmCommandAction WithOffset(int beatTarget, float offset, int key)
+		{
+			return new RhythmCommandAction(new Beat {Target = beatTarget, Offset = offset}, key);
+		}
+
+		public static RhythmCommandAction WithSlider(int beatTarget, int sliderLength, int key)
+		{
+			return new RhythmCommandAction(new Beat {Target = beatTarget, SliderLength = sliderLength}, key);
+		}
+
+		public static RhythmCommandAction WithOffsetAndSlider(int beatTarget, float offset, int sliderLength, int key)
+		{
+			return new RhythmCommandAction(new Beat {Target = beatTarget, Offset = offset, SliderLength = sliderLength}, key);
 		}
 	}
 
