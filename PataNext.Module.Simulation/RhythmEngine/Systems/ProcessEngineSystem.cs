@@ -65,6 +65,8 @@ namespace PataNext.Module.RhythmEngine
 					recorder.Record(entity)
 					        .Set(new RhythmEngineOnNewBeat {Previous = previousBeats, Next = currentBeats});
 				}
+				
+				recorder.Record(entity).NotifyChanged<RhythmEngineLocalState>();
 			}
 
 			protected override void PostUpdate(IManagedWorldTime state) => recorder.Execute(world);

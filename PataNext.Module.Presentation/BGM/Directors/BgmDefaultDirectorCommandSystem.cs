@@ -1,51 +1,122 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using DefaultEcs;
 using GameHost.Audio;
+using GameHost.Core.Audio;
 using GameHost.Core.Ecs;
+using GameHost.HostSerialization;
 using GameHost.IO;
+using PataNext.Module.Presentation.RhythmEngine;
+using PataNext.Module.RhythmEngine;
 
 namespace PataNext.Module.Presentation.BGM.Directors
 {
-	public class BgmDefaultDirectorCommandSystem : BgmDirectorySystemBase<BgmDefaultDirector>
+	public class BgmDefaultDirectorCommandSystem : BgmDirectorySystemBase<BgmDefaultDirector, BgmDefaultSamplesLoader>
 	{
-		public class ComboBasedOutput
-		{
-			public BgmDefaultDirector.ComboBasedCommand Source;
+		private readonly Dictionary<string, ComboBasedOutput> commandComboBasedOutputs;
 
-			public class InAudioResources : Dictionary<int, ResourceHandle<AudioResource>> {}
-			
-			public Dictionary<string, InAudioResources> Map = new Dictionary<string, InAudioResources>();
-		}
+		private EntitySet                 commandSet;
+		private CurrentRhythmEngineSystem currentRhythmEngineSystem;
+		private LoadAudioResourceSystem   loadAudio;
 
-		private LoadAudioResourceSystem loadAudio;
+		private PresentationWorld presentation;
 
 		public BgmDefaultDirectorCommandSystem(WorldCollection collection) : base(collection)
 		{
 			commandComboBasedOutputs = new Dictionary<string, ComboBasedOutput>();
 
+			DependencyResolver.Add(() => ref presentation);
 			DependencyResolver.Add(() => ref loadAudio);
+			DependencyResolver.Add(() => ref currentRhythmEngineSystem);
 		}
 
-		private Dictionary<string, ComboBasedOutput> commandComboBasedOutputs;
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		{
+			base.OnDependenciesResolved(dependencies);
+
+			commandSet = presentation.World.GetEntities()
+			                         .With<RhythmCommandDefinition>()
+			                         .AsSet();
+		}
+
+		public override bool CanUpdate()
+		{
+			var canUpdate= base.CanUpdate() && currentRhythmEngineSystem.CurrentEntity != default;
+			if (!canUpdate)
+			{
+				thrownException.Clear();
+			}
+
+			return canUpdate;
+		}
 
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
 
-			foreach (var cmd in new[] {"march"})
+			loadFiles();
+
+			var information = currentRhythmEngineSystem.Information;
+
+			var incomingCommandBindable = Director.IncomingCommandBindable;
+			if (incomingCommandBindable.Value.CommandId != information.NextCommandId
+			    || incomingCommandBindable.Value.Start != information.CommandStartTime)
 			{
-				if (!commandComboBasedOutputs.TryGetValue(cmd, out var output))
+				incomingCommandBindable.Value = new BgmDefaultDirector.IncomingCommand
 				{
-					commandComboBasedOutputs[cmd] = output = new ComboBasedOutput();
+					CommandId = information.NextCommandId,
+					Start     = information.CommandStartTime,
+					End       = information.CommandEndTime
+				};
+
+				if (!string.IsNullOrEmpty(information.NextCommandId)
+				    && information.CommandStartTime > TimeSpan.Zero
+				    && commandComboBasedOutputs.TryGetValue(information.NextCommandId, out var output))
+				{
+					var key = "normal";
+					if (output.Map.TryGetValue(key, out var resourceMap)
+					    && resourceMap.TryGetValue(Director.GetNextCycle(information.NextCommandId, "normal"), out var resource))
+					{
+						var sound = World.Mgr.CreateEntity();
+						sound.Set(resource.Result);
+						sound.Set(new AudioVolumeComponent(1));
+						sound.Set(new AudioDelayComponent(information.CommandStartTime - information.Elapsed));
+						sound.Set(new PlayFlatAudioComponent());
+
+						Console.WriteLine($"{information.CommandStartTime - information.Elapsed}");
+					}
 				}
+			}
+		}
+
+		private HashSet<string> thrownException = new HashSet<string>();
+		private void loadFiles()
+		{
+			foreach (ref readonly var commandEntity in commandSet.GetEntities())
+			{
+				var cmd = commandEntity.Get<RhythmCommandDefinition>().Identifier;
+				if (string.IsNullOrEmpty(cmd))
+					continue;
+
+				if (!commandComboBasedOutputs.TryGetValue(cmd, out var output))
+					commandComboBasedOutputs[cmd] = output = new ComboBasedOutput();
 
 				if (output.Source == null)
 				{
-					output.Source = Director.GetCommand(cmd) as BgmDefaultDirector.ComboBasedCommand;
+					try
+					{
+						output.Source = Loader.GetCommand(cmd) as BgmDefaultSamplesLoader.ComboBasedCommand;
+					}
+					catch (Exception ex)
+					{
+						if (thrownException.Contains(cmd))
+							continue;
+
+						thrownException.Add(cmd);
+						Console.WriteLine($"Exception with command '{cmd}'\n{ex}");
+					}
 				}
 				else
-				{
 					foreach (var (type, commandFiles) in output.Source.mappedFile)
 					{
 						if (!output.Map.TryGetValue(type, out var ar))
@@ -58,7 +129,16 @@ namespace PataNext.Module.Presentation.BGM.Directors
 								ar[i] = loadAudio.Start(file);
 						}
 					}
-				}
+			}
+		}
+
+		public class ComboBasedOutput
+		{
+			public Dictionary<string, InAudioResources> Map = new Dictionary<string, InAudioResources>();
+			public BgmDefaultSamplesLoader.ComboBasedCommand Source;
+
+			public class InAudioResources : Dictionary<int, ResourceHandle<AudioResource>>
+			{
 			}
 		}
 	}

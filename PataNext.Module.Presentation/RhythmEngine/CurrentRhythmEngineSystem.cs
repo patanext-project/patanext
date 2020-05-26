@@ -69,8 +69,16 @@ namespace PataNext.Module.Presentation.RhythmEngine
 					information.NextCommandId = definition.Identifier;
 
 				var settings = engineEntity.Get<RhythmEngineSettings>();
-				information.NextCommandStartTime = executingCommand.ActivationBeatStart * settings.BeatInterval;
-				information.NextCommandEndTime   = executingCommand.ActivationBeatEnd * settings.BeatInterval;
+				if (engineEntity.TryGet(out GameCommandState commandState))
+				{
+					information.CommandStartTime = TimeSpan.FromMilliseconds(commandState.StartTimeMs);
+					information.CommandEndTime   = TimeSpan.FromMilliseconds(commandState.EndTimeMs);
+				}
+				else
+				{
+					information.CommandStartTime = executingCommand.ActivationBeatStart * settings.BeatInterval;
+					information.CommandEndTime   = executingCommand.ActivationBeatEnd * settings.BeatInterval;
+				}
 			}
 		}
 	}
@@ -83,7 +91,9 @@ namespace PataNext.Module.Presentation.RhythmEngine
 		public TimeSpan Elapsed;
 
 		public string   NextCommandId;
-		public TimeSpan NextCommandStartTime;
-		public TimeSpan NextCommandEndTime;
+		public TimeSpan CommandStartTime;
+		public TimeSpan CommandEndTime;
 	}
+	
+	public struct IncomingRhythmEngineCommand {}
 }

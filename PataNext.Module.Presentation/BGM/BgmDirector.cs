@@ -30,6 +30,17 @@ namespace PataNext.Module.Presentation.BGM
 
 	public abstract class BgmDirectorBase
 	{
+		public BgmSamplesLoaderBase Loader { get; protected set; }
+
+		public BgmDirectorBase(JsonElement elem, BgmStore store, BgmDirectorBase parent)
+		{
+		}
+	}
+
+	public abstract class BgmSamplesLoaderBase
+	{
+		protected BgmStore Store { get; set; }
+
 		public abstract class BFile
 		{
 			public abstract Task<IEnumerable<IFile>> PreloadFiles();
@@ -46,18 +57,12 @@ namespace PataNext.Module.Presentation.BGM
 		{
 		}
 
-		protected BgmStore Store { get; set; }
+		public abstract BCommand    GetCommand(string commandId);
+		public abstract BSoundTrack GetSoundtrack();
 
-		protected List<IFile> filesToLoad = new List<IFile>();
-
-		public List<IFile> FilesToLoad => filesToLoad;
-
-		public BgmDirectorBase(JsonElement elem, BgmStore store, BgmDirectorBase parent)
+		public BgmSamplesLoaderBase(BgmStore store)
 		{
 			Store = store;
 		}
-
-		public abstract BCommand    GetCommand(string commandId);
-		public abstract BSoundTrack GetSoundtrack();
 	}
 }

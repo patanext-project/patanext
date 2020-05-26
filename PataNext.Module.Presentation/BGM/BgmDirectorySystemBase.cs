@@ -9,16 +9,19 @@ namespace PataNext.Module.Presentation.BGM
 {
 	[RestrictToApplication(typeof(GameRenderThreadingHost))]
 	[UpdateAfter(typeof(LoadActiveBgmSystem))]
-	public class BgmDirectorySystemBase<T> : AppSystem
-		where T : BgmDirectorBase
+	public class BgmDirectorySystemBase<TDirector, TLoader> : AppSystem
+		where TDirector : BgmDirectorBase
+		where TLoader : BgmSamplesLoaderBase
 	{
-		protected T Director;
-		
+		protected TDirector Director;
+		protected TLoader   Loader;
+
 		public BgmDirectorySystemBase(WorldCollection collection) : base(collection)
 		{
 		}
 
 		private EntitySet directorSet;
+
 		protected override void OnInit()
 		{
 			base.OnInit();
@@ -31,6 +34,7 @@ namespace PataNext.Module.Presentation.BGM
 		public override bool CanUpdate() =>
 			base.CanUpdate()
 			&& directorSet.Count > 0
-			&& (Director = directorSet.GetEntities()[0].Get<BgmDirectorBase>() as T) != null;
+			&& (Director = directorSet.GetEntities()[0].Get<BgmDirectorBase>() as TDirector) != null
+			&& (Loader = Director.Loader as TLoader) != null;
 	}
 }

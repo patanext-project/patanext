@@ -135,9 +135,13 @@ namespace PataNext.Module.RhythmEngine
 
 		public class ApplyCommandSystem : AEntitySystem<float>
 		{
+			private World world;
+			private EntityCommandRecorder recorder;
+
 			public ApplyCommandSystem(EntitySet set) : base(set, new DefaultParallelRunner(Processor.GetWorkerCount(0.5)))
 			{
-
+				world    = set.World;
+				recorder = new EntityCommandRecorder();
 			}
 
 			protected override void Update(float _, in Entity entity)
@@ -145,8 +149,13 @@ namespace PataNext.Module.RhythmEngine
 				ref readonly var settings     = ref entity.Get<RhythmEngineSettings>();
 				ref var          state        = ref entity.Get<RhythmEngineLocalState>();
 				ref var          commandState = ref entity.Get<GameCommandState>();
+				
+				var record = recorder.Record(entity);
 				if (!state.CanRunCommands)
 				{
+					record.NotifyChanged<GameComboState>();
+					record.NotifyChanged<GameCommandState>();
+					
 					commandState.Reset();
 					return;
 				}
@@ -176,11 +185,17 @@ namespace PataNext.Module.RhythmEngine
 				    || (executing.CommandTarget == default && entity.Get<RhythmEnginePredictedCommandBuffer>().Count != 0 && rhythmActiveAtFlowBeat < state.LastPressure.FlowBeat)
 				    || (entity.Get<RhythmEnginePredictedCommandBuffer>().Count == 0))
 				{
+					record.NotifyChanged<GameComboState>();
+					record.NotifyChanged<GameCommandState>();
+					
 					commandState.Reset();
 				}
 
 				if (executing.CommandTarget == default || state.IsRecovery(flowBeat))
 				{
+					record.NotifyChanged<GameComboState>();
+					record.NotifyChanged<GameCommandState>();
+					
 					commandState.Reset();
 					return;
 				}
@@ -202,7 +217,15 @@ namespace PataNext.Module.RhythmEngine
 
 					commandState.StartTimeMs = (int) (executing.ActivationBeatStart * settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond);
 					commandState.EndTimeMs   = (int) (executing.ActivationBeatEnd * settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond);
+					
+					record.NotifyChanged<GameComboState>();
+					record.NotifyChanged<GameCommandState>();
 				}
+			}
+
+			protected override void PostUpdate(float state)
+			{
+				recorder.Execute(world);
 			}
 		}
 	}
