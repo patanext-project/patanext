@@ -73,9 +73,9 @@ namespace PataNext.Module.Presentation.BGM.Directors
 				    && information.CommandStartTime > TimeSpan.Zero
 				    && commandComboBasedOutputs.TryGetValue(information.NextCommandId, out var output))
 				{
-					var key = "normal";
+					var key = "fever";
 					if (output.Map.TryGetValue(key, out var resourceMap)
-					    && resourceMap.TryGetValue(Director.GetNextCycle(information.NextCommandId, "normal"), out var resource))
+					    && resourceMap.TryGetValue(Director.GetNextCycle(information.NextCommandId, key), out var resource))
 					{
 						var sound = World.Mgr.CreateEntity();
 						sound.Set(resource.Result);

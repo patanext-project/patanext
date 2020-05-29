@@ -35,7 +35,7 @@ namespace PataponGameHost.Inputs
 					3 => new CInput("keyboard/keypad8"),
 					_ => throw new InvalidOperationException()
 				};
-				actionPerRhythmKey[i] = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", input));
+				actionPerRhythmKey[i] = inputDatabase.RegisterSingle<RhythmInputAction>(new RhythmInputAction.Layout("kb and mouse", input));
 			}
 
 			playerEntity = World.Mgr.CreateEntity();
@@ -45,16 +45,21 @@ namespace PataponGameHost.Inputs
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
-
 			ref var playerInput = ref playerEntity.Get<PlayerInput>();
 			foreach (var (key, inputEnt) in actionPerRhythmKey)
 			{
-				ref readonly var press = ref inputEnt.Get<PressAction>();
+				ref readonly var action = ref inputEnt.Get<RhythmInputAction>();
 				playerInput.Actions[key] = new PlayerInput.RhythmAction
 				{
-					IsActive    = press.DownCount > 0,
-					FrameUpdate = press.DownCount > 0 || press.UpCount > 0
+					IsSliding   = action.IsSliding,
+					IsActive    = action.Active,
+					FrameUpdate = action.DownCount > 0 || action.UpCount > 0
 				};
+
+				if (action.IsSliding)
+				{
+					Console.WriteLine($"sliding!");
+				}
 			}
 
 			playerEntity.NotifyChanged<PlayerInput>();

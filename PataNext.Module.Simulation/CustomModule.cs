@@ -53,15 +53,16 @@ namespace PataNext.Module.Simulation
 			{
 				var ent = World.Mgr.CreateEntity();
 				ent.Set(new RhythmEngineController {State      = EngineControllerState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(2))});
-				ent.Set(new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
+				ent.Set(new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat       = 4});
 				ent.Set(new RhythmEngineLocalState());
 				ent.Set(new RhythmEngineExecutingCommand());
-				ent.Set(new GameComboState());
 				ent.Set(new GameCommandState());
 				ent.Set(new RhythmEngineLocalCommandBuffer());
 				ent.Set(new RhythmEnginePredictedCommandBuffer());
+
+				GameCombo.AddToEntity(ent);
 			}
-			
+
 			World.Mgr.CreateEntity().Set(new RhythmCommandDefinition("march", stackalloc[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Pata),

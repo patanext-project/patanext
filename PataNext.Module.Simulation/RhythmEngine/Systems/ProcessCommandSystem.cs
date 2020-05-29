@@ -33,7 +33,7 @@ namespace PataNext.Module.RhythmEngine
 			                                                 .With<RhythmEngineSettings>()
 			                                                 .With<RhythmEngineLocalState>()
 			                                                 .With<RhythmEngineExecutingCommand>()
-			                                                 .With<GameComboState>()
+			                                                 .WithGameCombo()
 			                                                 .With<GameCommandState>()
 			                                                 .With<RhythmEnginePredictedCommandBuffer>()
 			                                                 .AsSet());
@@ -113,7 +113,7 @@ namespace PataNext.Module.RhythmEngine
 					if (commandProgression[i].GetAbsoluteScore() <= FlowPressure.Perfect)
 						power += 1.0f;
 					else
-						power += 0.33f;
+						power += 0.5f;
 				}
 				
 				executingCommand.Power = power / commandProgression.Count;
@@ -148,13 +148,15 @@ namespace PataNext.Module.RhythmEngine
 			{
 				ref readonly var settings     = ref entity.Get<RhythmEngineSettings>();
 				ref var          state        = ref entity.Get<RhythmEngineLocalState>();
+				ref var comboState = ref entity.Get<GameCombo.State>();
 				ref var          commandState = ref entity.Get<GameCommandState>();
 				
 				var record = recorder.Record(entity);
 				if (!state.CanRunCommands)
 				{
-					record.NotifyChanged<GameComboState>();
+					record.NotifyChanged<GameCombo.State>();
 					record.NotifyChanged<GameCommandState>();
+					
 					
 					commandState.Reset();
 					return;
@@ -166,7 +168,6 @@ namespace PataNext.Module.RhythmEngine
 				const int cmdMercy = 0; // increase it by three on a server
 
 				ref var executing  = ref entity.Get<RhythmEngineExecutingCommand>();
-				ref var comboState = ref entity.Get<GameComboState>();
 
 				var rhythmActiveAtFlowBeat = executing.ActivationBeatStart;
 
@@ -185,18 +186,20 @@ namespace PataNext.Module.RhythmEngine
 				    || (executing.CommandTarget == default && entity.Get<RhythmEnginePredictedCommandBuffer>().Count != 0 && rhythmActiveAtFlowBeat < state.LastPressure.FlowBeat)
 				    || (entity.Get<RhythmEnginePredictedCommandBuffer>().Count == 0))
 				{
-					record.NotifyChanged<GameComboState>();
+					record.NotifyChanged<GameCombo.State>();
 					record.NotifyChanged<GameCommandState>();
-					
+
+					comboState = default;
 					commandState.Reset();
 				}
 
 				if (executing.CommandTarget == default || state.IsRecovery(flowBeat))
 				{
-					record.NotifyChanged<GameComboState>();
+					record.NotifyChanged<GameCombo.State>();
 					record.NotifyChanged<GameCommandState>();
 					
 					commandState.Reset();
+					comboState = default;
 					return;
 				}
 
@@ -212,13 +215,13 @@ namespace PataNext.Module.RhythmEngine
 				if (true)
 				{
 					commandState.ChainEndTimeMs = (int) ((rhythmActiveAtFlowBeat + beatLength + 4) * settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond);
-
-					//comboState.Update(executing, true);
-
 					commandState.StartTimeMs = (int) (executing.ActivationBeatStart * settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond);
 					commandState.EndTimeMs   = (int) (executing.ActivationBeatEnd * settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond);
+
+					comboState.Count++;
+					comboState.Score += (float) (executing.Power - 0.5) * 2;
 					
-					record.NotifyChanged<GameComboState>();
+					record.NotifyChanged<GameCombo.State>();
 					record.NotifyChanged<GameCommandState>();
 				}
 			}

@@ -54,7 +54,6 @@ namespace PataNext.Module.Presentation.Controls
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
-			Console.WriteLine("dependencies resolved");
 			using (client.SynchronizeThread())
 			{
 				AddDisposable(client.Listener.WorldCollection.Mgr.SubscribeComponentChanged((in Entity _0, in BgmFile _1, in BgmFile _2) => onBgmFileChange()));

@@ -13,8 +13,8 @@ namespace PataNext.Module.RhythmEngine.Systems
 		{
 			system = new ASystem(World.Mgr.GetEntities()
 			                          .With<RhythmEngineController>()
-			                          .With<GameComboState>()
 			                          .With<GameCommandState>()
+			                          .WithGameCombo()
 			                          .AsSet());
 		}
 
@@ -32,7 +32,7 @@ namespace PataNext.Module.RhythmEngine.Systems
 				if (controller.State != EngineControllerState.Stopped)
 					return;
 
-				entity.Set<GameComboState>();
+				entity.Set<GameCombo.State>();
 				entity.Set<GameCommandState>();
 			}
 		}

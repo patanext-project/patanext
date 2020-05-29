@@ -41,10 +41,7 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			var storage = new StorageCollection {module.DllStorage, module.Storage.Value}
 			              .GetOrCreateDirectoryAsync("Sounds/Drums")
 			              .Result;
-
-			Console.WriteLine($"size on dll: {module.DllStorage.GetFilesAsync("*drum_1_0.ogg").Result.First().GetContentAsync().Result.Length}");
-			Console.WriteLine($"size on int: {module.Storage.Value.GetFilesAsync("Sounds/Drums/drum_1_0.ogg").Result.First().GetContentAsync().Result.Length}");
-
+			
 			// TODO: should we have a configuration file for mapping the audio? (instead of hardcoding the mapping)
 			for (var key = 1; key != 5; key++)
 			{

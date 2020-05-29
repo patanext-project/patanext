@@ -21,6 +21,12 @@ namespace PataponGameHost.Inputs
 				set => Bits.SetAt(ref flags, 1, value);
 			}
 
+			public bool IsSliding
+			{
+				get => Bits.ToBoolean(flags, 2);
+				set => Bits.SetAt(ref flags, 2, value);
+			}
+
 			public bool WasPressed  => IsActive && FrameUpdate;
 			public bool WasReleased => !IsActive && FrameUpdate;
 		}
