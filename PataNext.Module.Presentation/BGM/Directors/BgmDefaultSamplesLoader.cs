@@ -13,60 +13,76 @@ namespace PataNext.Module.Presentation.BGM.Directors
 {
 	public class BgmDefaultSamplesLoader : BgmSamplesLoaderBase
 	{
-		private readonly Dictionary<string, ComboBasedCommand> commandsResultMap;
-		private readonly Dictionary<string, CommandTask>       commandsTaskMap;
+		private readonly TaskMap<string, ComboBasedCommand> commandsTaskMap;
+		private readonly TaskMap<string, SingleFile> filesTaskMap;
 
 		public BgmDefaultSamplesLoader(BgmStore store) : base(store)
 		{
-			commandsResultMap = new Dictionary<string, ComboBasedCommand>(12);
-			commandsTaskMap   = new Dictionary<string, CommandTask>(12);
+			commandsTaskMap = new TaskMap<string, ComboBasedCommand>(async key =>
+			{
+				var files = (await Store.GetFilesAsync($"commands/{key}/*.ogg"))
+				            .Concat(await Store.GetFilesAsync($"commands/{key}/*.wav"))
+				            .ToArray();
+
+				if (files.Length == 0)
+					throw new InvalidOperationException($"No files found for command {key}");
+
+				return new ComboBasedCommand(files, key);
+			});
+			filesTaskMap = new TaskMap<string, SingleFile>(async key =>
+			{
+				var files = (await Store.GetFilesAsync($"commands/sample/{key}.ogg"))
+				            .Concat(await Store.GetFilesAsync($"commands/sample/{key}.wav"))
+				            .ToArray();
+
+				if (files.Length == 0)
+					throw new InvalidOperationException($"No files found for sample '{key}'");
+
+				return new SingleFile(files.First());
+			});
 		}
 
 		public override BCommand GetCommand(string commandId)
 		{
-			if (commandsResultMap.TryGetValue(commandId, out var command))
+			if (!commandsTaskMap.GetValue(commandId, out var command, out var task))
 			{
-				return command;
+				return null;
 			}
 
-			if (commandsTaskMap.TryGetValue(commandId, out var ct))
-			{
-				if (!ct.Task.IsCompleted || ct.Task.Exception != null)
-				{
-					if (ct.Task.Exception != null)
-						throw ct.Task.Exception;
-					return null;
-				}
-
-				commandsResultMap[commandId] = ct.Task.Result;
-				return ct.Task.Result;
-			}
-
-			ct = new CommandTask
-			{
-				Task = GetCommandForId(commandId)
-			};
-
-			commandsTaskMap[commandId] = ct;
-			if (ct.Task.IsCompletedSuccessfully)
-				return ct.Task.Result;
-			return null;
-		}
-
-		private async Task<ComboBasedCommand> GetCommandForId(string commandId)
-		{
-			var files = (await Store.GetFilesAsync($"commands/{commandId}/*.ogg"))
-			            .Concat(await Store.GetFilesAsync($"commands/{commandId}/*.wav"))
-			            .ToArray();
-
-			if (files.Length == 0)
-				throw new InvalidOperationException($"No files found for command {commandId}");
-
-			return new ComboBasedCommand(files, commandId);
+			if (task.Exception != null)
+				throw task.Exception;
+			
+			return command;
 		}
 
 		public override BSoundTrack GetSoundtrack()
 		{
+			return null;
+		}
+
+		public override BFile GetFile<TFileDescription>(TFileDescription description)
+		{
+			string sampleId = null;
+			switch (description)
+			{
+				case BFileOnEnterFeverSoundDescription desc:
+					sampleId = "enter_fever";
+					break;
+				case BFileOnFeverLostSoundDescription desc:
+					sampleId = "fever_lost";
+					break;
+				case BFileSampleDescription desc:
+					sampleId = desc.SampleName;
+					break;
+			}
+
+			if (sampleId != null && filesTaskMap.GetValue(sampleId, out var file, out var task))
+			{
+				if (task.Exception != null)
+					throw task.Exception;
+				return file;
+			}
+
 			return null;
 		}
 
@@ -121,6 +137,18 @@ namespace PataNext.Module.Presentation.BGM.Directors
 			public override async Task<IEnumerable<IFile>> PreloadFiles()
 			{
 				return new List<IFile>();
+			}
+		}
+
+		public class SingleFile : BFile
+		{
+			public IFile File;
+
+			public SingleFile(IFile file) => File = file;
+
+			public override async Task<IEnumerable<IFile>> PreloadFiles()
+			{
+				return new[] {File};
 			}
 		}
 	}

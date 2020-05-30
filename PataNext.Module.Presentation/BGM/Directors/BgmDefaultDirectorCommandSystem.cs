@@ -3,40 +3,61 @@ using System.Collections.Generic;
 using DefaultEcs;
 using GameHost.Audio;
 using GameHost.Core.Audio;
+using GameHost.Core.Bindables;
 using GameHost.Core.Ecs;
+using GameHost.Core.IO;
 using GameHost.HostSerialization;
+using GameHost.Injection.Dependency;
 using GameHost.IO;
+using Microsoft.Extensions.Logging;
 using PataNext.Module.Presentation.RhythmEngine;
 using PataNext.Module.RhythmEngine;
+using PataponGameHost.RhythmEngine.Components;
 
 namespace PataNext.Module.Presentation.BGM.Directors
 {
 	public class BgmDefaultDirectorCommandSystem : BgmDirectorySystemBase<BgmDefaultDirector, BgmDefaultSamplesLoader>
 	{
 		private readonly Dictionary<string, ComboBasedOutput> commandComboBasedOutputs;
+		private readonly Bindable<ResourceHandle<AudioResource>> onEnterFever;
+		private readonly Bindable<ResourceHandle<AudioResource>> onFeverLost;
 
 		private EntitySet                 commandSet;
 		private CurrentRhythmEngineSystem currentRhythmEngineSystem;
 		private LoadAudioResourceSystem   loadAudio;
 
 		private PresentationWorld presentation;
+		private CustomModule module;
+
+		private ILogger logger;
 
 		public BgmDefaultDirectorCommandSystem(WorldCollection collection) : base(collection)
 		{
 			commandComboBasedOutputs = new Dictionary<string, ComboBasedOutput>();
+			
+			onEnterFever = new Bindable<ResourceHandle<AudioResource>>();
+			onFeverLost = new Bindable<ResourceHandle<AudioResource>>();
 
 			DependencyResolver.Add(() => ref presentation);
 			DependencyResolver.Add(() => ref loadAudio);
 			DependencyResolver.Add(() => ref currentRhythmEngineSystem);
+			DependencyResolver.Add(() => ref module);
+			DependencyResolver.Add(() => ref logger);
 		}
 
-		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		protected override async void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
 
 			commandSet = presentation.World.GetEntities()
 			                         .With<RhythmCommandDefinition>()
 			                         .AsSet();
+
+			IStorage storage = new StorageCollection {module.DllStorage, module.Storage.Value};
+			storage = await storage.GetOrCreateDirectoryAsync("Sounds/RhythmEngine/Effects/");
+
+			onEnterFever.Default = loadAudio.Start("voice_fever.wav", storage);
+			onFeverLost.Default = loadAudio.Start("fever_lost.wav", storage);
 		}
 
 		public override bool CanUpdate()
@@ -58,11 +79,11 @@ namespace PataNext.Module.Presentation.BGM.Directors
 
 			var information = currentRhythmEngineSystem.Information;
 
-			var incomingCommandBindable = Director.IncomingCommandBindable;
+			var incomingCommandBindable = Director.IncomingCommand;
 			if (incomingCommandBindable.Value.CommandId != information.NextCommandId
 			    || incomingCommandBindable.Value.Start != information.CommandStartTime)
 			{
-				incomingCommandBindable.Value = new BgmDefaultDirector.IncomingCommand
+				incomingCommandBindable.Value = new BgmDefaultDirector.IncomingCommandData
 				{
 					CommandId = information.NextCommandId,
 					Start     = information.CommandStartTime,
@@ -73,23 +94,46 @@ namespace PataNext.Module.Presentation.BGM.Directors
 				    && information.CommandStartTime > TimeSpan.Zero
 				    && commandComboBasedOutputs.TryGetValue(information.NextCommandId, out var output))
 				{
-					var key = "fever";
-					if (output.Map.TryGetValue(key, out var resourceMap)
-					    && resourceMap.TryGetValue(Director.GetNextCycle(information.NextCommandId, key), out var resource))
+					var comboSettings = information.Entity.Get<GameCombo.Settings>();
+					var comboState    = information.Entity.Get<GameCombo.State>();
+					var key           = "normal";
+					if (comboSettings.CanEnterFever(comboState.Count, comboState.Score))
+						key = "fever";
+					else if (comboState.Score > 1)
+						key = "prefever";
+
+					var doFeverShout = false;
+					if (key.Equals("fever"))
+					{
+						doFeverShout           = !Director.IsFever.Value;
+						Director.IsFever.Value = true;
+					}
+
+					ResourceHandle<AudioResource> resourceHandle = default;
+					if (doFeverShout)
+					{
+						resourceHandle = onEnterFever.Value.IsLoaded ? onEnterFever.Value : onEnterFever.Default;
+					}
+					else if (output.Map.TryGetValue(key, out var resourceMap)
+					         && resourceMap.TryGetValue(Director.GetNextCycle(information.NextCommandId, key), out var resource))
+					{
+						resourceHandle = resource;
+					}
+
+					if (resourceHandle.Entity != default && resourceHandle.IsLoaded)
 					{
 						var sound = World.Mgr.CreateEntity();
-						sound.Set(resource.Result);
+						sound.Set(resourceHandle.Result);
 						sound.Set(new AudioVolumeComponent(1));
 						sound.Set(new AudioDelayComponent(information.CommandStartTime - information.Elapsed));
 						sound.Set(new PlayFlatAudioComponent());
-
-						Console.WriteLine($"{information.CommandStartTime - information.Elapsed}");
 					}
 				}
 			}
 		}
 
 		private HashSet<string> thrownException = new HashSet<string>();
+
 		private void loadFiles()
 		{
 			foreach (ref readonly var commandEntity in commandSet.GetEntities())
@@ -129,6 +173,24 @@ namespace PataNext.Module.Presentation.BGM.Directors
 								ar[i] = loadAudio.Start(file);
 						}
 					}
+			}
+
+			if (onEnterFever.Value.Entity == default)
+			{
+				try
+				{
+					var bFile = Loader.GetFile(new BFileOnEnterFeverSoundDescription());
+					if (bFile is BgmDefaultSamplesLoader.SingleFile singleFile)
+						onEnterFever.Value = loadAudio.Start(singleFile.File);
+				}
+				catch (Exception ex)
+				{
+					if (!thrownException.Contains(nameof(BFileOnEnterFeverSoundDescription)))
+					{
+						logger.LogError("No EnterFever sample found for BGM {0}", new[] {currentRhythmEngineSystem.Information.ActiveBgmId});
+						thrownException.Add(nameof(BFileOnEnterFeverSoundDescription));
+					}
+				}
 			}
 		}
 

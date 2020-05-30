@@ -1,4 +1,5 @@
-﻿using DefaultEcs;
+﻿using System;
+using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Core.Modding;
 using GameHost.Injection;
@@ -18,6 +19,13 @@ namespace PataNext.Module.Presentation
 			inputClient.Connect();
 
 			inputClient.InjectAssembly(GetType().Assembly);
+
+
+
+			foreach (var file in DllStorage.GetFilesAsync("Sounds/RhythmEngine/*.*").Result)
+			{
+				Console.WriteLine(file.FullName);
+			}
 		}
 	}
 }

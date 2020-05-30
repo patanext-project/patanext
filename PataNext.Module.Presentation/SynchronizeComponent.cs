@@ -28,6 +28,8 @@ namespace PataNext.Module.Presentation
 			presentation.Subscribe<RhythmEngineSettings>();
 			presentation.Subscribe<RhythmEngineLocalState>();
 			presentation.Subscribe<GameCommandState>();
+			presentation.Subscribe<GameCombo.State>();
+			presentation.Subscribe<GameCombo.Settings>();
 			presentation.Subscribe<RhythmEngineExecutingCommand>()
 			            .AddTransformEntities();
 			presentation.Subscribe(new CopyableComponentOperation<RhythmCommandDefinition>());

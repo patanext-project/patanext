@@ -8,8 +8,11 @@ using GameHost.Audio;
 using GameHost.Core.Applications;
 using GameHost.Core.Audio;
 using GameHost.Core.Ecs;
+using GameHost.Entities;
 using GameHost.HostSerialization;
 using GameHost.IO;
+using PataNext.Module.RhythmEngine;
+using PataNext.Module.RhythmEngine.Data;
 using PataponGameHost.Inputs;
 
 namespace PataNext.Module.Presentation.RhythmEngine
@@ -28,18 +31,20 @@ namespace PataNext.Module.Presentation.RhythmEngine
 		private LoadAudioResourceSystem loadAudio;
 		private CustomModule            module;
 		private PresentationWorld   presentation;
+		private CurrentRhythmEngineSystem currentRhythmEngineSystem;
 
 		public ShoutDrumSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref loadAudio);
 			DependencyResolver.Add(() => ref module);
 			DependencyResolver.Add(() => ref presentation);
+			DependencyResolver.Add(() => ref currentRhythmEngineSystem);
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			var storage = new StorageCollection {module.DllStorage, module.Storage.Value}
-			              .GetOrCreateDirectoryAsync("Sounds/Drums")
+			              .GetOrCreateDirectoryAsync("Sounds/RhythmEngine/Drums")
 			              .Result;
 			
 			// TODO: should we have a configuration file for mapping the audio? (instead of hardcoding the mapping)
@@ -60,13 +65,23 @@ namespace PataNext.Module.Presentation.RhythmEngine
 
 		private void OnPlayerInputChanged(in Entity entity, in PlayerInput prev, in PlayerInput next)
 		{
+			var score = 0;
+			var engineEntity = currentRhythmEngineSystem.Information.Entity;
+			if (engineEntity != default
+			    && engineEntity.TryGet(out RhythmEngineLocalState state)
+			    && engineEntity.TryGet(out RhythmEngineSettings settings))
+			{
+				if (RhythmEngineUtility.GetScore(state, settings) > FlowPressure.Perfect)
+					score++;
+			}
+
 			for (var i = 0; i < next.Actions.Length; i++)
 			{
 				if (!next.Actions[i].WasPressed)
 					continue;
 
 				var play = World.Mgr.CreateEntity();
-				play.Set(audioOnPressureDrum[i + 1][0].Result);
+				play.Set(audioOnPressureDrum[i + 1][score].Result);
 				play.Set(new AudioVolumeComponent(1));
 				play.Set(new PlayFlatAudioComponent());
 			}

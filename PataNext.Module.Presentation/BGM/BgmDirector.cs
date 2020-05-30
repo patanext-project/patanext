@@ -59,6 +59,7 @@ namespace PataNext.Module.Presentation.BGM
 
 		public abstract BCommand    GetCommand(string commandId);
 		public abstract BSoundTrack GetSoundtrack();
+		public abstract BFile       GetFile<TFileDescription>(TFileDescription description) where TFileDescription : BFileDescription;
 
 		public BgmSamplesLoaderBase(BgmStore store)
 		{

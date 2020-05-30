@@ -13,14 +13,16 @@ namespace PataNext.Module.Presentation.BGM.Directors
 {
 	public class BgmDefaultDirector : BgmDirectorBase
 	{
-		public readonly Bindable<IncomingCommand> IncomingCommandBindable;
+		public readonly Bindable<IncomingCommandData> IncomingCommand;
+		public readonly Bindable<bool> IsFever;
 
 		private Dictionary<int, int> commandCycle;
 
 		public BgmDefaultDirector(JsonElement elem, BgmStore store, BgmDirectorBase parent) : base(elem, store, parent)
 		{
 			Loader                  = new BgmDefaultSamplesLoader(store);
-			IncomingCommandBindable = new Bindable<IncomingCommand>();
+			IncomingCommand = new Bindable<IncomingCommandData>();
+			IsFever = new Bindable<bool>();
 
 			commandCycle = new Dictionary<int, int>();
 		}
@@ -42,7 +44,7 @@ namespace PataNext.Module.Presentation.BGM.Directors
 			return cycle;
 		}
 
-		public struct IncomingCommand
+		public struct IncomingCommandData
 		{
 			public string   CommandId;
 			public TimeSpan Start, End;
