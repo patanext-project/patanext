@@ -27,20 +27,26 @@ namespace PataponGameHost
 			public int LastCollectionIndex;
 			public double Delta;
 			public double SD;
+			public double Workload;
+
+			public TimeSpan TargetFramerate = TimeSpan.FromSeconds(1f / 1000);
 			
 			public List<WorkerFrame> DequeueAll()
 			{
 				frames.Clear();
 				super.DequeueAll(frames);
+
 				foreach (var frame in frames)
 				{
 					if (frame.CollectionIndex != LastCollectionIndex)
 					{
 						Delta = 0;
+						Workload = 0;
 						LastCollectionIndex = frame.CollectionIndex;
 					}
 
 					Delta = Math.Max(frame.Delta.TotalSeconds, Delta);
+					Workload = Math.Max(frame.Delta.TotalSeconds / TargetFramerate.TotalSeconds, Workload);
 				}
 
 				SD = MathHelper.Lerp((float) SD, (float) Delta, (float) Delta * 25);
@@ -134,10 +140,14 @@ namespace PataponGameHost
 			setListener<GameRenderThreadingHost>(ref renderFrameListener);
 			setListener<GameInputThreadingHost>(ref inputFrameListener);
 
+			renderFrameListener.TargetFramerate = TimeSpan.FromSeconds(1f / 500);
+			simulationFrameListener.TargetFramerate = TimeSpan.FromSeconds(1f / 100);
+
 			simulationFrameListener.DequeueAll();
 			renderFrameListener.DequeueAll();
 			
-			Title = $"PataNext (Render, {1/renderFrameListener.SD:0000.}FPS) (Simulation, {simulationFrameListener.Delta:0.00}ms) (Input, {inputFrameListener.Delta:0.00}ms)";
+			//Title = $"PataNext (Render, {1/renderFrameListener.SD:0000.}FPS) (Simulation, {simulationFrameListener.Delta:0.00}ms) (Input, {inputFrameListener.Delta:0.00}ms)";
+			Title = $"PataNext (Render Load={renderFrameListener.Workload:000%}) (Simulation Load={simulationFrameListener.Workload:000%})";
 		}
 
 		protected override void Dispose(bool disposing)

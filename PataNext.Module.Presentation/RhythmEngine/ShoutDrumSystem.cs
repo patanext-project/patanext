@@ -83,7 +83,7 @@ namespace PataNext.Module.Presentation.RhythmEngine
 				var play = World.Mgr.CreateEntity();
 				play.Set(audioOnPressureDrum[i + 1][score].Result);
 				play.Set(new AudioVolumeComponent(1));
-				play.Set(new PlayFlatAudioComponent());
+				play.Set(new FlatAudioPlayerComponent());
 			}
 		}
 	}

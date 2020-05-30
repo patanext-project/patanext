@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using PataNext.Module.Presentation.RhythmEngine;
 using PataNext.Module.RhythmEngine;
 using PataponGameHost.RhythmEngine.Components;
+using ZLogger;
 
 namespace PataNext.Module.Presentation.BGM.Directors
 {
@@ -31,18 +32,23 @@ namespace PataNext.Module.Presentation.BGM.Directors
 
 		private ILogger logger;
 
+		private Entity audioPlayer;
+
 		public BgmDefaultDirectorCommandSystem(WorldCollection collection) : base(collection)
 		{
 			commandComboBasedOutputs = new Dictionary<string, ComboBasedOutput>();
-			
+
 			onEnterFever = new Bindable<ResourceHandle<AudioResource>>();
-			onFeverLost = new Bindable<ResourceHandle<AudioResource>>();
+			onFeverLost  = new Bindable<ResourceHandle<AudioResource>>();
 
 			DependencyResolver.Add(() => ref presentation);
 			DependencyResolver.Add(() => ref loadAudio);
 			DependencyResolver.Add(() => ref currentRhythmEngineSystem);
 			DependencyResolver.Add(() => ref module);
 			DependencyResolver.Add(() => ref logger);
+
+			audioPlayer = collection.Mgr.CreateEntity();
+			AudioPlayerUtility.Initialize<FlatAudioPlayerComponent>(audioPlayer);
 		}
 
 		protected override async void OnDependenciesResolved(IEnumerable<object> dependencies)
@@ -122,11 +128,8 @@ namespace PataNext.Module.Presentation.BGM.Directors
 
 					if (resourceHandle.Entity != default && resourceHandle.IsLoaded)
 					{
-						var sound = World.Mgr.CreateEntity();
-						sound.Set(resourceHandle.Result);
-						sound.Set(new AudioVolumeComponent(1));
-						sound.Set(new AudioDelayComponent(information.CommandStartTime - information.Elapsed));
-						sound.Set(new PlayFlatAudioComponent());
+						AudioPlayerUtility.SetResource(audioPlayer, resourceHandle);
+						AudioPlayerUtility.PlayDelayed(audioPlayer, information.CommandStartTime - information.Elapsed);
 					}
 				}
 			}
@@ -187,7 +190,7 @@ namespace PataNext.Module.Presentation.BGM.Directors
 				{
 					if (!thrownException.Contains(nameof(BFileOnEnterFeverSoundDescription)))
 					{
-						logger.LogError("No EnterFever sample found for BGM {0}", new[] {currentRhythmEngineSystem.Information.ActiveBgmId});
+						logger.ZLogError("No EnterFever sample found for BGM '{0}'", currentRhythmEngineSystem.Information.ActiveBgmId);
 						thrownException.Add(nameof(BFileOnEnterFeverSoundDescription));
 					}
 				}

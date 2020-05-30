@@ -42,7 +42,7 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			var play = World.Mgr.CreateEntity();
 			play.Set(newBeatSound.Result);
 			play.Set(new AudioVolumeComponent(1));
-			play.Set(new PlayFlatAudioComponent());
+			play.Set(new FlatAudioPlayerComponent());
 		}
 	}
 }
