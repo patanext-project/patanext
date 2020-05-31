@@ -51,15 +51,10 @@ namespace PataponGameHost.Inputs
 				ref readonly var action = ref inputEnt.Get<RhythmInputAction>();
 				playerInput.Actions[key] = new PlayerInput.RhythmAction
 				{
-					IsSliding   = action.IsSliding,
+					IsSliding   = action.IsSliding || (action.UpCount > 0 && playerInput.Actions[key].IsSliding),
 					IsActive    = action.Active,
 					FrameUpdate = action.DownCount > 0 || action.UpCount > 0
 				};
-
-				if (action.IsSliding)
-				{
-					Console.WriteLine($"sliding!");
-				}
 			}
 
 			playerEntity.NotifyChanged<PlayerInput>();

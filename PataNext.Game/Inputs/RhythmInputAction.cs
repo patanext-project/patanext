@@ -47,6 +47,7 @@ namespace PataponGameHost.Inputs
                         foreach (var input in layout.Inputs)
                         {
                             action.DownCount += Backend.GetInputState(input.Target).Down;
+                            action.UpCount   += Backend.GetInputState(input.Target).Up;
                             action.Active    |= Backend.GetInputState(input.Target).Active;
                         }
 
@@ -70,12 +71,14 @@ namespace PataponGameHost.Inputs
                     {
                         ref var inputFromThread = ref entity.Get<InputThreadTarget>().Target.Get<RhythmInputAction>();
                         ref var selfInput       = ref entity.Get<RhythmInputAction>();
-                        
-                        selfInput.DownCount = inputFromThread.DownCount;
-                        selfInput.Active = inputFromThread.Active;
+
+                        selfInput.DownCount  = inputFromThread.DownCount;
+                        selfInput.UpCount    = inputFromThread.UpCount;
+                        selfInput.Active     = inputFromThread.Active;
                         selfInput.ActiveTime = inputFromThread.ActiveTime;
 
                         inputFromThread.DownCount = 0;
+                        inputFromThread.UpCount   = 0;
                     }
                 }
             }

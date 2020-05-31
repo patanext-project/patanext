@@ -53,10 +53,18 @@ namespace PataNext.Module.Simulation.Tests
 				var buffer = entity.Get<RhythmEngineLocalCommandBuffer>();
 				for (var i = 0; i < playerInput.Actions.Length; i++)
 				{
-					if (!playerInput.Actions[i].WasPressed)
+					ref readonly var action = ref playerInput.Actions[i];
+					if (!action.FrameUpdate)
 						continue;
 
-					var pressure = new FlowPressure(i + 1, state.Elapsed, settings.BeatInterval);
+					if (action.WasReleased && !action.IsSliding)
+						continue;
+
+					var pressure = new FlowPressure(i + 1, state.Elapsed, settings.BeatInterval)
+					{
+						IsSliderEnd = action.IsSliding
+					};
+					
 					buffer.Add(pressure);
 					state.LastPressure = pressure;
 				}
