@@ -33,6 +33,7 @@ namespace PataNext.Module.Presentation
 			presentation.Subscribe<RhythmEngineExecutingCommand>()
 			            .AddTransformEntities();
 			presentation.Subscribe(new CopyableComponentOperation<RhythmCommandDefinition>());
+			presentation.Subscribe(new CopyableComponentOperation<RhythmEngineLocalCommandBuffer>());
 			presentation.Subscribe<RhythmEngineOnNewBeat>();
 			presentation.Subscribe<PlayerInput>();
 		}

@@ -34,15 +34,15 @@ namespace PataNext.Module.RhythmEngine
 			return 0.0f;
 		}
 
-		private static bool isValid(int beat, double offset, TimeSpan commandStart, TimeSpan elapsed, TimeSpan beatInterval)
+		private static bool isValid(int beat, double offset, TimeSpan commandStart, TimeSpan elapsed, TimeSpan beatInterval, float scoreLimit = 0.6f)
 		{
 			elapsed -= commandStart;
 
 			var targetTimed = beat * beatInterval;
 			var targetStart = targetTimed + beatInterval * Math.Clamp(offset, -0.9, +0.9);
 			var score       = Math.Abs(unlerp(targetStart, targetStart + beatInterval, elapsed));
-
-			return Math.Abs(score) < 1;
+			
+			return Math.Abs(score) < Math.Min(1, scoreLimit);
 		}
 
 		public bool IsStartValid(TimeSpan commandStart, TimeSpan elapsed, TimeSpan beatInterval)

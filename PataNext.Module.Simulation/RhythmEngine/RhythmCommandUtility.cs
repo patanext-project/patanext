@@ -25,8 +25,6 @@ namespace PataNext.Module.RhythmEngine
 
 					resultCount++;
 				}
-				else
-					throw new InvalidOperationException("The end of sliders shouldn't be the start of pressure");
 			}
 
 			return array.Slice(0, resultCount);

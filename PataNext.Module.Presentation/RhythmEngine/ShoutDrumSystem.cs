@@ -27,6 +27,9 @@ namespace PataNext.Module.Presentation.RhythmEngine
 
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureVoice =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
+		
+		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureSlider =
+			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
 
 		private LoadAudioResourceSystem loadAudio;
 		private CustomModule            module;
@@ -52,11 +55,17 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			{
 				audioOnPressureDrum[key]  = new PooledDictionary<int, ResourceHandle<AudioResource>>();
 				audioOnPressureVoice[key] = new PooledDictionary<int, ResourceHandle<AudioResource>>();
+				audioOnPressureSlider[key] = new PooledDictionary<int, ResourceHandle<AudioResource>>();
 
 				for (var rank = 0; rank != 3; rank++)
 				{
 					audioOnPressureDrum[key][rank]  = loadAudio.Start($"drum_{key}_{rank}.ogg", storage);
 					audioOnPressureVoice[key][rank] = loadAudio.Start($"voice_{key}_{rank}.wav", storage);
+				}
+
+				for (var rank = 0; rank != 2; rank++)
+				{
+					audioOnPressureSlider[key][rank] = loadAudio.Start($"drum_{key}_p{rank}.wav", storage);
 				}
 			}
 
@@ -65,23 +74,39 @@ namespace PataNext.Module.Presentation.RhythmEngine
 
 		private void OnPlayerInputChanged(in Entity entity, in PlayerInput prev, in PlayerInput next)
 		{
-			var score = 0;
 			var engineEntity = currentRhythmEngineSystem.Information.Entity;
-			if (engineEntity != default
-			    && engineEntity.TryGet(out RhythmEngineLocalState state)
+			if (!engineEntity.IsAlive)
+				return;
+		
+			var score = 0;
+			if (engineEntity.TryGet(out RhythmEngineLocalState state)
 			    && engineEntity.TryGet(out RhythmEngineSettings settings))
 			{
 				if (RhythmEngineUtility.GetScore(state, settings) > FlowPressure.Perfect)
 					score++;
 			}
+			
+			var isFirstInput = false;
+			if (engineEntity.TryGet(out RhythmEngineLocalCommandBuffer cmdBuffer))
+				isFirstInput = cmdBuffer.Count == 0;
 
 			for (var i = 0; i < next.Actions.Length; i++)
 			{
-				if (!next.Actions[i].WasPressed)
+				ref readonly var action = ref next.Actions[i];
+				if (!action.FrameUpdate)
 					continue;
 
+				if (action.WasReleased && (!action.IsSliding || isFirstInput))
+					continue;
+
+				ResourceHandle<AudioResource> resourceHandle;
+				if (action.IsSliding)
+					resourceHandle = audioOnPressureSlider[i + 1][score];
+				else
+					resourceHandle = audioOnPressureDrum[i + 1][score];
+
 				var play = World.Mgr.CreateEntity();
-				play.Set(audioOnPressureDrum[i + 1][score].Result);
+				AudioPlayerUtility.SetResource(play, resourceHandle);
 				play.Set(new AudioVolumeComponent(1));
 				play.Set(new FlatAudioPlayerComponent());
 			}

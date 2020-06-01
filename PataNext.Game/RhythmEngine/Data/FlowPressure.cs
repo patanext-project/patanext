@@ -12,7 +12,7 @@ namespace PataNext.Module.RhythmEngine.Data
 
 	public struct FlowPressure
 	{
-		public const float  Error   = 0.99f;
+		public const float  Error   = 0.75f;
 		public const double Perfect = 0.2f;
 
 		/// <summary>

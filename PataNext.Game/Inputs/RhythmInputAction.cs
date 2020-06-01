@@ -23,7 +23,7 @@ namespace PataponGameHost.Inputs
         public TimeSpan ActiveTime;
 
         public bool HasBeenPressed => DownCount > 0;
-        public bool IsSliding => ActiveTime.TotalSeconds > 0.3;
+        public bool IsSliding => ActiveTime.TotalSeconds > 0.4;
 
         public class Provider : InputProviderSystemBase<Provider, RhythmInputAction>
         {

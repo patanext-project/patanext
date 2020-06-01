@@ -84,6 +84,14 @@ namespace PataNext.Module.Simulation
 				RhythmCommandAction.With(2, RhythmKeys.Pata),
 				RhythmCommandAction.With(3, RhythmKeys.Pon),
 			}));
+			World.Mgr.CreateEntity().Set(new RhythmCommandDefinition("summon", stackalloc[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Don),
+				RhythmCommandAction.With(1, RhythmKeys.Don),
+				RhythmCommandAction.WithOffset(1, 0.5f, RhythmKeys.Don),
+				RhythmCommandAction.WithOffset(2, 0.5f, RhythmKeys.Don),
+				RhythmCommandAction.WithOffset(3, 0, RhythmKeys.Don),
+			}));
 			World.Mgr.CreateEntity().Set(new RhythmCommandDefinition("fast_defend", stackalloc[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Chaka),

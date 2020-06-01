@@ -57,7 +57,8 @@ namespace PataNext.Module.Simulation.Tests
 					if (!action.FrameUpdate)
 						continue;
 
-					if (action.WasReleased && !action.IsSliding)
+					// If this is not the end of a slider or if it is but our command buffer is empty, skip it.
+					if (action.WasReleased && (!action.IsSliding || buffer.Count == 0))
 						continue;
 
 					var pressure = new FlowPressure(i + 1, state.Elapsed, settings.BeatInterval)
