@@ -14,47 +14,6 @@ namespace PataponGameHost
 {	
 	public class GameFrame : GameWindow
 	{
-		public class FrameListener : IFrameListener
-		{
-			private SimpleFrameListener super  = new SimpleFrameListener();
-			private List<WorkerFrame>   frames = new List<WorkerFrame>();
-
-			public bool Add(WorkerFrame frame)
-			{
-				return super.Add(frame);
-			}
-
-			public int LastCollectionIndex;
-			public double Delta;
-			public double SD;
-			public double Workload;
-
-			public TimeSpan TargetFramerate = TimeSpan.FromSeconds(1f / 1000);
-			
-			public List<WorkerFrame> DequeueAll()
-			{
-				frames.Clear();
-				super.DequeueAll(frames);
-
-				foreach (var frame in frames)
-				{
-					if (frame.CollectionIndex != LastCollectionIndex)
-					{
-						Delta = 0;
-						Workload = 0;
-						LastCollectionIndex = frame.CollectionIndex;
-					}
-
-					Delta = Math.Max(frame.Delta.TotalSeconds, Delta);
-					Workload = Math.Max(frame.Delta.TotalSeconds / TargetFramerate.TotalSeconds, Workload);
-				}
-
-				SD = MathHelper.Lerp((float) SD, (float) Delta, (float) Delta * 25);
-
-				return frames;
-			}
-		}
-
 		private Context context;
 
 		private List<IDisposable> disposables;
@@ -62,10 +21,6 @@ namespace PataponGameHost
 		private GameRenderThreadingHost renderHost;
 		private GameAudioThreadingHost audioHost;
 
-		private FrameListener renderFrameListener;
-		private FrameListener simulationFrameListener;
-		private FrameListener inputFrameListener;
-		
 		public GameFrame(Context context, List<IDisposable> disposableList) : base(new GameWindowSettings
 		{
 			IsMultiThreaded = false,
@@ -96,58 +51,24 @@ namespace PataponGameHost
 		protected override unsafe void OnLoad()
 		{
 			base.OnLoad();
-			
+
 			GL.LoadBindings(new GLFWBindingsContext());
 			GLFW.MakeContextCurrent(null);
 			
-			renderHost = new GameRenderThreadingHost(this, context);
+			renderHost = new GameRenderThreadingHost(this, context, TimeSpan.FromSeconds(1 / RenderFrequency));
 			renderHost.Listen();
 			
-			audioHost = new GameAudioThreadingHost(context, TimeSpan.FromSeconds(1f / 100));
+			audioHost = new GameAudioThreadingHost(context, TimeSpan.FromSeconds(1f / 1000));
 			audioHost.Listen();
 
 			disposables.Add(renderHost);
 			disposables.Add(audioHost);
-
-			//this.WindowState = WindowState.Fullscreen;
 		}
 
 		protected override void OnResize(ResizeEventArgs e)
 		{
 			base.OnResize(e);
 			GL.Viewport(0, 0, e.Width, e.Height);
-		}
-
-		protected override unsafe void OnRenderFrame(FrameEventArgs args)
-		{
-			void setListener<T>(ref FrameListener listener)
-				where T : GameThreadedHostApplicationBase<T>
-			{
-				if (listener != null)
-					return;
-
-				if (!ThreadingHost.TypeToThread.TryGetValue(typeof(T), out var host))
-					return;
-				
-				var client = (T) host.Host;
-
-				using var threadLocker = client.SynchronizeThread();
-				if (client.Worker != null)
-					client.Worker.FrameListener.TryAdd(listener = new FrameListener());
-			}
-			
-			setListener<GameSimulationThreadingHost>(ref simulationFrameListener);
-			setListener<GameRenderThreadingHost>(ref renderFrameListener);
-			setListener<GameInputThreadingHost>(ref inputFrameListener);
-
-			renderFrameListener.TargetFramerate = TimeSpan.FromSeconds(1f / 500);
-			simulationFrameListener.TargetFramerate = TimeSpan.FromSeconds(1f / 100);
-
-			simulationFrameListener.DequeueAll();
-			renderFrameListener.DequeueAll();
-			
-			//Title = $"PataNext (Render, {1/renderFrameListener.SD:0000.}FPS) (Simulation, {simulationFrameListener.Delta:0.00}ms) (Input, {inputFrameListener.Delta:0.00}ms)";
-			Title = $"PataNext (Render Load={renderFrameListener.Workload:000%}) (Simulation Load={simulationFrameListener.Workload:000%})";
 		}
 
 		protected override void Dispose(bool disposing)

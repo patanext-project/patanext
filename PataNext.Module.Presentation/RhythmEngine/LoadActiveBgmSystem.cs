@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GameHost.Applications;
+using GameHost.Core.Applications;
 using GameHost.Core.Bindables;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
@@ -10,6 +11,7 @@ using PataponGameHost.Storage;
 
 namespace PataNext.Module.Presentation.RhythmEngine
 {
+	[RestrictToApplication(typeof(GameRenderThreadingHost))]
 	public class LoadActiveBgmSystem : AppSystem
 	{
 		private MainThreadClient client;

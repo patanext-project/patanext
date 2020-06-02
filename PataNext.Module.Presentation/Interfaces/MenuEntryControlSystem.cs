@@ -8,8 +8,10 @@ using GameHost.Core.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.IO;
 using GameHost.Core.Threading;
+using GameHost.HostSerialization;
 using GameHost.UI.Noesis;
 using OpenToolkit.Windowing.Common;
+using PataNext.Module.Presentation.RhythmEngine;
 using PataponGameHost.Applications.MainThread;
 using PataponGameHost.Storage;
 
@@ -23,18 +25,19 @@ namespace PataNext.Module.Presentation.Controls
 		private Entity           entityView;
 
 		private MenuEntryControl.BgmEntry[] files = new MenuEntryControl.BgmEntry[0];
-		private LoadFileSystem              loadFileSystem;
+		private XamlFileLoader              xamlFileLoader;
 		private IScheduler                  scheduler;
-
-		private IStorage      storage;
+		
 		private INativeWindow window;
+		private CurrentRhythmEngineSystem currentRhythmEngineSystem;
 
 		public MenuEntryControlSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref window);
 			DependencyResolver.Add(() => ref scheduler);
 			DependencyResolver.Add(() => ref client);
-			DependencyResolver.Add(() => ref loadFileSystem);
+			DependencyResolver.Add(() => ref xamlFileLoader);
+			DependencyResolver.Add(() => ref currentRhythmEngineSystem);
 		}
 
 		private void onBgmFileChange()
@@ -62,7 +65,8 @@ namespace PataNext.Module.Presentation.Controls
 				client.Listener.WorldCollection.Mgr.CreateEntity().Set<RefreshBgmList>();
 			}
 
-			loadFileSystem.Xaml.Subscribe(OnXamlFound, true);
+			xamlFileLoader.SetTarget("Interfaces", "MenuEntryControl");
+			xamlFileLoader.Xaml.Subscribe(OnXamlFound, true);
 		}
 
 		private void OnXamlFound(string previous, string next)
@@ -89,9 +93,28 @@ namespace PataNext.Module.Presentation.Controls
 			scheduler.Add(addXaml);
 		}
 
+		public override bool CanUpdate()
+		{
+			return base.CanUpdate() && entityView.IsAlive;
+		}
+
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
+
+			xamlFileLoader.Update();
+			switch (entityView.IsEnabled())
+			{
+				case true when currentRhythmEngineSystem.Information.Entity != default:
+					Console.WriteLine("DISABLE ENTITY");
+					entityView.Disable();
+					break;
+				case false when currentRhythmEngineSystem.Information.Entity == default:
+					Console.WriteLine("ENABLE ENTITY");
+					entityView.Enable();
+					break;
+			}
+
 			foreach (ref var control in World.Mgr.Get<MenuEntryControl>())
 			{
 				var view = control.DataContext as MenuEntryControl.ViewModel;

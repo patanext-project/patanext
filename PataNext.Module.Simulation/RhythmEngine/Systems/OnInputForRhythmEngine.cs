@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using DefaultEcs;
+using DefaultEcs.Serialization;
 using GameHost;
 using GameHost.Applications;
 using GameHost.Core.Applications;
 using GameHost.Core.Ecs;
+using GameHost.Injection;
 using GameHost.Input;
 using GameHost.Input.Default;
+using Microsoft.Extensions.Logging;
 using PataNext.Module.RhythmEngine;
 using PataNext.Module.RhythmEngine.Data;
 using PataponGameHost.Inputs;
@@ -65,7 +69,7 @@ namespace PataNext.Module.Simulation.Tests
 					{
 						IsSliderEnd = action.IsSliding
 					};
-					
+
 					buffer.Add(pressure);
 					state.LastPressure = pressure;
 				}

@@ -1,0 +1,27 @@
+<UserControl x:Class="PataNext.Module.Presentation.Controls.PlayFieldControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PataNext.Module.Presentation.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="1080" d:DesignWidth="1920">
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10*" />
+                <RowDefinition Height="12.5*" />
+                <RowDefinition Height="100*" />
+                <RowDefinition Height="22.5*" />
+            </Grid.RowDefinitions>
+            <Viewbox Grid.Row="1">
+                <Label Content="Playfield" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Null}" Foreground="White" FontFamily="AR CENA"/>
+            </Viewbox>
+        </Grid>
+        <Grid x:Name="BeatImpulseFrame" Margin="15,15,15,15">
+            <Rectangle Visibility="{Binding Path=EnabledTrails[0], Converter={x:Static local:VisibleIfTrueConverter.Instance}}" Stroke="White" StrokeThickness="2" />
+            <Rectangle Visibility="{Binding Path=EnabledTrails[1], Converter={x:Static local:VisibleIfTrueConverter.Instance}}" Stroke="White" Margin="5,5,5,5" StrokeThickness="2" />
+            <Rectangle Visibility="{Binding Path=EnabledTrails[2], Converter={x:Static local:VisibleIfTrueConverter.Instance}}" Stroke="White" Margin="10,10,10,10" StrokeThickness="2" />
+        </Grid>
+    </Grid>
+</UserControl>

@@ -60,6 +60,12 @@ namespace PataNext.Module.RhythmEngine
 			return IsStartValid(start, computed.Start.Time, beatInterval)
 			       && (!computed.IsSlider && sliderLength == 0 || IsSliderValid(start, computed.End.Time, beatInterval));
 		}
+		
+		public bool IsPredictionValid(ComputedSliderFlowPressure computed, TimeSpan start, TimeSpan beatInterval)
+		{
+			return IsStartValid(start, computed.Start.Time, beatInterval)
+			       && (!computed.IsSlider || sliderLength > 0 && IsSliderValid(start, computed.End.Time, beatInterval));
+		}
 	}
 
 	/// <summary>

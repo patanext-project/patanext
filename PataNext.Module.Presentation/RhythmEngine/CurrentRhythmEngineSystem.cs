@@ -40,6 +40,7 @@ namespace PataNext.Module.Presentation.RhythmEngine
 
 			engineSet = presentation.World.GetEntities()
 			                        .With<RhythmEngineController>()
+			                        .With<RhythmEngineLocalState>()
 			                        .AsSet();
 		}
 

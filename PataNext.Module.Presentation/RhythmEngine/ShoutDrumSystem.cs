@@ -20,21 +20,19 @@ namespace PataNext.Module.Presentation.RhythmEngine
 	[RestrictToApplication(typeof(GameRenderThreadingHost))]
 	public class ShoutDrumSystem : AppSystem
 	{
-		private readonly Query playerQuery = new Query {All = new[] {typeof(PlayerInput)}};
-
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureDrum =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
 
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureVoice =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
-		
+
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureSlider =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
 
-		private LoadAudioResourceSystem loadAudio;
-		private CustomModule            module;
-		private PresentationWorld   presentation;
-		private CurrentRhythmEngineSystem currentRhythmEngineSystem;
+		private LoadAudioResourceSystem   loadAudio;
+		private CustomModule              module;
+		private PresentationWorld         presentation;
+		private CurrentRhythmEngineSystem currentRhythmEngineSystem;		
 
 		public ShoutDrumSystem(WorldCollection collection) : base(collection)
 		{
@@ -49,12 +47,12 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			var storage = new StorageCollection {module.DllStorage, module.Storage.Value}
 			              .GetOrCreateDirectoryAsync("Sounds/RhythmEngine/Drums")
 			              .Result;
-			
+
 			// TODO: should we have a configuration file for mapping the audio? (instead of hardcoding the mapping)
 			for (var key = 1; key != 5; key++)
 			{
-				audioOnPressureDrum[key]  = new PooledDictionary<int, ResourceHandle<AudioResource>>();
-				audioOnPressureVoice[key] = new PooledDictionary<int, ResourceHandle<AudioResource>>();
+				audioOnPressureDrum[key]   = new PooledDictionary<int, ResourceHandle<AudioResource>>();
+				audioOnPressureVoice[key]  = new PooledDictionary<int, ResourceHandle<AudioResource>>();
 				audioOnPressureSlider[key] = new PooledDictionary<int, ResourceHandle<AudioResource>>();
 
 				for (var rank = 0; rank != 3; rank++)
@@ -72,12 +70,22 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			presentation.World.SubscribeComponentChanged<PlayerInput>(OnPlayerInputChanged);
 		}
 
+		private Entity audioPlayer;
+
+		protected override void OnInit()
+		{
+			base.OnInit();
+			
+			audioPlayer = World.Mgr.CreateEntity();
+			AudioPlayerUtility.Initialize(audioPlayer, new FlatAudioPlayerComponent());
+		}
+
 		private void OnPlayerInputChanged(in Entity entity, in PlayerInput prev, in PlayerInput next)
 		{
 			var engineEntity = currentRhythmEngineSystem.Information.Entity;
 			if (!engineEntity.IsAlive)
 				return;
-		
+
 			var score = 0;
 			if (engineEntity.TryGet(out RhythmEngineLocalState state)
 			    && engineEntity.TryGet(out RhythmEngineSettings settings))
@@ -85,7 +93,7 @@ namespace PataNext.Module.Presentation.RhythmEngine
 				if (RhythmEngineUtility.GetScore(state, settings) > FlowPressure.Perfect)
 					score++;
 			}
-			
+
 			var isFirstInput = false;
 			if (engineEntity.TryGet(out RhythmEngineLocalCommandBuffer cmdBuffer))
 				isFirstInput = cmdBuffer.Count == 0;
@@ -105,10 +113,8 @@ namespace PataNext.Module.Presentation.RhythmEngine
 				else
 					resourceHandle = audioOnPressureDrum[i + 1][score];
 
-				var play = World.Mgr.CreateEntity();
-				AudioPlayerUtility.SetResource(play, resourceHandle);
-				play.Set(new AudioVolumeComponent(1));
-				play.Set(new FlatAudioPlayerComponent());
+				AudioPlayerUtility.SetResource(audioPlayer, resourceHandle);
+				AudioPlayerUtility.Play(audioPlayer);
 			}
 		}
 	}

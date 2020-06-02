@@ -48,7 +48,7 @@ namespace PataNext.Module.RhythmEngine
 
 				if (action.Key != pressure.Start.KeyId)
 					return false;
-				if (!action.Beat.IsValid(executingCommand[i], startSpan, beatInterval))
+				if (!action.Beat.IsPredictionValid(executingCommand[i], startSpan, beatInterval))
 					return false;
 			}
 

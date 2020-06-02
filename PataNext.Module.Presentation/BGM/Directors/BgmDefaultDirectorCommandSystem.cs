@@ -114,6 +114,10 @@ namespace PataNext.Module.Presentation.BGM.Directors
 						doFeverShout           = !Director.IsFever.Value;
 						Director.IsFever.Value = true;
 					}
+					else
+					{
+						Director.IsFever.Value = false;
+					}
 
 					ResourceHandle<AudioResource> resourceHandle = default;
 					if (doFeverShout)

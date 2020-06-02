@@ -37,12 +37,19 @@ namespace PataNext.Module.Presentation.RhythmEngine
 			presentation.World.SubscribeComponentAdded<RhythmEngineOnNewBeat>(OnNewBeat);
 		}
 
+		private Entity audioPlayer;
+
+		protected override void OnInit()
+		{
+			base.OnInit();
+			audioPlayer = World.Mgr.CreateEntity();
+			AudioPlayerUtility.Initialize(audioPlayer, new FlatAudioPlayerComponent());
+		}
+
 		private void OnNewBeat(in Entity entity, in RhythmEngineOnNewBeat n)
 		{
-			var play = World.Mgr.CreateEntity();
-			play.Set(newBeatSound.Result);
-			play.Set(new AudioVolumeComponent(1));
-			play.Set(new FlatAudioPlayerComponent());
+			AudioPlayerUtility.SetResource(audioPlayer, newBeatSound);
+			AudioPlayerUtility.Play(audioPlayer);
 		}
 	}
 }
