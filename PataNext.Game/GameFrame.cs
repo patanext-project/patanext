@@ -37,7 +37,7 @@ namespace PataponGameHost
 				//WindowBorder = WindowBorder.Hidden
 			};
 			//GLFW.WindowHint(WindowHintBool.TransparentFramebuffer, true);
-			GLFW.WindowHint(WindowHintInt.Samples, 8);
+			GLFW.WindowHint(WindowHintInt.Samples, 2);
 			
 			return s;
 		})())

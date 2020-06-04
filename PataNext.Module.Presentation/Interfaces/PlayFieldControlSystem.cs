@@ -16,6 +16,7 @@ using OpenToolkit.Windowing.Common;
 using PataNext.Module.Presentation.RhythmEngine;
 using PataNext.Module.RhythmEngine;
 using PataponGameHost.Applications.MainThread;
+using PataponGameHost.Inputs;
 using PataponGameHost.RhythmEngine.Components;
 using PataponGameHost.Storage;
 using RevolutionSnapshot.Core;
@@ -58,10 +59,17 @@ namespace PataNext.Module.Presentation.Controls
 
 				isNewBeat = true;
 			}));
+			AddDisposable(presentationWorld.World.SubscribeComponentChanged((in Entity entity, in PlayerInput previous, in PlayerInput next) =>
+			{
+				playerInput = next;
+				isNewPlayerInput = true;
+			}));
 		}
 
 		private Entity entityView;
 		private bool isNewBeat;
+		private bool isNewPlayerInput;
+		private PlayerInput playerInput;
 
 		private void OnXamlFound(string previous, string next)
 		{
@@ -111,12 +119,12 @@ namespace PataNext.Module.Presentation.Controls
 
 			if (!entityView.IsEnabled())
 				return;
-			
+
 			foreach (ref var control in World.Mgr.Get<PlayFieldControl>())
 			{
 				if (!control.IsLoaded)
 					continue;
-				
+
 				if (!(control.DataContext is PlayFieldControl.ViewModel view))
 					continue;
 
@@ -125,7 +133,7 @@ namespace PataNext.Module.Presentation.Controls
 				    && information.Entity.TryGet(out GameCombo.Settings comboSettings)
 				    && comboSettings.CanEnterFever(comboState.Count, comboState.Score))
 				{
-					phase                    =  EPhase.Fever;
+					phase = EPhase.Fever;
 				}
 
 				if (information.Entity.TryGet(out GameCommandState commandState))
@@ -134,11 +142,13 @@ namespace PataNext.Module.Presentation.Controls
 					if (commandState.StartTimeMs < elapsedMs && elapsedMs < commandState.EndTimeMs)
 						phase = EPhase.Command;
 				}
-				
+
 				if (isNewBeat)
 				{
-					view.AccumulatedBeatTime = TimeSpan.Zero;
+					view.AccumulatedBeatTime    = TimeSpan.Zero;
 					view.AccumulatedBeatTimeExp = TimeSpan.Zero;
+
+					control.OnNewBeat(information.Elapsed, Colors.White);
 				}
 				else
 				{
@@ -159,21 +169,21 @@ namespace PataNext.Module.Presentation.Controls
 				{
 					case EPhase.NoCommand:
 						control.BeatImpulseColor = Color.FromScRgb(1, 0.75f, 0.75f, 0.75f);
-						
+
 						view.EnabledTrails[0] = true;
 						view.EnabledTrails[1] = false;
 						view.EnabledTrails[2] = false;
 						break;
 					case EPhase.Command:
 						control.BeatImpulseColor = Color.FromScRgb(1, 0.5f, 0.5f, 0.5f);
-						
+
 						view.EnabledTrails[0] = true;
 						view.EnabledTrails[1] = false;
 						view.EnabledTrails[2] = true;
 						break;
 					case EPhase.Fever:
 						control.BeatImpulseColor = Color.FromScRgb(1, 1, 0.86f, 0);
-						
+
 						view.EnabledTrails[0] = true;
 						view.EnabledTrails[1] = true;
 						view.EnabledTrails[2] = true;
@@ -181,9 +191,45 @@ namespace PataNext.Module.Presentation.Controls
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
+
+				if (isNewPlayerInput)
+				{
+					for (var i = 0; i != playerInput.Actions.Length; i++)
+					{
+						var ac = playerInput.Actions[i];
+						if (!ac.FrameUpdate)
+							continue;
+
+						if (ac.WasReleased && !ac.IsSliding)
+							continue;
+
+						i++;
+						switch (i)
+						{
+							case RhythmKeys.Pata:
+								control.OnNewPressure(information.Elapsed, Colors.DarkRed);
+								break;
+							case RhythmKeys.Pon:
+								control.OnNewPressure(information.Elapsed, Colors.DarkBlue);
+								break;
+							case RhythmKeys.Don:
+								control.OnNewPressure(information.Elapsed, Colors.Yellow);
+								break;
+							case RhythmKeys.Chaka:
+								control.OnNewPressure(information.Elapsed, Colors.DarkGreen);
+								break;
+						}
+
+						i--;
+					}
+				}
+
+				control.BeatInterval = information.Entity.Get<RhythmEngineSettings>().BeatInterval;
+				control.Elapsed      = information.Elapsed;
 			}
 
-			isNewBeat = false;
+			isNewBeat        = false;
+			isNewPlayerInput = false;
 		}
 
 		enum EPhase
