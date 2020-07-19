@@ -1,9 +1,5 @@
 using System;
-using System.Diagnostics;
-using DefaultEcs;
 using NUnit.Framework;
-using PataNext.Module.RhythmEngine;
-using PataNext.Module.RhythmEngine.Data;
 
 namespace PataNext.Module.Simulation.Tests
 {
@@ -17,7 +13,7 @@ namespace PataNext.Module.Simulation.Tests
 			Interval = TimeSpan.FromSeconds(0.5);
 		}
 
-		[Test]
+		/*[Test]
 		public void TestValidBeats()
 		{
 			var start = TimeSpan.FromSeconds(1);
@@ -211,6 +207,6 @@ namespace PataNext.Module.Simulation.Tests
 			};
 
 			Assert.IsFalse(RhythmCommandUtility.CanBePredicted(cmd.Actions, pressures, Interval));
-		}
+		}*/
 	}
 }

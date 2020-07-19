@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime;
-using System.Threading;
-using System.Threading.Tasks;
-using GameHost.Core.Threading;
-using GameHost.Injection;
-using PataNext.Module.Presentation;
-using PataponGameHost;
+using Cysharp.Text;
+using GameHost.Game;
+using GameHost.IO;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace PataNext.Export.Desktop
 {
@@ -16,15 +14,34 @@ namespace PataNext.Export.Desktop
 		{
 			GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
 
-			using var game = new ClientGameBootstrap(new Context(null));
-			game.OverrideExternalAssemblies.Add(typeof(PataNext.Game.GameModule).Assembly);
-			game.OverrideExternalAssemblies.Add(typeof(Module.Simulation.CustomModule).Assembly);
-			game.OverrideExternalAssemblies.Add(typeof(CustomModule).Assembly);
-			game.Run();
-
-			while (game.IsRunning)
+			var loggerFactory = LoggerFactory.Create(builder =>
 			{
-			}
+				static void opt(ZLoggerOptions options)
+				{
+					var prefixFormat = ZString.PrepareUtf8<LogLevel, DateTime, string>("[{0}, {1}, {2}] ");
+					options.PrefixFormatter = (writer, info) => prefixFormat.FormatTo(ref writer, info.LogLevel, info.Timestamp.DateTime.ToLocalTime(), info.CategoryName);
+				}
+
+				builder.ClearProviders();
+				builder.SetMinimumLevel(LogLevel.Debug);
+				builder.AddZLoggerRollingFile((offset, i) => $"logs/{offset.ToLocalTime():yyyy-MM-dd}_{i:000}.log",
+					x => x.ToLocalTime().Date,
+					8196,
+					opt);
+				builder.AddZLoggerFile("log.json");
+
+
+				builder.AddZLoggerConsole((Action<ZLoggerOptions>) opt);
+			});
+
+			using var game = new GameBootstrap();
+			game.GameEntity.Set(new GameName("PataNext"));
+			game.GameEntity.Set(new GameUserStorage(new LocalStorage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/PataNext")));
+			game.GameEntity.Set(new GameLoggerFactory(loggerFactory));
+			
+			game.GameEntity.Set(typeof(PataNext.Module.Simulation.CustomModule));
+
+			game.Run();
 		}
 	}
 }
