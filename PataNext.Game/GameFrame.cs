@@ -54,12 +54,18 @@ namespace PataponGameHost
 
 			GL.LoadBindings(new GLFWBindingsContext());
 			GLFW.MakeContextCurrent(null);
-			
-			renderHost = new GameRenderThreadingHost(this, context, TimeSpan.FromSeconds(1 / RenderFrequency));
-			renderHost.Listen();
-			
-			audioHost = new GameAudioThreadingHost(context, TimeSpan.FromSeconds(1f / 1000));
-			audioHost.Listen();
+
+			if (!ThreadingHost.TryGetListener(out renderHost))
+			{
+				renderHost = new GameRenderThreadingHost(this, context, TimeSpan.FromSeconds(1 / RenderFrequency));
+				renderHost.Listen();
+			}
+
+			if (!ThreadingHost.TryGetListener(out audioHost))
+			{
+				audioHost = new GameAudioThreadingHost(context, TimeSpan.FromSeconds(1f / 1000));
+				audioHost.Listen();
+			}
 
 			disposables.Add(renderHost);
 			disposables.Add(audioHost);

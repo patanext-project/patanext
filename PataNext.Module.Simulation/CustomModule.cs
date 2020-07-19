@@ -4,13 +4,16 @@ using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Core.Applications;
 using GameHost.Core.Ecs;
+using GameHost.Core.Logging;
 using GameHost.Core.Modding;
 using GameHost.Entities;
 using GameHost.Injection;
+using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation;
 using PataNext.Module.RhythmEngine;
 using PataNext.Module.RhythmEngine.Data;
 using PataponGameHost.RhythmEngine.Components;
+using ZLogger;
 
 [assembly: ModuleDescription("PataNext Simulation", "guerro", typeof(CustomModule))]
 
@@ -20,7 +23,8 @@ namespace PataNext.Module.Simulation
 	{
 		public CustomModule(Entity source, Context ctxParent, SModuleInfo original) : base(source, ctxParent, original)
 		{
-			Console.WriteLine("My custom module has been loaded!");
+			var logger = (ILogger) new DefaultAppObjectStrategy(this, new WorldCollection(ctxParent, null)).ResolveNow(typeof(ILogger));
+			logger.Log(LogLevel.Information, "My custom module has been loaded!");
 
 			var simulationClient = new GameSimulationThreadingClient();
 			simulationClient.Connect();
@@ -40,15 +44,20 @@ namespace PataNext.Module.Simulation
 		private IManagedWorldTime worldTime;
 
 		private CModule module;
+		private ILogger logger;
 
 		public TestModSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref worldTime);
 			DependencyResolver.Add(() => ref module);
+			DependencyResolver.Add(() => ref logger);
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
+			logger.ZLogInformation("hello");
+			
+			
 			for (var i = 0; i != 1; i++)
 			{
 				var ent = World.Mgr.CreateEntity();
