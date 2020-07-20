@@ -26,7 +26,7 @@ namespace PataNext.Module.Simulation
 				Console.WriteLine(listener);
 				if (listener is SimulationApplication simulationApplication)
 				{
-					simulationApplication.Data.Collection.GetOrCreate(typeof(CreateEntitySystem));
+					//simulationApplication.Data.Collection.GetOrCreate(typeof(CreateEntitySystem));
 				}
 			}
 		}
