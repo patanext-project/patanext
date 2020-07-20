@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using GameHost.Core.IO;
 using GameHost.IO;
 
-namespace PataponGameHost.BGM
+namespace PataNext.Game.BGM
 {
-public class BgmFile : IFile
+	public class BgmFile : IFile
 	{
 		private readonly IFile    parent;
 		private readonly FileInfo cachedInfo;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using GameHost.Core.IO;
 using GameHost.IO;
 using ICSharpCode.SharpZipLib.Zip;
-using PataponGameHost.BGM;
+using PataNext.Game.BGM;
 
 namespace PataNext.Feature.RhythmEngineAudio.BGM
 {

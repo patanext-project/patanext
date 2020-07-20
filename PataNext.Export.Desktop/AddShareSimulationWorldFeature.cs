@@ -2,9 +2,10 @@
 using ENet;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
+using GameHost.Core.IO;
+using GameHost.Simulation.Application;
 using GameHost.Simulation.Features.ShareWorldState;
 using GameHost.Transports;
-using PataponGameHost;
 
 namespace PataNext.Export.Desktop
 {
@@ -32,6 +33,22 @@ namespace PataNext.Export.Desktop
 
 			World.Mgr.CreateEntity()
 			     .Set<IFeature>(new ShareWorldStateFeature(driver));
+		}
+
+		protected override void OnUpdate()
+		{
+			base.OnUpdate();
+			
+			driver.Update();
+			
+			while (driver.Accept().IsCreated)
+			{}
+
+			TransportEvent ev;
+			while ((ev = driver.PopEvent()).Type != TransportEvent.EType.None)
+			{
+				Console.WriteLine(ev.Type);
+			}
 		}
 
 		public override void Dispose()

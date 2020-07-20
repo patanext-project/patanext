@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.Execution;
+using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
-using PataponGameHost;
 
 namespace PataNext.Export.Desktop
 {
@@ -27,8 +28,15 @@ namespace PataNext.Export.Desktop
 			var listener = World.Mgr.CreateEntity();
 			listener.Set<ListenerCollectionBase>(new ThreadListenerCollection("Simulation", ccs.Token));
 
+			var systems = new List<Type>();
+			AppSystemResolver.ResolveFor<SimulationApplication>(systems);
+
+			var simulationApp = new SimulationApplication(globalWorld, null);
+			foreach (var type in systems)
+				simulationApp.Data.Collection.GetOrCreate(type);
+
 			var simulationAppEntity = World.Mgr.CreateEntity();
-			simulationAppEntity.Set(new SimulationApplication(globalWorld, null));
+			simulationAppEntity.Set<IListener>(simulationApp);
 			simulationAppEntity.Set(new PushToListenerCollection(listener));
 		}
 

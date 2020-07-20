@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using GameHost.Core.IO;
 using PataNext.Feature.RhythmEngineAudio.BGM.Directors;
-using PataponGameHost.BGM;
+using PataNext.Game.BGM;
 
 namespace PataNext.Feature.RhythmEngineAudio.BGM
 {
