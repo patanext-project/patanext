@@ -36,25 +36,24 @@ namespace PataNext.Export.Desktop
 			header.WriteInt((int) MessageType.InputData);
 
 			var addr = new Address();
-			addr.Port = 5960;
+			addr.SetIP("127.0.0.1");
+			addr.Port = 5961;
 			enetDriver.Connect(addr);
-
-			World.Mgr.CreateEntity()
-			     .Set<IFeature>(new ClientInputFeature(driver, default));
 		}
 
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
 			
-			enetDriver.Update();
+			driver.Update();
 			
-			while (enetDriver.Accept().IsCreated)
+			while (driver.Accept().IsCreated)
 			{}
 
 			TransportEvent ev;
-			while ((ev = enetDriver.PopEvent()).Type != TransportEvent.EType.None)
+			while ((ev = driver.PopEvent()).Type != TransportEvent.EType.None)
 			{
+				Console.WriteLine(ev.Type);
 				switch (ev.Type)
 				{
 					case TransportEvent.EType.None:
@@ -62,6 +61,8 @@ namespace PataNext.Export.Desktop
 					case TransportEvent.EType.RequestConnection:
 						break;
 					case TransportEvent.EType.Connect:
+						World.Mgr.CreateEntity()
+						     .Set<IFeature>(new ClientInputFeature(driver, default));
 						break;
 					case TransportEvent.EType.Disconnect:
 						break;
