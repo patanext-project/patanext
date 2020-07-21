@@ -23,7 +23,6 @@ namespace PataNext.Module.Simulation
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
 			foreach (var listener in global.World.Get<IListener>())
 			{
-				Console.WriteLine(listener);
 				if (listener is SimulationApplication simulationApplication)
 				{
 					//simulationApplication.Data.Collection.GetOrCreate(typeof(CreateEntitySystem));

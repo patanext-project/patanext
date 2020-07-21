@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using GameHost.Core.IO;
 using RevolutionSnapshot.Core.Buffers;
 
@@ -46,6 +47,11 @@ namespace PataNext.Export.Desktop
 
 		public unsafe Span<byte> WithHeader(Span<byte> original)
 		{
+			var def = default(DataBufferWriter);
+			var curr = Header;
+			if (Unsafe.AreSame(ref curr, ref def))
+				throw new InvalidOperationException("No header has been assigned!");
+			
 			tempWriter.Length = 0;
 			tempWriter.WriteBuffer(Header);
 			tempWriter.WriteSpan(original);
