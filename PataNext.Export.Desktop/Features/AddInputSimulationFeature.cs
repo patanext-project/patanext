@@ -4,6 +4,7 @@ using GameHost.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.IO;
 using GameHost.Inputs.Features;
+using GameHost.Inputs.Systems;
 using GameHost.Simulation.Application;
 using GameHost.Transports;
 using RevolutionSnapshot.Core.Buffers;
@@ -17,6 +18,8 @@ namespace PataNext.Export.Desktop
 		private HeaderTransportDriver driver;
 
 		private DataBufferWriter header;
+
+		private ReceiveInputDataSystem receiveInputDataSystem;
 		
 		public AddInputSimulationFeature(WorldCollection collection) : base(collection)
 		{
@@ -27,6 +30,8 @@ namespace PataNext.Export.Desktop
 			{
 				Header = header
 			});
+			
+			DependencyResolver.Add(() => ref receiveInputDataSystem);
 		}
 
 		protected override void OnInit()
@@ -44,40 +49,33 @@ namespace PataNext.Export.Desktop
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
-			
-			driver.Update();
-			
-			while (driver.Accept().IsCreated)
-			{}
 
+			driver.Update();
+
+			while (driver.Accept().IsCreated)
+			{
+			}
+
+			receiveInputDataSystem.BeginFrame();
+			
 			TransportEvent ev;
 			while ((ev = driver.PopEvent()).Type != TransportEvent.EType.None)
 			{
-				Console.WriteLine(ev.Type);
 				switch (ev.Type)
 				{
-					case TransportEvent.EType.None:
-						break;
-					case TransportEvent.EType.RequestConnection:
-						break;
 					case TransportEvent.EType.Connect:
 						World.Mgr.CreateEntity()
 						     .Set<IFeature>(new ClientInputFeature(driver, default));
 						break;
-					case TransportEvent.EType.Disconnect:
-						break;
 					case TransportEvent.EType.Data:
 						var reader = new DataBufferReader(ev.Data);
-						var type = (MessageType) reader.ReadValue<int>();
+						var type   = (MessageType) reader.ReadValue<int>();
 						switch (type)
 						{
-							case MessageType.Unknown:
-								break;
-							case MessageType.Rpc:
-								break;
 							case MessageType.InputData:
 							{
-								var subType = (EMessageInputType) reader.ReadValue<int>();
+								var inputDataReader = new DataBufferReader(reader, reader.CurrReadIndex, reader.Length);
+								var subType = (EMessageInputType) inputDataReader.ReadValue<int>();
 								switch (subType)
 								{
 									case EMessageInputType.None:
@@ -90,6 +88,7 @@ namespace PataNext.Export.Desktop
 									}
 									case EMessageInputType.ReceiveInputs:
 									{
+										receiveInputDataSystem?.ReceiveData(ref inputDataReader);
 										break;
 									}
 									default:
@@ -98,15 +97,9 @@ namespace PataNext.Export.Desktop
 
 								break;
 							}
-							case MessageType.SimulationData:
-								break;
-							default:
-								throw new ArgumentOutOfRangeException();
 						}
 
 						break;
-					default:
-						throw new ArgumentOutOfRangeException();
 				}
 			}
 		}

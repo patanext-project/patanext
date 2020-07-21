@@ -28,10 +28,10 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			{
 				var input = i switch
 				{
-					0 => new CInput("keyboard/keypad4"),
-					1 => new CInput("keyboard/keypad6"),
-					2 => new CInput("keyboard/keypad2"),
-					3 => new CInput("keyboard/keypad8"),
+					0 => new CInput("keyboard/numpad4"),
+					1 => new CInput("keyboard/numpad6"),
+					2 => new CInput("keyboard/numpad2"),
+					3 => new CInput("keyboard/numpad8"),
 					_ => throw new InvalidOperationException()
 				};
 				actionPerRhythmKey[i] = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", input));
