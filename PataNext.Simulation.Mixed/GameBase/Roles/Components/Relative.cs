@@ -1,4 +1,5 @@
-﻿using GameHost.Simulation.TabEcs;
+﻿using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 
 namespace GameBase.Roles.Components
@@ -18,6 +19,10 @@ namespace GameBase.Roles.Components
 		public Relative(GameEntity target)
 		{
 			Target = target;
+		}
+		
+		public abstract class Register : RegisterGameHostComponentSystemBase<Relative<TDescription>>
+		{
 		}
 	}
 }

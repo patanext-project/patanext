@@ -6,7 +6,7 @@ namespace PataNext.Module.Simulation.Components.Roles
 {
 	public struct UnitTargetDescription : IEntityDescription
 	{
-		public class RegisterRelative : RegisterGameHostComponentSystemBase<Relative<UnitTargetDescription>>
+		public class RegisterRelative : Relative<UnitTargetDescription>.Register
 		{
 		}
 

@@ -7,7 +7,7 @@ namespace GameBase.Roles.Descriptions
 {
 	public struct PlayerDescription : IEntityDescription
 	{
-		public class RegisterRelative : RegisterGameHostComponentSystemBase<Relative<PlayerDescription>>
+		public class RegisterRelative : Relative<PlayerDescription>.Register
 		{
 		}
 
