@@ -53,26 +53,6 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameEntityTest = gameWorld.CreateEntity();
 			gameWorld.AddComponent(gameEntityTest, new PlayerDescription());
 			gameWorld.AddComponent(gameEntityTest, new PlayerInput());
-			gameWorld.AddComponent(gameEntityTest, new Position());
-		}
-
-		protected override void OnUpdate()
-		{
-			base.OnUpdate();
-
-			var axis = abilityAction.Get<AxisAction>();
-			gameWorld.GetComponentData<PlayerInput>(gameEntityTest).Value =  axis.Value;
-			gameWorld.GetComponentData<Position>(gameEntityTest).Value.X  += axis.Value * (float) time.Delta.TotalSeconds * 4;
-
-			foreach (var (index, ent) in rhythmActionMap)
-			{
-				var action = ent.Get<PressAction>();
-				if (!action.HasBeenPressed)
-					continue;
-
-				Console.WriteLine("huh");
-				gameWorld.GetComponentData<Position>(gameEntityTest).Value.X = index * 2;
-			}
 		}
 	}
 }
