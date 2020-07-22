@@ -51,6 +51,8 @@ namespace PataNext.Export.Desktop
 			enetDriver.Bind(addr);
 			enetDriver.Listen();
 
+			Console.WriteLine(enetDriver.Host.Address.Port);
+
 			header.WriteInt((int) MessageType.SimulationData);
 			driver.Header = header;
 

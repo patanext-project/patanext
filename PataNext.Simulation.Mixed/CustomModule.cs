@@ -8,6 +8,7 @@ using GameHost.Threading;
 using GameHost.Worlds;
 using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation;
+using PataNext.Module.Simulation.GameBase.Time;
 
 [assembly: RegisterAvailableModule("PataNext Simulation", "guerro", typeof(CustomModule))]
 
@@ -25,7 +26,7 @@ namespace PataNext.Module.Simulation
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
-					//simulationApplication.Data.Collection.GetOrCreate(typeof(CreateEntitySystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
 				}
 			}
 		}

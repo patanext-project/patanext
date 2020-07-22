@@ -5,25 +5,35 @@ using GameHost.Core.Ecs;
 using GameHost.Inputs.DefaultActions;
 using GameHost.Inputs.Layouts;
 using GameHost.Inputs.Systems;
+using GameHost.Simulation.TabEcs;
+using GameHost.Worlds.Components;
+using PataNext.Module.Simulation.Components;
 
 namespace PataNext.Simulation.Client.Systems.Inputs
 {
 	public class RegisterRhythmEngineInputSystem : AppSystem
 	{
-		private InputDatabase inputDatabase;
+		private InputDatabase     inputDatabase;
+		private IManagedWorldTime time;
 
 		public RegisterRhythmEngineInputSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref inputDatabase);
+			DependencyResolver.Add(() => ref gameWorld);
+			DependencyResolver.Add(() => ref time);
 		}
 
-		private Dictionary<int, Entity> actionPerRhythmKey;
+		private Dictionary<int, Entity> rhythmActionMap;
+		private Entity                  abilityAction;
+
+		private GameWorld  gameWorld;
+		private GameEntity gameEntityTest;
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-			
-			actionPerRhythmKey = new Dictionary<int, Entity>();
+
+			rhythmActionMap = new Dictionary<int, Entity>();
 			for (var i = 0; i < 4; i++)
 			{
 				var input = i switch
@@ -34,8 +44,23 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 					3 => new CInput("keyboard/numpad8"),
 					_ => throw new InvalidOperationException()
 				};
-				actionPerRhythmKey[i] = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", input));
+				rhythmActionMap[i] = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", input));
 			}
+
+			abilityAction = inputDatabase.RegisterSingle<AxisAction>(new AxisAction.Layout("kb and mouse", new[] {new CInput("keyboard/leftArrow")}, new[] {new CInput("keyboard/rightArrow")}));
+
+			gameEntityTest = gameWorld.CreateEntity();
+			gameWorld.AddComponent(gameEntityTest, new PlayerInput());
+			gameWorld.AddComponent(gameEntityTest, new Position());
+		}
+
+		protected override void OnUpdate()
+		{
+			base.OnUpdate();
+
+			var axis = abilityAction.Get<AxisAction>();
+			gameWorld.GetComponentData<PlayerInput>(gameEntityTest).Value =  axis.Value;
+			gameWorld.GetComponentData<Position>(gameEntityTest).Value.X  += axis.Value * (float) time.Delta.TotalSeconds;
 		}
 	}
 }
