@@ -1,4 +1,5 @@
 ﻿using System;
+using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Utility;
 
@@ -10,7 +11,7 @@ namespace PataNext.Module.Simulation.Components
 		Top        = 1,
 		Bottom     = 2
 	}
-	
+
 	public unsafe struct PlayerInput : IComponentData
 	{
 		public struct RhythmAction
@@ -48,6 +49,12 @@ namespace PataNext.Module.Simulation.Components
 				fixed (byte* fixedPtr = actions)
 					return new Span<RhythmAction>(fixedPtr, sizeof(byte) * 4);
 			}
+		}
+
+		public AbilitySelection Ability;
+
+		public class Register : RegisterGameHostComponentSystemBase<PlayerInput>
+		{
 		}
 	}
 }
