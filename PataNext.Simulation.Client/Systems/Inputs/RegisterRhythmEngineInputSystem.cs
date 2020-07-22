@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DefaultEcs;
+using GameBase.Roles.Descriptions;
 using GameHost.Core.Ecs;
 using GameHost.Inputs.DefaultActions;
 using GameHost.Inputs.Layouts;
@@ -50,6 +51,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			abilityAction = inputDatabase.RegisterSingle<AxisAction>(new AxisAction.Layout("kb and mouse", new[] {new CInput("keyboard/leftArrow")}, new[] {new CInput("keyboard/rightArrow")}));
 
 			gameEntityTest = gameWorld.CreateEntity();
+			gameWorld.AddComponent(gameEntityTest, new PlayerDescription());
 			gameWorld.AddComponent(gameEntityTest, new PlayerInput());
 			gameWorld.AddComponent(gameEntityTest, new Position());
 		}
@@ -60,7 +62,17 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 			var axis = abilityAction.Get<AxisAction>();
 			gameWorld.GetComponentData<PlayerInput>(gameEntityTest).Value =  axis.Value;
-			gameWorld.GetComponentData<Position>(gameEntityTest).Value.X  += axis.Value * (float) time.Delta.TotalSeconds;
+			gameWorld.GetComponentData<Position>(gameEntityTest).Value.X  += axis.Value * (float) time.Delta.TotalSeconds * 4;
+
+			foreach (var (index, ent) in rhythmActionMap)
+			{
+				var action = ent.Get<PressAction>();
+				if (!action.HasBeenPressed)
+					continue;
+
+				Console.WriteLine("huh");
+				gameWorld.GetComponentData<Position>(gameEntityTest).Value.X = index * 2;
+			}
 		}
 	}
 }

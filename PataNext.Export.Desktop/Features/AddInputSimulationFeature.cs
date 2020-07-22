@@ -42,7 +42,7 @@ namespace PataNext.Export.Desktop
 
 			var addr = new Address();
 			addr.SetIP("127.0.0.1");
-			addr.Port = 5961;
+			addr.Port = 5962;
 			enetDriver.Connect(addr);
 		}
 
@@ -56,7 +56,7 @@ namespace PataNext.Export.Desktop
 			{
 			}
 
-			receiveInputDataSystem.BeginFrame();
+			var isFirstFrame = false;
 			
 			TransportEvent ev;
 			while ((ev = driver.PopEvent()).Type != TransportEvent.EType.None)
@@ -88,6 +88,12 @@ namespace PataNext.Export.Desktop
 									}
 									case EMessageInputType.ReceiveInputs:
 									{
+										if (!isFirstFrame)
+										{
+											receiveInputDataSystem.BeginFrame();
+											isFirstFrame = true;
+										}
+
 										receiveInputDataSystem?.ReceiveData(ref inputDataReader);
 										break;
 									}
