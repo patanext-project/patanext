@@ -1,5 +1,6 @@
 ﻿using System;
 using GameHost.Native;
+using GameHost.Native.Char;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.Utility.Resource.Components;
 
@@ -13,6 +14,9 @@ namespace PataNext.Module.Simulation.Resources.Keys
 		{
 		}
 
+		public UnitKitResourceKey(CharBuffer64 value) => Value = value;
+		public UnitKitResourceKey(string       value) => Value = CharBufferUtility.Create<CharBuffer64>(value);
+		
 		public bool Equals(UnitKitResourceKey other)
 		{
 			return Value.Equals(other.Value);

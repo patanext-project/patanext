@@ -12,20 +12,20 @@ namespace PataNext.Module.Simulation.Components.Units
 {
 	public struct UnitDisplayedEquipment : IComponentBuffer
 	{
-		public GameResource<IUnitAttachmentResource> Attachment;
-		public GameResource<IEquipmentResource>      Resource;
+		public GameResource<UnitAttachmentResource> Attachment;
+		public GameResource<EquipmentResource>      Resource;
 
 		public class Register : RegisterGameHostComponentBuffer<UnitDisplayedEquipment>
 		{
 		}
 
-		public class KeepAttachment : KeepAliveResourceFromBuffer<IUnitAttachmentResource, UnitDisplayedEquipment>
+		public class KeepAttachment : KeepAliveResourceFromBuffer<UnitAttachmentResource, UnitDisplayedEquipment>
 		{
 			public KeepAttachment(WorldCollection collection) : base(collection)
 			{
 			}
 
-			protected override void KeepAlive(Span<bool> keep, Span<UnitDisplayedEquipment> self, Span<GameResource<IUnitAttachmentResource>> resources)
+			protected override void KeepAlive(Span<bool> keep, Span<UnitDisplayedEquipment> self, Span<GameResource<UnitAttachmentResource>> resources)
 			{
 				for (var i = 0; i != self.Length; i++)
 				{
@@ -36,13 +36,13 @@ namespace PataNext.Module.Simulation.Components.Units
 			}
 		}
 
-		public class KeepEquipment : KeepAliveResourceFromBuffer<IEquipmentResource, UnitDisplayedEquipment>
+		public class KeepEquipment : KeepAliveResourceFromBuffer<EquipmentResource, UnitDisplayedEquipment>
 		{
 			public KeepEquipment(WorldCollection collection) : base(collection)
 			{
 			}
 
-			protected override void KeepAlive(Span<bool> keep, Span<UnitDisplayedEquipment> self, Span<GameResource<IEquipmentResource>> resources)
+			protected override void KeepAlive(Span<bool> keep, Span<UnitDisplayedEquipment> self, Span<GameResource<EquipmentResource>> resources)
 			{
 				for (var i = 0; i != self.Length; i++)
 				{

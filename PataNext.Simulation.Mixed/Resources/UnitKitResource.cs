@@ -6,7 +6,7 @@ namespace PataNext.Module.Simulation.Resources
 	/// <summary>
 	/// An <see cref="UnitDescription"/> kit (taterazay, yarida, ...) resource description
 	/// </summary>
-	public interface IUnitKitResource : IGameResourceDescription
+	public struct UnitKitResource : IGameResourceDescription
 	{
 	}
 }

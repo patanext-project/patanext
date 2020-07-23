@@ -11,20 +11,20 @@ namespace PataNext.Module.Simulation.Components.Units
 {
 	public readonly struct UnitCurrentKit : IComponentData
 	{
-		public readonly GameResource<IUnitKitResource> Resource;
+		public readonly GameResource<UnitKitResource> Resource;
 
-		public UnitCurrentKit(GameResource<IUnitKitResource> id)
+		public UnitCurrentKit(GameResource<UnitKitResource> id)
 		{
 			Resource = id;
 		}
 
-		public class KeepKit : KeepAliveResourceFromData<IUnitKitResource, UnitCurrentKit>
+		public class KeepKit : KeepAliveResourceFromData<UnitKitResource, UnitCurrentKit>
 		{
 			public KeepKit(WorldCollection collection) : base(collection)
 			{
 			}
 
-			protected override void KeepAlive(Span<bool> keep, Span<UnitCurrentKit> self, Span<GameResource<IUnitKitResource>> resources)
+			protected override void KeepAlive(Span<bool> keep, Span<UnitCurrentKit> self, Span<GameResource<UnitKitResource>> resources)
 			{
 				for (var i = 0; i != self.Length; i++)
 				{

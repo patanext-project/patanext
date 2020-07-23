@@ -4,6 +4,8 @@ using Cysharp.Text;
 using GameHost.Game;
 using GameHost.IO;
 using GameHost.Native;
+using GameHost.Native.Char;
+using GameHost.Native.Fixed;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 
@@ -34,9 +36,17 @@ namespace PataNext.Export.Desktop
 
 				builder.AddZLoggerConsole((Action<ZLoggerOptions>) opt);
 			});
-
-			var buffer64 = CharBufferUtility.Create<CharBuffer64>("hello world!");
-			Console.WriteLine(buffer64.Span.ToString());
+			
+			var fixedList = new FixedBuffer32<int>();
+			fixedList.Add(1);
+			fixedList.Add(2);
+			fixedList.Add(3);
+			fixedList.Add(4);
+			fixedList.RemoveAt(0);
+			foreach (var element in fixedList.Span)
+				Console.WriteLine(element);
+			
+			Console.WriteLine("Count: " + fixedList.Span.Length);
 
 			using var game = new GameBootstrap();
 			game.GameEntity.Set(new GameName("PataNext"));
