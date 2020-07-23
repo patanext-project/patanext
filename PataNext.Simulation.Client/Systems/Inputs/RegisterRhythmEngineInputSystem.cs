@@ -52,7 +52,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 			gameEntityTest = gameWorld.CreateEntity();
 			gameWorld.AddComponent(gameEntityTest, new PlayerDescription());
-			gameWorld.AddComponent(gameEntityTest, new PlayerInput());
+			gameWorld.AddComponent(gameEntityTest, new PlayerInputComponent());
 		}
 	}
 }

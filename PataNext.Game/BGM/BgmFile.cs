@@ -49,11 +49,9 @@ namespace PataNext.Game.BGM
 			if (descEntry == null)
 				throw new NullReferenceException(nameof(descEntry));
 
-			await using (var stream = descEntry.Open())
-			{
-				using (var document = await JsonDocument.ParseAsync(stream))
-					await ReadDescription(document);
-			}
+			await using var stream   = descEntry.Open();
+			using var       document = await JsonDocument.ParseAsync(stream);
+			ReadDescription(document);
 		}
 
 		private async Task FromJson()
@@ -61,10 +59,10 @@ namespace PataNext.Game.BGM
 			var fileContent = await GetContentAsync();
 
 			using var document = JsonDocument.Parse(fileContent);
-			await ReadDescription(document);
+			ReadDescription(document);
 		}
 
-		private async Task ReadDescription(JsonDocument document)
+		private void ReadDescription(JsonDocument document)
 		{
 			var    root = document.RootElement;
 			string storePath;

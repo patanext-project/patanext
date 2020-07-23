@@ -10,7 +10,7 @@ namespace PataNext.Module.Simulation.Components.Roles
 		{
 		}
 
-		public class Register : RegisterGameHostComponentSystemBase<RhythmEngineDescription>
+		public class Register : RegisterGameHostComponentData<RhythmEngineDescription>
 		{
 		}
 	}

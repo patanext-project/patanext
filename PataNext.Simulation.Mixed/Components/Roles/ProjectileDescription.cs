@@ -10,7 +10,7 @@ namespace PataNext.Module.Simulation.Components.Roles
 		{
 		}
 
-		public class Register : RegisterGameHostComponentSystemBase<ProjectileDescription>
+		public class Register : RegisterGameHostComponentData<ProjectileDescription>
 		{
 		}
 	}

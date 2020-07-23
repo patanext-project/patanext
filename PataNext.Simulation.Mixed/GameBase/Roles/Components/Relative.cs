@@ -21,7 +21,7 @@ namespace GameBase.Roles.Components
 			Target = target;
 		}
 		
-		public abstract class Register : RegisterGameHostComponentSystemBase<Relative<TDescription>>
+		public abstract class Register : RegisterGameHostComponentData<Relative<TDescription>>
 		{
 		}
 	}

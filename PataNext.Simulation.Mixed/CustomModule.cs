@@ -20,9 +20,9 @@ namespace PataNext.Module.Simulation
 		{
 			var logger = (ILogger) new DefaultAppObjectStrategy(this, new WorldCollection(ctxParent, null)).ResolveNow(typeof(ILogger));
 			logger.Log(LogLevel.Information, "My custom module has been loaded!");
-			
+
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-			foreach (var listener in global.World.Get<IListener>())
+			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{

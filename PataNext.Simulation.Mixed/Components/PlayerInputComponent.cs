@@ -12,7 +12,7 @@ namespace PataNext.Module.Simulation.Components
 		Bottom     = 2
 	}
 
-	public unsafe struct PlayerInput : IComponentData
+	public unsafe struct PlayerInputComponent : IComponentData
 	{
 		public struct RhythmAction
 		{
@@ -52,8 +52,9 @@ namespace PataNext.Module.Simulation.Components
 		}
 
 		public AbilitySelection Ability;
+		public float            Panning;
 
-		public class Register : RegisterGameHostComponentSystemBase<PlayerInput>
+		public class Register : RegisterGameHostComponentData<PlayerInputComponent>
 		{
 		}
 	}

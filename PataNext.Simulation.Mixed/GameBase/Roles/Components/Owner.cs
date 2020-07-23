@@ -13,7 +13,7 @@ namespace GameBase.Roles.Components
 			Target = target;
 		}
 
-		public class Register : RegisterGameHostComponentSystemBase<Owner>
+		public class Register : RegisterGameHostComponentData<Owner>
 		{
 		}
 	}

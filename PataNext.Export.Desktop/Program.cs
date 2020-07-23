@@ -3,6 +3,7 @@ using System.Runtime;
 using Cysharp.Text;
 using GameHost.Game;
 using GameHost.IO;
+using GameHost.Native;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 
@@ -33,6 +34,9 @@ namespace PataNext.Export.Desktop
 
 				builder.AddZLoggerConsole((Action<ZLoggerOptions>) opt);
 			});
+
+			var buffer64 = CharBufferUtility.Create<CharBuffer64>("hello world!");
+			Console.WriteLine(buffer64.Span.ToString());
 
 			using var game = new GameBootstrap();
 			game.GameEntity.Set(new GameName("PataNext"));
