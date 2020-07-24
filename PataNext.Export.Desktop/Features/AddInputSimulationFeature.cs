@@ -58,6 +58,8 @@ namespace PataNext.Export.Desktop
 
 			var isFirstFrame = false;
 			
+			receiveInputDataSystem.BeginFrame();
+			
 			TransportEvent ev;
 			while ((ev = driver.PopEvent()).Type != TransportEvent.EType.None)
 			{
@@ -88,12 +90,6 @@ namespace PataNext.Export.Desktop
 									}
 									case EMessageInputType.ReceiveInputs:
 									{
-										if (!isFirstFrame)
-										{
-											receiveInputDataSystem.BeginFrame();
-											isFirstFrame = true;
-										}
-
 										receiveInputDataSystem?.ReceiveData(ref inputDataReader);
 										break;
 									}

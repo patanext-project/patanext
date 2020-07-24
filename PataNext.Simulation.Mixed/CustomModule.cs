@@ -27,6 +27,8 @@ namespace PataNext.Module.Simulation
 				if (listener is SimulationApplication simulationApplication)
 				{
 					simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));
 				}
 			}
 		}

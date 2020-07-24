@@ -4,7 +4,7 @@ using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 
 namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 {
-	public class RhythmEngineLocalCommandBuffer : IComponentBuffer
+	public struct RhythmEngineLocalCommandBuffer : IComponentBuffer
 	{
 		public FlowPressure Value;
 

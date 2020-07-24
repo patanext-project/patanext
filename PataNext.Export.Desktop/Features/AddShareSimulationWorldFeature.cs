@@ -48,7 +48,8 @@ namespace PataNext.Export.Desktop
 			var addr = new Address();
 			addr.Port = 5945;
 			
-			enetDriver.Bind(addr);
+			if (enetDriver.Bind(addr) < 0)
+				throw new InvalidOperationException("Couldn't bind to port: " + addr.Port);
 			enetDriver.Listen();
 
 			Console.WriteLine(enetDriver.Host.Address.Port);
@@ -70,7 +71,7 @@ namespace PataNext.Export.Desktop
 			
 			while (driver.Accept().IsCreated)
 			{}
-
+			
 			TransportEvent ev;
 			while ((ev = driver.PopEvent()).Type != TransportEvent.EType.None)
 			{
@@ -81,8 +82,10 @@ namespace PataNext.Export.Desktop
 					case TransportEvent.EType.RequestConnection:
 						break;
 					case TransportEvent.EType.Connect:
+						Console.WriteLine("connection received.");
 						break;
 					case TransportEvent.EType.Disconnect:
+						Console.WriteLine("Disconnected");
 						break;
 					case TransportEvent.EType.Data:
 						var reader = new DataBufferReader(ev.Data);

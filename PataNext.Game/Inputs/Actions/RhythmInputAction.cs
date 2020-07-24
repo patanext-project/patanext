@@ -58,8 +58,8 @@ namespace PataNext.Game.Inputs.Actions
 
         public void Deserialize(ref DataBufferReader buffer)
         {
-            DownCount  = buffer.ReadValue<uint>();
-            UpCount    = buffer.ReadValue<uint>();
+            DownCount  += buffer.ReadValue<uint>();
+            UpCount    += buffer.ReadValue<uint>();
             Active     = buffer.ReadValue<bool>();
             ActiveTime = buffer.ReadValue<TimeSpan>();
         }

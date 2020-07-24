@@ -1,6 +1,7 @@
 ﻿using System;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
+using GameHost.Simulation.Utility.InterTick;
 using GameHost.Utility;
 
 namespace PataNext.Module.Simulation.Components
@@ -16,38 +17,21 @@ namespace PataNext.Module.Simulation.Components
 	{
 		public struct RhythmAction
 		{
-			public byte flags;
-
-			public bool IsActive
-			{
-				get => Bits.ToBoolean(flags, 0);
-				set => Bits.SetAt(ref flags, 0, value);
-			}
-
-			public bool FrameUpdate
-			{
-				get => Bits.ToBoolean(flags, 1);
-				set => Bits.SetAt(ref flags, 1, value);
-			}
-
-			public bool IsSliding
-			{
-				get => Bits.ToBoolean(flags, 2);
-				set => Bits.SetAt(ref flags, 2, value);
-			}
-
-			public bool WasPressed  => IsActive && FrameUpdate;
-			public bool WasReleased => !IsActive && FrameUpdate;
+			public InterFramePressAction InterFrame;
+			public bool                 IsActive;
 		}
 
-		private fixed byte actions[sizeof(byte) * 4];
+		private RhythmAction action0;
+		private RhythmAction action1;
+		private RhythmAction action2;
+		private RhythmAction action3;
 
 		public Span<RhythmAction> Actions
 		{
 			get
 			{
-				fixed (byte* fixedPtr = actions)
-					return new Span<RhythmAction>(fixedPtr, sizeof(byte) * 4);
+				fixed (RhythmAction* fixedPtr = &action0)
+					return new Span<RhythmAction>(fixedPtr, 4);
 			}
 		}
 

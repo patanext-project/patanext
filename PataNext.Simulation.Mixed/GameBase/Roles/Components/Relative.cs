@@ -1,4 +1,5 @@
-﻿using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+﻿using System.Runtime.InteropServices;
+using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 
@@ -16,9 +17,12 @@ namespace GameBase.Roles.Components
 		/// </summary>
 		public readonly GameEntity Target;
 
+		public readonly uint Data;
+
 		public Relative(GameEntity target)
 		{
 			Target = target;
+			Data = 42;
 		}
 		
 		public abstract class Register : RegisterGameHostComponentData<Relative<TDescription>>
