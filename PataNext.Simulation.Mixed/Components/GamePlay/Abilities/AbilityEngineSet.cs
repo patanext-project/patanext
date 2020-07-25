@@ -14,11 +14,11 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		public RhythmEngineController       Process;
 		public RhythmEngineSettings         Settings;
 		public RhythmEngineExecutingCommand CurrentCommand;
-		public GameComboState               ComboState;
+		public GameCombo.State              ComboState;
 		public GameCommandState             CommandState;
 
-		public GameEntity     Command, PreviousCommand;
-		public GameComboState Combo,   PreviousCombo;
+		public GameEntity      Command, PreviousCommand;
+		public GameCombo.State Combo,   PreviousCombo;
 
 		public class Register : RegisterGameHostComponentData<AbilityEngineSet>
 		{

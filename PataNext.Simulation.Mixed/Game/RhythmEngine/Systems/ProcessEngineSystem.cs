@@ -2,6 +2,7 @@
 using DefaultEcs.Command;
 using DefaultEcs.System;
 using DefaultEcs.Threading;
+using GameBase.Time.Components;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Injection;
@@ -23,6 +24,9 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 
 		protected override void OnUpdate()
 		{
+			if (!GameWorld.TryGetSingleton(out GameTime gameTime))
+				return;
+
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
 			{
 				GameWorld.AsComponentType<RhythmEngineIsPlaying>(),
@@ -42,6 +46,9 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				state.Elapsed = worldTime.Total - controller.StartTime;
 
 				var currentBeats = RhythmEngineUtility.GetActivationBeat(state, settings);
+				if (previousBeats != currentBeats)
+					state.NewBeatTick = (uint) gameTime.Frame;
+				state.CurrentBeat = currentBeats;
 			}
 		}
 	}

@@ -14,12 +14,17 @@ using GameHost.Inputs.Layouts;
 using GameHost.Inputs.Systems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Resource;
 using GameHost.Worlds.Components;
 using PataNext.Game.Inputs.Actions;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Components.Roles;
+using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.GameBase.Time;
+using PataNext.Module.Simulation.Resources;
+using PataNext.Module.Simulation.Resources.Keys;
 
 namespace PataNext.Simulation.Client.Systems.Inputs
 {
@@ -29,6 +34,8 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 	{
 		private InputDatabase     inputDatabase;
 		private IManagedWorldTime time;
+
+		private GameResourceDb<RhythmCommandResource, RhythmCommandResourceKey> localCommandDb;
 
 		public RegisterRhythmEngineInputSystem(WorldCollection collection) : base(collection)
 		{
@@ -46,6 +53,8 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
+			
+			localCommandDb = new GameResourceDb<RhythmCommandResource, RhythmCommandResourceKey>(gameWorld);
 
 			rhythmActionMap = new Dictionary<int, Entity>();
 			for (var i = 0; i < 4; i++)
@@ -77,13 +86,21 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = time.Total.Add(TimeSpan.FromSeconds(1))});
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineLocalState());
+			gameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
 			gameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(gameEntityTest));
-
-			/*gameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand()); // for now inner entities aren't yet deserialized on unity
-			gameWorld.AddComponent(rhythmEngine, new GameComboState());
-			gameWorld.AddComponent(rhythmEngine, new GameCommandState());
 			gameWorld.AddComponent(rhythmEngine, gameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>());
-			gameWorld.AddComponent(rhythmEngine, gameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());*/
+			gameWorld.AddComponent(rhythmEngine, gameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
+			gameWorld.AddComponent(rhythmEngine, new GameCommandState());
+
+			GameCombo.AddToEntity(gameWorld, rhythmEngine);
+
+			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate("march").Entity).AddRangeReinterpret(stackalloc[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Pata),
+				RhythmCommandAction.With(1, RhythmKeys.Pata),
+				RhythmCommandAction.With(2, RhythmKeys.Pata),
+				RhythmCommandAction.With(3, RhythmKeys.Pon),
+			});
 		}
 
 		protected override void OnUpdate()
@@ -102,18 +119,17 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			
 			ref var input = ref gameWorld.GetComponentData<PlayerInputComponent>(gameEntityTest);
 			input.Panning = panningAction.Get<AxisAction>().Value;
-			
+
 			foreach (var kvp in rhythmActionMap)
 			{
-				var rhythmAction = kvp.Value.Get<RhythmInputAction>();
-				ref var action = ref input.Actions[kvp.Key];
+				var     rhythmAction = kvp.Value.Get<RhythmInputAction>();
+				ref var action       = ref input.Actions[kvp.Key];
 
-				action.IsActive = rhythmAction.Active;
+				action.IsActive  = rhythmAction.Active;
+				action.IsSliding = (action.IsSliding && rhythmAction.UpCount > 0) || rhythmAction.IsSliding;
+
 				if (rhythmAction.DownCount > 0)
-				{
 					action.InterFrame.Pressed = gameTime.Frame;
-					Console.WriteLine(gameTime.Frame);
-				}
 
 				if (rhythmAction.UpCount > 0)
 					action.InterFrame.Released = gameTime.Frame;

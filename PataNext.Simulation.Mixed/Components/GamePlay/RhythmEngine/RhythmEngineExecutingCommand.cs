@@ -2,13 +2,15 @@
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
+using GameHost.Simulation.Utility.Resource;
+using PataNext.Module.Simulation.Resources;
 
 namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 {
 	public struct RhythmEngineExecutingCommand : IComponentData
 	{
-		public GameEntity Previous;
-		public GameEntity CommandTarget;
+		public GameResource<RhythmCommandResource> Previous;
+		public GameResource<RhythmCommandResource> CommandTarget;
 
 		/// <summary>
 		/// At which 'activation' beat will the command start?

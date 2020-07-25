@@ -11,14 +11,18 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 		public int          RecoveryActivationBeat { get; set; }
 		public TimeSpan     Elapsed                { get; set; }
 
+		public int  CurrentBeat;
+		public uint NewBeatTick;
+
 		public bool CanRunCommands => Elapsed > TimeSpan.Zero;
 
 		public bool IsRecovery(int activationBeat)
 		{
 			return RecoveryActivationBeat > activationBeat;
 		}
-		
+
 		public class Register : RegisterGameHostComponentData<RhythmEngineLocalState>
-		{}
+		{
+		}
 	}
 }

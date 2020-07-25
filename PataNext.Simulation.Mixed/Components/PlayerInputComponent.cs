@@ -18,7 +18,8 @@ namespace PataNext.Module.Simulation.Components
 		public struct RhythmAction
 		{
 			public InterFramePressAction InterFrame;
-			public bool                 IsActive;
+			public bool                  IsActive;
+			public bool                  IsSliding;
 		}
 
 		private RhythmAction action0;

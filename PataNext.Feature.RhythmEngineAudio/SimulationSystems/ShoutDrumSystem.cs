@@ -25,9 +25,7 @@ using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
 
 namespace PataNext.Simulation.Client.Systems
 {
-	[RestrictToApplication(typeof(SimulationApplication))]
-	[UpdateAfter(typeof(ProcessEngineSystem))]
-	public class ShoutDrumSystem : AppSystem
+	public class ShoutDrumSystem : PresentationRhythmEngineSystemBase
 	{
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureDrum =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
@@ -38,13 +36,13 @@ namespace PataNext.Simulation.Client.Systems
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureSlider =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
 
-		private LoadAudioSystem   loadAudio;
-		private CustomModule              module;
-		private GameWorld gameWorld;
+		private LoadAudioResourceSystem loadAudioResource;
+		private CustomModule    module;
+		private GameWorld       gameWorld;
 
 		public ShoutDrumSystem(WorldCollection collection) : base(collection)
 		{
-			DependencyResolver.Add(() => ref loadAudio);
+			DependencyResolver.Add(() => ref loadAudioResource);
 			DependencyResolver.Add(() => ref module);
 			DependencyResolver.Add(() => ref gameWorld);
 		}
@@ -64,13 +62,13 @@ namespace PataNext.Simulation.Client.Systems
 
 				for (var rank = 0; rank != 3; rank++)
 				{
-					audioOnPressureDrum[key][rank]  = loadAudio.Load($"drum_{key}_{rank}.ogg", storage);
-					audioOnPressureVoice[key][rank] = loadAudio.Load($"voice_{key}_{rank}.wav", storage);
+					audioOnPressureDrum[key][rank]  = loadAudioResource.Load($"drum_{key}_{rank}.ogg", storage);
+					audioOnPressureVoice[key][rank] = loadAudioResource.Load($"voice_{key}_{rank}.wav", storage);
 				}
 
 				for (var rank = 0; rank != 2; rank++)
 				{
-					audioOnPressureSlider[key][rank] = loadAudio.Load($"drum_{key}_p{rank}.wav", storage);
+					audioOnPressureSlider[key][rank] = loadAudioResource.Load($"drum_{key}_p{rank}.wav", storage);
 				}
 			}
 		}
@@ -85,63 +83,42 @@ namespace PataNext.Simulation.Client.Systems
 			AudioPlayerUtility.Initialize(audioPlayer, new StandardAudioPlayerComponent());
 		}
 
+		public override bool CanUpdate()
+		{
+			return LocalEngine != default && base.CanUpdate();
+		}
+
 		protected override void OnUpdate()
 		{
 			if (!gameWorld.TryGetSingleton(out GameTime gameTime))
 				return;
 
-			var playerEnumerator = gameWorld.QueryEntityWith(stackalloc[]
-			{
-				gameWorld.AsComponentType<PlayerDescription>(),
-				gameWorld.AsComponentType<PlayerIsLocal>()
-			});
-			
-			if (!playerEnumerator.TryGetFirst(out var localPlayerEntity))
-				return;
-
-			var rhythmEngineEntity = default(GameEntity);
-			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[]
-			{
-				gameWorld.AsComponentType<RhythmEngineDescription>(),
-				gameWorld.AsComponentType<Relative<PlayerDescription>>()
-			}))
-			{
-				if (gameWorld.GetComponentData<Relative<PlayerDescription>>(entity).Target != localPlayerEntity)
-					continue;
-
-				rhythmEngineEntity = entity;
-				break;
-			}
-
-			if (rhythmEngineEntity == default)
-				return;
-
 			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[] {gameWorld.AsComponentType<PlayerInputComponent>()}))
 			{
 				var next = gameWorld.GetComponentData<PlayerInputComponent>(entity);
-				
-				var score = 0;
-				var state = gameWorld.GetComponentData<RhythmEngineLocalState>(rhythmEngineEntity);
-				var settings = gameWorld.GetComponentData<RhythmEngineSettings>(rhythmEngineEntity);
-				if (Math.Abs(RhythmEngineUtility.GetScore(state, settings)) > FlowPressure.Perfect)
-						score++;
 
-				/*var cmdBuffer = gameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(rhythmEngineEntity);
-				var isFirstInput = cmdBuffer.Span.Length == 0;*/
+				var score    = 0;
+				var state    = gameWorld.GetComponentData<RhythmEngineLocalState>(LocalEngine);
+				var settings = gameWorld.GetComponentData<RhythmEngineSettings>(LocalEngine);
+				if (Math.Abs(RhythmEngineUtility.GetScore(state, settings)) > FlowPressure.Perfect)
+					score++;
+
+				var cmdBuffer = gameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(LocalEngine);
+				var isFirstInput = cmdBuffer.Span.Length == 0;
 
 				for (var i = 0; i < next.Actions.Length; i++)
 				{
 					ref readonly var action = ref next.Actions[i];
 					if (!action.InterFrame.AnyUpdate(gameTime.Frame))
 						continue;
-					
-					if (action.InterFrame.HasBeenReleased(gameTime.Frame)/* && (!action.IsSliding || isFirstInput)*/)
+
+					if (action.InterFrame.HasBeenReleased(gameTime.Frame) && (!action.IsSliding || isFirstInput))
 						continue;
 
 					ResourceHandle<AudioResource> resourceHandle;
-					/*if (action.IsSliding)
+					if (action.IsSliding)
 						resourceHandle = audioOnPressureSlider[i + 1][score];
-					else*/
+					else
 						resourceHandle = audioOnPressureDrum[i + 1][score];
 
 					AudioPlayerUtility.SetResource(audioPlayer, resourceHandle);

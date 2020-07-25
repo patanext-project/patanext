@@ -18,7 +18,10 @@ namespace PataNext.Feature.RhythmEngineAudio
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
+					simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemStart));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(ShoutDrumSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(OnNewBeatSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemEnd));
 				}
 			}
 		}
