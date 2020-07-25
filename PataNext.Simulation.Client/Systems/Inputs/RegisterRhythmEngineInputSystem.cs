@@ -5,6 +5,8 @@ using DefaultEcs;
 using GameBase.Roles.Components;
 using GameBase.Roles.Descriptions;
 using GameBase.Time.Components;
+using GameHost.Audio.Features;
+using GameHost.Audio.Players;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Inputs.DefaultActions;
@@ -76,7 +78,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineLocalState());
 			gameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(gameEntityTest));
-			
+
 			/*gameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand()); // for now inner entities aren't yet deserialized on unity
 			gameWorld.AddComponent(rhythmEngine, new GameComboState());
 			gameWorld.AddComponent(rhythmEngine, new GameCommandState());

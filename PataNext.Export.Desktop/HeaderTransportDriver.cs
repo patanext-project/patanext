@@ -49,7 +49,7 @@ namespace PataNext.Export.Desktop
 		{
 			var def = default(DataBufferWriter);
 			var curr = Header;
-			if (Unsafe.AreSame(ref curr, ref def))
+			if (Unsafe.AreSame(ref curr, ref def) || !curr.IsCreated)
 				throw new InvalidOperationException("No header has been assigned!");
 			
 			tempWriter.Length = 0;

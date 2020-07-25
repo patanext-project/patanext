@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using DefaultEcs;
 using GameHost.Applications;
+using GameHost.Audio.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.Execution;
 using GameHost.Simulation.Application;
@@ -25,19 +27,26 @@ namespace PataNext.Export.Desktop
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
+			AddApp("Simulation", new SimulationApplication(globalWorld, null));
+			AddApp("Audio", new AudioApplication(globalWorld, null));
+		}
+
+		private Entity AddApp<T>(string name, T app)
+			where T : class, IApplication, IListener
+		{
 			var listener = World.Mgr.CreateEntity();
-			listener.Set<ListenerCollectionBase>(new ThreadListenerCollection("Simulation", ccs.Token));
+			listener.Set<ListenerCollectionBase>(new ThreadListenerCollection(name, ccs.Token));
 
 			var systems = new List<Type>();
-			AppSystemResolver.ResolveFor<SimulationApplication>(systems);
+			AppSystemResolver.ResolveFor<T>(systems);
 
-			var simulationApp = new SimulationApplication(globalWorld, null);
 			foreach (var type in systems)
-				simulationApp.Data.Collection.GetOrCreate(type);
+				app.Data.Collection.GetOrCreate(type);
 
-			var simulationAppEntity = World.Mgr.CreateEntity();
-			simulationAppEntity.Set<IListener>(simulationApp);
-			simulationAppEntity.Set(new PushToListenerCollection(listener));
+			var applicationEntity = World.Mgr.CreateEntity();
+			applicationEntity.Set<IListener>(app);
+			applicationEntity.Set(new PushToListenerCollection(listener));
+			return applicationEntity;
 		}
 
 		public override void Dispose()

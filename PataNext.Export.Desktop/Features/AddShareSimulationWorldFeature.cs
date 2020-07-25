@@ -18,7 +18,8 @@ namespace PataNext.Export.Desktop
 		Unknown        = 0,
 		Rpc            = 10,
 		InputData      = 50,
-		SimulationData = 100
+		SimulationData = 100,
+		AudioData      = 150
 	}
 
 	[RestrictToApplication(typeof(SimulationApplication))]

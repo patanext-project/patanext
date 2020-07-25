@@ -16,13 +16,10 @@ namespace GameBase.Roles.Components
 		/// Path to the entity
 		/// </summary>
 		public readonly GameEntity Target;
-
-		public readonly uint Data;
-
+		
 		public Relative(GameEntity target)
 		{
 			Target = target;
-			Data = 42;
 		}
 		
 		public abstract class Register : RegisterGameHostComponentData<Relative<TDescription>>

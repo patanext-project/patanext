@@ -54,8 +54,10 @@ namespace PataNext.Export.Desktop
 			game.GameEntity.Set(new GameLoggerFactory(loggerFactory));
 
 			game.GameEntity.Set(typeof(GameHost.Inputs.DefaultActions.PressAction));
+			game.GameEntity.Set(typeof(GameHost.Audio.UpdateSoLoudBackendDriverSystem));
 			game.GameEntity.Set(typeof(PataNext.Module.Simulation.CustomModule));
 			game.GameEntity.Set(typeof(PataNext.Simulation.Client.Module));
+			game.GameEntity.Set(typeof(PataNext.Feature.RhythmEngineAudio.CustomModule));
 			game.GameEntity.Set(typeof(PataNext.Game.Module));
 
 			game.Run();
