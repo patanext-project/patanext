@@ -94,7 +94,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 			GameCombo.AddToEntity(gameWorld, rhythmEngine);
 
-			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate("march").Entity).AddRangeReinterpret(stackalloc[]
+			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("march", 4)).Entity).AddRangeReinterpret(stackalloc[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Pata),
 				RhythmCommandAction.With(1, RhythmKeys.Pata),

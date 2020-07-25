@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using DefaultEcs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Resource;
 using GameHost.Simulation.Utility.Resource.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
+using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine
@@ -106,7 +108,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 		                                                               TCommandList executingCommand, TOutputEntityList commandsOutput,
 		                                                               bool         isPredicted,      TimeSpan          beatInterval)
 			where TCommandList : IList<FlowPressure>
-			where TOutputEntityList : IList<GameEntity>
+			where TOutputEntityList : IList<GameResource<RhythmCommandResource>>
 		{
 			var computedSpan = computeFlowPressures(stackalloc ComputedSliderFlowPressure[executingCommand.Count], executingCommand);
 			foreach (ref readonly var entity in entities)
@@ -117,12 +119,12 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 				var actionBuffer = gameWorld.GetBuffer<RhythmCommandActionBuffer>(entity).Reinterpret<RhythmCommandAction>();
 				if (!isPredicted && SameAsSequence(actionBuffer, computedSpan, beatInterval))
 				{
-					commandsOutput.Add(entity);
+					commandsOutput.Add(new GameResource<RhythmCommandResource>(entity));
 					return;
 				}
 
 				if (isPredicted && CanBePredicted(actionBuffer, executingCommand, beatInterval))
-					commandsOutput.Add(entity);
+					commandsOutput.Add(new GameResource<RhythmCommandResource>(entity));
 			}
 		}
 	}

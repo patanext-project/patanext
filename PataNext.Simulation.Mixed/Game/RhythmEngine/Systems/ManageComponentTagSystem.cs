@@ -20,7 +20,17 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				if (controller.State == RhythmEngineState.Playing)
 					GameWorld.AddComponent<RhythmEngineIsPlaying>(entity);
 				else
+				{
 					GameWorld.RemoveComponent(entity, GameWorld.AsComponentType<RhythmEngineIsPlaying>());
+
+					if (controller.State == RhythmEngineState.Stopped)
+					{
+						if (GameWorld.HasComponent<GameCombo.State>(entity))
+							GameWorld.GetComponentData<GameCombo.State>(entity) = default;
+						if (GameWorld.HasComponent<GameCommandState>(entity))
+							GameWorld.GetComponentData<GameCommandState>(entity) = default;
+					}
+				}
 			}
 		}
 	}

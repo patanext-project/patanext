@@ -1,5 +1,6 @@
 ﻿using System;
 using GameBase.Time.Components;
+using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
@@ -9,6 +10,7 @@ using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 {
+	[UpdateAfter(typeof(ProcessEngineSystem))]
 	public class OnInputForRhythmEngine : RhythmEngineSystemBase
 	{
 		public OnInputForRhythmEngine(WorldCollection collection) : base(collection)
@@ -44,7 +46,6 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 						continue;
 
 					// If this is not the end of a slider or if it is but our command buffer is empty, skip it.
-					Console.WriteLine(action.IsSliding);
 					if (action.InterFrame.HasBeenReleased(gameTime.Frame) && (!action.IsSliding || buffer.Span.Length == 0))
 						continue;
 

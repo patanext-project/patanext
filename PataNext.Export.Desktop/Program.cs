@@ -37,17 +37,6 @@ namespace PataNext.Export.Desktop
 				builder.AddZLoggerConsole((Action<ZLoggerOptions>) opt);
 			});
 
-			var fixedList = new FixedBuffer32<int>();
-			fixedList.Add(1);
-			fixedList.Add(2);
-			fixedList.Add(3);
-			fixedList.Add(4);
-			fixedList.RemoveAt(0);
-			foreach (var element in fixedList.Span)
-				Console.WriteLine(element);
-
-			Console.WriteLine("Count: " + fixedList.Span.Length);
-
 			using var game = new GameBootstrap();
 			game.GameEntity.Set(new GameName("PataNext"));
 			game.GameEntity.Set(new GameUserStorage(new LocalStorage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/PataNext")));

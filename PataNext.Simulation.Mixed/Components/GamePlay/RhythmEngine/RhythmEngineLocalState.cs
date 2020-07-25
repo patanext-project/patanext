@@ -16,7 +16,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 
 		public bool CanRunCommands => Elapsed > TimeSpan.Zero;
 
-		public bool IsRecovery(int activationBeat)
+		public readonly bool IsRecovery(int activationBeat)
 		{
 			return RecoveryActivationBeat > activationBeat;
 		}
