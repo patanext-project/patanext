@@ -125,7 +125,6 @@ namespace PataNext.Simulation.Client.Systems
 
 					AudioPlayerUtility.SetResource(audioPlayer, resourceHandle);
 					AudioPlayerUtility.Play(audioPlayer);
-					Console.WriteLine("alo?");
 				}
 			}
 		}

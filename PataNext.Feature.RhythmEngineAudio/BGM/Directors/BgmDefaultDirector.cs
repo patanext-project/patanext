@@ -2,49 +2,80 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using GameHost.Core;
+ using GameHost.Core.IO;
  using GameHost.Native.Char;
  using GameHost.Simulation.Utility.Resource;
  using PataNext.Module.Simulation.Resources;
 
  namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
-{
-	public class BgmDefaultDirector : BgmDirectorBase
-	{
-		public readonly Bindable<IncomingCommandData> IncomingCommand;
-		public readonly Bindable<bool>                IsFever;
+ {
+	 public class BgmDefaultDirector : BgmDirectorBase
+	 {
+		 public readonly Bindable<IncomingCommandData> IncomingCommand;
+		 public readonly Bindable<bool>                IsFever;
 
-		private readonly Dictionary<int, int> commandCycle;
+		 private readonly Dictionary<int, int>           commandCycle;
 
-		public BgmDefaultDirector(JsonElement elem, BgmStore store, BgmDirectorBase parent) : base(elem, store, parent)
-		{
-			Loader          = new BgmDefaultSamplesLoader(store);
-			IncomingCommand = new Bindable<IncomingCommandData>();
-			IsFever         = new Bindable<bool>();
+		 public BgmDefaultDirector(JsonElement elem, BgmStore store, BgmDirectorBase parent) : base(elem, store, parent)
+		 {
+			 Loader          = new BgmDefaultSamplesLoader(store);
+			 IncomingCommand = new Bindable<IncomingCommandData>();
+			 IsFever         = new Bindable<bool>();
 
-			commandCycle = new Dictionary<int, int>();
-		}
+			 commandCycle         = new Dictionary<int, int>();
+		 }
 
-		public int GetNextCycle(CharBuffer64 commandId, string state)
-		{
-			if (!(Loader.GetCommand(commandId) is BgmDefaultSamplesLoader.ComboBasedCommand command))
-				return 0;
+		 public int GetNextCycle(CharBuffer64 commandId, string state)
+		 {
+			 if (!(Loader.GetCommand(commandId) is BgmDefaultSamplesLoader.ComboBasedCommand command))
+				 return 0;
 
-			var hash = commandId.GetHashCode();
-			if (!commandCycle.ContainsKey(hash))
-				commandCycle.Add(hash, -1);
+			 var hash = commandId.GetHashCode();
+			 if (!commandCycle.ContainsKey(hash))
+				 commandCycle.Add(hash, -1);
 
-			var cycle = commandCycle[hash] + 1;
-			if (cycle >= command.mappedFile[state].Count)
-				cycle = 0;
+			 var cycle = commandCycle[hash] + 1;
+			 if (cycle >= command.mappedFile[state].Count)
+				 cycle = 0;
 
-			commandCycle[hash] = cycle;
-			return cycle;
-		}
+			 commandCycle[hash] = cycle;
+			 return cycle;
+		 }
 
-		public struct IncomingCommandData
-		{
-			public GameResource<RhythmCommandResource> CommandId;
-			public TimeSpan                            Start, End;
-		}
-	}
-}
+		 public (string type, int index) GetNextTrack(bool isEntrance, bool isFever, int combo)
+		 {
+			 if (!(Loader.GetSoundtrack() is BgmDefaultSamplesLoader.SlicedSoundTrack soundTrack))
+				 return default;
+
+			 var type = isEntrance switch
+			 {
+				 true => isFever switch
+				 {
+					 true => "fever_entrance",
+					 false => "before_entrance"
+				 },
+				 false => isFever switch
+				 {
+					 true => "fever",
+					 false => "before"
+				 }
+			 };
+
+			 var files = type switch
+			 {
+				 "fever_entrance" => soundTrack.FeverEntrance,
+				 "before_entrance" => soundTrack.BeforeEntrance,
+				 "fever" => soundTrack.Fever,
+				 "before" => soundTrack.Before,
+			 };
+
+			 return (type, combo % files.Length);
+		 }
+
+		 public struct IncomingCommandData
+		 {
+			 public GameResource<RhythmCommandResource> CommandId;
+			 public TimeSpan                            Start, End;
+		 }
+	 }
+ }

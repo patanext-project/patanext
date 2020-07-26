@@ -24,11 +24,14 @@ namespace PataNext.Game
 			
 			Storage.Subscribe((_, storage) =>
 			{
+				if (storage == null)
+					return;
+				
 				global.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
 				foreach (ref readonly var listener in global.World.Get<IListener>())
 				{
 					if (listener is SimulationApplication simulationApplication) 
-						simulationApplication.Data.Context.BindExisting(new BgmContainerStorage(Storage.Value.GetOrCreateDirectoryAsync("Bgm").Result));
+						simulationApplication.Data.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
 				}
 			}, true);
 

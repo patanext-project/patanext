@@ -17,6 +17,11 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 				return combo > MaxComboToReachFever
 				       || (RequiredScoreStart - combo * RequiredScoreStep) < score;
 			}
+			
+			public bool CanEnterFever(State state)
+			{
+				return CanEnterFever(state.Count, state.Score);
+			}
 
 			public class Register : RegisterGameHostComponentData<GameCombo.Settings>
 			{

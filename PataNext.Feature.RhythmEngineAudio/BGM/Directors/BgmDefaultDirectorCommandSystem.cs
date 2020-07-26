@@ -53,9 +53,6 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			IStorage storage = new StorageCollection {module.DllStorage, module.Storage.Value};
 			storage = await storage.GetOrCreateDirectoryAsync("Sounds/RhythmEngine/Effects/");
 
-			foreach (var file in storage.GetFilesAsync("*.*").Result)
-				Console.WriteLine("file: " + file.FullName);
-			
 			onEnterFever.Default = loadAudio.Load("voice_fever.wav", storage);
 			onFeverLost.Default  = loadAudio.Load("fever_lost.wav", storage);
 
@@ -69,6 +66,10 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			if (!canUpdate)
 			{
 				thrownException.Clear();
+
+				commandComboBasedOutputs.Clear();
+				onEnterFever.Value = default;
+				onFeverLost.Value  = default;
 			}
 
 			return canUpdate;
