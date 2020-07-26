@@ -22,6 +22,7 @@ using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.RhythmEngine;
+using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
 using PataNext.Module.Simulation.GameBase.Time;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
@@ -30,6 +31,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 {
 	[UpdateAfter(typeof(SetGameTimeSystem))]
 	[UpdateAfter(typeof(ReceiveInputDataSystem))]
+	[UpdateBefore(typeof(ManageComponentTagSystem))]
 	public class RegisterRhythmEngineInputSystem : AppSystem
 	{
 		private InputDatabase     inputDatabase;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GameHost.Core.IO;
+using GameHost.Native.Char;
 using PataNext.Feature.RhythmEngineAudio.BGM.Directors;
 using PataNext.Game.BGM;
 
@@ -43,7 +44,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM
 
 		protected BgmStore Store { get; set; }
 
-		public abstract BCommand    GetCommand(string commandId);
+		public abstract BCommand    GetCommand(CharBuffer64 commandId);
 		public abstract BSoundTrack GetSoundtrack();
 		public abstract BFile       GetFile<TFileDescription>(TFileDescription description) where TFileDescription : BFileDescription;
 
@@ -54,9 +55,9 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM
 
 		public abstract class BCommand : BFile
 		{
-			public readonly string Id;
+			public readonly CharBuffer64 Id;
 
-			public BCommand(string id)
+			public BCommand(CharBuffer64 id)
 			{
 				Id = id;
 			}

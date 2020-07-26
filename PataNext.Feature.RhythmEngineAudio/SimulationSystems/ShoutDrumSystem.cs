@@ -22,9 +22,11 @@ using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
+using PataNext.Simulation.Client.Systems.Inputs;
 
 namespace PataNext.Simulation.Client.Systems
 {
+	[UpdateAfter(typeof(RegisterRhythmEngineInputSystem))]
 	public class ShoutDrumSystem : PresentationRhythmEngineSystemBase
 	{
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureDrum =
@@ -111,7 +113,7 @@ namespace PataNext.Simulation.Client.Systems
 					ref readonly var action = ref next.Actions[i];
 					if (!action.InterFrame.AnyUpdate(gameTime.Frame))
 						continue;
-
+					
 					if (action.InterFrame.HasBeenReleased(gameTime.Frame) && (!action.IsSliding || isFirstInput))
 						continue;
 
@@ -123,6 +125,7 @@ namespace PataNext.Simulation.Client.Systems
 
 					AudioPlayerUtility.SetResource(audioPlayer, resourceHandle);
 					AudioPlayerUtility.Play(audioPlayer);
+					Console.WriteLine("alo?");
 				}
 			}
 		}

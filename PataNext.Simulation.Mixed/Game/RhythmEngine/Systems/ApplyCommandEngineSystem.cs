@@ -104,6 +104,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				executing.WaitingForApply = false;
 
 				var targetCommandResource = GameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(executing.CommandTarget.Entity);
+				Console.WriteLine("APPLY COMMAND?");
 				Console.WriteLine("command applied! " + targetCommandResource.Value.Identifier.Span.ToString());
 
 				var beatLength = targetCommandResource.Value.BeatDuration;

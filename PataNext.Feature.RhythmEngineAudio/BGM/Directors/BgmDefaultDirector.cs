@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using GameHost.Core;
+ using GameHost.Native.Char;
+ using GameHost.Simulation.Utility.Resource;
+ using PataNext.Module.Simulation.Resources;
 
-namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
+ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 {
 	public class BgmDefaultDirector : BgmDirectorBase
 	{
@@ -21,7 +24,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			commandCycle = new Dictionary<int, int>();
 		}
 
-		public int GetNextCycle(string commandId, string state)
+		public int GetNextCycle(CharBuffer64 commandId, string state)
 		{
 			if (!(Loader.GetCommand(commandId) is BgmDefaultSamplesLoader.ComboBasedCommand command))
 				return 0;
@@ -40,8 +43,8 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 
 		public struct IncomingCommandData
 		{
-			public string   CommandId;
-			public TimeSpan Start, End;
+			public GameResource<RhythmCommandResource> CommandId;
+			public TimeSpan                            Start, End;
 		}
 	}
 }

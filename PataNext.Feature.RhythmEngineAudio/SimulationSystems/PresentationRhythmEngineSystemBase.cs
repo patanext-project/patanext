@@ -1,22 +1,44 @@
 ﻿using System;
+using DefaultEcs;
 using GameBase.Roles.Components;
 using GameBase.Roles.Descriptions;
 using GameHost.Core;
 using GameHost.Core.Ecs;
+using GameHost.Native.Char;
 using GameHost.Simulation.Application;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Resource;
+using GameHost.Simulation.Utility.Resource.Components;
+using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
+using PataNext.Module.Simulation.Resources;
+using PataNext.Module.Simulation.Resources.Keys;
 
 namespace PataNext.Simulation.Client.Systems
 {
 	[UpdateAfter(typeof(ProcessEngineSystem))]
 	public class PresentationRhythmEngineSystemStart : AppSystem
 	{
-		public GameEntity LocalRhythmEngine { get; set; }
+		public struct RhythmEngineInformation
+		{
+			public CharBuffer64 ActiveBgmId;
+
+			public TimeSpan Elapsed;
+
+			public GameResource<RhythmCommandResource> NextCommand;
+			public CharBuffer64                        NextCommandStr;
+
+			public TimeSpan CommandStartTime;
+			public TimeSpan CommandEndTime;
+		}
+
+		public GameEntity              LocalRhythmEngine { get; set; }
+		public RhythmEngineInformation LocalInformation  { get; set; }
 
 		private GameWorld gameWorld;
+
 		public PresentationRhythmEngineSystemStart(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref gameWorld);
@@ -29,10 +51,10 @@ namespace PataNext.Simulation.Client.Systems
 				gameWorld.AsComponentType<PlayerDescription>(),
 				gameWorld.AsComponentType<PlayerIsLocal>()
 			});
-			
+
 			if (!playerEnumerator.TryGetFirst(out var localPlayerEntity))
 				return;
-			
+
 			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[]
 			{
 				gameWorld.AsComponentType<RhythmEngineDescription>(),
@@ -45,14 +67,47 @@ namespace PataNext.Simulation.Client.Systems
 				LocalRhythmEngine = entity;
 				break;
 			}
+
+			var localInfo = new RhythmEngineInformation();
+			if (LocalRhythmEngine != default)
+			{
+				localInfo.ActiveBgmId = "topkek";
+				localInfo.Elapsed = gameWorld.GetComponentData<RhythmEngineLocalState>(LocalRhythmEngine).Elapsed;
+				if (gameWorld.HasComponent<RhythmEngineExecutingCommand>(LocalRhythmEngine))
+				{
+					var executingCommand = gameWorld.GetComponentData<RhythmEngineExecutingCommand>(LocalRhythmEngine);
+					if (executingCommand.CommandTarget != default)
+					{
+						localInfo.NextCommand = executingCommand.CommandTarget;
+
+						var key = gameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(localInfo.NextCommand.Entity).Value;
+						localInfo.NextCommandStr = key.Identifier;
+					}
+
+					var settings = gameWorld.GetComponentData<RhythmEngineSettings>(LocalRhythmEngine);
+					if (gameWorld.HasComponent<GameCommandState>(LocalRhythmEngine))
+					{
+						var commandState = gameWorld.GetComponentData<GameCommandState>(LocalRhythmEngine);
+						localInfo.CommandStartTime = TimeSpan.FromMilliseconds(commandState.StartTimeMs);
+						localInfo.CommandEndTime   = TimeSpan.FromMilliseconds(commandState.EndTimeMs);
+					}
+					else
+					{
+						localInfo.CommandStartTime = executingCommand.ActivationBeatStart * settings.BeatInterval;
+						localInfo.CommandEndTime   = executingCommand.ActivationBeatEnd * settings.BeatInterval;
+					}
+				}
+			}
+
+			LocalInformation = localInfo;
 		}
 	}
-	
+
 	[UpdateAfter(typeof(PresentationRhythmEngineSystemStart))]
 	public class PresentationRhythmEngineSystemEnd : AppSystem
 	{
 		private PresentationRhythmEngineSystemStart start;
-		
+
 		public PresentationRhythmEngineSystemEnd(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref start);
@@ -65,18 +120,21 @@ namespace PataNext.Simulation.Client.Systems
 			start.LocalRhythmEngine = default;
 		}
 	}
-	
+
 	[RestrictToApplication(typeof(SimulationApplication))]
 	[UpdateAfter(typeof(PresentationRhythmEngineSystemStart)), UpdateBefore(typeof(PresentationRhythmEngineSystemEnd))]
 	public abstract class PresentationRhythmEngineSystemBase : AppSystem
 	{
 		private PresentationRhythmEngineSystemStart start;
 
-		public GameEntity LocalEngine => start.LocalRhythmEngine;
-		
+		protected GameWorld  GameWorld;
+		public    GameEntity LocalEngine => start.LocalRhythmEngine;
+		public    PresentationRhythmEngineSystemStart.RhythmEngineInformation LocalInformation => start.LocalInformation;
+
 		protected PresentationRhythmEngineSystemBase(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref start);
+			DependencyResolver.Add(() => ref GameWorld);
 		}
 	}
 }

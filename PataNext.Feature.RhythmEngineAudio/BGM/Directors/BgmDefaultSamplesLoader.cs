@@ -6,17 +6,18 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
  using Collections.Pooled;
  using GameHost.Core.IO;
+ using GameHost.Native.Char;
 
-namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
+ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 {
 	public class BgmDefaultSamplesLoader : BgmSamplesLoaderBase
 	{
-		private readonly TaskMap<string, ComboBasedCommand> commandsTaskMap;
+		private readonly TaskMap<CharBuffer64, ComboBasedCommand> commandsTaskMap;
 		private readonly TaskMap<string, SingleFile>        filesTaskMap;
 
 		public BgmDefaultSamplesLoader(BgmStore store) : base(store)
 		{
-			commandsTaskMap = new TaskMap<string, ComboBasedCommand>(async key =>
+			commandsTaskMap = new TaskMap<CharBuffer64, ComboBasedCommand>(async key =>
 			{
 				var files = (await Store.GetFilesAsync($"commands/{key}/*.ogg"))
 				            .Concat(await Store.GetFilesAsync($"commands/{key}/*.wav"))
@@ -29,8 +30,8 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			});
 			filesTaskMap = new TaskMap<string, SingleFile>(async key =>
 			{
-				var files = (await Store.GetFilesAsync($"commands/sample/{key}.ogg"))
-				            .Concat(await Store.GetFilesAsync($"commands/sample/{key}.wav"))
+				var files = (await Store.GetFilesAsync($"samples/{key}.ogg"))
+				            .Concat(await Store.GetFilesAsync($"samples/{key}.wav"))
 				            .ToArray();
 
 				if (files.Length == 0)
@@ -40,7 +41,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			});
 		}
 
-		public override BCommand GetCommand(string commandId)
+		public override BCommand GetCommand(CharBuffer64 commandId)
 		{
 			if (!commandsTaskMap.GetValue(commandId, out var command, out var task)) return null;
 
@@ -87,7 +88,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 
 			public Dictionary<string, PooledList<IFile>> mappedFile;
 
-			public ComboBasedCommand(IFile[] files, string id) : base(id)
+			public ComboBasedCommand(IFile[] files, CharBuffer64 id) : base(id)
 			{
 				this.files = files;
 

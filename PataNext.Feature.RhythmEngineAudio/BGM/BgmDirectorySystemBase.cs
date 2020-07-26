@@ -1,10 +1,11 @@
 ﻿using DefaultEcs;
 using GameHost.Core.Ecs;
+using PataNext.Simulation.Client.Systems;
 
 namespace PataNext.Feature.RhythmEngineAudio.BGM
 {
 	//[UpdateAfter(typeof(LoadActiveBgmSystem))]
-	public class BgmDirectorySystemBase<TDirector, TLoader> : AppSystem
+	public class BgmDirectorySystemBase<TDirector, TLoader> : PresentationRhythmEngineSystemBase
 		where TDirector : BgmDirectorBase
 		where TLoader : BgmSamplesLoaderBase
 	{

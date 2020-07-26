@@ -5,6 +5,8 @@ using GameHost.Injection;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
+using PataNext.Client.Systems;
+using PataNext.Feature.RhythmEngineAudio.BGM.Directors;
 using PataNext.Simulation.Client.Systems;
 
 namespace PataNext.Feature.RhythmEngineAudio
@@ -22,8 +24,12 @@ namespace PataNext.Feature.RhythmEngineAudio
 					simulationApplication.Data.Collection.GetOrCreate(typeof(ShoutDrumSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(OnNewBeatSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemEnd));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(BgmDefaultDirectorCommandSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(LoadActiveBgmSystem));
 				}
 			}
+
+			global.Collection.GetOrCreate(typeof(BgmManager));
 		}
 	}
 }

@@ -8,6 +8,7 @@ using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
 using PataNext.Game;
+using PataNext.Game.BGM;
 
 [assembly: RegisterAvailableModule("PataNext.Game", "guerro", typeof(Module))]
 
@@ -17,10 +18,20 @@ namespace PataNext.Game
 	{
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
-			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-			var systems = new List<Type>(); 
+			var global  = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
+			var systems = new List<Type>();
 			AppSystemResolver.ResolveFor<SimulationApplication>(GetType().Assembly, systems);
 			
+			Storage.Subscribe((_, storage) =>
+			{
+				global.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
+				foreach (ref readonly var listener in global.World.Get<IListener>())
+				{
+					if (listener is SimulationApplication simulationApplication) 
+						simulationApplication.Data.Context.BindExisting(new BgmContainerStorage(Storage.Value.GetOrCreateDirectoryAsync("Bgm").Result));
+				}
+			}, true);
+
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{
 				if (listener is SimulationApplication simulationApplication)
