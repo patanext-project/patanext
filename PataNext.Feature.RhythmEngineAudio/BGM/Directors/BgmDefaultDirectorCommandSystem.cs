@@ -95,6 +95,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 					End       = LocalInformation.CommandEndTime
 				};
 
+				Console.WriteLine(LocalInformation.NextCommand.Entity.Id);
 				if (LocalInformation.NextCommand != default
 				    && LocalInformation.CommandStartTime > TimeSpan.Zero
 				    && commandComboBasedOutputs.TryGetValue(LocalInformation.NextCommandStr, out var output))
@@ -132,6 +133,10 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 						AudioPlayerUtility.SetResource(audioPlayer, resourceHandle);
 						AudioPlayerUtility.PlayDelayed(audioPlayer, LocalInformation.CommandStartTime - LocalInformation.Elapsed);
 					}
+				}
+				else
+				{
+					AudioPlayerUtility.Stop(audioPlayer);
 				}
 			}
 			else
@@ -198,7 +203,6 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				try
 				{
 					var bFile = Loader.GetFile(new BFileOnEnterFeverSoundDescription());
-					Console.WriteLine(bFile);
 					if (bFile is BgmDefaultSamplesLoader.SingleFile singleFile)
 						onEnterFever.Value = loadAudio.Load(singleFile.File);
 				}

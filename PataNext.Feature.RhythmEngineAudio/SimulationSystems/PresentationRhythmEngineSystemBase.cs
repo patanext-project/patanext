@@ -19,6 +19,8 @@ using PataNext.Module.Simulation.Resources.Keys;
 namespace PataNext.Simulation.Client.Systems
 {
 	[UpdateAfter(typeof(ProcessEngineSystem))]
+	[UpdateAfter(typeof(OnInputForRhythmEngine))]
+	[UpdateAfter(typeof(ApplyCommandEngineSystem))]
 	public class PresentationRhythmEngineSystemStart : AppSystem
 	{
 		public struct RhythmEngineInformation

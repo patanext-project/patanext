@@ -83,11 +83,12 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 
 				// this is so laggy clients don't have a weird things when their command has been on another beat on the server
 				var targetBeat            = commandProgression[^1].Value.FlowBeat + 1;
-				var targetCommandResource = GameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(executingCommand.CommandTarget.Entity);
 
 				executingCommand.Previous            = executingCommand.CommandTarget;
 				executingCommand.CommandTarget       = output[0];
 				executingCommand.ActivationBeatStart = targetBeat;
+				
+				var targetCommandResource = GameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(executingCommand.CommandTarget.Entity);
 				executingCommand.ActivationBeatEnd   = targetBeat + targetCommandResource.Value.BeatDuration;
 				executingCommand.WaitingForApply     = true;
 

@@ -104,7 +104,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 					BgmWasFever   = false;
 					BgmFeverComboStart = 0;
 
-					var score = Math.Max((int) comboState.Score + Math.Max(comboState.Score > 1 ? comboState.Count - 1 : 0, 0), comboState.Count);
+					var score = Math.Max((int) comboState.Score + Math.Max(comboState.Score >= 1.9 ? 2 + comboState.Count : 0, 0), comboState.Count);
 					if (score < 0)
 						score = 0;
 
@@ -121,7 +121,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 
 						BgmFeverComboStart = comboState.Count;
 					}
-					else if (m_EndFeverEntranceAt < activationBeat)
+					else if (m_EndFeverEntranceAt <= activationBeat)
 					{
 						//targetAudio = CurrentSong.BgmFeverLoopClips[commandLength % CurrentSong.BgmFeverLoopClips.Count];
 						track = Director.GetNextTrack(false, true, comboState.Count - BgmFeverComboStart - 1);
@@ -140,7 +140,16 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				return;
 			}
 
-			targetAudio = mappedResources[track.type][track.index];
+			try
+			{
+				targetAudio = mappedResources[track.type][track.index];
+			}
+			catch (Exception exception)
+			{
+				thrownException.Add(track.type);
+				logger.ZLogError($"Error with TrackType={track.type} Idx={track.index}");
+				return;
+			}
 
 			var cmdStartActivationBeat = RhythmEngineUtility.GetActivationBeat(LocalInformation.CommandStartTime, settings.BeatInterval);
 			if (cmdStartActivationBeat > activationBeat)
@@ -184,8 +193,6 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			}
 			else
 			{
-				Console.WriteLine("Play delayed: " + delay);
-				
 				AudioPlayerUtility.SetResource(audioPlayer, targetAudio);
 				AudioPlayerUtility.PlayDelayed(audioPlayer, delay);
 

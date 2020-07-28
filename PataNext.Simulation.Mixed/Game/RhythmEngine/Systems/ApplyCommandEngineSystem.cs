@@ -90,12 +90,14 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				{
 					comboState = default;
 					commandState.Reset();
+					executing = default;
 				}
 
 				if (executing.CommandTarget == default || state.IsRecovery(flowBeat))
 				{
 					commandState.Reset();
 					comboState = default;
+					executing  = default;
 					return;
 				}
 
@@ -104,18 +106,15 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				executing.WaitingForApply = false;
 
 				var targetCommandResource = GameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(executing.CommandTarget.Entity);
-				Console.WriteLine("APPLY COMMAND?");
-				Console.WriteLine("command applied! " + targetCommandResource.Value.Identifier.Span.ToString());
-
-				var beatLength = targetCommandResource.Value.BeatDuration;
+				var beatLength            = targetCommandResource.Value.BeatDuration;
 
 				// if (!isServer && settings.UseClientSimulation && simulateTagFromEntity.Exists(entity))
 				if (true)
 				{
-					commandState.ChainEndTimeMs = (int) ((rhythmActiveAtFlowBeat + beatLength + 4) * settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond);
-					commandState.StartTimeMs    = (int) (executing.ActivationBeatStart * settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond);
-					commandState.EndTimeMs      = (int) (executing.ActivationBeatEnd * settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond);
-
+					commandState.ChainEndTimeMs = (int) ((rhythmActiveAtFlowBeat + beatLength + 4) * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
+					commandState.StartTimeMs    = (int) (executing.ActivationBeatStart * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
+					commandState.EndTimeMs      = (int) (executing.ActivationBeatEnd * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
+					
 					comboState.Count++;
 					comboState.Score += (float) (executing.Power - 0.5) * 2;
 				}

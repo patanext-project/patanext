@@ -28,7 +28,7 @@ namespace PataNext.Game.Inputs.Actions
         public TimeSpan ActiveTime;
 
         public bool HasBeenPressed => DownCount > 0;
-        public bool IsSliding      => ActiveTime.TotalSeconds > 0.4;
+        public bool IsSliding      => ActiveTime.TotalSeconds >= 0.475;
 
         public class System : InputActionSystemBase<RhythmInputAction, Layout>
         {
