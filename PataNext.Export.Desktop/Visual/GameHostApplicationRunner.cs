@@ -6,6 +6,7 @@ using Cysharp.Text;
 using GameHost.Game;
 using GameHost.IO;
 using Microsoft.Extensions.Logging;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using ZLogger;
@@ -13,13 +14,19 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace PataNext.Export.Desktop.Visual
 {
+	public struct VisualHWND
+	{
+		public IntPtr Value;
+	}
+	
 	public class GameHostApplicationRunner : Drawable
 	{
 		private GameBootstrap gameBootstrap;
 		
-		protected override void LoadComplete()
+		[BackgroundDependencyLoader]
+		private void load(GameBootstrap gameBootstrap)
 		{
-			base.LoadComplete();
+			this.gameBootstrap = gameBootstrap;
 			
 			GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
 
@@ -40,35 +47,16 @@ namespace PataNext.Export.Desktop.Visual
 				builder.AddZLoggerFile("log.json");
 				builder.AddZLoggerLogProcessor(new OsuLogProcessor());
 			});
-
-			gameBootstrap = new GameBootstrap();
-			gameBootstrap.GameEntity.Set(new GameName("PataNext"));
-			gameBootstrap.GameEntity.Set(new GameUserStorage(new LocalStorage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/PataNext")));
+			
 			gameBootstrap.GameEntity.Set(new GameLoggerFactory(loggerFactory));
-
-			gameBootstrap.GameEntity.Set(typeof(GameHost.Inputs.DefaultActions.PressAction));
-			gameBootstrap.GameEntity.Set(typeof(GameHost.Audio.UpdateSoLoudBackendDriverSystem));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Module.Simulation.CustomModule));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Simulation.Client.Module));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Feature.RhythmEngineAudio.CustomModule));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Module));
-
 			gameBootstrap.Setup();
 		}
 
 		protected override void Update()
 		{
 			base.Update();
-
-			gameBootstrap.Loop();
-		}
-
-		protected override void Dispose(bool isDisposing)
-		{
-			base.Dispose(isDisposing);
 			
-			if (gameBootstrap != null)
-				gameBootstrap.Dispose();
+			gameBootstrap.Loop();
 		}
 
 		public class OsuLogProcessor : IAsyncLogProcessor
@@ -86,7 +74,7 @@ namespace PataNext.Export.Desktop.Visual
 			{
 				try
 				{
-					logger.Add(log.FormatToString(options, null), castLevel(log.LogInfo.LogLevel), log.LogInfo.Exception);
+					logger.Add($"[{log.LogInfo.CategoryName}] {log.FormatToString(options, null)}", castLevel(log.LogInfo.LogLevel), log.LogInfo.Exception);
 				}
 				finally
 				{

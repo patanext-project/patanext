@@ -85,7 +85,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 			var rhythmEngine = gameWorld.CreateEntity();
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
-			gameWorld.AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = time.Total.Add(TimeSpan.FromSeconds(1))});
+			gameWorld.AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = time.Total.Add(TimeSpan.FromSeconds(2))});
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineLocalState());
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());

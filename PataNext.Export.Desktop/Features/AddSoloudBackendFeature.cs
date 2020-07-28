@@ -19,7 +19,7 @@ namespace PataNext.Export.Desktop
 		private DataBufferWriter header;
 		
 		private HeaderTransportDriver driver;
-		private ThreadTransportDriver threadDriver;
+		private ThreadTransportDriver innerDriver;
 		
 		private IApplication application;
 
@@ -27,22 +27,26 @@ namespace PataNext.Export.Desktop
 		{
 			header = new DataBufferWriter(0);
 			
-			AddDisposable(threadDriver = new ThreadTransportDriver(8));
-			AddDisposable(driver = new HeaderTransportDriver(threadDriver));
+			AddDisposable(innerDriver = new ThreadTransportDriver(8));
+			AddDisposable(driver      = new HeaderTransportDriver(innerDriver));
 			
 			DependencyResolver.Add(() => ref application);
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
-			threadDriver.Listen();
+			innerDriver.Listen();
 			
 			driver.Header = header;
 			
 			World.Mgr.CreateEntity()
 			     .Set<IFeature>(new SoLoudBackendFeature(driver));
 			
-			application.Global.Scheduler.Schedule(address => { application.AssignedEntity.Set(address); }, driver.TransportAddress, default);
+			application.Global.Scheduler.Schedule(address =>
+			{
+				application.AssignedEntity.Set(address);
+				application.AssignedEntity.Set<ConnectionToAudio>();
+			}, driver.TransportAddress, default);
 		}
 
 		public override void Dispose()

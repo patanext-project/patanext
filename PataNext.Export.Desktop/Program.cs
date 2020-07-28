@@ -26,12 +26,13 @@ namespace PataNext.Export.Desktop
 	{
 		static async Task Main(string[] args)
 		{
-			ClientBootstrap client        = null;
-			
+			ClientBootstrap client = null;
+
 			var enableVisuals = false;
 			var options = new OptionSet
 			{
-				{"c|client=", "name to the .json client bootstrap", c =>
+				{
+					"c|client=", "name to the .json client bootstrap", c =>
 					{
 						if (c == null)
 							return;
@@ -57,41 +58,45 @@ namespace PataNext.Export.Desktop
 			};
 			options.Parse(args);
 
+			var gameBootstrap = new GameBootstrap();
 			if (client != null)
 			{
-				Console.WriteLine($"Client Path={client.ExecutablePath}, Args={client.LaunchArgs}");
-
-				var process = new Process
-				{
-					StartInfo = new ProcessStartInfo(client.ExecutablePath, client.LaunchArgs)
-				};
-				process.Start();
+				gameBootstrap.GameEntity.Set(client);
 			}
+
+			gameBootstrap.GameEntity.Set(new GameName("PataNext"));
+			gameBootstrap.GameEntity.Set(new GameUserStorage(new LocalStorage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/PataNext")));
+
+			gameBootstrap.GameEntity.Set(typeof(GameHost.Inputs.DefaultActions.PressAction));
+			gameBootstrap.GameEntity.Set(typeof(GameHost.Audio.UpdateSoLoudBackendDriverSystem));
+			gameBootstrap.GameEntity.Set(typeof(PataNext.Module.Simulation.CustomModule));
+			gameBootstrap.GameEntity.Set(typeof(PataNext.Simulation.Client.Module));
+			gameBootstrap.GameEntity.Set(typeof(PataNext.Feature.RhythmEngineAudio.CustomModule));
+			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Module));
 
 			if (enableVisuals)
 			{
 				using (osu.Framework.Platform.GameHost host = osu.Framework.Host.GetSuitableHost("PataNext.Visual"))
-				using (osu.Framework.Game frameworkGame = new VisualGame())
 				{
-					host.Run(frameworkGame);
+					host.Run(new VisualGame(gameBootstrap));
 				}
 			}
 			else
 			{
-				runHost();
+				runHost(gameBootstrap);
 			}
 
 			Environment.Exit(0);
 		}
-		
+
 		[DllImport("kernel32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		static extern bool AllocConsole();
 
-		private static void runHost()
+		private static void runHost(GameBootstrap gameBootstrap)
 		{
 			AllocConsole();
-			
+
 			GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
 
 			var loggerFactory = LoggerFactory.Create(builder =>
@@ -112,22 +117,12 @@ namespace PataNext.Export.Desktop
 				builder.AddZLoggerConsole((Action<ZLoggerOptions>) opt);
 			});
 
-			var gameBootstrap = new GameBootstrap();
-			gameBootstrap.GameEntity.Set(new GameName("PataNext"));
-			gameBootstrap.GameEntity.Set(new GameUserStorage(new LocalStorage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/PataNext")));
 			gameBootstrap.GameEntity.Set(new GameLoggerFactory(loggerFactory));
-
-			gameBootstrap.GameEntity.Set(typeof(GameHost.Inputs.DefaultActions.PressAction));
-			gameBootstrap.GameEntity.Set(typeof(GameHost.Audio.UpdateSoLoudBackendDriverSystem));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Module.Simulation.CustomModule));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Simulation.Client.Module));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Feature.RhythmEngineAudio.CustomModule));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Module));
-
 			gameBootstrap.Setup();
 			while (gameBootstrap.Loop())
 			{
 			}
+			gameBootstrap.Dispose();
 		}
 	}
 }

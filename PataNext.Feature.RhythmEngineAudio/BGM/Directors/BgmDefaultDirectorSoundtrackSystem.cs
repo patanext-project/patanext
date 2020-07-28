@@ -104,7 +104,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 					BgmWasFever   = false;
 					BgmFeverComboStart = 0;
 
-					var score = Math.Max((int) comboState.Score + Math.Max(comboState.Score >= 1.9 ? 2 + comboState.Count : 0, 0), comboState.Count);
+					var score = Math.Max((int) comboState.Score + Math.Max(comboState.Score >= 1.9 ? 1 + comboState.Count : 0, 0), comboState.Count);
 					if (score < 0)
 						score = 0;
 
@@ -121,10 +121,9 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 
 						BgmFeverComboStart = comboState.Count;
 					}
-					else if (m_EndFeverEntranceAt <= activationBeat)
+					else if (m_EndFeverEntranceAt < activationBeat)
 					{
-						//targetAudio = CurrentSong.BgmFeverLoopClips[commandLength % CurrentSong.BgmFeverLoopClips.Count];
-						track = Director.GetNextTrack(false, true, comboState.Count - BgmFeverComboStart - 1);
+						track = Director.GetNextTrack(false, true, Math.Max(0, comboState.Count - BgmFeverComboStart - 1));
 					}
 				}
 			}
@@ -163,6 +162,8 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			{
 				hasSwitched       = Switch(targetAudio, nextBeatDelay);
 				m_NextLoopTrigger = activationBeat + SongBeatSize * 2;
+				
+				Console.WriteLine(track.type + ", " + track.index);
 			}
 
 			var currentResource = AudioPlayerUtility.GetResource(audioPlayer);

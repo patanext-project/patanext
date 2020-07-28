@@ -46,6 +46,39 @@ namespace PataNext.Game.Inputs.Actions
                     current.UpCount   = 0;
                 }
             }
+
+            public override void OnInputUpdate()
+            {
+                var currentLayout = World.Mgr.Get<InputCurrentLayout>()[0];
+                foreach (var entity in InputQuery.GetEntities())
+                {
+                    var layouts = GetLayouts(entity);
+                    
+                    if (!layouts.TryGetOrDefault(currentLayout.Id, out var layout) || !(layout is Layout axisLayout))
+                        return;
+                    
+                    ref var action = ref entity.Get<RhythmInputAction>();
+                    action.DownCount = 0;
+                    action.UpCount   = 0;
+                    action.Active    = false;
+                    
+                    for (var i = 0; i < layout.Inputs.Count; i++)
+                    {
+                        var input = layout.Inputs[i];
+                        if (Backend.GetInputControl(input.Target) is {} buttonControl)
+                        {
+                            action.DownCount += buttonControl.wasPressedThisFrame ? 1u : 0;
+                            action.UpCount   += buttonControl.wasReleasedThisFrame ? 1u : 0;
+                            action.Active    |= buttonControl.isPressed;
+                        }
+                    }
+                    
+                    /*if (action.Active)
+                        action.ActiveTime += World.Mgr.Get<WorldTime>()[0].Delta;
+                    else
+                        action.ActiveTime = TimeSpan.Zero;*/
+                }
+            }
         }
 
         public void Serialize(ref DataBufferWriter buffer)

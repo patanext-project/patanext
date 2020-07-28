@@ -13,6 +13,7 @@ using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Transports;
 using GameHost.Worlds;
+using osu.Framework.Logging;
 using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Export.Desktop
@@ -58,7 +59,7 @@ namespace PataNext.Export.Desktop
 
 			foreach (var entity in globalWorld.World)
 			{
-				if (!entity.TryGet(out TransportAddress addr) && !entity.Has<AudioApplication>())
+				if (!entity.TryGet(out TransportAddress addr) || !entity.Has<ConnectionToAudio>())
 					continue;
 
 				driver = new HeaderTransportDriver(addr.Connect()) {Header = header};
@@ -77,6 +78,8 @@ namespace PataNext.Export.Desktop
 				var feature = new AudioClientFeature(drv, default);
 				World.Mgr.CreateEntity()
 				     .Set<IFeature>(feature);
+				
+				Logger.Log("Connected to audio backend", LoggingTarget.Runtime, LogLevel.Important);
 			}, driver, default);
 		}
 	}
