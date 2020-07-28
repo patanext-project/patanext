@@ -121,7 +121,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 
 						BgmFeverComboStart = comboState.Count;
 					}
-					else if (m_EndFeverEntranceAt < activationBeat)
+					else if (m_EndFeverEntranceAt <= activationBeat)
 					{
 						track = Director.GetNextTrack(false, true, Math.Max(0, comboState.Count - BgmFeverComboStart - 1));
 					}
@@ -160,14 +160,15 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			var hasSwitched = false;
 			if (m_LastClip != targetAudio) // switch audio if we are requested to
 			{
-				hasSwitched       = Switch(targetAudio, nextBeatDelay);
-				m_NextLoopTrigger = activationBeat + SongBeatSize * 2;
-				
-				Console.WriteLine(track.type + ", " + track.index);
+				hasSwitched = Switch(targetAudio, nextBeatDelay);
+				if (track.type == "before" && track.index == 0)
+					m_NextLoopTrigger = activationBeat + SongBeatSize * 2;
+				else
+					m_NextLoopTrigger = -1;
 			}
 
 			var currentResource = AudioPlayerUtility.GetResource(audioPlayer);
-			if (!hasSwitched && activationBeat >= m_NextLoopTrigger && currentResource.IsLoaded)
+			if (!hasSwitched && m_NextLoopTrigger > 0 && activationBeat >= m_NextLoopTrigger && currentResource.IsLoaded)
 			{
 				hasSwitched = Switch(targetAudio, nextBeatDelay);
 				
