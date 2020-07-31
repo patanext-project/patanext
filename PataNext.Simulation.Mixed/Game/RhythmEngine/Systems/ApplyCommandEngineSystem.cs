@@ -114,9 +114,12 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					commandState.ChainEndTimeMs = (int) ((rhythmActiveAtFlowBeat + beatLength + 4) * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 					commandState.StartTimeMs    = (int) (executing.ActivationBeatStart * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 					commandState.EndTimeMs      = (int) (executing.ActivationBeatEnd * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
-					
+
 					comboState.Count++;
 					comboState.Score += (float) (executing.Power - 0.5) * 2;
+					if (comboState.Score < 0)
+						comboState.Score = 0;
+					Console.WriteLine($"Score={comboState.Score}, Power={executing.Power}");
 				}
 			}
 		}

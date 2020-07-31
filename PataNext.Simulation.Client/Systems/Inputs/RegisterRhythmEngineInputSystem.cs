@@ -21,6 +21,7 @@ using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Components.Roles;
+using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
 using PataNext.Module.Simulation.GameBase.Time;
@@ -38,6 +39,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 		private IManagedWorldTime time;
 
 		private GameResourceDb<RhythmCommandResource, RhythmCommandResourceKey> localCommandDb;
+		private GameResourceDb<UnitKitResource, UnitKitResourceKey> localKitDb;
 
 		public RegisterRhythmEngineInputSystem(WorldCollection collection) : base(collection)
 		{
@@ -57,6 +59,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			base.OnDependenciesResolved(dependencies);
 			
 			localCommandDb = new GameResourceDb<RhythmCommandResource, RhythmCommandResourceKey>(gameWorld);
+			localKitDb = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(gameWorld);
 
 			rhythmActionMap = new Dictionary<int, Entity>();
 			for (var i = 0; i < 4; i++)
@@ -81,7 +84,9 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 			var unit = gameWorld.CreateEntity();
 			gameWorld.AddComponent(unit, new UnitDescription());
-			gameWorld.AddComponent(unit, new Position {Value = {X = -10}});
+			gameWorld.AddComponent(unit, new Position {Value = {X = -0}});
+			gameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
+			gameWorld.AddComponent(unit, new Relative<PlayerDescription>(gameEntityTest));
 
 			var rhythmEngine = gameWorld.CreateEntity();
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
@@ -93,6 +98,9 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(rhythmEngine, gameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>());
 			gameWorld.AddComponent(rhythmEngine, gameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
 			gameWorld.AddComponent(rhythmEngine, new GameCommandState());
+			gameWorld.AddComponent(rhythmEngine, new IsSimulationOwned());
+			
+			gameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
 
 			GameCombo.AddToEntity(gameWorld, rhythmEngine);
 

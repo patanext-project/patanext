@@ -45,7 +45,6 @@ namespace PataNext.Export.Desktop.Visual
 			foreach (var sysType in systems)
 			{
 				worldCollection.GetOrCreate(sysType);
-				Console.WriteLine(">>>>>>>>>>> " + sysType);
 			}
 
 			var threadDriver = new ThreadTransportDriver(1);

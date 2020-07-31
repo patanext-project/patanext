@@ -98,8 +98,6 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					// perfect
 					if (commandProgression[i].Value.GetAbsoluteScore() <= FlowPressure.Perfect)
 						power += 1.0f;
-					else
-						power += 0.5f;
 				}
 
 				executingCommand.Power = power / commandProgression.Count;

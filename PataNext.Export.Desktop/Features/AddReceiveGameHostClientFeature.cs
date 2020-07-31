@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
 using System.Net.NetworkInformation;
 using System.Threading;
+using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Core.Client;
 using GameHost.Core.Ecs;
@@ -20,63 +21,74 @@ namespace PataNext.Export.Desktop
 		private StartGameHostListener startGameHostListener;
 		private ILogger               logger;
 
+		private EntitySet launchSet;
+
 		public AddReceiveGameHostClientFeature(WorldCollection collection) : base(collection)
 		{
 			collection.Mgr.CreateEntity()
 			          .Set<IFeature>(new ReceiveGameHostClientFeature(0));
 			DependencyResolver.Add(() => ref startGameHostListener);
 			DependencyResolver.Add(() => ref logger);
+
+			launchSet = collection.Mgr.GetEntities()
+			                      .With<LaunchClient>()
+			                      .AsSet();
 		}
 
-		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		public override bool CanUpdate()
 		{
-			base.OnDependenciesResolved(dependencies);
+			return launchSet.Count > 0 && base.CanUpdate();
+		}
 
-			var clientBootstrapSpan = World.Mgr.Get<ClientBootstrap>();
-			if (clientBootstrapSpan.Length == 0)
+		protected override void OnUpdate()
+		{
+			base.OnUpdate();
+			if (startGameHostListener.Server.Value == null)
 				return;
 
-			startGameHostListener.Server.Subscribe((_, server) =>
+			var server     = startGameHostListener.Server.Value;
+			var visualHwnd = World.Mgr.Get<VisualHWND>().FirstOrDefault().Value;
+			foreach (var ent in launchSet.GetEntities())
 			{
-				if (server == null)
-					return;
-				
-				var visualHwnd = World.Mgr.Get<VisualHWND>().FirstOrDefault().Value;
-				foreach (var client in World.Mgr.Get<ClientBootstrap>())
+				var launchBootstrapEntity = ent.Get<LaunchClient>().entity;
+				Debug.Assert(launchBootstrapEntity != null, "clientEntity != null");
+				Debug.Assert(launchBootstrapEntity.Has<ClientBootstrap>(), "clientEntity.Has<ClientBootstrap>()");
+
+				var client = launchBootstrapEntity.Get<ClientBootstrap>();
+
+				var args = client.LaunchArgs;
+				args = args.Replace("{GameHostPort}", server.LocalPort.ToString());
+				args = args.Replace("{GameHostProcessId}", Process.GetCurrentProcess().Id.ToString());
+				if (visualHwnd != IntPtr.Zero)
 				{
-					var args = client.LaunchArgs;
-					args = args.Replace("{GameHostPort}", server.LocalPort.ToString());
-					args = args.Replace("{GameHostProcessId}", Process.GetCurrentProcess().Id.ToString());
-					if (visualHwnd != IntPtr.Zero)
-					{
-						args = args.Replace("{VisualHWND}", visualHwnd.ToInt32().ToString());
-					}
-
-					logger.ZLogInformation("Client launched from '{0}' with args: '{1}'", client.ExecutablePath, args);
-
-					var process = new Process
-					{
-						StartInfo = new ProcessStartInfo
-						{
-							Arguments      = args,
-							FileName       = client.ExecutablePath,
-							CreateNoWindow = true,
-							UseShellExecute = true
-						}
-					};
-					process.Start();
-					process.WaitForInputIdle();
-
-					var gameClient = new GameClient
-					{
-						ProcessId        = process.Id,
-						IsHwndIntegrated = true
-					};
-					var clientEntity = World.Mgr.CreateEntity();
-					clientEntity.Set(gameClient);
+					args = args.Replace("{VisualHWND}", visualHwnd.ToInt32().ToString());
 				}
 
-			}, true);
+				logger.ZLogInformation("Client launched from '{0}' with args: '{1}'", client.ExecutablePath, args);
+
+				var process = new Process
+				{
+					StartInfo = new ProcessStartInfo
+					{
+						Arguments       = args,
+						FileName        = client.ExecutablePath,
+						CreateNoWindow  = true,
+						UseShellExecute = true
+					}
+				};
+				process.Start();
+				process.WaitForInputIdle();
+
+				var gameClient = new GameClient
+				{
+					ProcessId        = process.Id,
+					IsHwndIntegrated = false // 
+				};
+				var clientEntity = World.Mgr.CreateEntity();
+				clientEntity.Set(gameClient);
+			}
+
+			launchSet.DisposeAllEntities();
 		}
 
 		public override void Dispose()

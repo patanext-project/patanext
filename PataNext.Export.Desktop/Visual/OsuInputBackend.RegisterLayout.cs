@@ -59,6 +59,8 @@ namespace PataNext.Export.Desktop.Visual
 				{
 					var layoutId   = reader.ReadString();
 					var layoutType = reader.ReadString();
+
+					var startLayout = reader.CurrReadIndex;
 					var skipLayout = reader.ReadValue<int>();
 
 					var layout = registerLayoutSystem.TryCreateLayout(layoutType, layoutId);
@@ -71,6 +73,9 @@ namespace PataNext.Export.Desktop.Visual
 					}
 
 					layout.Deserialize(ref reader);
+					if (reader.CurrReadIndex != startLayout + skipLayout)
+						throw new InvalidOperationException($"Error when deserializing {layoutType} ({reader.CurrReadIndex} != {startLayout + skipLayout}={startLayout} + {skipLayout})"); 
+					
 					layouts.Add(layout);
 				}
 			}

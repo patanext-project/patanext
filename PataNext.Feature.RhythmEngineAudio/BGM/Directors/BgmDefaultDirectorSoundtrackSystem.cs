@@ -121,7 +121,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 
 						BgmFeverComboStart = comboState.Count;
 					}
-					else if (m_EndFeverEntranceAt <= activationBeat)
+					else if (m_EndFeverEntranceAt < activationBeat)
 					{
 						track = Director.GetNextTrack(false, true, Math.Max(0, comboState.Count - BgmFeverComboStart - 1));
 					}
@@ -151,7 +151,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			}
 
 			var cmdStartActivationBeat = RhythmEngineUtility.GetActivationBeat(LocalInformation.CommandStartTime, settings.BeatInterval);
-			if (cmdStartActivationBeat > activationBeat)
+			if (cmdStartActivationBeat >= activationBeat)
 				activationBeat = cmdStartActivationBeat - 1;
 
 			var nextBeatDelay = (activationBeat + 1) * settings.BeatInterval - state.Elapsed;

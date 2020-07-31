@@ -17,30 +17,61 @@ namespace PataNext.Export.Desktop
 
 		public override bool CanUpdate()
 		{
-			return !World.Mgr.Get<VisualHWND>().IsEmpty && !World.Mgr.Get<GameClient>().IsEmpty && base.CanUpdate();
+			var val = !World.Mgr.Get<VisualHWND>().IsEmpty && !World.Mgr.Get<GameClient>().IsEmpty && base.CanUpdate();
+			if (!val)
+			{
+				timeBeforeEnablingMainWindow = Environment.TickCount + 500;
+				return false;
+			}
+
+			return true;
 		}
 
-		private IntPtr visualHwnd;
+		private VisualHWND visualHwnd;
+		private int timeBeforeEnablingMainWindow;
+		
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
+			return; // quite buggy
 
-			visualHwnd = World.Mgr.Get<VisualHWND>()[0].Value;
-			//EnableWindow(visualHwnd, false);
+			if (timeBeforeEnablingMainWindow > 0 
+			    && timeBeforeEnablingMainWindow < Environment.TickCount)
+			{
+				timeBeforeEnablingMainWindow = -1;
+				SetFocus(IntPtr.Zero);
+				EnableWindow(visualHwnd.Value, false);
+				return;
+			}
+
+			visualHwnd = World.Mgr.Get<VisualHWND>()[0];
 			foreach (var gameClient in World.Mgr.Get<GameClient>())
 			{
-				if (!gameClient.IsHwndIntegrated)
+				if (!gameClient.IsHwndIntegrated && !visualHwnd.ShowIntegratedWindows)
 					continue;
 
-				if (gameClient.Hwnd != IntPtr.Zero)
+				if (gameClient.Hwnd != IntPtr.Zero && gameClient.IsHwndInFront)
 				{
-					SetWindowPos(gameClient.Hwnd, IntPtr.Zero, 100, 0, 512, 512, (uint) 0x0200);
+					if (visualHwnd.ShowIntegratedWindows)
+					{
+						SetWindowPos(gameClient.Hwnd, IntPtr.Zero, 0, 0, visualHwnd.Size.X, visualHwnd.Size.Y, (uint) 0);
+						SetFocus(IntPtr.Zero);
+						SetFocus(visualHwnd.Value);
+						EnableWindow(visualHwnd.Value, true);
+					}
+					else
+					{
+						DeactivateClientWindow(gameClient.Hwnd);
+						SetWindowPos(gameClient.Hwnd, IntPtr.Zero, -visualHwnd.Size.X, 0, visualHwnd.Size.X, visualHwnd.Size.Y, (uint) 0);
+						SetFocus(visualHwnd.Value);
+						gameClient.IsHwndInFront = false;
+					}
 				}
 
-				if (gameClient.IsHwndInFront)
+				if (gameClient.IsHwndInFront || !visualHwnd.ShowIntegratedWindows)
 					continue;
 
-				EnumChildWindows(visualHwnd, (hwnd, lparam) =>
+				EnumChildWindows(visualHwnd.Value, (hwnd, lparam) =>
 				{
 					gameClient.Hwnd          = hwnd;
 					gameClient.IsHwndInFront = true;
@@ -53,11 +84,10 @@ namespace PataNext.Export.Desktop
 		private void ActivateClientWindow(IntPtr hwnd)
 		{
 			Console.WriteLine("Active Window");
-			SetWindowPos(hwnd, visualHwnd, 0, 0, 512, 512, (uint) 0x0200);
+			SetWindowPos(hwnd, visualHwnd.Value, 0, 0, visualHwnd.Size.X, visualHwnd.Size.Y, (uint) 0x0200);
 			EnableWindow(hwnd, true);
-			EnableWindow(hwnd, false);
-			EnableWindow(visualHwnd, true);
-			SetFocus(visualHwnd);
+			EnableWindow(visualHwnd.Value, false);
+			SetFocus(visualHwnd.Value);
 			SendMessage(hwnd, WM_ACTIVATE, WA_ACTIVE, IntPtr.Zero);
 		}
 
@@ -83,5 +113,8 @@ namespace PataNext.Export.Desktop
 
 		[DllImport("user32.dll")]
 		static extern int SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+		
+		[DllImport("user32.dll")]
+		static extern bool ShowWindow(IntPtr hWnd, int msg);
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime;
 using System.Runtime.InteropServices;
@@ -26,9 +27,10 @@ namespace PataNext.Export.Desktop
 	{
 		static async Task Main(string[] args)
 		{
-			ClientBootstrap client = null;
+			CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
-			var enableVisuals = false;
+			var enableVisuals    = true;
+			var launchClientJson = string.Empty;
 			var options = new OptionSet
 			{
 				{
@@ -46,33 +48,47 @@ namespace PataNext.Export.Desktop
 							c = $"clients/{c}.json";
 						}
 
-						client = JsonSerializer.Deserialize<ClientBootstrap>(File.ReadAllText(c));
-						var executable = client.ExecutablePath;
-						if (!Path.IsPathRooted(executable))
-							executable = $"{new FileInfo(c).Directory.FullName}/{executable}";
-						client.ExecutablePath = executable;
+						launchClientJson = c;
 					}
 				},
 				{"v|enable_visual", "enable visuals", v => enableVisuals = v != null},
 				{"disable_visual", "enable visuals", v => enableVisuals = v == null}
 			};
 			options.Parse(args);
-
-			var gameBootstrap = new GameBootstrap();
-			if (client != null)
+			
+			var clientDirectory = new DirectoryInfo(Environment.CurrentDirectory + "/clients/");
+			if (!clientDirectory.Exists)
 			{
-				gameBootstrap.GameEntity.Set(client);
+				clientDirectory.Create();
 			}
 
+			var gameBootstrap = new GameBootstrap();
 			gameBootstrap.GameEntity.Set(new GameName("PataNext"));
 			gameBootstrap.GameEntity.Set(new GameUserStorage(new LocalStorage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/PataNext")));
 
-			gameBootstrap.GameEntity.Set(typeof(GameHost.Inputs.DefaultActions.PressAction));
+			gameBootstrap.GameEntity.Set(typeof(GameHost.Inputs.Systems.SendPushedInputLayoutsToBackend));
 			gameBootstrap.GameEntity.Set(typeof(GameHost.Audio.UpdateSoLoudBackendDriverSystem));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Module.Simulation.CustomModule));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Simulation.Client.Module));
-			gameBootstrap.GameEntity.Set(typeof(PataNext.Feature.RhythmEngineAudio.CustomModule));
+			gameBootstrap.GameEntity.Set(typeof(Feature.RhythmEngineAudio.CustomModule));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Module));
+
+			foreach (var clientData in clientDirectory.GetFiles("*.json", SearchOption.TopDirectoryOnly))
+			{
+				var client     = JsonSerializer.Deserialize<ClientBootstrap>(File.ReadAllText(clientData.FullName));
+				var executable = client.ExecutablePath;
+				if (!Path.IsPathRooted(executable))
+					executable = $"{clientData.Directory.FullName}/{executable}";
+				client.ExecutablePath = executable;
+
+				var clientBootstrap = gameBootstrap.Global.World.CreateEntity();
+				clientBootstrap.Set(client);
+
+				if (launchClientJson != string.Empty && clientData.FullName == new FileInfo(launchClientJson).FullName)
+				{
+					gameBootstrap.Global.World.CreateEntity().Set(new LaunchClient(clientBootstrap));
+				}
+			}
 
 			if (enableVisuals)
 			{

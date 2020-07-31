@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DefaultEcs;
+using DefaultEcs.Command;
 using ENet;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
@@ -48,6 +49,8 @@ namespace PataNext.Export.Desktop
 			header.WriteInt((int) MessageType.InputData);
 		}
 
+		private Entity featureEntity;
+
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
@@ -70,6 +73,32 @@ namespace PataNext.Export.Desktop
 			{
 				switch (ev.Type)
 				{
+					case TransportEvent.EType.Connect:
+					{
+						Console.WriteLine("New Feature.");
+						var feature = new ClientInputFeature(driver, default);
+						(featureEntity = World.Mgr.CreateEntity())
+						                  .Set<IFeature>(feature);
+						break;
+					}
+					case TransportEvent.EType.Disconnect:
+					{
+						if (featureEntity.IsAlive)
+						{
+							Console.WriteLine("remove feature");
+							featureEntity.Dispose();
+							featureEntity = default;
+							
+							driver.Dispose();
+							driver = null;
+							
+							// schedule for new connection
+							globalWorld.Scheduler.Schedule(mainLoopUpdate, SchedulingParameters.AsOnce);
+							return;
+						}
+
+						break;
+					}
 					case TransportEvent.EType.Data:
 						var reader = new DataBufferReader(ev.Data);
 						var type   = (MessageType) reader.ReadValue<int>();
@@ -119,28 +148,28 @@ namespace PataNext.Export.Desktop
 			if (driver != null)
 				return;
 
+			var ecr = new EntityCommandRecorder();
 			foreach (var entity in globalWorld.World)
 			{
 				if (!entity.TryGet(out TransportAddress addr) || !entity.Has<ConnectionToInput>())
 					continue;
 
 				driver = new HeaderTransportDriver(addr.Connect()) {Header = header};
+				ecr.Record(entity).Dispose();
 				break;
 			}
+			
+			selfScheduler.Schedule(recorder =>
+			{
+				recorder.Execute(World.Mgr);
+				recorder.Dispose();
+			}, ecr, default);
 
 			if (driver == null)
 			{
 				// continue scheduling until we have a valid driver
 				globalWorld.Scheduler.Schedule(mainLoopUpdate, SchedulingParameters.AsOnce);
-				return;
 			}
-
-			selfScheduler.Schedule(drv =>
-			{
-				var feature = new ClientInputFeature(drv, default);
-				World.Mgr.CreateEntity()
-				     .Set<IFeature>(feature);
-			}, driver, default);
 		}
 	}
 }

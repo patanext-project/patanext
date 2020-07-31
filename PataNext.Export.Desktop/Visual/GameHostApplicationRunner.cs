@@ -8,7 +8,9 @@ using GameHost.IO;
 using Microsoft.Extensions.Logging;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Primitives;
 using osu.Framework.Logging;
+using osuTK;
 using ZLogger;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -17,6 +19,8 @@ namespace PataNext.Export.Desktop.Visual
 	public struct VisualHWND
 	{
 		public IntPtr Value;
+		public Vector2I Size;
+		public bool ShowIntegratedWindows;
 	}
 	
 	public class GameHostApplicationRunner : Drawable
