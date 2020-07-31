@@ -22,7 +22,7 @@ The setup will download the launcher and the client. The launcher is still in ve
 If there are any new update, the launcher will download them.
 
 Requirements:
-* NetCore 3.1 (https://dotnet.microsoft.com/download/dotnet-core/3.1)
+* NetCore 3.1 (require SDK or Desktop Runtime) (https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 [Latest Windows x64 release](https://github.com/guerro323/patanext/releases/latest/download/Setup.exe)
 
