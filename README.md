@@ -17,6 +17,16 @@ ___
 This game use my own framework, called GameHost (which will soon be public once I'll fix the mess)
 
 ___
+### Download links:
+The setup will download the launcher and the client. The launcher is still in very WIP (the inteface will be extremely different since I rushed the launcher)
+If there are any new update, the launcher will download them.
+
+Requirements:
+* NetCore 3.1 (https://dotnet.microsoft.com/download/dotnet-core/3.1)
+
+[Latest Windows x64 release](https://github.com/guerro/patanext/releases/latest/download/Setup.exe)
+
+___
 ### Roadmap:
 -   [GameHost Migration](https://github.com/guerro323/patanext/projects/4)
 
