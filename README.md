@@ -24,7 +24,7 @@ If there are any new update, the launcher will download them.
 Requirements:
 * NetCore 3.1 (https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
-[Latest Windows x64 release](https://github.com/guerro/patanext/releases/latest/download/Setup.exe)
+[Latest Windows x64 release](https://github.com/guerro323/patanext/releases/latest/download/Setup.exe)
 
 ___
 ### Roadmap:
