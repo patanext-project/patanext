@@ -98,7 +98,7 @@ namespace PataNext.Export.Desktop.Updater
 
 		private async Task<UpdateManager> getUpdateManager()
 		{
-			return new UpdateManager(@"https://github.com/guerro/patanext", "PataNext");
+			return new UpdateManager(@"https://github.com/guerro323/patanext", "PataNext");
 		}
 		
 		private class UpdateProgressNotification : ProgressNotification
