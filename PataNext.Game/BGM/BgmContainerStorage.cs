@@ -9,7 +9,7 @@ namespace PataNext.Game.BGM
 	/// </summary>
 	public class BgmContainerStorage : IStorage
 	{
-		private IStorage parent;
+		public readonly IStorage parent;
 
 		public BgmContainerStorage(IStorage parent)
 		{

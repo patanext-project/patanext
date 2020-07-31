@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using GameHost.Core.Ecs;
+using GameHost.Core.IO;
+using GameHost.IO;
 using GameHost.Simulation.Application;
+using System.Linq;
 using PataNext.Client.Systems;
 using PataNext.Game.BGM;
 
@@ -18,24 +21,41 @@ namespace PataNext.Game
 			DependencyResolver.Add(() => ref bgmStorage);
 		}
 
-		private FileSystemWatcher watcher;
+		private List<FileSystemWatcher> watchers;
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-			watcher = new FileSystemWatcher(bgmStorage.CurrentPath);
-			watcher.Filters.Add("*.zip");
-			watcher.Filters.Add("*.json");
-			watcher.NotifyFilter = NotifyFilters.LastWrite
-			                       | NotifyFilters.FileName
-			                       | NotifyFilters.CreationTime;
+			watchers = new List<FileSystemWatcher>();
+			switch (bgmStorage.parent)
+			{
+				case LocalStorage localStorage:
+					watchers.Add(new FileSystemWatcher(localStorage.CurrentPath));
+					break;
+				case StorageCollection collection:
+				{
+					foreach (var storage in collection)
+						if (storage is LocalStorage local)
+							watchers.Add(new FileSystemWatcher(local.CurrentPath));
+					break;
+				}
+			}
 
-			watcher.Created += onChange;
-			watcher.Changed += onChange;
-			watcher.Deleted += onChange;
-			watcher.Renamed += onChange;
+			foreach (var watcher in watchers)
+			{
+				watcher.Filters.Add("*.zip");
+				watcher.Filters.Add("*.json");
+				watcher.NotifyFilter = NotifyFilters.LastWrite
+				                       | NotifyFilters.FileName
+				                       | NotifyFilters.CreationTime;
 
-			watcher.EnableRaisingEvents = true;
+				watcher.Created += onChange;
+				watcher.Changed += onChange;
+				watcher.Deleted += onChange;
+				watcher.Renamed += onChange;
+
+				watcher.EnableRaisingEvents = true;
+			}
 		}
 
 		private void onChange(object source, FileSystemEventArgs e)
@@ -49,8 +69,13 @@ namespace PataNext.Game
 		{
 			base.Dispose();
 
-			watcher.EnableRaisingEvents = false;
-			watcher.Dispose();
+			foreach (var watcher in watchers)
+			{
+				watcher.EnableRaisingEvents = false;
+				watcher.Dispose();
+			}
+
+			watchers.Clear();
 		}
 	}
 }

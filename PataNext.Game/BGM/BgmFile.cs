@@ -42,8 +42,9 @@ namespace PataNext.Game.BGM
 
 		private async Task FromZip()
 		{
-			using var archive   = ZipFile.OpenRead(FullName);
-			var       descEntry = archive.GetEntry("description.json");
+			await using var memoryStream = new MemoryStream(await GetContentAsync());
+			using var       archive      = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+			var             descEntry    = archive.GetEntry("description.json");
 
 			// TODO: file errors should be more explicit to the end user
 			if (descEntry == null)

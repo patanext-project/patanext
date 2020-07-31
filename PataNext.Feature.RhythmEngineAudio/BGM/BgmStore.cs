@@ -61,11 +61,12 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM
 		{
 			var founds = new List<IFile>();
 
-			using (var zip = new ZipFile(computedPath))
+			using (var stream = new MemoryStream(await Source.GetContentAsync()))
+			using (var zip = new ZipFile(stream))
 			{
 				foreach (ZipEntry entry in zip)
 					if (FileSystemName.MatchesSimpleExpression(pattern, entry.Name))
-						founds.Add(new ZipEntryFile(computedPath, entry));
+						founds.Add(new ZipEntryFile(Source, entry));
 			}
 
 			return founds;

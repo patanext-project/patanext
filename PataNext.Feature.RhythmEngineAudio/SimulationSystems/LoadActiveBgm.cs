@@ -32,12 +32,14 @@ namespace PataNext.Simulation.Client.Systems
 
 			if (currentLoadedBgm.Span.SequenceEqual(LocalInformation.ActiveBgmId.Span) && isBgmLoaded)
 				return;
-			
+
+			Console.WriteLine(">>>> 0");
 			currentLoadedBgm = LocalInformation.ActiveBgmId;
 			if (currentLoadedBgm.GetLength() == 0)
 				return;
 
-			isBgmLoaded = false;
+			isBgmLoaded = true;
+			Console.WriteLine(">>>> 1");
 
 			// We use a double scheduler strategy.
 			// - First schedule from the client app (main thread) to get the requested BGM file.
@@ -49,11 +51,10 @@ namespace PataNext.Simulation.Client.Systems
 				            where ent.Has<BgmFile>()
 				            select ent.Get<BgmFile>())
 					.FirstOrDefault(bmgFile => bmgFile.Description.Id.AsSpan().SequenceEqual(currentLoadedBgm.Span));
-
+				
 				//Console.WriteLine($"File exist for '{currentLoadedBgm}' ? {file != null}");
 				if (file == null)
 					return;
-
 				scheduler.Schedule(LoadBgm, file, default);
 			}, default);
 		}
@@ -62,8 +63,7 @@ namespace PataNext.Simulation.Client.Systems
 		{
 			// since the description has been already computed, there is no need to await the result
 			var director = BgmDirector.Create(file).Result;
-
-			var entity = World.Mgr.CreateEntity();
+			var entity   = World.Mgr.CreateEntity();
 			entity.Set(director);
 
 			isBgmLoaded = true;

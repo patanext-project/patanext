@@ -72,6 +72,7 @@ namespace PataNext.Export.Desktop
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Simulation.Client.Module));
 			gameBootstrap.GameEntity.Set(typeof(Feature.RhythmEngineAudio.CustomModule));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Module));
+			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Client.Resources.Module));
 
 			foreach (var clientData in clientDirectory.GetFiles("*.json", SearchOption.TopDirectoryOnly))
 			{

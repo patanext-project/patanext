@@ -21,19 +21,6 @@ namespace PataNext.Game
 			var global  = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
 			var systems = new List<Type>();
 			AppSystemResolver.ResolveFor<SimulationApplication>(GetType().Assembly, systems);
-			
-			Storage.Subscribe((_, storage) =>
-			{
-				if (storage == null)
-					return;
-				
-				global.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
-				foreach (ref readonly var listener in global.World.Get<IListener>())
-				{
-					if (listener is SimulationApplication simulationApplication) 
-						simulationApplication.Data.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
-				}
-			}, true);
 
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{
