@@ -1,5 +1,6 @@
 ﻿using System;
 using GameHost.Simulation.TabEcs.Interfaces;
+using StormiumTeam.GameBase;
 
 namespace PataNext.Module.Simulation.Components.GamePlay.Units
 {
