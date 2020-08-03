@@ -33,6 +33,9 @@ namespace PataNext.Export.Desktop.Updater
 			try
 			{
 				updateManager ??= await getUpdateManager();
+				if (!updateManager.IsInstalledApp)
+					return;
+
 				try
 				{
 					var info = await updateManager.CheckForUpdate(!deltaPatching);
@@ -41,10 +44,10 @@ namespace PataNext.Export.Desktop.Updater
 						logger.Add("No Updates found!");
 						return;
 					}
-					
+
 					if (notification == null)
 					{
-						notification = new UpdateProgressNotification(this) { State = ProgressNotificationState.Active };
+						notification = new UpdateProgressNotification(this) {State = ProgressNotificationState.Active};
 						Schedule(() => Notifications.Post(notification));
 					}
 
@@ -53,10 +56,10 @@ namespace PataNext.Export.Desktop.Updater
 
 					logger.Add("Update Found!");
 					await updateManager.DownloadReleases(info.ReleasesToApply, p => notification.Progress = p / 100f);
-					
+
 					notification.Progress = 0;
 					notification.Text     = @"Installing update...";
-					
+
 					await updateManager.ApplyReleases(info, p => notification.Progress = p / 100f);
 					notification.State = ProgressNotificationState.Completed;
 					logger.Add("Finished");
@@ -84,7 +87,7 @@ namespace PataNext.Export.Desktop.Updater
 			finally
 			{
 				if (rescheduleRecheck)
-					Scheduler.AddDelayed(async () => await CheckForUpdate(), TimeSpan.FromMinutes(2).TotalMilliseconds);
+					Scheduler.AddDelayed(async () => await CheckForUpdate(), TimeSpan.FromMinutes(30).TotalMilliseconds);
 			}
 		}
 
@@ -98,7 +101,7 @@ namespace PataNext.Export.Desktop.Updater
 
 		private async Task<UpdateManager> getUpdateManager()
 		{
-			return new UpdateManager(@"https://github.com/guerro323/patanext", "PataNext");
+			return await UpdateManager.GitHubUpdateManager(@"https://github.com/guerro323/patanext", "PataNext");
 		}
 		
 		private class UpdateProgressNotification : ProgressNotification

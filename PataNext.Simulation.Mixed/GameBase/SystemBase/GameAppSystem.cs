@@ -1,0 +1,54 @@
+﻿using System;
+using GameHost.Core.Ecs;
+using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.Interfaces;
+using GameHost.Simulation.Utility.EntityQuery;
+
+namespace PataNext.Module.Simulation.GameBase.SystemBase
+{
+	public class GameAppSystem : AppSystem
+	{
+		private GameWorld gameWorld;
+
+		public GameAppSystem(WorldCollection collection) : base(collection)
+		{
+			DependencyResolver.Add(() => ref gameWorld);
+		}
+
+		public GameWorld GameWorld => gameWorld;
+
+		public GameEntity CreateEntity() => GameWorld.CreateEntity();
+
+		public ref T GetComponentData<T>(GameEntity entity)
+			where T : struct, IComponentData
+		{
+			return ref GameWorld.GetComponentData<T>(entity);
+		}
+
+		public ComponentReference AddComponent<T>(GameEntity entity, T data = default)
+			where T : struct, IComponentData
+		{
+			return GameWorld.AddComponent(entity, data);
+		}
+
+		public EntityQuery CreateEntityQuery(Span<Type> all = default, Span<Type> none = default)
+		{
+			Span<ComponentType> convertedAll  = stackalloc ComponentType[all.Length];
+			Span<ComponentType> convertedNone = stackalloc ComponentType[none.Length];
+			for (var i = 0; i != all.Length; i++)
+				convertedAll[i] = GameWorld.AsComponentType(all[i]);
+			for (var i = 0; i != none.Length; i++)
+				convertedNone[i] = GameWorld.AsComponentType(none[i]);
+
+			return CreateEntityQuery(convertedAll, convertedNone);
+		}
+
+		public EntityQuery CreateEntityQuery(Span<ComponentType> all = default, Span<ComponentType> none = default)
+		{
+			var query = new EntityQuery(GameWorld, new FinalizedQuery {All = all, None = none});
+			AddDisposable(query);
+
+			return query;
+		}
+	}
+}

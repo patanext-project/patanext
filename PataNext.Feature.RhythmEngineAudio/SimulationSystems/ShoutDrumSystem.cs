@@ -112,7 +112,8 @@ namespace PataNext.Simulation.Client.Systems
 				var executing    = gameWorld.GetComponentData<RhythmEngineExecutingCommand>(LocalEngine);
 				
 				// since this system may update after CmdBuffer get clear, we need to check if we have an active command target to determine if we can use a slider sound
-				var isFirstInput = cmdBuffer.Span.Length == 0 && executing.CommandTarget == default;
+				var isFirstInput = cmdBuffer.Span.Length == 0 
+				                   && (executing.CommandTarget == default || executing.ActivationBeatStart <= RhythmEngineUtility.GetActivationBeat(state, settings));
 
 				for (var i = 0; i < next.Actions.Length; i++)
 				{

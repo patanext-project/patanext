@@ -4,7 +4,7 @@ using GameHost.Simulation.TabEcs.Interfaces;
 namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 {
 	/// <summary>
-	/// Tag component
+	///     Tag component
 	/// </summary>
 	public struct RhythmEngineIsPlaying : IComponentData
 	{

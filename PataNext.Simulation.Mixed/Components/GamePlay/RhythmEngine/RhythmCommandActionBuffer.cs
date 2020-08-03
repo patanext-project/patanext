@@ -12,8 +12,9 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 		{
 			Value = value;
 		}
-		
+
 		public class Register : RegisterGameHostComponentBuffer<RhythmCommandActionBuffer>
-		{}
+		{
+		}
 	}
 }

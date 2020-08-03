@@ -2,7 +2,6 @@
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.InterTick;
-using GameHost.Utility;
 
 namespace PataNext.Module.Simulation.Components
 {
@@ -32,7 +31,9 @@ namespace PataNext.Module.Simulation.Components
 			get
 			{
 				fixed (RhythmAction* fixedPtr = &action0)
+				{
 					return new Span<RhythmAction>(fixedPtr, 4);
+				}
 			}
 		}
 

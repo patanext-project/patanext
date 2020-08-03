@@ -13,10 +13,10 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures
 	public struct FlowPressure
 	{
 		public const float  Error   = 0.99f;
-		public const double Perfect = 0.2f;
+		public const double Perfect = 0.18f;
 
 		/// <summary>
-		/// Is this the end of a slider?
+		///     Is this the end of a slider?
 		/// </summary>
 		public bool IsSliderEnd;
 

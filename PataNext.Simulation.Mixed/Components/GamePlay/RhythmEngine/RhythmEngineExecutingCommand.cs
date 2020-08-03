@@ -1,6 +1,5 @@
 ﻿using System;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
-using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.Resource;
 using PataNext.Module.Simulation.Resources;
@@ -13,12 +12,12 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 		public GameResource<RhythmCommandResource> CommandTarget;
 
 		/// <summary>
-		/// At which 'activation' beat will the command start?
+		///     At which 'activation' beat will the command start?
 		/// </summary>
 		public int ActivationBeatStart;
 
 		/// <summary>
-		/// At which 'activation' beat will the command end?
+		///     At which 'activation' beat will the command end?
 		/// </summary>
 		public int ActivationBeatEnd;
 
@@ -34,7 +33,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 		public bool WaitingForApply;
 
 		/// <summary>
-		/// Return a power between a range of [0..1]
+		///     Return a power between a range of [0..1]
 		/// </summary>
 		public double Power
 		{
@@ -46,7 +45,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 		{
 			return $"Target={CommandTarget}, ActiveAt={ActivationBeatStart}, Power={Power:0.00%}";
 		}
-		
+
 		public class Register : RegisterGameHostComponentData<RhythmEngineExecutingCommand>
 		{
 		}

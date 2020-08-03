@@ -41,6 +41,7 @@ namespace PataNext.Export.Desktop
 		private void load()
 		{
 			gameBootstrap.GameEntity.Set(new VisualHWND {Value = Window.WindowInfo.Handle});
+			dependencies.Cache(this);
 			dependencies.Cache(gameBootstrap);
 			dependencies.Cache(notifications);
 

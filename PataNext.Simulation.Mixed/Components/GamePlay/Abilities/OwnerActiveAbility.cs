@@ -3,7 +3,6 @@ using GameHost.Native.Fixed;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
-using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 {
@@ -16,7 +15,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		public GameEntity Incoming;
 
 		/// <summary>
-		/// Current combo of the entity...
+		///     Current combo of the entity...
 		/// </summary>
 		public FixedBuffer32<GameEntity> CurrentCombo; //< 32 bytes should suffice, it would be 4 combo commands...
 
@@ -39,7 +38,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		public class Register : RegisterGameHostComponentData<OwnerActiveAbility>
 		{
 		}
-		
+
 		/*public class NetEmptySynchronizer : ComponentSnapshotSystemTag<OwnerActiveAbility>
 		{
 		}

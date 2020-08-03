@@ -2,7 +2,6 @@
 
 namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures
 {
-
 	public struct Beat
 	{
 		public int Target;
@@ -17,7 +16,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures
 		}
 
 		/// <summary>
-		/// How long is this beat? (in beats)
+		///     How long is this beat? (in beats)
 		/// </summary>
 		public int SliderLength
 		{
@@ -67,14 +66,14 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures
 	}
 
 	/// <summary>
-	/// An action that should be attached to a <see cref="RhythmCommandDefinition"/> collection.
+	///     An action that should be attached to a <see cref="RhythmCommandDefinition" /> collection.
 	/// </summary>
 	public struct RhythmCommandAction
 	{
 		public Beat Beat;
 
 		/// <summary>
-		/// The key required for this action to success
+		///     The key required for this action to success
 		/// </summary>
 		public int Key;
 

@@ -7,8 +7,8 @@ namespace PataNext.Module.Simulation.Components.Units
 	{
 		public sbyte Value;
 
-		public readonly static UnitDirection Left  = new UnitDirection {Value = -1};
-		public readonly static UnitDirection Right = new UnitDirection {Value = +1};
+		public static readonly UnitDirection Left  = new UnitDirection {Value = -1};
+		public static readonly UnitDirection Right = new UnitDirection {Value = +1};
 
 		public bool IsLeft  => Value == -1;
 		public bool IsRight => Value == 1;

@@ -12,10 +12,11 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		Active           = 1 << 1,
 		Chaining         = 1 << 2,
 		ActiveOrChaining = Active | Chaining,
+
 		/// <summary>
-		/// This state is used when the Hero mode is getting activated since they do possess a delay of a beat...
+		///     This state is used when the Hero mode is getting activated since they do possess a delay of a beat...
 		/// </summary>
-		HeroActivation = 1 << 3,
+		HeroActivation = 1 << 3
 	}
 
 	public struct AbilityState : IComponentData
