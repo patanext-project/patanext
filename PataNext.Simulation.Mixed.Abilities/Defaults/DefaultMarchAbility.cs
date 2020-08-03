@@ -1,4 +1,6 @@
-﻿using GameHost.Core.Ecs;
+﻿using System.Collections.Generic;
+using Collections.Pooled;
+using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
@@ -25,6 +27,12 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 		{
 		}
 
+		public override void GetComponents(PooledList<ComponentType> entityComponents)
+		{
+			base.GetComponents(entityComponents);
+			entityComponents.Add(GameWorld.AsComponentType<DefaultSubsetMarch>());
+		}
+
 		public override void SetEntityData(GameEntity entity, CreateAbility data)
 		{
 			base.SetEntityData(entity, data);
@@ -45,6 +53,11 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 		public DefaultMarchAbilitySystem(WorldCollection collection) : base(collection)
 		{
+		}
+
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		{
+			base.OnDependenciesResolved(dependencies);
 			abilityQuery = CreateEntityQuery(new[]
 			{
 				typeof(DefaultMarchAbility),

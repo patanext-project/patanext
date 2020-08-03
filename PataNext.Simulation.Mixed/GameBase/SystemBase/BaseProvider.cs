@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Collections.Pooled;
 using GameHost.Core.Ecs;
@@ -11,20 +12,33 @@ namespace PataNext.Module.Simulation.GameBase.SystemBase
 	{
 		protected GameWorld GameWorld;
 
+		private PooledList<ComponentType> componentTypes;
+
 		public BaseProvider(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref GameWorld);
 		}
-		
+
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		{
+			base.OnDependenciesResolved(dependencies);
+			componentTypes = new PooledList<ComponentType>();
+			GetComponents(componentTypes);
+		}
+
 		public abstract void GetComponents(PooledList<ComponentType> entityComponents);
 
 		public abstract void SetEntityData(GameEntity entity, TCreateData data);
 
 		public virtual void SpawnBatchEntitiesWithArguments(Span<TCreateData> array, Span<GameEntity> outputEntities)
 		{
+			if (componentTypes.Count == 0)
+				throw new InvalidOperationException("Invalid Provider (0 components)");
+			
 			GameWorld.CreateEntityBulk(outputEntities);
 			for (var i = 0; i != outputEntities.Length; i++)
 			{
+				GameWorld.AddMultipleComponent(outputEntities[i], componentTypes.Span);
 				SetEntityData(outputEntities[i], array[i]);
 			}
 		}

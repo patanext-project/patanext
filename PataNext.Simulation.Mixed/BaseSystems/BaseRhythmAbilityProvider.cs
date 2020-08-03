@@ -68,6 +68,8 @@ namespace PataNext.Module.Simulation.BaseSystems
 		public override void SetEntityData(GameEntity entity, CreateAbility data)
 		{
 			var combos = new FixedBuffer32<GameEntity>();
+
+			GameWorld.GetComponentData<Owner>(entity) = new Owner(data.Owner);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GameBase.Physics.Components;
 using GameBase.Roles.Components;
 using GameHost.Core.Ecs;
@@ -61,30 +62,39 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 	{
 		private IManagedWorldTime worldTime;
 
-		private EntityQuery abilityQuery;
-		private EntityQuery validOwnerQuery;
-
 		public DefaultSubsetMarchAbilitySystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref worldTime);
-
+		}
+		
+		private EntityQuery abilityQuery;
+		private EntityQuery validOwnerQuery;
+		
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		{
+			base.OnDependenciesResolved(dependencies);
 			abilityQuery = CreateEntityQuery(new[]
 			{
 				typeof(DefaultSubsetMarch),
-				typeof(Owner),
-				typeof(Relative<UnitTargetDescription>)
+				typeof(Owner)
 			});
 			validOwnerQuery = CreateEntityQuery(new[]
 			{
 				typeof(Position),
 				typeof(Velocity),
-				typeof(UnitPlayState)
+				typeof(UnitPlayState),
+				typeof(UnitControllerState),
+				typeof(UnitTargetOffset),
+				typeof(UnitDirection),
+				typeof(Relative<UnitTargetDescription>)
 			});
 		}
 
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
+
+			validOwnerQuery.CheckForNewArchetypes();
 
 			var timeDelta = (float) worldTime.Delta.TotalSeconds;
 			foreach (var entity in abilityQuery.GetEntities())
@@ -100,7 +110,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 					continue;
 				}
 
-				ref readonly var unitTargetRelative = ref GetComponentData<Relative<UnitTargetDescription>>(entity).Target;
+				ref readonly var unitTargetRelative = ref GetComponentData<Relative<UnitTargetDescription>>(owner).Target;
 				ref readonly var unitPlayState      = ref GetComponentData<UnitPlayState>(owner);
 
 				subSet.ActiveTime += timeDelta;
@@ -108,12 +118,14 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 				ref var targetPosition = ref GetComponentData<Position>(unitTargetRelative).Value.X;
 				ref var ownerPosition  = ref GetComponentData<Position>(owner).Value.X;
 
+				ref readonly var targetOffset = ref GetComponentData<UnitTargetOffset>(owner).Value;
+
 				float acceleration, walkSpeed;
 				int   direction;
 
 				// Cursor movement
 				if ((subSet.Target & DefaultSubsetMarch.ETarget.Cursor) != 0
-				    && unitTargetControlFromEntity.Exists(owner)
+				    && GameWorld.HasComponent<UnitTargetControlTag>(owner)
 				    && subSet.ActiveTime <= 3.75f)
 				{
 					direction = GetComponentData<UnitDirection>(owner).Value;
@@ -129,8 +141,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 				// Character movement
 				if ((subSet.Target & DefaultSubsetMarch.ETarget.Movement) != 0)
 				{
-					if (!groundState.Value)
-						continue;
+					// if (!groundState.Value)
+					// 	continue;
 
 					ref var velocity = ref GetComponentData<Velocity>(owner).Value;
 
@@ -139,13 +151,12 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 					acceleration = Math.Min(acceleration * timeDelta, 1);
 
 					walkSpeed = unitPlayState.MovementSpeed;
-					direction = Math.Sign(targetPosition + targetOffset.Value - ownerPosition);
+					direction = Math.Sign(targetPosition + targetOffset - ownerPosition);
 
 					velocity.X = LerpNormalized(velocity.X, walkSpeed * direction, acceleration);
 
-					var controllerState = unitControllerStateFromEntity[owner];
-					controllerState.ControlOverVelocity.x = true;
-					unitControllerStateFromEntity[owner]  = controllerState;
+					ref var controllerState = ref GetComponentData<UnitControllerState>(owner);
+					controllerState.ControlOverVelocityX = true;
 				}
 			}
 		}
