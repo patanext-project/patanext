@@ -2,7 +2,7 @@
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Application;
 using GameHost.Simulation.TabEcs;
-using PataNext.Module.Simulation.GameBase.Time;
+using StormiumTeam.GameBase.Time;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime;
@@ -10,15 +9,8 @@ using Cysharp.Text;
 using GameHost.Core.Client;
 using GameHost.Game;
 using GameHost.IO;
-using GameHost.Native;
-using GameHost.Native.Char;
-using GameHost.Native.Fixed;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
-using NuGet;
-using PataNext.Export.Desktop.Updater;
-using PataNext.Export.Desktop.Visual;
-using Squirrel;
 using ZLogger;
 
 namespace PataNext.Export.Desktop

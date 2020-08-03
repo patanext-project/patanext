@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using GameHost.Core.Client;
 using GameHost.Game;
 using osu.Framework.Allocation;

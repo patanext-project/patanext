@@ -72,7 +72,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 			foreach (var entity in abilityQuery.GetEntities())
 			{
 				var state = GetComponentData<AbilityState>(entity);
-				GetComponentData<DefaultSubsetMarch>(entity).IsActive = (state.Phase & EAbilityPhase.Active) != 0;
+				GetComponentData<DefaultSubsetMarch>(entity).IsActive = state.IsActive;
 			}
 		}
 	}

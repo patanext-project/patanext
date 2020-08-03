@@ -2,9 +2,9 @@
 using GameHost.Core.Modules;
 using GameHost.Injection;
 
-[assembly: RegisterAvailableModule("PataNext Standard Abilities", "guerro", typeof(PataNext.Simulation.Mixed.Abilities.Module))]
+[assembly: RegisterAvailableModule("GameBase", "StormiumTeam", typeof(StormiumTeam.GameBase.Module))]
 
-namespace PataNext.Simulation.Mixed.Abilities
+namespace StormiumTeam.GameBase
 {
 	public class Module : GameHostModule
 	{

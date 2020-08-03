@@ -1,6 +1,5 @@
 ﻿using System;
 using GameHost.Simulation.TabEcs.Interfaces;
-using PataNext.Module.Simulation.GameBase;
 
 namespace PataNext.Module.Simulation.Components.GamePlay.Units
 {

@@ -6,12 +6,10 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
  using osu.Framework.Graphics.Effects;
- using osu.Framework.Graphics.Shapes;
-using osu.Framework.Threading;
+ using osu.Framework.Threading;
  using osuTK;
- using osuTK.Graphics;
 
-namespace PataNext.Export.Desktop.Visual.Overlays
+ namespace PataNext.Export.Desktop.Visual.Overlays
 {
 	public class NotificationOverlay : FocusedOverlayContainer
 	{

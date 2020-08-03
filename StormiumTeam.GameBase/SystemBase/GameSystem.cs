@@ -2,7 +2,7 @@
 using GameHost.Simulation.Application;
 using GameHost.Simulation.TabEcs;
 
-namespace PataNext.Module.Simulation.GameBase.SystemBase
+namespace StormiumTeam.GameBase.SystemBase
 {
 	[RestrictToApplication(typeof(SimulationApplication))]
 	public class GameSystem : AppSystem

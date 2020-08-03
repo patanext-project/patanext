@@ -1,7 +1,7 @@
 ﻿using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 
-namespace GameBase.Time.Components
+namespace StormiumTeam.GameBase.Time.Components
 {
 	/// <summary>
 	/// Represent the current time data of a <see cref="GameWorld"/>

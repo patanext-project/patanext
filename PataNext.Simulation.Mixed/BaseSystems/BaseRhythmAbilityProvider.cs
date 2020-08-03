@@ -1,13 +1,13 @@
 ﻿using System;
 using Collections.Pooled;
-using GameBase.Roles.Components;
 using GameHost.Core.Ecs;
 using GameHost.Native;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
-using PataNext.Module.Simulation.GameBase.SystemBase;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.BaseSystems
 {

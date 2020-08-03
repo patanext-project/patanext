@@ -1,9 +1,8 @@
-﻿using System.Runtime.InteropServices;
-using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+﻿using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 
-namespace GameBase.Roles.Components
+namespace StormiumTeam.GameBase.Roles.Components
 {
 	/// <summary>
 	/// A relative path to a <see cref="GameEntity"/> with <see cref="Interfaces.IEntityDescription"/>

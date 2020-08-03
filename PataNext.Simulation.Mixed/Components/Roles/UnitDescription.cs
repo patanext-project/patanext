@@ -1,6 +1,6 @@
-﻿using GameBase.Roles.Components;
-using GameBase.Roles.Interfaces;
-using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+﻿using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Roles.Interfaces;
 
 namespace PataNext.Module.Simulation.Components.Roles
 {

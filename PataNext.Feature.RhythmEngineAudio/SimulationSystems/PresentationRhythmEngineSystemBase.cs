@@ -1,7 +1,4 @@
 ﻿using System;
-using DefaultEcs;
-using GameBase.Roles.Components;
-using GameBase.Roles.Descriptions;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Native.Char;
@@ -15,6 +12,8 @@ using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Roles.Descriptions;
 
 namespace PataNext.Simulation.Client.Systems
 {

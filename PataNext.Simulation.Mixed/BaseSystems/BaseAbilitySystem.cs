@@ -1,6 +1,5 @@
 ﻿using GameHost.Core.Ecs;
-using GameHost.Simulation.TabEcs;
-using PataNext.Module.Simulation.GameBase.SystemBase;
+using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.BaseSystems
 {

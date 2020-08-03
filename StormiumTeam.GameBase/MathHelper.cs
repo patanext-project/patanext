@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PataNext.Module.Simulation.GameBase
+namespace StormiumTeam.GameBase
 {
 	public static class MathHelper
 	{

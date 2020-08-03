@@ -1,5 +1,4 @@
-﻿using System;
-using DefaultEcs;
+﻿using DefaultEcs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;

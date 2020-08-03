@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using DefaultEcs;
-using GameBase.Time.Components;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Worlds.Components;
-using PataNext.Module.Simulation.GameBase.SystemBase;
+using StormiumTeam.GameBase.SystemBase;
+using StormiumTeam.GameBase.Time.Components;
 
-namespace PataNext.Module.Simulation.GameBase.Time
+namespace StormiumTeam.GameBase.Time
 {
 	/// <summary>
 	/// Update <see cref="GameTime"/> from an <see cref="IManagedWorldTime"/>

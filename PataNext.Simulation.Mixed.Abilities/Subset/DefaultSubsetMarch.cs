@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using GameBase.Physics.Components;
-using GameBase.Roles.Components;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
@@ -11,9 +9,8 @@ using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
-using PataNext.Module.Simulation.GameBase;
-
-using static PataNext.Module.Simulation.GameBase.MathHelper;
+using StormiumTeam.GameBase.Physics.Components;
+using StormiumTeam.GameBase.Roles.Components;
 
 namespace PataNext.Simulation.Mixed.Abilities.Subset
 {

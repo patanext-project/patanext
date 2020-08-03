@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using GameHost.Core.Ecs;
+﻿using GameHost.Core.Ecs;
 using GameHost.Inputs.Layouts;
 using GameHost.Inputs.Systems;
-using osu.Framework.Logging;
 
 namespace PataNext.Export.Desktop.Visual.Systems
 {

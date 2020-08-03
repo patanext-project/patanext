@@ -5,7 +5,7 @@ using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 
-namespace PataNext.Module.Simulation.GameBase.SystemBase
+namespace StormiumTeam.GameBase.SystemBase
 {
 	public abstract class BaseProvider<TCreateData> : AppSystem
 		where TCreateData : struct

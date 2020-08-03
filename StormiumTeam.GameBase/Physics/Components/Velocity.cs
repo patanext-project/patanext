@@ -2,7 +2,7 @@
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 
-namespace GameBase.Physics.Components
+namespace StormiumTeam.GameBase.Physics.Components
 {
 	public struct Velocity : IComponentData
 	{

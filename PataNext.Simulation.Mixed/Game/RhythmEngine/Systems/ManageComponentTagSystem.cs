@@ -1,5 +1,4 @@
 ﻿using GameHost.Core.Ecs;
-using GameHost.Simulation.Application;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 

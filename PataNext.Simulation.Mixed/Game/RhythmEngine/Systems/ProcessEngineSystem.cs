@@ -1,14 +1,9 @@
-﻿using DefaultEcs;
-using DefaultEcs.Command;
-using DefaultEcs.System;
-using DefaultEcs.Threading;
-using GameBase.Time.Components;
-using GameHost.Core;
+﻿using GameHost.Core;
 using GameHost.Core.Ecs;
-using GameHost.Injection;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using StormiumTeam.GameBase.Time.Components;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 {

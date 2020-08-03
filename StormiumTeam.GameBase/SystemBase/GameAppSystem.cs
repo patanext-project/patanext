@@ -4,7 +4,7 @@ using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 
-namespace PataNext.Module.Simulation.GameBase.SystemBase
+namespace StormiumTeam.GameBase.SystemBase
 {
 	public class GameAppSystem : AppSystem
 	{

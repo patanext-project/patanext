@@ -8,7 +8,6 @@ using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
 using PataNext.Game;
-using PataNext.Game.BGM;
 
 [assembly: RegisterAvailableModule("PataNext.Game", "guerro", typeof(Module))]
 

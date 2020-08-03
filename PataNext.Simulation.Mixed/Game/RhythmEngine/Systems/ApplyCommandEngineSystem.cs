@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using Collections.Pooled;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Native;
 using GameHost.Native.Fixed;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
-using GameHost.Simulation.Utility.Resource;
 using GameHost.Simulation.Utility.Resource.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
-using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
-using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems

@@ -1,5 +1,4 @@
-﻿using System;
-using DefaultEcs;
+﻿using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
@@ -8,7 +7,7 @@ using GameHost.Threading;
 using GameHost.Worlds;
 using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation;
-using PataNext.Module.Simulation.GameBase.Time;
+using StormiumTeam.GameBase.Time;
 
 [assembly: RegisterAvailableModule("PataNext Simulation", "guerro", typeof(CustomModule))]
 

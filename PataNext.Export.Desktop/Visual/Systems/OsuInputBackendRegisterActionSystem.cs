@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using DefaultEcs;
+﻿using DefaultEcs;
 using GameHost.Core.Ecs;
-using GameHost.Inputs.Interfaces;
 using GameHost.Inputs.Systems;
 
 namespace PataNext.Export.Desktop.Visual.Systems

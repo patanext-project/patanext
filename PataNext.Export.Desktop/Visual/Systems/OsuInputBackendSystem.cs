@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using DefaultEcs;
+﻿using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.IO;
 using GameHost.Inputs.Components;

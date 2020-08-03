@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using DefaultEcs;
 using DefaultEcs.Command;
-using ENet;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.IO;
@@ -10,7 +9,6 @@ using GameHost.Core.Threading;
 using GameHost.Inputs.Features;
 using GameHost.Inputs.Systems;
 using GameHost.Simulation.Application;
-using GameHost.Transports;
 using GameHost.Worlds;
 using RevolutionSnapshot.Core.Buffers;
 

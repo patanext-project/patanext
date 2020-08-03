@@ -1,9 +1,9 @@
-﻿using GameBase.Roles.Components;
-using GameBase.Roles.Interfaces;
-using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+﻿using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Roles.Interfaces;
 
-namespace GameBase.Roles.Descriptions
+namespace StormiumTeam.GameBase.Roles.Descriptions
 {
 	public struct PlayerDescription : IEntityDescription
 	{

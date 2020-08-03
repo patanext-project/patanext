@@ -1,7 +1,5 @@
 ﻿using System;
 using DefaultEcs;
-using GameBase.Physics.Components;
-using GameBase.Roles.Components;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
 using GameHost.Simulation.TabEcs;
@@ -15,6 +13,8 @@ using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Simulation.Mixed.Abilities.Defaults;
 using PataNext.Simulation.Mixed.Abilities.Subset;
+using StormiumTeam.GameBase.Physics.Components;
+using StormiumTeam.GameBase.Roles.Components;
 
 namespace PataNext.Module.Simulation.Tests
 {

@@ -2,7 +2,7 @@
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 
-namespace GameBase.Roles.Components
+namespace StormiumTeam.GameBase.Roles.Components
 {
 	public readonly struct Owner : IComponentData
 	{

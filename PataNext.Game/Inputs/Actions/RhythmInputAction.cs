@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using DefaultEcs;
 using GameHost.Core.Ecs;
-using GameHost.Injection;
 using GameHost.Inputs.DefaultActions;
 using GameHost.Inputs.Interfaces;
 using GameHost.Inputs.Layouts;
 using GameHost.Inputs.Systems;
-using GameHost.Worlds.Components;
 using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Game.Inputs.Actions
