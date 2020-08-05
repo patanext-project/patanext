@@ -22,7 +22,6 @@ namespace PataNext.Feature.RhythmEngineAudio
 					simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemStart));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(ShoutDrumSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(OnNewBeatSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemEnd));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(BgmDefaultDirectorCommandSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(BgmDefaultDirectorSoundtrackSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(LoadActiveBgmSystem));

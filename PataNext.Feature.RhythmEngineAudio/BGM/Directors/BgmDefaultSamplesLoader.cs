@@ -81,19 +81,13 @@ using System.Threading.Tasks;
 
 		public override BFile GetFile<TFileDescription>(TFileDescription description)
 		{
-			string sampleId = null;
-			switch (description)
+			var sampleId = description switch
 			{
-				case BFileOnEnterFeverSoundDescription desc:
-					sampleId = "enter_fever";
-					break;
-				case BFileOnFeverLostSoundDescription desc:
-					sampleId = "fever_lost";
-					break;
-				case BFileSampleDescription desc:
-					sampleId = desc.SampleName;
-					break;
-			}
+				BFileOnEnterFeverSoundDescription desc => "enter_fever",
+				BFileOnFeverLostSoundDescription desc => "fever_lost",
+				BFileSampleDescription desc => desc.SampleName,
+				_ => null
+			};
 
 			if (sampleId != null && filesTaskMap.GetValue(sampleId, out var file, out var task))
 			{

@@ -101,13 +101,26 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(gameEntityTest, new PlayerInputComponent());
 			gameWorld.AddComponent(gameEntityTest, new PlayerIsLocal());
 
+			var unitTarget = gameWorld.CreateEntity();
+			gameWorld.AddComponent(unitTarget, new UnitTargetDescription());
+			gameWorld.AddComponent(unitTarget, new Position());
+			
 			var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
 			{
-				Statistics = new UnitStatistics(),
+				Statistics = new UnitStatistics
+				{
+					BaseWalkSpeed = 2,
+					FeverWalkSpeed = 2.2f,
+					MovementAttackSpeed = 3.1f,
+					Weight = 8.5f,
+				},
 				Direction  = UnitDirection.Right
 			});
 			gameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
 			gameWorld.AddComponent(unit, new Relative<PlayerDescription>(gameEntityTest));
+			gameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
+			gameWorld.AddComponent(unit, new UnitTargetOffset());
+			gameWorld.AddComponent(unit, new UnitTargetControlTag());
 
 			var marchAbility = abilityCollectionSystem.SpawnFor("march", unit);
 

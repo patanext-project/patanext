@@ -65,10 +65,10 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 		{
 			DependencyResolver.Add(() => ref worldTime);
 		}
-		
+
 		private EntityQuery abilityQuery;
 		private EntityQuery validOwnerQuery;
-		
+
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
@@ -89,10 +89,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 			});
 		}
 
-		protected override void OnUpdate()
+		public override void OnAbilityPreSimulationPass()
 		{
-			base.OnUpdate();
-
 			validOwnerQuery.CheckForNewArchetypes();
 
 			var timeDelta = (float) worldTime.Delta.TotalSeconds;

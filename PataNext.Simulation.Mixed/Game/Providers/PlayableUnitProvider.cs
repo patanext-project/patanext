@@ -37,6 +37,7 @@ namespace PataNext.Module.Simulation.Game.Providers
 				GameWorld.AsComponentType<UnitDirection>(),
 				GameWorld.AsComponentType<UnitTargetOffset>(),
 
+				GameWorld.AsComponentType<GroundState>(),
 				GameWorld.AsComponentType<Position>(),
 				GameWorld.AsComponentType<Velocity>(),
 				

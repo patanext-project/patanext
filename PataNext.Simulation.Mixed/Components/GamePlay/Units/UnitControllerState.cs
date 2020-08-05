@@ -17,14 +17,14 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 
 		public bool ControlOverVelocityX
 		{
-			get => ControlOverVelocity[0];
-			set => ControlOverVelocity[0] = value;
+			get => ControlOverVelocity[1];
+			set => ControlOverVelocity[1] = value;
 		}
 
 		public bool ControlOverVelocityY
 		{
-			get => ControlOverVelocity[1];
-			set => ControlOverVelocity[1] = value;
+			get => ControlOverVelocity[2];
+			set => ControlOverVelocity[2] = value;
 		}
 
 		public class Register : RegisterGameHostComponentData<UnitControllerState>

@@ -105,25 +105,8 @@ namespace PataNext.Simulation.Client.Systems
 		}
 	}
 
-	[UpdateAfter(typeof(PresentationRhythmEngineSystemStart))]
-	public class PresentationRhythmEngineSystemEnd : AppSystem, IRhythmEngineSimulationPass
-	{
-		private PresentationRhythmEngineSystemStart start;
-
-		public PresentationRhythmEngineSystemEnd(WorldCollection collection) : base(collection)
-		{
-			DependencyResolver.Add(() => ref start);
-		}
-
-		public void OnRhythmEngineSimulationPass()
-		{
-			// make sure to invalidate it so that systems not depending on this group will not get invalid data that might crash the app later
-			start.LocalRhythmEngine = default;
-		}
-	}
-
 	[RestrictToApplication(typeof(SimulationApplication))]
-	[UpdateAfter(typeof(PresentationRhythmEngineSystemStart)), UpdateBefore(typeof(PresentationRhythmEngineSystemEnd))]
+	[UpdateAfter(typeof(PresentationRhythmEngineSystemStart))]
 	public abstract class PresentationRhythmEngineSystemBase : AppSystem, IRhythmEngineSimulationPass
 	{
 		private PresentationRhythmEngineSystemStart start;

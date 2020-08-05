@@ -90,7 +90,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executingCommand.CommandTarget.Entity);
 				var beatDuration         = 0;
 				foreach (var element in targetResourceBuffer.Span)
-					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + element.Value.Beat.Offset + element.Value.Beat.SliderLength));
+					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + 1 + element.Value.Beat.Offset + element.Value.Beat.SliderLength));
 				
 				executingCommand.ActivationBeatEnd = targetBeat + beatDuration;
 				executingCommand.WaitingForApply   = true;

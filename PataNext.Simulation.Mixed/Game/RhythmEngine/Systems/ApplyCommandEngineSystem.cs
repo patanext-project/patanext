@@ -83,6 +83,11 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				    || (executing.CommandTarget == default && predictedCommandBuffer.Count != 0 && rhythmActiveAtFlowBeat < state.LastPressure.FlowBeat)
 				    || (predictedCommandBuffer.Count == 0))
 				{
+					/*Console.WriteLine($"0 => {state.IsRecovery(flowBeat)} ({flowBeat})");
+					Console.WriteLine($"1 => {(rhythmActiveAtFlowBeat < flowBeat && checkStopBeat < activationBeat)} ({flowBeat})");
+					Console.WriteLine($"2 => {(executing.CommandTarget == default && predictedCommandBuffer.Count != 0 && rhythmActiveAtFlowBeat < state.LastPressure.FlowBeat)} ({flowBeat})");
+					Console.WriteLine($"3 => {(predictedCommandBuffer.Count == 0)} ({flowBeat})");*/
+					
 					comboState = default;
 					commandState.Reset();
 					executing = default;
@@ -103,7 +108,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executing.CommandTarget.Entity);
 				var beatDuration         = 0;
 				foreach (var element in targetResourceBuffer.Span)
-					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + element.Value.Beat.Offset + element.Value.Beat.SliderLength));
+					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + 1 + element.Value.Beat.Offset + element.Value.Beat.SliderLength));
 
 				// if (!isServer && settings.UseClientSimulation && simulateTagFromEntity.Exists(entity))
 				if (true)

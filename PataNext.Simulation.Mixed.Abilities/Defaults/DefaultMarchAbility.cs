@@ -40,8 +40,11 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 		{
 			base.SetEntityData(entity, data);
 
-			GameWorld.GetComponentData<DefaultSubsetMarch>(entity).AccelerationFactor = 1;
-			GameWorld.GetComponentData<DefaultSubsetMarch>(entity).Target             = DefaultSubsetMarch.ETarget.All;
+			GameWorld.GetComponentData<DefaultSubsetMarch>(entity) = new DefaultSubsetMarch
+			{
+				AccelerationFactor = 1,
+				Target             = DefaultSubsetMarch.ETarget.All
+			};
 		}
 
 		public override ComponentType GetChainingCommand()
@@ -52,27 +55,20 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 	public class DefaultMarchAbilitySystem : BaseAbilitySystem
 	{
-		private EntityQuery abilityQuery;
-
 		public DefaultMarchAbilitySystem(WorldCollection collection) : base(collection)
 		{
 		}
 
-		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		private EntityQuery abilityQuery;
+
+		public override void OnAbilityPreSimulationPass()
 		{
-			base.OnDependenciesResolved(dependencies);
-			abilityQuery = CreateEntityQuery(new[]
+			foreach (var entity in (abilityQuery ??= CreateEntityQuery(new[]
 			{
 				typeof(DefaultMarchAbility),
 				typeof(DefaultSubsetMarch),
 				typeof(AbilityState)
-			});
-		}
-
-		protected override void OnUpdate()
-		{
-			base.OnUpdate();
-			foreach (var entity in abilityQuery.GetEntities())
+			})).GetEntities())
 			{
 				var state = GetComponentData<AbilityState>(entity);
 				GetComponentData<DefaultSubsetMarch>(entity).IsActive = state.IsActive;
