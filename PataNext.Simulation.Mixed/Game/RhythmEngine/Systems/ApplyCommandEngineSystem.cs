@@ -18,7 +18,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 		{
 		}
 
-		protected override void OnUpdate()
+		public override void OnRhythmEngineSimulationPass()
 		{
 			var commandSetBuffer = new FixedBuffer128<GameEntity>();
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
@@ -100,13 +100,15 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					return;
 				executing.WaitingForApply = false;
 
-				var targetCommandResource = GameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(executing.CommandTarget.Entity);
-				var beatLength            = targetCommandResource.Value.BeatDuration;
+				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executing.CommandTarget.Entity);
+				var beatDuration         = 0;
+				foreach (var element in targetResourceBuffer.Span)
+					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + element.Value.Beat.Offset + element.Value.Beat.SliderLength));
 
 				// if (!isServer && settings.UseClientSimulation && simulateTagFromEntity.Exists(entity))
 				if (true)
 				{
-					commandState.ChainEndTimeMs = (int) ((rhythmActiveAtFlowBeat + beatLength + 4) * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
+					commandState.ChainEndTimeMs = (int) ((rhythmActiveAtFlowBeat + beatDuration + 4) * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 					commandState.StartTimeMs    = (int) (executing.ActivationBeatStart * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 					commandState.EndTimeMs      = (int) (executing.ActivationBeatEnd * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 

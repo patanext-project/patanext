@@ -17,7 +17,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 			DependencyResolver.Add(() => ref worldTime);
 		}
 
-		protected override void OnUpdate()
+		public override void OnRhythmEngineSimulationPass()
 		{
 			if (!GameWorld.TryGetSingleton(out GameTime gameTime))
 				return;

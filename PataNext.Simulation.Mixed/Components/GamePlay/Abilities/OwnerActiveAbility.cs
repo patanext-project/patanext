@@ -3,6 +3,8 @@ using GameHost.Native.Fixed;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
+using GameHost.Simulation.Utility.Resource;
+using PataNext.Module.Simulation.Resources;
 
 namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 {
@@ -17,16 +19,16 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		/// <summary>
 		///     Current combo of the entity...
 		/// </summary>
-		public FixedBuffer32<GameEntity> CurrentCombo; //< 32 bytes should suffice, it would be 4 combo commands...
+		public FixedBuffer32<GameResource<RhythmCommandResource>> CurrentCombo; //< 32 bytes should suffice, it would be 4 combo commands...
 
-		public void AddCombo(GameEntity ent)
+		public void AddCombo(GameResource<RhythmCommandResource> ent)
 		{
 			while (CurrentCombo.GetLength() >= CurrentCombo.GetCapacity())
 				CurrentCombo.RemoveAt(0);
 			CurrentCombo.Add(ent);
 		}
 
-		public bool RemoveCombo(GameEntity ent)
+		public bool RemoveCombo(GameResource<RhythmCommandResource> ent)
 		{
 			var index = CurrentCombo.IndexOf(ent);
 			if (index < 0)

@@ -12,6 +12,7 @@ using GameHost.Native.Char;
 using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Game.RhythmEngine;
+using PataNext.Module.Simulation.Passes;
 using ZLogger;
 
 
@@ -47,7 +48,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 		public override bool CanUpdate()
 		{
 			var canUpdate = base.CanUpdate() && LocalEngine != default;
-			if (!canUpdate)
+			if (!canUpdate && World.DefaultSystemCollection.ExecutingRegister is IRhythmEngineSimulationPass.RegisterPass)
 			{
 				mappedResources.Clear();
 
@@ -70,9 +71,10 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 		private int                           m_EndFeverEntranceAt;
 		private int                           m_NextLoopTrigger;
 
-		protected override void OnUpdate()
+		public override void OnRhythmEngineSimulationPass()
 		{
-			base.OnUpdate();
+			if (!CanUpdate())
+				return;
 
 			loadFiles();
 

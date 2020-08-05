@@ -5,7 +5,7 @@ using PataNext.Simulation.Client.Systems;
 namespace PataNext.Feature.RhythmEngineAudio.BGM
 {
 	//[UpdateAfter(typeof(LoadActiveBgmSystem))]
-	public class BgmDirectorySystemBase<TDirector, TLoader> : PresentationRhythmEngineSystemBase
+	public abstract class BgmDirectorySystemBase<TDirector, TLoader> : PresentationRhythmEngineSystemBase
 		where TDirector : BgmDirectorBase
 		where TLoader : BgmSamplesLoaderBase
 	{

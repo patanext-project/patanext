@@ -2,13 +2,14 @@
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Application;
 using GameHost.Simulation.TabEcs;
+using PataNext.Module.Simulation.Passes;
 using StormiumTeam.GameBase.Time;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 {
 	[RestrictToApplication(typeof(SimulationApplication))]
 	[UpdateAfter(typeof(SetGameTimeSystem))]
-	public abstract class RhythmEngineSystemBase : AppSystem
+	public abstract class RhythmEngineSystemBase : AppSystem, IRhythmEngineSimulationPass
 	{
 		protected GameWorld GameWorld;
 
@@ -16,5 +17,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 		{
 			DependencyResolver.Add(() => ref GameWorld);
 		}
+
+		public abstract void OnRhythmEngineSimulationPass();
 	}
 }

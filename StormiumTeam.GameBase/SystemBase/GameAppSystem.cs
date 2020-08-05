@@ -19,6 +19,18 @@ namespace StormiumTeam.GameBase.SystemBase
 
 		public GameEntity CreateEntity() => GameWorld.CreateEntity();
 
+		public ComponentType AsComponentType<T>() where T : struct, IEntityComponent => GameWorld.AsComponentType<T>();
+
+		public bool HasComponent<T>(GameEntity entity) where T : struct, IEntityComponent
+		{
+			return GameWorld.HasComponent<T>(entity);
+		}
+
+		public bool HasComponent(GameEntity entity, ComponentType componentType)
+		{
+			return GameWorld.HasComponent(entity, componentType);
+		}
+
 		public ref T GetComponentData<T>(GameEntity entity)
 			where T : struct, IComponentData
 		{
@@ -29,6 +41,19 @@ namespace StormiumTeam.GameBase.SystemBase
 			where T : struct, IComponentData
 		{
 			return GameWorld.AddComponent(entity, data);
+		}
+
+		public bool TryGetComponentData<T>(GameEntity entity, out T result, T defaultData = default)
+			where T : struct, IComponentData
+		{
+			if (HasComponent<T>(entity))
+			{
+				result = GetComponentData<T>(entity);
+				return true;
+			}
+
+			result = defaultData;
+			return false;
 		}
 
 		public EntityQuery CreateEntityQuery(Span<Type> all = default, Span<Type> none = default)

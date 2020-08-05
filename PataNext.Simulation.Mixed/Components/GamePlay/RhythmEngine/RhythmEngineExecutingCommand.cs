@@ -41,6 +41,8 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 			set => PowerInteger = (int) Math.Clamp(value * 100, 0, 100);
 		}
 
+		public bool IsPerfect => PowerInteger >= 99;
+
 		public override string ToString()
 		{
 			return $"Target={CommandTarget}, ActiveAt={ActivationBeatStart}, Power={Power:0.00%}";

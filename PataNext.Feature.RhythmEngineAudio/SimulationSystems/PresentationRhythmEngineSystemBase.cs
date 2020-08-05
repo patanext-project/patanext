@@ -10,6 +10,7 @@ using GameHost.Simulation.Utility.Resource.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
+using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
 using StormiumTeam.GameBase.Roles.Components;
@@ -20,7 +21,7 @@ namespace PataNext.Simulation.Client.Systems
 	[UpdateAfter(typeof(ProcessEngineSystem))]
 	[UpdateAfter(typeof(OnInputForRhythmEngine))]
 	[UpdateAfter(typeof(ApplyCommandEngineSystem))]
-	public class PresentationRhythmEngineSystemStart : AppSystem
+	public class PresentationRhythmEngineSystemStart : AppSystem, IRhythmEngineSimulationPass
 	{
 		public struct RhythmEngineInformation
 		{
@@ -45,7 +46,7 @@ namespace PataNext.Simulation.Client.Systems
 			DependencyResolver.Add(() => ref gameWorld);
 		}
 
-		protected override void OnUpdate()
+		public void OnRhythmEngineSimulationPass()
 		{
 			var playerEnumerator = gameWorld.QueryEntityWith(stackalloc[]
 			{
@@ -81,8 +82,8 @@ namespace PataNext.Simulation.Client.Systems
 					{
 						localInfo.NextCommand = executingCommand.CommandTarget;
 
-						var key = gameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(localInfo.NextCommand.Entity).Value;
-						localInfo.NextCommandStr = key.Identifier;
+						var key = gameWorld.GetComponentData<RhythmCommandIdentifier>(localInfo.NextCommand.Entity).Value;
+						localInfo.NextCommandStr = key;
 					}
 
 					var settings = gameWorld.GetComponentData<RhythmEngineSettings>(LocalRhythmEngine);
@@ -105,7 +106,7 @@ namespace PataNext.Simulation.Client.Systems
 	}
 
 	[UpdateAfter(typeof(PresentationRhythmEngineSystemStart))]
-	public class PresentationRhythmEngineSystemEnd : AppSystem
+	public class PresentationRhythmEngineSystemEnd : AppSystem, IRhythmEngineSimulationPass
 	{
 		private PresentationRhythmEngineSystemStart start;
 
@@ -114,9 +115,8 @@ namespace PataNext.Simulation.Client.Systems
 			DependencyResolver.Add(() => ref start);
 		}
 
-		protected override void OnUpdate()
+		public void OnRhythmEngineSimulationPass()
 		{
-			base.OnUpdate();
 			// make sure to invalidate it so that systems not depending on this group will not get invalid data that might crash the app later
 			start.LocalRhythmEngine = default;
 		}
@@ -124,7 +124,7 @@ namespace PataNext.Simulation.Client.Systems
 
 	[RestrictToApplication(typeof(SimulationApplication))]
 	[UpdateAfter(typeof(PresentationRhythmEngineSystemStart)), UpdateBefore(typeof(PresentationRhythmEngineSystemEnd))]
-	public abstract class PresentationRhythmEngineSystemBase : AppSystem
+	public abstract class PresentationRhythmEngineSystemBase : AppSystem, IRhythmEngineSimulationPass
 	{
 		private PresentationRhythmEngineSystemStart start;
 
@@ -137,5 +137,7 @@ namespace PataNext.Simulation.Client.Systems
 			DependencyResolver.Add(() => ref start);
 			DependencyResolver.Add(() => ref GameWorld);
 		}
+
+		public abstract void OnRhythmEngineSimulationPass();
 	}
 }

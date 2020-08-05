@@ -13,7 +13,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 		{
 		}
 
-		protected override void OnUpdate()
+		public override void OnRhythmEngineSimulationPass()
 		{
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
 			{

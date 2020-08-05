@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
@@ -23,6 +24,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 	public class DefaultMarchAbilityProvider : BaseRhythmAbilityProvider<DefaultMarchAbility>
 	{
+		public override string MasterServerId => "march";
+
 		public DefaultMarchAbilityProvider(WorldCollection collection) : base(collection)
 		{
 		}

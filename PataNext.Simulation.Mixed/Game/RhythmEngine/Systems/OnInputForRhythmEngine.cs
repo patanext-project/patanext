@@ -16,7 +16,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 		{
 		}
 
-		protected override void OnUpdate()
+		public override void OnRhythmEngineSimulationPass()
 		{
 			if (!GameWorld.TryGetSingleton(out GameTime gameTime))
 				return;

@@ -13,6 +13,8 @@ using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource.Components;
 using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using PataNext.Module.Simulation.Passes;
+using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
 using ZLogger;
 
@@ -63,7 +65,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 		public override bool CanUpdate()
 		{
 			var canUpdate = base.CanUpdate() && LocalEngine != default;
-			if (!canUpdate)
+			if (!canUpdate && World.DefaultSystemCollection.ExecutingRegister is IRhythmEngineSimulationPass.RegisterPass)
 			{
 				thrownException.Clear();
 
@@ -75,10 +77,11 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			return canUpdate;
 		}
 
-		protected override void OnUpdate()
+		public override void OnRhythmEngineSimulationPass()
 		{
-			base.OnUpdate();
-
+			if (!CanUpdate())
+				return;
+			
 			loadFiles();
 
 			var comboSettings = GameWorld.GetComponentData<GameCombo.Settings>(LocalEngine);
@@ -161,7 +164,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				GameWorld.AsComponentType<GameResourceKey<RhythmCommandResourceKey>>()
 			}))
 			{
-				var cmd = GameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(commandEntity).Value.Identifier;
+				var cmd = GameWorld.GetComponentData<RhythmCommandIdentifier>(commandEntity).Value;
 				if (cmd.GetLength() == 0)
 					continue;
 

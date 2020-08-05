@@ -7,6 +7,8 @@ using GameHost.Threading;
 using GameHost.Worlds;
 using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation;
+using PataNext.Module.Simulation.Passes;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Time;
 
 [assembly: RegisterAvailableModule("PataNext Simulation", "guerro", typeof(CustomModule))]
@@ -25,7 +27,22 @@ namespace PataNext.Module.Simulation
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
-					simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
+					simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IRhythmEngineSimulationPass.RegisterPass(),
+						new[] {typeof(IUpdateSimulationPass.RegisterPass)},
+						new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
+					
+					simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilityPreSimulationPass.RegisterPass(),
+						new[] {typeof(IUpdateSimulationPass.RegisterPass), typeof(IRhythmEngineSimulationPass.RegisterPass)},
+						new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
+
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.LocalRhythmCommandResourceManager));
+					
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Providers.PlayableUnitProvider));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
+
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.UpdateActiveAbilitySystem));
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.OnInputForRhythmEngine));

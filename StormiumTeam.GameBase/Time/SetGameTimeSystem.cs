@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Worlds.Components;
@@ -10,7 +11,7 @@ namespace StormiumTeam.GameBase.Time
 	/// <summary>
 	/// Update <see cref="GameTime"/> from an <see cref="IManagedWorldTime"/>
 	/// </summary>
-	public class SetGameTimeSystem : GameSystem
+	public class SetGameTimeSystem : GameAppSystem, IPreUpdateSimulationPass
 	{
 		private IManagedWorldTime managedWorldTime;
 
@@ -28,13 +29,13 @@ namespace StormiumTeam.GameBase.Time
 			timeEntity = GameWorld.CreateEntity();
 			GameWorld.AddComponent<GameTime>(timeEntity);
 		}
-
-		protected override void OnUpdate()
+		
+		public void OnBeforeSimulationUpdate()
 		{
 			ref var gameTime = ref GameWorld.GetComponentData<GameTime>(timeEntity);
 			gameTime.Frame++;
 			gameTime.Delta   = (float) managedWorldTime.Delta.TotalSeconds;
-			gameTime.Elapsed = managedWorldTime.Total.TotalSeconds;
+			gameTime.Elapsed = managedWorldTime.Total.TotalSeconds;	
 		}
 	}
 }

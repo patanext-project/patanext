@@ -24,7 +24,11 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		public EAbilityPhase Phase;
 
 		public int Combo;
-		public int ImperfectCountWhileActive;
+		/// <summary>
+		/// How much imperfect commands were entered while in Hero Mode?
+		/// This does include bad rhythm'ed commands and commands in <see cref="AbilityCommands.HeroModeAllowedCommands"/>
+		/// </summary>
+		public int HeroModeImperfectCountWhileActive;
 
 		public int UpdateVersion;
 		public int ActivationVersion;

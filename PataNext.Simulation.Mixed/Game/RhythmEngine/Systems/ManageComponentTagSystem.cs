@@ -10,7 +10,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 		{
 		}
 
-		protected override void OnUpdate()
+		public override void OnRhythmEngineSimulationPass()
 		{
 			base.OnUpdate();
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[] {GameWorld.AsComponentType<RhythmEngineController>()}))

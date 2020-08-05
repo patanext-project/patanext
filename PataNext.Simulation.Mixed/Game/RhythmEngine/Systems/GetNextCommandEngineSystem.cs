@@ -24,7 +24,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 
 		private PooledList<GameResource<RhythmCommandResource>> cmdOutput = new PooledList<GameResource<RhythmCommandResource>>();
 
-		protected override void OnUpdate()
+		public override void OnRhythmEngineSimulationPass()
 		{
 			var commandSetBuffer = new FixedBuffer128<GameEntity>();
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
@@ -87,9 +87,13 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				executingCommand.CommandTarget       = output[0];
 				executingCommand.ActivationBeatStart = targetBeat;
 				
-				var targetCommandResource = GameWorld.GetComponentData<GameResourceKey<RhythmCommandResourceKey>>(executingCommand.CommandTarget.Entity);
-				executingCommand.ActivationBeatEnd   = targetBeat + targetCommandResource.Value.BeatDuration;
-				executingCommand.WaitingForApply     = true;
+				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executingCommand.CommandTarget.Entity);
+				var beatDuration         = 0;
+				foreach (var element in targetResourceBuffer.Span)
+					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + element.Value.Beat.Offset + element.Value.Beat.SliderLength));
+				
+				executingCommand.ActivationBeatEnd = targetBeat + beatDuration;
+				executingCommand.WaitingForApply   = true;
 
 				var power = 0.0f;
 				for (var i = 0; i != commandProgression.Count; i++)

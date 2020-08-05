@@ -14,12 +14,16 @@ using PataNext.Game.Inputs.Actions;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
+using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Game.Providers;
 using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
+using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
+using PataNext.Module.Simulation.Systems;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Time;
@@ -30,7 +34,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 	[UpdateAfter(typeof(SetGameTimeSystem))]
 	[UpdateAfter(typeof(ReceiveInputDataSystem))]
 	[UpdateBefore(typeof(ManageComponentTagSystem))]
-	public class RegisterRhythmEngineInputSystem : AppSystem
+	public class RegisterRhythmEngineInputSystem : AppSystem, IRhythmEngineSimulationPass
 	{
 		private InputDatabase     inputDatabase;
 		private IManagedWorldTime time;
@@ -38,11 +42,17 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 		private GameResourceDb<RhythmCommandResource, RhythmCommandResourceKey> localCommandDb;
 		private GameResourceDb<UnitKitResource, UnitKitResourceKey> localKitDb;
 
+		private PlayableUnitProvider    playableUnitProvider;
+		private AbilityCollectionSystem abilityCollectionSystem;
+
 		public RegisterRhythmEngineInputSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref inputDatabase);
 			DependencyResolver.Add(() => ref gameWorld);
 			DependencyResolver.Add(() => ref time);
+			
+			DependencyResolver.Add(() => ref playableUnitProvider);
+			DependencyResolver.Add(() => ref abilityCollectionSystem);
 		}
 
 		private Dictionary<int, Entity> rhythmActionMap;
@@ -51,12 +61,24 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 		private GameWorld  gameWorld;
 		private GameEntity gameEntityTest;
 
+		private int spawnInFrame;
+		
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
+
+			spawnInFrame = 2;
+		}
+
+		protected override void OnUpdate()
+		{
+			base.OnUpdate();
+			if (spawnInFrame == -999 || spawnInFrame-- > 0)
+				return;
+			spawnInFrame = -999;
 			
 			localCommandDb = new GameResourceDb<RhythmCommandResource, RhythmCommandResourceKey>(gameWorld);
-			localKitDb = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(gameWorld);
+			localKitDb     = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(gameWorld);
 
 			rhythmActionMap = new Dictionary<int, Entity>();
 			for (var i = 0; i < 4; i++)
@@ -79,11 +101,15 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(gameEntityTest, new PlayerInputComponent());
 			gameWorld.AddComponent(gameEntityTest, new PlayerIsLocal());
 
-			var unit = gameWorld.CreateEntity();
-			gameWorld.AddComponent(unit, new UnitDescription());
-			gameWorld.AddComponent(unit, new Position {Value = {X = -0}});
+			var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
+			{
+				Statistics = new UnitStatistics(),
+				Direction  = UnitDirection.Right
+			});
 			gameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
 			gameWorld.AddComponent(unit, new Relative<PlayerDescription>(gameEntityTest));
+
+			var marchAbility = abilityCollectionSystem.SpawnFor("march", unit);
 
 			var rhythmEngine = gameWorld.CreateEntity();
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
@@ -96,51 +122,17 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(rhythmEngine, gameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
 			gameWorld.AddComponent(rhythmEngine, new GameCommandState());
 			gameWorld.AddComponent(rhythmEngine, new IsSimulationOwned());
-			
+
 			gameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
 
 			GameCombo.AddToEntity(gameWorld, rhythmEngine);
-
-			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("march", 4)).Entity).AddRangeReinterpret(stackalloc[]
-			{
-				RhythmCommandAction.With(0, RhythmKeys.Pata),
-				RhythmCommandAction.With(1, RhythmKeys.Pata),
-				RhythmCommandAction.With(2, RhythmKeys.Pata),
-				RhythmCommandAction.With(3, RhythmKeys.Pon),
-			});
-			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("attack", 4)).Entity).AddRangeReinterpret(stackalloc[]
-			{
-				RhythmCommandAction.With(0, RhythmKeys.Pon),
-				RhythmCommandAction.With(1, RhythmKeys.Pon),
-				RhythmCommandAction.With(2, RhythmKeys.Pata),
-				RhythmCommandAction.With(3, RhythmKeys.Pon),
-			});
-			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("defend", 4)).Entity).AddRangeReinterpret(stackalloc[]
-			{
-				RhythmCommandAction.With(0, RhythmKeys.Chaka),
-				RhythmCommandAction.With(1, RhythmKeys.Chaka),
-				RhythmCommandAction.With(2, RhythmKeys.Pata),
-				RhythmCommandAction.With(3, RhythmKeys.Pon),
-			});
-			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("summon", 4)).Entity).AddRangeReinterpret(stackalloc[]
-			{
-				RhythmCommandAction.With(0, RhythmKeys.Don),
-				RhythmCommandAction.With(1, RhythmKeys.Don),
-				RhythmCommandAction.WithOffset(1, 0.5f, RhythmKeys.Don),
-				RhythmCommandAction.WithOffset(2, 0.5f, RhythmKeys.Don),
-				RhythmCommandAction.WithOffset(3, 0, RhythmKeys.Don),
-			});
-			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("quick_defend", 4)).Entity).AddRangeReinterpret(stackalloc[]
-			{
-				RhythmCommandAction.With(0, RhythmKeys.Chaka),
-				RhythmCommandAction.WithSlider(1, 1, RhythmKeys.Pon)
-			});
 		}
 
-		protected override void OnUpdate()
+		public void OnRhythmEngineSimulationPass()
 		{
-			base.OnUpdate();
-
+			if (spawnInFrame != -999)
+				return;
+			
 			GameTime gameTime = default;
 			foreach (var entity in gameWorld.QueryEntityWith(stackalloc [] {gameWorld.AsComponentType<GameTime>()}))
 			{

@@ -18,13 +18,13 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 			public float RequiredScoreStart;
 			public float RequiredScoreStep;
 
-			public bool CanEnterFever(int combo, float score)
+			public readonly bool CanEnterFever(int combo, float score)
 			{
 				return combo > MaxComboToReachFever
 				       || RequiredScoreStart - combo * RequiredScoreStep < score;
 			}
 
-			public bool CanEnterFever(State state)
+			public readonly bool CanEnterFever(State state)
 			{
 				return CanEnterFever(state.Count, state.Score);
 			}

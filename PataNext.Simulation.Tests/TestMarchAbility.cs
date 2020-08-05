@@ -18,31 +18,8 @@ using StormiumTeam.GameBase.Roles.Components;
 
 namespace PataNext.Module.Simulation.Tests
 {
-	public class TestMarchAbility
+	public class TestMarchAbility : TestBootstrapBase
 	{
-		public WorldCollection WorldCollection;
-		public Scheduler       Scheduler;
-		public GameWorld       GameWorld;
-
-		public ManagedWorldTime WorldTime;
-
-		[SetUp]
-		public void SetUp()
-		{
-			WorldCollection = new WorldCollection(null, new World());
-
-			var context = WorldCollection.Ctx;
-			context.BindExisting<IScheduler>(Scheduler        = new Scheduler());
-			context.BindExisting<IManagedWorldTime>(WorldTime = new ManagedWorldTime());
-			context.BindExisting(GameWorld                    = new GameWorld());
-		}
-
-		private void RunScheduler()
-		{
-			for (var i = 0; i != 4; i++)
-				Scheduler.Run();
-		}
-
 		[Test]
 		public void TestIsActive()
 		{
