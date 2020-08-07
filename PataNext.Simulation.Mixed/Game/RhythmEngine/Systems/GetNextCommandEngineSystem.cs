@@ -34,11 +34,13 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 			}))
 			{
 				if (commandSetBuffer.GetCapacity() > commandSetBuffer.GetLength())
+				{
 					commandSetBuffer.Add(entity);
+				}
 				else
 					Console.WriteLine("couldn't add more commands!");
 			}
-
+			
 			if (commandSetBuffer.GetLength() == 0)
 				return;
 

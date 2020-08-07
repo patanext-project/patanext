@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using GameHost.Core.Ecs;
+using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
@@ -55,6 +56,9 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 		///	This variable was named 'Delta'
 		/// </remarks>
 		public float ActiveTime;
+		
+		public class Register : RegisterGameHostComponentData<DefaultSubsetMarch>
+		{}
 	}
 
 	public class DefaultSubsetMarchAbilitySystem : BaseAbilitySystem

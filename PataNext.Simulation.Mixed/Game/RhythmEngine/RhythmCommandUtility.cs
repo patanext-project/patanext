@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.Resource;
+using NetFabric.Hyperlinq;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Resources;
 
@@ -107,6 +109,8 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 			where TOutputEntityList : IList<GameResource<RhythmCommandResource>>
 		{
 			var computedSpan = computeFlowPressures(stackalloc ComputedSliderFlowPressure[executingCommand.Count], executingCommand);
+
+			var i = 0;
 			foreach (ref readonly var entity in entities)
 			{
 				if (!gameWorld.HasComponent<RhythmCommandActionBuffer>(entity))

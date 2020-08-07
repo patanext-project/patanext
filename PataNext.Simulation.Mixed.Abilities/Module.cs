@@ -23,6 +23,9 @@ namespace PataNext.Simulation.Mixed.Abilities
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilitySystem));
 					
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultRetreatAbilityProvider));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultRetreatAbilitySystem));
+					
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));
 				}
 			}

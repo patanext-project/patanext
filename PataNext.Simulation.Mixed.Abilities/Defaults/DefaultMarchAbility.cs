@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Collections.Pooled;
 using GameHost.Core.Ecs;
+using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
@@ -20,6 +21,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 	/// </remarks>
 	public struct DefaultMarchAbility : IComponentData
 	{
+		public class Register : RegisterGameHostComponentData<DefaultMarchAbility>
+		{}
 	}
 
 	public class DefaultMarchAbilityProvider : BaseRhythmAbilityProvider<DefaultMarchAbility>

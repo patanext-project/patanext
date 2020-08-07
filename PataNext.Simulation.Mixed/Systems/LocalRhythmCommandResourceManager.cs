@@ -29,6 +29,20 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.With(2, RhythmKeys.Pata),
 				RhythmCommandAction.With(3, RhythmKeys.Pon),
 			}).Entity, new MarchCommand());
+			AddComponent(DataBase.GetOrCreate(AsComponentType<RetreatCommand>(), "retreat", new[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Pon),
+				RhythmCommandAction.With(1, RhythmKeys.Pata),
+				RhythmCommandAction.With(2, RhythmKeys.Pon),
+				RhythmCommandAction.With(3, RhythmKeys.Pata),
+			}).Entity, new RetreatCommand());
+			AddComponent(DataBase.GetOrCreate(AsComponentType<JumpCommand>(), "jump", new[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Don),
+				RhythmCommandAction.With(1, RhythmKeys.Don),
+				RhythmCommandAction.With(2, RhythmKeys.Chaka),
+				RhythmCommandAction.With(3, RhythmKeys.Chaka),
+			}).Entity, new JumpCommand());
 			/*gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("attack", 4)).Entity).AddRangeReinterpret(stackalloc[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Pon),

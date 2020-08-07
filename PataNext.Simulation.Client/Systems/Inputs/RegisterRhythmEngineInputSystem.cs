@@ -116,13 +116,17 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				},
 				Direction  = UnitDirection.Right
 			});
+			gameWorld.GetComponentData<Position>(unit).Value.X += 8;
+			gameWorld.GetComponentData<Position>(unitTarget).Value.X -= 8;
+			
 			gameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
 			gameWorld.AddComponent(unit, new Relative<PlayerDescription>(gameEntityTest));
 			gameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
 			gameWorld.AddComponent(unit, new UnitTargetOffset());
 			gameWorld.AddComponent(unit, new UnitTargetControlTag());
 
-			var marchAbility = abilityCollectionSystem.SpawnFor("march", unit);
+			abilityCollectionSystem.SpawnFor("march", unit);
+			abilityCollectionSystem.SpawnFor("retreat", unit);
 
 			var rhythmEngine = gameWorld.CreateEntity();
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
