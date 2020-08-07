@@ -53,6 +53,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 		}
 
 		private EntityQuery abilityQuery;
+
 		public override void OnAbilityPreSimulationPass()
 		{
 			var dt = (float) worldTime.Delta.TotalSeconds;
@@ -74,8 +75,6 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 					ability.LastActiveId = state.ActivationVersion;
 				}
 
-				ref readonly var translation = ref GetComponentData<Position>(owner).Value;
-
 				ref var velocity       = ref GetComponentData<Velocity>(owner).Value;
 				ref var unitController = ref GetComponentData<UnitControllerState>(owner);
 				if (!state.IsActiveOrChaining)
@@ -92,12 +91,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 				const float startJumpTime = 0.5f;
 
-				ref readonly var playState     = ref GetComponentData<UnitPlayState>(owner);
-				ref readonly var unitDirection = ref GetComponentData<UnitDirection>(owner).Value;
-
-				var wasJumping   = ability.IsJumping;
-				var retreatSpeed = playState.MovementAttackSpeed * 3f;
-
+				var wasJumping = ability.IsJumping;
 				ability.IsJumping = ability.ActiveTime <= startJumpTime;
 
 				if (!wasJumping && ability.IsJumping)
