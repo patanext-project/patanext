@@ -1,0 +1,124 @@
+﻿using System;
+using GameHost.Core.Ecs;
+using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.Interfaces;
+using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Worlds.Components;
+using PataNext.Module.Simulation.BaseSystems;
+using PataNext.Module.Simulation.Components;
+using PataNext.Module.Simulation.Components.GamePlay.Abilities;
+using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Components.Units;
+using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Physics.Components;
+using StormiumTeam.GameBase.Roles.Components;
+
+namespace PataNext.Simulation.Mixed.Abilities.Defaults
+{
+	public struct DefaultJumpAbility : IComponentData
+	{
+		public int LastActiveId;
+
+		public bool  IsJumping;
+		public float ActiveTime;
+
+		public class Register : RegisterGameHostComponentData<DefaultJumpAbility>
+		{
+		}
+	}
+
+	public class DefaultJumpAbilityProvider : BaseRhythmAbilityProvider<DefaultJumpAbility>
+	{
+		public DefaultJumpAbilityProvider(WorldCollection collection) : base(collection)
+		{
+		}
+
+		public override string MasterServerId => "jump";
+
+		public override ComponentType GetChainingCommand()
+		{
+			return GameWorld.AsComponentType<JumpCommand>();
+		}
+	}
+
+	public class DefaultJumpAbilitySystem : BaseAbilitySystem
+	{
+		private IManagedWorldTime worldTime;
+
+		public DefaultJumpAbilitySystem(WorldCollection collection) : base(collection)
+		{
+			DependencyResolver.Add(() => ref worldTime);
+		}
+
+		private EntityQuery abilityQuery;
+		public override void OnAbilityPreSimulationPass()
+		{
+			var dt = (float) worldTime.Delta.TotalSeconds;
+
+			foreach (var entity in (abilityQuery ??= CreateEntityQuery(new[]
+			{
+				typeof(DefaultJumpAbility),
+				typeof(AbilityState)
+			})).GetEntities())
+			{
+				ref var          ability = ref GetComponentData<DefaultJumpAbility>(entity);
+				ref readonly var state   = ref GetComponentData<AbilityState>(entity);
+				ref readonly var owner   = ref GetComponentData<Owner>(entity).Target;
+
+				if (state.ActivationVersion != ability.LastActiveId)
+				{
+					ability.IsJumping    = false;
+					ability.ActiveTime   = 0;
+					ability.LastActiveId = state.ActivationVersion;
+				}
+
+				ref readonly var translation = ref GetComponentData<Position>(owner).Value;
+
+				ref var velocity       = ref GetComponentData<Velocity>(owner).Value;
+				ref var unitController = ref GetComponentData<UnitControllerState>(owner);
+				if (!state.IsActiveOrChaining)
+				{
+					if (ability.IsJumping)
+					{
+						velocity.Y = Math.Max(0, velocity.Y - 60 * (ability.ActiveTime * 2));
+					}
+
+					ability.ActiveTime = 0;
+					ability.IsJumping  = false;
+					return;
+				}
+
+				const float startJumpTime = 0.5f;
+
+				ref readonly var playState     = ref GetComponentData<UnitPlayState>(owner);
+				ref readonly var unitDirection = ref GetComponentData<UnitDirection>(owner).Value;
+
+				var wasJumping   = ability.IsJumping;
+				var retreatSpeed = playState.MovementAttackSpeed * 3f;
+
+				ability.IsJumping = ability.ActiveTime <= startJumpTime;
+
+				if (!wasJumping && ability.IsJumping)
+					velocity.Y = Math.Max(velocity.Y + 25, 30);
+				else if (ability.IsJumping && velocity.Y > 0)
+					velocity.Y = Math.Max(velocity.Y - 60 * dt, 0);
+
+				if (ability.ActiveTime < 3.25f)
+					velocity.X = MathHelper.LerpNormalized(velocity.X, 0, dt * (ability.ActiveTime + 1));
+
+				if (!ability.IsJumping && velocity.Y > 0)
+				{
+					velocity.Y = Math.Max(velocity.Y - 10 * dt, 0);
+					velocity.Y = MathHelper.LerpNormalized(velocity.Y, 0, 5 * dt);
+				}
+
+				ability.ActiveTime += dt;
+
+				unitController.ControlOverVelocityX = ability.ActiveTime < 3.25f;
+				unitController.ControlOverVelocityY = ability.ActiveTime < 2.5f;
+			}
+		}
+	}
+}

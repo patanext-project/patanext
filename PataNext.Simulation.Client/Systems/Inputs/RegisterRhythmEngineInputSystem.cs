@@ -127,6 +127,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 			abilityCollectionSystem.SpawnFor("march", unit);
 			abilityCollectionSystem.SpawnFor("retreat", unit);
+			abilityCollectionSystem.SpawnFor("jump", unit);
 
 			var rhythmEngine = gameWorld.CreateEntity();
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
