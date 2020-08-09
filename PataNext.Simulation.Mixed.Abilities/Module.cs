@@ -29,6 +29,9 @@ namespace PataNext.Simulation.Mixed.Abilities
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilitySystem));
 					
+					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilityProvider));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilitySystem));
+					
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));
 				}
 			}

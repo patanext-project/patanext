@@ -147,6 +147,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			abilityCollectionSystem.SpawnFor("march", unit);
 			abilityCollectionSystem.SpawnFor("retreat", unit);
 			abilityCollectionSystem.SpawnFor("jump", unit);
+			abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
 
 			gameWorld.AddComponent(gameEntityTest, new ServerCameraState
 			{
