@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Text;
 using GameHost.Core.Client;
@@ -132,6 +133,7 @@ namespace PataNext.Export.Desktop
 			gameBootstrap.Setup();
 			while (gameBootstrap.Loop())
 			{
+				Thread.Sleep(10);
 			}
 			gameBootstrap.Dispose();
 		}

@@ -15,6 +15,9 @@ namespace PataNext.Module.Simulation.Resources.Keys
 		
 		public EquipmentResourceKey(CharBuffer64 value) => Value = value;
 		public EquipmentResourceKey(string       value) => Value = CharBufferUtility.Create<CharBuffer64>(value);
+		
+		public static implicit operator EquipmentResourceKey(string value) => new EquipmentResourceKey(value);
+
 
 		public bool Equals(EquipmentResourceKey other)
 		{

@@ -41,9 +41,6 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 		private InputDatabase     inputDatabase;
 		private IManagedWorldTime time;
 
-		private GameResourceDb<RhythmCommandResource, RhythmCommandResourceKey> localCommandDb;
-		private GameResourceDb<UnitKitResource, UnitKitResourceKey> localKitDb;
-
 		private PlayableUnitProvider    playableUnitProvider;
 		private AbilityCollectionSystem abilityCollectionSystem;
 
@@ -79,8 +76,9 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				return;
 			spawnInFrame = -999;
 			
-			localCommandDb = new GameResourceDb<RhythmCommandResource, RhythmCommandResourceKey>(gameWorld);
-			localKitDb     = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(gameWorld);
+			var localKitDb         = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(gameWorld);
+			var localAttachDb = new GameResourceDb<UnitAttachmentResource, UnitAttachmentResourceKey>(gameWorld);
+			var localEquipDb = new GameResourceDb<EquipmentResource, EquipmentResourceKey>(gameWorld);
 
 			rhythmActionMap = new Dictionary<int, Entity>();
 			for (var i = 0; i < 4; i++)
@@ -128,6 +126,23 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(unit, new UnitEnemySeekingState());
 			gameWorld.AddComponent(unit, new UnitTargetOffset());
 			gameWorld.AddComponent(unit, new UnitTargetControlTag());
+
+			var displayedEquip = gameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
+			displayedEquip.Add(new UnitDisplayedEquipment
+			{
+				Attachment = localAttachDb.GetOrCreate("Mask"),
+				Resource = localEquipDb.GetOrCreate("Masks/n_taterazay")
+			});
+			displayedEquip.Add(new UnitDisplayedEquipment
+			{
+				Attachment = localAttachDb.GetOrCreate("LeftEquipment"),
+				Resource   = localEquipDb.GetOrCreate("Shields/default_shield")
+			});
+			displayedEquip.Add(new UnitDisplayedEquipment
+			{
+				Attachment = localAttachDb.GetOrCreate("RightEquipment"),
+				Resource   = localEquipDb.GetOrCreate("Swords/default_sword")
+			});
 
 			abilityCollectionSystem.SpawnFor("march", unit);
 			abilityCollectionSystem.SpawnFor("retreat", unit);
