@@ -4,6 +4,7 @@ using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.BaseSystems;
@@ -66,6 +67,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 		public override void OnAbilityPreSimulationPass()
 		{
+			var abilityAccessor = new ComponentDataAccessor<AbilityState>(GameWorld);
+			var subsetAccessor = new ComponentDataAccessor<DefaultSubsetMarch>(GameWorld);
 			foreach (var entity in (abilityQuery ??= CreateEntityQuery(new[]
 			{
 				typeof(DefaultMarchAbility),
@@ -73,8 +76,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 				typeof(AbilityState)
 			})).GetEntities())
 			{
-				var state = GetComponentData<AbilityState>(entity);
-				GetComponentData<DefaultSubsetMarch>(entity).IsActive = state.IsActive;
+				subsetAccessor[entity].IsActive = abilityAccessor[entity].IsActive;
 			}
 		}
 	}

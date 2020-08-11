@@ -4,10 +4,13 @@ using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
+using GameHost.IO;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
 using PataNext.Game;
+using PataNext.Game.Abilities;
+using PataNext.Game.BGM;
 
 [assembly: RegisterAvailableModule("PataNext.Game", "guerro", typeof(Module))]
 

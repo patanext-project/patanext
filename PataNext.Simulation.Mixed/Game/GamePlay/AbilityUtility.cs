@@ -1,13 +1,55 @@
 ﻿using System;
 using System.Numerics;
 using GameHost.Simulation.Utility.InterTick;
+using PataNext.Game.Abilities;
+using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using StormiumTeam.GameBase;
 
 namespace PataNext.Module.Simulation.Game.GamePlay
 {
 	public static class AbilityUtility
 	{
+		public static int CompileStat(AbilityEngineSet engineSet, int original, double defaultMultiplier, double feverMultiplier, double perfectMultiplier)
+		{
+			var originalF = original * defaultMultiplier;
+			if (engineSet.ComboSettings.CanEnterFever(engineSet.ComboState))
+			{
+				originalF *= feverMultiplier;
+				if (engineSet.CurrentCommand.IsPerfect)
+					originalF *= perfectMultiplier;
+			}
+
+			return original + ((int) Math.Round(originalF) - original);
+		}
+
+		public static float CompileStat(AbilityEngineSet engineSet, float original, double defaultMultiplier, double feverMultiplier, double perfectMultiplier)
+		{
+			var originalF = original * defaultMultiplier;
+			if (engineSet.ComboSettings.CanEnterFever(engineSet.ComboState))
+			{
+				originalF *= feverMultiplier;
+				if (engineSet.CurrentCommand.IsPerfect)
+					originalF *= perfectMultiplier;
+			}
+
+			return (float) (original + (originalF - original));
+		}
+
+		public static UnitPlayState CompileStat(AbilityEngineSet engineSet, UnitPlayState playState, in StatisticModifier defaultModifier, in StatisticModifier feverModifier, in StatisticModifier perfectModifier)
+		{
+			defaultModifier.Multiply(ref playState);
+			if (engineSet.ComboSettings.CanEnterFever(engineSet.ComboState))
+			{
+				feverModifier.Multiply(ref playState);
+				if (engineSet.CurrentCommand.IsPerfect)
+					perfectModifier.Multiply(ref playState);
+			}
+
+			return playState;
+		}
+		
 		public struct GetTargetVelocityParameters
 		{
 			public Vector3       TargetPosition;

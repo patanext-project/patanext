@@ -1,9 +1,11 @@
 ﻿using DefaultEcs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
+using GameHost.IO;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
+using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Passes;
 using StormiumTeam.GameBase;
 
@@ -11,8 +13,10 @@ using StormiumTeam.GameBase;
 
 namespace PataNext.Simulation.Mixed.Abilities
 {
-	public class Module : GameHostModule
+	public class Module : GameHostModule, IModuleHasAbilityDescStorage
 	{
+		private AbilityDescStorage abilityDescStorage;
+		
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
@@ -35,6 +39,19 @@ namespace PataNext.Simulation.Mixed.Abilities
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));
 				}
 			}
+			
+			Storage.Subscribe((_, exteriorStorage) =>
+			{
+				var storage = exteriorStorage switch
+				{
+					{} => new StorageCollection {exteriorStorage, DllStorage},
+					null => new StorageCollection {DllStorage}
+				};
+
+				abilityDescStorage = new AbilityDescStorage(storage.GetOrCreateDirectoryAsync("Abilities").Result);
+			}, true);
 		}
+
+		public AbilityDescStorage Value => abilityDescStorage;
 	}
 }

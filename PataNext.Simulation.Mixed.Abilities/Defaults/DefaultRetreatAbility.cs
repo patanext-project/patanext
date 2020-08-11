@@ -93,8 +93,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 				ref readonly var translation = ref GetComponentData<Position>(owner).Value;
 
-				ref var velocity       = ref GetComponentData<Velocity>(owner).Value;
-				ref var unitController = ref GetComponentData<UnitControllerState>(owner);
+				ref var velocity = ref GetComponentData<Velocity>(owner).Value;
 				if (!state.IsActiveOrChaining)
 				{
 					if (MathHelper.Distance(ability.StartPosition, translation.X) > 2.5f
@@ -116,7 +115,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 				var wasRetreating = ability.IsRetreating;
 				var retreatSpeed  = playState.MovementAttackSpeed * 3f;
 
-				ability.IsRetreating = ability.ActiveTime <= walkbackTime;
+				ability.IsRetreating =  ability.ActiveTime <= walkbackTime;
+				ability.ActiveTime   += dt;
 
 				if (!wasRetreating && ability.IsRetreating)
 				{
@@ -139,8 +139,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 					velocity.X = (newPosX - translation.X) / dt;
 				}
 
-				unitController.ControlOverVelocityX =  true;
-				ability.ActiveTime                  += dt;
+				ref var unitController = ref GetComponentData<UnitControllerState>(owner);
+				unitController.ControlOverVelocityX = true;
 			}
 		}
 	}

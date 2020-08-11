@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using GameHost.Core.Ecs;
+using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.InterTick;
 using GameHost.Worlds.Components;
@@ -29,6 +30,12 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 		{
 			var dt      = (float) worldTime.Delta.TotalSeconds;
 			var gravity = new Vector3(0, -26f, 0);
+
+			var controllerStateAccessor = new ComponentDataAccessor<UnitControllerState>(GameWorld);
+			var groundStateAccessor     = new ComponentDataAccessor<GroundState>(GameWorld);
+			var positionAccessor        = new ComponentDataAccessor<Position>(GameWorld);
+			var velocityAccessor        = new ComponentDataAccessor<Velocity>(GameWorld);
+			var playStateAccessor       = new ComponentDataAccessor<UnitPlayState>(GameWorld);
 			foreach (var entity in (unitQuery ??= CreateEntityQuery(new[]
 			{
 				AsComponentType<UnitControllerState>(),
@@ -38,11 +45,11 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 				AsComponentType<UnitPlayState>(),
 			})).GetEntities())
 			{
-				ref var          controllerState = ref GetComponentData<UnitControllerState>(entity);
-				ref var          groundState     = ref GetComponentData<GroundState>(entity).Value;
-				ref var          translation     = ref GetComponentData<Position>(entity).Value;
-				ref var          velocity        = ref GetComponentData<Velocity>(entity).Value;
-				ref readonly var unitPlayState   = ref GetComponentData<UnitPlayState>(entity);
+				ref var          controllerState = ref controllerStateAccessor[entity];
+				ref var          groundState     = ref groundStateAccessor[entity].Value;
+				ref var          translation     = ref positionAccessor[entity].Value;
+				ref var          velocity        = ref velocityAccessor[entity].Value;
+				ref readonly var unitPlayState   = ref playStateAccessor[entity];
 
 				if (velocity.Y > 0)
 					groundState = false;

@@ -4,6 +4,7 @@ using GameHost.Core.Ecs;
 using GameHost.Native;
 using GameHost.Native.Fixed;
 using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
 using PataNext.Module.Simulation.Components;
@@ -50,6 +51,21 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 		public void OnAbilityPreSimulationPass()
 		{
 			validAbilityMask.CheckForNewArchetypes();
+			
+			var relativeEngineAccessor = new ComponentDataAccessor<Relative<RhythmEngineDescription>>(GameWorld);
+			var engineStateAccessor = new ComponentDataAccessor<RhythmEngineLocalState>(GameWorld);
+			var engineSettingsAccessor = new ComponentDataAccessor<RhythmEngineSettings>(GameWorld);
+			var executingCommandAccessor = new ComponentDataAccessor<RhythmEngineExecutingCommand>(GameWorld);
+			var gameComboStateAccessor = new ComponentDataAccessor<GameCombo.State>(GameWorld);
+			var gameComboSettingsAccessor = new ComponentDataAccessor<GameCombo.Settings>(GameWorld);
+			var gameCommandStateAccessor = new ComponentDataAccessor<GameCommandState>(GameWorld);
+
+			var abilityStateComponent = AsComponentType<AbilityState>();
+			var ownerActiveAbilityAccessor  = new ComponentDataAccessor<OwnerActiveAbility>(GameWorld);
+			var abilityStateAccessor  = new ComponentDataAccessor<AbilityState>(GameWorld);
+			var abilityActivationAccessor  = new ComponentDataAccessor<AbilityActivation>(GameWorld);
+			var abilityCommands  = new ComponentDataAccessor<AbilityCommands>(GameWorld);
+			var engineSetAccessor  = new ComponentDataAccessor<AbilityEngineSet>(GameWorld);
 			foreach (var entity in abilityQuery.GetEntities())
 			{
 				// Indicate whether or not we own the entity simulation.
@@ -57,15 +73,15 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				var isSimulationOwned = GameWorld.HasComponent<IsSimulationOwned>(entity);
 				var abilityBuffer     = GameWorld.GetBuffer<OwnedRelative<AbilityDescription>>(entity);
 
-				ref var activeSelf = ref GetComponentData<OwnerActiveAbility>(entity);
+				ref var activeSelf = ref ownerActiveAbilityAccessor[entity];
 
-				ref readonly var engineEntity      = ref GetComponentData<Relative<RhythmEngineDescription>>(entity).Target;
-				ref readonly var engineState       = ref GetComponentData<RhythmEngineLocalState>(engineEntity);
-				ref readonly var engineSettings    = ref GetComponentData<RhythmEngineSettings>(engineEntity);
-				ref readonly var executingCommand  = ref GetComponentData<RhythmEngineExecutingCommand>(engineEntity);
-				ref readonly var gameComboState    = ref GetComponentData<GameCombo.State>(engineEntity);
-				ref readonly var gameComboSettings = ref GetComponentData<GameCombo.Settings>(engineEntity);
-				ref readonly var gameCommandState  = ref GetComponentData<GameCommandState>(engineEntity);
+				ref readonly var engineEntity      = ref relativeEngineAccessor[entity].Target;
+				ref readonly var engineState       = ref engineStateAccessor[engineEntity];
+				ref readonly var engineSettings    = ref engineSettingsAccessor[engineEntity];
+				ref readonly var executingCommand  = ref executingCommandAccessor[engineEntity];
+				ref readonly var gameComboState    = ref gameComboStateAccessor[engineEntity];
+				ref readonly var gameComboSettings = ref gameComboSettingsAccessor[engineEntity];
+				ref readonly var gameCommandState  = ref gameCommandStateAccessor[engineEntity];
 
 				var isNewIncomingCommand = updateAndCheckNewIncomingCommand(gameComboState, gameCommandState, executingCommand, ref activeSelf);
 
@@ -78,7 +94,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				{
 					isHeroModeActive = true;
 
-					ref var abilityState = ref GetComponentData<AbilityState>(activeSelf.Active);
+					ref var abilityState = ref abilityStateAccessor[activeSelf.Active];
 					// Set as inactive if we can't chain it with the next command.
 					if (executingCommand.CommandTarget != activeAbilityCommands.Chaining)
 					{
@@ -125,10 +141,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 						if (!validAbilityMask.MatchAgainst(abilityEntity))
 							continue;
 
-						ref var abilityState = ref GetComponentData<AbilityState>(abilityEntity);
+						ref var abilityState = ref abilityStateAccessor[abilityEntity];
 						abilityState.Phase = EAbilityPhase.None;
 
-						GetComponentData<AbilityEngineSet>(abilityEntity) = new AbilityEngineSet
+						engineSetAccessor[abilityEntity] = new AbilityEngineSet
 						{
 							Engine          = engineEntity,
 							Process         = engineState,
@@ -141,8 +157,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 							PreviousCommand = previousCommand,
 						};
 
-						ref readonly var activation = ref GetComponentData<AbilityActivation>(abilityEntity);
-						ref readonly var commands   = ref GetComponentData<AbilityCommands>(abilityEntity);
+						ref readonly var activation = ref abilityActivationAccessor[abilityEntity];
+						ref readonly var commands   = ref abilityCommands[abilityEntity];
 						if (activation.Type == EAbilityActivationType.HeroMode && !(gameComboSettings.CanEnterFever(gameComboState) && executingCommand.IsPerfect))
 							continue;
 
@@ -174,9 +190,9 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				    && activeSelf.Active != default)
 				{
 					// It might be possible that the entity got deleted... so we need to check if it got the component
-					if (HasComponent<AbilityState>(activeSelf.Active))
+					if (HasComponent(activeSelf.Active, abilityStateComponent))
 					{
-						ref var state = ref GetComponentData<AbilityState>(activeSelf.Active);
+						ref var state = ref abilityStateAccessor[activeSelf.Active];
 						state.Phase = EAbilityPhase.None;
 						state.Combo = 0;
 					}
@@ -189,16 +205,16 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				{
 					if (executingCommand.ActivationBeatStart <= RhythmEngineUtility.GetActivationBeat(engineState, engineSettings))
 					{
-						if (HasComponent<AbilityState>(activeSelf.Active))
+						if (HasComponent(activeSelf.Active, abilityStateComponent))
 						{
-							ref var state = ref GetComponentData<AbilityState>(activeSelf.Active);
+							ref var state = ref abilityStateAccessor[activeSelf.Active];
 							state.Combo = 0;
 						}
 
 						activeSelf.Active = activeSelf.Incoming;
-						if (HasComponent<AbilityState>(activeSelf.Active))
+						if (HasComponent(activeSelf.Active, abilityStateComponent))
 						{
-							ref var state = ref GetComponentData<AbilityState>(activeSelf.Active);
+							ref var state = ref abilityStateAccessor[activeSelf.Active];
 							state.HeroModeImperfectCountWhileActive = 0;
 						}
 					}
@@ -207,7 +223,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				// We update incoming state before active state (in case if it's the same ability...)
 				if (activeSelf.Incoming != default)
 				{
-					ref var incomingState = ref GetComponentData<AbilityState>(activeSelf.Incoming);
+					ref var incomingState = ref abilityStateAccessor[activeSelf.Incoming];
 					incomingState.Phase |= EAbilityPhase.WillBeActive;
 					if (isNewIncomingCommand)
 					{
@@ -221,8 +237,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				// Update data in the active ability
 				if (activeSelf.Active != default)
 				{
-					ref var activeController = ref GetComponentData<AbilityState>(activeSelf.Active);
-					activeAbilityActivation = GetComponentData<AbilityActivation>(activeSelf.Active);
+					ref var activeController = ref abilityStateAccessor[activeSelf.Active];
+					activeAbilityActivation = abilityActivationAccessor[activeSelf.Active];
 
 					var engineElapsedMs = (int) (engineState.Elapsed.Ticks / TimeSpan.TicksPerMillisecond);
 					if (gameCommandState.StartTimeSpan <= engineState.Elapsed)

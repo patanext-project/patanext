@@ -39,9 +39,7 @@ namespace PataNext.Module.Simulation.Resources
 			var resource = GetOrCreate(new RhythmCommandResourceKey(type));
 			if (!GameWorld.HasComponent(resource.Entity, type))
 				GameWorld.AddComponent(resource.Entity, type);
-
-			Console.WriteLine($"Register command {identifier} as {type.Id} on resource {resource.Entity}");
-
+			
 			if (identifier != null)
 				GameWorld.AddComponent(resource.Entity, new RhythmCommandIdentifier(identifier));
 

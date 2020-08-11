@@ -75,8 +75,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 					ability.LastActiveId = state.ActivationVersion;
 				}
 
-				ref var velocity       = ref GetComponentData<Velocity>(owner).Value;
-				ref var unitController = ref GetComponentData<UnitControllerState>(owner);
+				ref var velocity = ref GetComponentData<Velocity>(owner).Value;
 				if (!state.IsActiveOrChaining)
 				{
 					if (ability.IsJumping)
@@ -110,6 +109,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 				ability.ActiveTime += dt;
 
+				ref var unitController = ref GetComponentData<UnitControllerState>(owner);
 				unitController.ControlOverVelocityX = ability.ActiveTime < 3.25f;
 				unitController.ControlOverVelocityY = ability.ActiveTime < 2.5f;
 			}

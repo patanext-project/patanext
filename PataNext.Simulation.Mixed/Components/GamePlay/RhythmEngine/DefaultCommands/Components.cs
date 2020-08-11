@@ -17,6 +17,13 @@ namespace PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultComm
 		}
 	}
 	
+	public struct ChargeCommand : IComponentData
+	{
+		public class Register : RegisterGameHostComponentData<ChargeCommand>
+		{
+		}
+	}
+	
 	public struct JumpCommand : IComponentData
 	{
 		public class Register : RegisterGameHostComponentData<JumpCommand>

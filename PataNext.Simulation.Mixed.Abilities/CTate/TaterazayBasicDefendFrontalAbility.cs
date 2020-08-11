@@ -2,6 +2,7 @@
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
@@ -63,6 +64,13 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 		public override void OnAbilityPreSimulationPass()
 		{
 			var dt = (float) worldTime.Delta.TotalSeconds;
+
+			var abilityAccessor         = new ComponentDataAccessor<TaterazayBasicDefendFrontalAbility>(GameWorld);
+			var abilityStateAccessor    = new ComponentDataAccessor<AbilityState>(GameWorld);
+			var ownerAccessor           = new ComponentDataAccessor<Owner>(GameWorld);
+			var playStateAccessor       = new ComponentDataAccessor<UnitPlayState>(GameWorld);
+			var controllerStateAccessor = new ComponentDataAccessor<UnitControllerState>(GameWorld);
+			var velocityAccessor        = new ComponentDataAccessor<Velocity>(GameWorld);
 			foreach (var entity in (abilityQuery ??= CreateEntityQuery(stackalloc[]
 			{
 				AsComponentType<AbilityState>(),
@@ -70,21 +78,25 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 				AsComponentType<Owner>()
 			})).GetEntities())
 			{
-				ref readonly var ability        = ref GetComponentData<TaterazayBasicDefendFrontalAbility>(entity);
-				ref readonly var state          = ref GetComponentData<AbilityState>(entity);
-				ref readonly var owner          = ref GetComponentData<Owner>(entity).Target;
-				ref readonly var playState      = ref GetComponentData<UnitPlayState>(owner);
-				ref var          unitController = ref GetComponentData<UnitControllerState>(owner);
-				ref var          velocity       = ref GetComponentData<Velocity>(owner).Value;
-
-				if (state.IsChaining)
-				{
-					unitController.ControlOverVelocityX = true;
-					velocity.X                          = MathHelper.LerpNormalized(velocity.X, 0, playState.GetAcceleration() * 50 * dt);
-				}
-
-				if (!state.IsActive)
+				ref readonly var state = ref abilityStateAccessor[entity];
+				if (!state.IsActiveOrChaining)
 					continue;
+
+				ref readonly var ability        = ref abilityAccessor[entity];
+				ref readonly var owner          = ref ownerAccessor[entity].Target;
+				ref readonly var playState      = ref playStateAccessor[owner];
+				ref var          unitController = ref controllerStateAccessor[owner];
+				ref var          velocity       = ref velocityAccessor[owner].Value;
+				if (!state.IsActive)
+				{
+					if (state.IsChaining)
+					{
+						unitController.ControlOverVelocityX = true;
+						velocity.X                          = MathHelper.LerpNormalized(velocity.X, 0, playState.GetAcceleration() * 50 * dt);
+					}
+
+					continue;
+				}
 
 				ref readonly var targetEntity = ref GetComponentData<Relative<UnitTargetDescription>>(owner).Target;
 				ref readonly var direction    = ref GetComponentData<UnitDirection>(owner).Value;

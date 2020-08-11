@@ -8,6 +8,7 @@ using StormiumTeam.GameBase.SystemBase;
 namespace PataNext.Module.Simulation.BaseSystems
 {
 	[UpdateAfter(typeof(UpdateActiveAbilitySystem))]
+	[UpdateAfter(typeof(ApplyAbilityStatisticOnChainingSystem))]
 	public abstract class BaseAbilitySystem : GameAppSystem, IAbilityPreSimulationPass
 	{
 		public BaseAbilitySystem(WorldCollection collection) : base(collection)

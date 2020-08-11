@@ -66,7 +66,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			spawnInFrame = 2;
+			spawnInFrame = 10;
 		}
 
 		protected override void OnUpdate()
@@ -105,60 +105,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(unitTarget, new UnitTargetDescription());
 			gameWorld.AddComponent(unitTarget, new Position());
 			gameWorld.AddComponent(unitTarget, new Relative<PlayerDescription>(gameEntityTest));
-			
-			var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
-			{
-				Statistics = new UnitStatistics
-				{
-					BaseWalkSpeed = 2,
-					FeverWalkSpeed = 2.2f,
-					MovementAttackSpeed = 3.1f,
-					Weight = 8.5f,
-				},
-				Direction  = UnitDirection.Right
-			});
-			gameWorld.GetComponentData<Position>(unit).Value.X += 8;
-			gameWorld.GetComponentData<Position>(unitTarget).Value.X -= 8;
-			
-			gameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
-			gameWorld.AddComponent(unit, new Relative<PlayerDescription>(gameEntityTest));
-			gameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
-			gameWorld.AddComponent(unit, new UnitEnemySeekingState());
-			gameWorld.AddComponent(unit, new UnitTargetOffset());
-			gameWorld.AddComponent(unit, new UnitTargetControlTag());
 
-			var displayedEquip = gameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
-			displayedEquip.Add(new UnitDisplayedEquipment
-			{
-				Attachment = localAttachDb.GetOrCreate("Mask"),
-				Resource = localEquipDb.GetOrCreate("Masks/n_taterazay")
-			});
-			displayedEquip.Add(new UnitDisplayedEquipment
-			{
-				Attachment = localAttachDb.GetOrCreate("LeftEquipment"),
-				Resource   = localEquipDb.GetOrCreate("Shields/default_shield")
-			});
-			displayedEquip.Add(new UnitDisplayedEquipment
-			{
-				Attachment = localAttachDb.GetOrCreate("RightEquipment"),
-				Resource   = localEquipDb.GetOrCreate("Swords/default_sword")
-			});
-
-			abilityCollectionSystem.SpawnFor("march", unit);
-			abilityCollectionSystem.SpawnFor("retreat", unit);
-			abilityCollectionSystem.SpawnFor("jump", unit);
-			abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
-
-			gameWorld.AddComponent(gameEntityTest, new ServerCameraState
-			{
-				Data =
-				{
-					Mode   = CameraMode.Forced,
-					Offset = RigidTransform.Identity,
-					Target = unit
-				}
-			});
-			
 			var rhythmEngine = gameWorld.CreateEntity();
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
 			gameWorld.AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = time.Total.Add(TimeSpan.FromSeconds(2))});
@@ -170,10 +117,108 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(rhythmEngine, gameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
 			gameWorld.AddComponent(rhythmEngine, new GameCommandState());
 			gameWorld.AddComponent(rhythmEngine, new IsSimulationOwned());
-
-			gameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
-
 			GameCombo.AddToEntity(gameWorld, rhythmEngine);
+			
+			for (var i = 0; i != 1; i++)
+			{
+				var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
+				{
+					Statistics = new UnitStatistics
+					{
+						BaseWalkSpeed       = 2,
+						FeverWalkSpeed      = 2.2f,
+						MovementAttackSpeed = 3.1f,
+						Weight              = 8.5f,
+					},
+					Direction = UnitDirection.Right
+				});
+				gameWorld.GetComponentData<Position>(unit).Value.X       += 8;
+				gameWorld.GetComponentData<Position>(unitTarget).Value.X -= 8;
+
+				gameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
+				gameWorld.AddComponent(unit, new Relative<PlayerDescription>(gameEntityTest));
+				gameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
+				gameWorld.AddComponent(unit, new UnitEnemySeekingState());
+				gameWorld.AddComponent(unit, new UnitTargetOffset());
+				gameWorld.AddComponent(unit, new UnitTargetControlTag());
+
+				var displayedEquip = gameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("Mask"),
+					Resource   = localEquipDb.GetOrCreate("Masks/n_taterazay")
+				});
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("LeftEquipment"),
+					Resource   = localEquipDb.GetOrCreate("Shields/default_shield")
+				});
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("RightEquipment"),
+					Resource   = localEquipDb.GetOrCreate("Swords/default_sword")
+				});
+
+				abilityCollectionSystem.SpawnFor("march", unit);
+				abilityCollectionSystem.SpawnFor("retreat", unit);
+				abilityCollectionSystem.SpawnFor("jump", unit);
+				abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
+
+				gameWorld.AddComponent(gameEntityTest, new ServerCameraState
+				{
+					Data =
+					{
+						Mode   = CameraMode.Forced,
+						Offset = RigidTransform.Identity,
+						Target = unit
+					}
+				});
+
+				gameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
+			}
+			
+			// No favor 
+			for (var i = 0; i != 4; i++)
+			{
+				var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
+				{
+					Statistics = new UnitStatistics
+					{
+						BaseWalkSpeed       = 2,
+						FeverWalkSpeed      = 2.2f,
+						MovementAttackSpeed = 3.1f,
+						Weight              = 8.5f,
+					},
+					Direction = UnitDirection.Right
+				});
+				
+				var tt = gameWorld.CreateEntity();
+				gameWorld.AddComponent(tt, new UnitTargetDescription());
+				gameWorld.AddComponent(tt, new Position());
+				gameWorld.GetComponentData<Position>(tt).Value.X = i;
+
+				gameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("yarida"))));
+				gameWorld.AddComponent(unit, new UnitEnemySeekingState());
+				gameWorld.AddComponent(unit, new UnitTargetOffset());
+				gameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(tt));
+
+				var displayedEquip = gameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("Mask"),
+					Resource   = localEquipDb.GetOrCreate("Masks/n_yarida")
+				});
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("RightEquipment"),
+					Resource   = localEquipDb.GetOrCreate("Spears/default_spear")
+				});
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("LeftEquipment"),
+					Resource   = localEquipDb.GetOrCreate("Masks/n_taterazay")
+				});
+			}
 		}
 
 		public void OnRhythmEngineSimulationPass()
