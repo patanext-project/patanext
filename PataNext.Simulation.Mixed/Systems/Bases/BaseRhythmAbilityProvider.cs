@@ -8,8 +8,10 @@ using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Native;
+using GameHost.Native.Fixed;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
+using GameHost.Simulation.Utility.Resource;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
@@ -193,7 +195,8 @@ namespace PataNext.Module.Simulation.BaseSystems
 			if (UseStatsModification)
 				entityComponents.AddRange(stackalloc ComponentType[]
 				{
-					GameWorld.AsComponentType<AbilityModifyStatsOnChaining>()
+					GameWorld.AsComponentType<AbilityModifyStatsOnChaining>(),
+					GameWorld.AsComponentType<AbilityControlVelocity>()
 				});
 		}
 
@@ -204,12 +207,22 @@ namespace PataNext.Module.Simulation.BaseSystems
 			var commandDb = localRhythmCommandResourceManager.DataBase;
 			GameWorld.GetComponentData<AbilityCommands>(entity) = new AbilityCommands
 			{
-				Chaining = commandDb.GetOrCreate(GetChainingCommand())
+				Chaining = commandDb.GetOrCreate(GetChainingCommand()),
 			};
 			GameWorld.GetComponentData<AbilityActivation>(entity) = new AbilityActivation
 			{
-				Selection = data.Selection
+				Selection = data.Selection,
+				HeroModeMaxCombo = -1,
+				HeroModeImperfectLimitBeforeDeactivation = 2
 			};
+
+			var allowedHeroModeCommands = GetHeroModeAllowedCommands();
+			if (allowedHeroModeCommands != null)
+			{
+				ref var buffer = ref GameWorld.GetComponentData<AbilityCommands>(entity).HeroModeAllowedCommands;
+				foreach (var cmd in allowedHeroModeCommands)
+					buffer.Add(commandDb.GetOrCreate(cmd));
+			}
 
 			GameWorld.GetComponentData<Owner>(entity) = new Owner(data.Owner);
 			GameWorld.SetLinkedTo(entity, data.Owner, true);

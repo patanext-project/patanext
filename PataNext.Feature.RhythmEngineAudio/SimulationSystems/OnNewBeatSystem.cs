@@ -44,7 +44,7 @@ namespace PataNext.Simulation.Client.Systems
 			return LocalEngine != default && base.CanUpdate();
 		}
 
-		public override void OnRhythmEngineSimulationPass()
+		protected override void OnUpdatePass()
 		{
 			if (!gameWorld.TryGetSingleton(out GameTime gameTime))
 				return;

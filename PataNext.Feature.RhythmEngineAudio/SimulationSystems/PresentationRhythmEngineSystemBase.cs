@@ -13,8 +13,10 @@ using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
+using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Simulation.Client.Systems
 {
@@ -74,7 +76,7 @@ namespace PataNext.Simulation.Client.Systems
 			if (LocalRhythmEngine != default)
 			{
 				localInfo.ActiveBgmId = "topkek";
-				localInfo.Elapsed = gameWorld.GetComponentData<RhythmEngineLocalState>(LocalRhythmEngine).Elapsed;
+				localInfo.Elapsed     = gameWorld.GetComponentData<RhythmEngineLocalState>(LocalRhythmEngine).Elapsed;
 				if (gameWorld.HasComponent<RhythmEngineExecutingCommand>(LocalRhythmEngine))
 				{
 					var executingCommand = gameWorld.GetComponentData<RhythmEngineExecutingCommand>(LocalRhythmEngine);
@@ -107,20 +109,23 @@ namespace PataNext.Simulation.Client.Systems
 
 	[RestrictToApplication(typeof(SimulationApplication))]
 	[UpdateAfter(typeof(PresentationRhythmEngineSystemStart))]
-	public abstract class PresentationRhythmEngineSystemBase : AppSystem, IRhythmEngineSimulationPass
+	public abstract class PresentationRhythmEngineSystemBase : GameAppSystem, IPostUpdateSimulationPass
 	{
 		private PresentationRhythmEngineSystemStart start;
 
-		protected GameWorld  GameWorld;
-		public    GameEntity LocalEngine => start.LocalRhythmEngine;
-		public    PresentationRhythmEngineSystemStart.RhythmEngineInformation LocalInformation => start.LocalInformation;
+		public GameEntity                                                  LocalEngine      => start.LocalRhythmEngine;
+		public PresentationRhythmEngineSystemStart.RhythmEngineInformation LocalInformation => start.LocalInformation;
 
 		protected PresentationRhythmEngineSystemBase(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref start);
-			DependencyResolver.Add(() => ref GameWorld);
 		}
 
-		public abstract void OnRhythmEngineSimulationPass();
+		protected abstract void OnUpdatePass();
+
+		public void OnAfterSimulationUpdate()
+		{
+			OnUpdatePass();
+		}
 	}
 }

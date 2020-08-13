@@ -1,4 +1,5 @@
-﻿using DefaultEcs;
+﻿using System;
+using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
@@ -30,7 +31,7 @@ namespace PataNext.Module.Simulation
 					simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IRhythmEngineSimulationPass.RegisterPass(),
 						new[] {typeof(IUpdateSimulationPass.RegisterPass)},
 						new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
-					
+
 					simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilityPreSimulationPass.RegisterPass(),
 						new[] {typeof(IUpdateSimulationPass.RegisterPass), typeof(IRhythmEngineSimulationPass.RegisterPass)},
 						new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
@@ -40,18 +41,19 @@ namespace PataNext.Module.Simulation
 						new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.LocalRhythmCommandResourceManager));
-					
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Providers.PlayableUnitProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculatePlayStateSystem));
-					
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.UpdateActiveAbilitySystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ApplyAbilityStatisticOnChainingSystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsSystem));
-					
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.AbilityControlVelocitySystem));
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.OnInputForRhythmEngine));

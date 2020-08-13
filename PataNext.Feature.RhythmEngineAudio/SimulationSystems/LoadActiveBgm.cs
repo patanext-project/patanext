@@ -25,7 +25,7 @@ namespace PataNext.Simulation.Client.Systems
 			DependencyResolver.Add(() => ref globalWorld);
 		}
 
-		public override void OnRhythmEngineSimulationPass()
+		protected override void OnUpdatePass()
 		{
 			if (currentLoadedBgm.Span.SequenceEqual(LocalInformation.ActiveBgmId.Span) && isBgmLoaded)
 				return;

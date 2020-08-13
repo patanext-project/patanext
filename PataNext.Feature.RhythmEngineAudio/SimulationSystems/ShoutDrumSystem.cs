@@ -8,12 +8,15 @@ using GameHost.Audio.Systems;
 using GameHost.Core.Ecs;
 using GameHost.IO;
 using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Feature.RhythmEngineAudio;
 using PataNext.Module.Simulation.Components;
+using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Game.RhythmEngine;
+using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Time.Components;
 
 namespace PataNext.Simulation.Client.Systems
@@ -29,9 +32,11 @@ namespace PataNext.Simulation.Client.Systems
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureSlider =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
 
+		private ResourceHandle<AudioResource> audioOnHeroMode;
+
 		private LoadAudioResourceSystem loadAudioResource;
-		private CustomModule    module;
-		private GameWorld       gameWorld;
+		private CustomModule            module;
+		private GameWorld               gameWorld;
 
 		public ShoutDrumSystem(WorldCollection collection) : base(collection)
 		{
@@ -43,12 +48,12 @@ namespace PataNext.Simulation.Client.Systems
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			var drumStorage = new StorageCollection {module.DllStorage, module.Storage.Value}
-			              .GetOrCreateDirectoryAsync("Sounds/RhythmEngine/Drums")
-			              .Result;
-			var effectStorage = new StorageCollection {module.DllStorage, module.Storage.Value}
-			                  .GetOrCreateDirectoryAsync("Sounds/RhythmEngine/Effects")
+			                  .GetOrCreateDirectoryAsync("Sounds/RhythmEngine/Drums")
 			                  .Result;
-			
+			var effectStorage = new StorageCollection {module.DllStorage, module.Storage.Value}
+			                    .GetOrCreateDirectoryAsync("Sounds/RhythmEngine/Effects")
+			                    .Result;
+
 			AudioPlayerUtility.Initialize(commandAudioPlayer   = World.Mgr.CreateEntity(), new StandardAudioPlayerComponent());
 			AudioPlayerUtility.Initialize(onPerfectAudioPlayer = World.Mgr.CreateEntity(), new StandardAudioPlayerComponent());
 
@@ -70,7 +75,9 @@ namespace PataNext.Simulation.Client.Systems
 					audioOnPressureSlider[key][rank] = loadAudioResource.Load($"drum_{key}_p{rank}.wav", drumStorage);
 				}
 			}
-			
+
+			audioOnHeroMode = loadAudioResource.Load("voice_on_hero_mode.wav", drumStorage);
+
 			AudioPlayerUtility.SetResource(onPerfectAudioPlayer, loadAudioResource.Load("on_perfect.wav", effectStorage));
 		}
 
@@ -82,13 +89,35 @@ namespace PataNext.Simulation.Client.Systems
 			return LocalEngine != default && base.CanUpdate();
 		}
 
-		public override void OnRhythmEngineSimulationPass()
+		private EntityQuery abilityQuery;
+
+		protected override void OnUpdatePass()
 		{
 			if (!CanUpdate())
 				return;
-			
+
 			if (!gameWorld.TryGetSingleton(out GameTime gameTime))
 				return;
+
+			// Check for any abilities of our that are triggering hero mode.
+			var isHeroModeIncoming = false;
+			{
+				var stateAccessor      = new ComponentDataAccessor<AbilityState>(GameWorld);
+				var activationAccessor = new ComponentDataAccessor<AbilityActivation>(GameWorld);
+				foreach (var ability in (abilityQuery ??= CreateEntityQuery(new[]
+				{
+					AsComponentType<AbilityState>(),
+					AsComponentType<AbilityActivation>(),
+					AsComponentType<Owner>()
+				})).GetEntities())
+				{
+					if (activationAccessor[ability].Type == EAbilityActivationType.HeroMode
+					    && stateAccessor[ability].Phase == EAbilityPhase.WillBeActive)
+					{
+						isHeroModeIncoming = true;
+					}
+				}
+			}
 
 			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[] {gameWorld.AsComponentType<PlayerInputComponent>()}))
 			{
@@ -99,15 +128,15 @@ namespace PataNext.Simulation.Client.Systems
 				var settings = gameWorld.GetComponentData<RhythmEngineSettings>(LocalEngine);
 				if (Math.Abs(RhythmEngineUtility.GetScore(state, settings)) > FlowPressure.Perfect)
 					score++;
-				
+
 				if (state.IsRecovery(RhythmEngineUtility.GetFlowBeat(state, settings)))
 					score = 2;
 
-				var cmdBuffer    = gameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(LocalEngine);
-				var executing    = gameWorld.GetComponentData<RhythmEngineExecutingCommand>(LocalEngine);
-				
+				var cmdBuffer = gameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(LocalEngine);
+				var executing = gameWorld.GetComponentData<RhythmEngineExecutingCommand>(LocalEngine);
+
 				// since this system may update after CmdBuffer get clear, we need to check if we have an active command target to determine if we can use a slider sound
-				var isFirstInput = cmdBuffer.Span.Length == 0 
+				var isFirstInput = cmdBuffer.Span.Length == 0
 				                   && (executing.CommandTarget == default || executing.ActivationBeatStart <= RhythmEngineUtility.GetActivationBeat(state, settings));
 
 				for (var i = 0; i < next.Actions.Length; i++)
@@ -115,20 +144,24 @@ namespace PataNext.Simulation.Client.Systems
 					ref readonly var action = ref next.Actions[i];
 					if (!action.InterFrame.AnyUpdate(gameTime.Frame))
 						continue;
-					
+
 					if (action.InterFrame.HasBeenReleased(gameTime.Frame) && (!action.IsSliding || isFirstInput))
 						continue;
 
 					ResourceHandle<AudioResource> resourceHandle;
-					if (action.IsSliding)
+					if (isHeroModeIncoming)
+						resourceHandle = audioOnHeroMode;
+					else if (action.IsSliding)
 						resourceHandle = audioOnPressureSlider[i + 1][score];
 					else
 						resourceHandle = audioOnPressureDrum[i + 1][score];
-					
+
+					Console.WriteLine(isHeroModeIncoming);
 					AudioPlayerUtility.SetResource(commandAudioPlayer, resourceHandle);
 					AudioPlayerUtility.Play(commandAudioPlayer);
-					
+
 					if (executing.PowerInteger >= 100
+					    && !isHeroModeIncoming
 					    && executing.ActivationBeatStart >= RhythmEngineUtility.GetActivationBeat(state, settings))
 						AudioPlayerUtility.Play(onPerfectAudioPlayer);
 				}

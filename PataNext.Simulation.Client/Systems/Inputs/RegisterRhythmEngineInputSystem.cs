@@ -171,6 +171,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				abilityCollectionSystem.SpawnFor("charge", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);
+				abilityCollectionSystem.SpawnFor("CTate.EnergyField", unit);
 
 				gameWorld.AddComponent(gameEntityTest, new ServerCameraState
 				{
@@ -227,6 +228,18 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 					Resource   = localEquipDb.GetOrCreate("Masks/n_taterazay")
 				});
 			}
+			
+			/*Console.WriteLine("BEGIN");
+			foreach (var pass in World.DefaultSystemCollection.Passes)
+			{
+				Console.WriteLine($"\t{pass.GetType()}");
+				foreach (var element in pass.RegisteredObjects)
+				{
+					Console.WriteLine($"\t\t{element.GetType()}");
+				}
+			}
+
+			Console.WriteLine("END");*/
 		}
 
 		private void SetAbility(in GameTime gameTime, ref PlayerInputComponent playerInputComponent, in AbilitySelection newSelection)

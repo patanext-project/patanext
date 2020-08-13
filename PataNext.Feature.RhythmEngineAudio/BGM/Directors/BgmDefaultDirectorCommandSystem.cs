@@ -77,7 +77,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			return canUpdate;
 		}
 
-		public override void OnRhythmEngineSimulationPass()
+		protected override void OnUpdatePass()
 		{
 			if (!CanUpdate())
 				return;

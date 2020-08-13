@@ -40,6 +40,9 @@ namespace PataNext.Simulation.Mixed.Abilities
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilitySystem));
+					
+					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilityProvider));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilitySystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));
 				}

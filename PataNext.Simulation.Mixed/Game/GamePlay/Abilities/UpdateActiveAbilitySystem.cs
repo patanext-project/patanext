@@ -16,6 +16,7 @@ using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
+using StormiumTeam.GameBase.Time.Components;
 using Array = NetFabric.Hyperlinq.Array;
 
 namespace PataNext.Module.Simulation.Game.GamePlay.Abilities

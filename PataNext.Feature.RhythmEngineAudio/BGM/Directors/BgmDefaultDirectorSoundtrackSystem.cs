@@ -71,7 +71,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 		private int                           m_EndFeverEntranceAt;
 		private int                           m_NextLoopTrigger;
 
-		public override void OnRhythmEngineSimulationPass()
+		protected override void OnUpdatePass()
 		{
 			if (!CanUpdate())
 				return;
