@@ -1,0 +1,30 @@
+{
+  "modifiers":
+  {
+    "active": {
+      "attack": 0.5,
+      "defense": 1.5,
+      "receive_damage": 0.7
+    },
+    "fever": {
+      "defense": 1.2,
+      "receive_damage": 0.8,
+
+      "movement_attack_speed": 1.5,
+      "attack_speed": 0.75
+    },
+    "perfect": {
+      "defense": 1.2,
+      "receive_damage": 0.9,
+
+      "movement_attack_speed": 1.2,
+      "attack_speed": 0.75
+    },
+    "charge": {
+      "defense": 1.5,
+      "receive_damage": 0.3,
+
+      "movement_attack_speed": 1.2
+    }
+  }
+}

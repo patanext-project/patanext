@@ -6,8 +6,11 @@ using GameHost.Native.Fixed;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource.Components;
+using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Resources.Keys;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Roles.Descriptions;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 {
@@ -54,7 +57,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				if (!state.CanRunCommands)
 				{
 					commandState.Reset();
-					return;
+					continue;
 				}
 
 				var predictedCommandBuffer = GameWorld.GetBuffer<RhythmEnginePredictedCommandBuffer>(entity);
@@ -98,11 +101,11 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					commandState.Reset();
 					comboState = default;
 					executing  = default;
-					return;
+					continue;
 				}
 
 				if (!executing.WaitingForApply)
-					return;
+					continue;
 				executing.WaitingForApply = false;
 
 				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executing.CommandTarget.Entity);
@@ -116,6 +119,12 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					commandState.ChainEndTimeMs = (int) ((rhythmActiveAtFlowBeat + beatDuration + 4) * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 					commandState.StartTimeMs    = (int) (executing.ActivationBeatStart * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 					commandState.EndTimeMs      = (int) (executing.ActivationBeatEnd * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
+
+					if (TryGetComponentData(entity, out Relative<PlayerDescription> relativePlayer)
+					    && TryGetComponentData(relativePlayer.Target, out PlayerInputComponent playerInputComponent))
+					{
+						commandState.Selection = playerInputComponent.Ability;
+					}
 
 					comboState.Count++;
 					comboState.Score += (float) (executing.Power - 0.5) * 2;

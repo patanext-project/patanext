@@ -54,7 +54,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 		private EntityQuery abilityQuery;
 
-		public override void OnAbilityPreSimulationPass()
+		public override void OnAbilityUpdate()
 		{
 			var dt = (float) worldTime.Delta.TotalSeconds;
 
@@ -85,7 +85,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 					ability.ActiveTime = 0;
 					ability.IsJumping  = false;
-					return;
+					continue;
 				}
 
 				const float startJumpTime = 0.5f;

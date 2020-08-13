@@ -70,7 +70,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 		private EntityQuery abilityQuery;
 
-		public override void OnAbilityPreSimulationPass()
+		public override void OnAbilityUpdate()
 		{
 			var dt = (float) worldTime.Delta.TotalSeconds;
 
@@ -104,10 +104,10 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 					ability.ActiveTime   = 0;
 					ability.IsRetreating = false;
-					return;
+					continue;
 				}
 
-				const float walkbackTime = 3.25f;
+				const float walkbackTime = 3f;
 
 				ref readonly var playState     = ref GetComponentData<UnitPlayState>(owner);
 				ref readonly var unitDirection = ref GetComponentData<UnitDirection>(owner).Value;

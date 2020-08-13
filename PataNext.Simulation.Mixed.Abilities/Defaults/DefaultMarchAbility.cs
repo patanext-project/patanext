@@ -65,7 +65,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 		private EntityQuery abilityQuery;
 
-		public override void OnAbilityPreSimulationPass()
+		public override void OnAbilityUpdate()
 		{
 			var abilityAccessor = new ComponentDataAccessor<AbilityState>(GameWorld);
 			var subsetAccessor = new ComponentDataAccessor<DefaultSubsetMarch>(GameWorld);

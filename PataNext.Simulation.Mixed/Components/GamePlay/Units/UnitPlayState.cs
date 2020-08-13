@@ -1,4 +1,5 @@
 ﻿using System;
+using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using StormiumTeam.GameBase;
 
@@ -24,5 +25,8 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 		{
 			return Math.Clamp(MathHelper.RcpSafe(Weight), 0, 1);
 		}
+		
+		public class Register : RegisterGameHostComponentData<UnitPlayState>
+		{}
 	}
 }

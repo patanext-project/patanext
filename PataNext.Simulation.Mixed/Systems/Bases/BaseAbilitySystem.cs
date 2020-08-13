@@ -9,12 +9,17 @@ namespace PataNext.Module.Simulation.BaseSystems
 {
 	[UpdateAfter(typeof(UpdateActiveAbilitySystem))]
 	[UpdateAfter(typeof(ApplyAbilityStatisticOnChainingSystem))]
-	public abstract class BaseAbilitySystem : GameAppSystem, IAbilityPreSimulationPass
+	public abstract class BaseAbilitySystem : GameAppSystem, IAbilitySimulationPass
 	{
 		public BaseAbilitySystem(WorldCollection collection) : base(collection)
 		{
 		}
 
-		public abstract void OnAbilityPreSimulationPass();
+		public abstract void OnAbilityUpdate();
+
+		public void OnAbilitySimulationPass()
+		{
+			OnAbilityUpdate();
+		}
 	}
 }

@@ -93,7 +93,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 			});
 		}
 
-		public override void OnAbilityPreSimulationPass()
+		public override void OnAbilityUpdate()
 		{
 			validOwnerQuery.CheckForNewArchetypes();
 

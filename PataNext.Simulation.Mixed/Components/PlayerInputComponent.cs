@@ -37,8 +37,9 @@ namespace PataNext.Module.Simulation.Components
 			}
 		}
 
-		public AbilitySelection Ability;
-		public float            Panning;
+		public InterFramePressAction AbilityInterFrame;
+		public AbilitySelection      Ability;
+		public float                 Panning;
 
 		public class Register : RegisterGameHostComponentData<PlayerInputComponent>
 		{

@@ -57,6 +57,13 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.With(2, RhythmKeys.Pata),
 				RhythmCommandAction.With(3, RhythmKeys.Pon),
 			});
+			DataBase.GetOrCreate(AsComponentType<ChargeCommand>(), "charge", new[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Pon),
+				RhythmCommandAction.With(1, RhythmKeys.Pon),
+				RhythmCommandAction.With(2, RhythmKeys.Chaka),
+				RhythmCommandAction.With(3, RhythmKeys.Chaka),
+			});
 			/*gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("summon", 4)).Entity).AddRangeReinterpret(stackalloc[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Don),

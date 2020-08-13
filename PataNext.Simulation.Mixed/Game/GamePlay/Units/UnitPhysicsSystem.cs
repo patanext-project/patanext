@@ -15,7 +15,7 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.Game.GamePlay.Units
 {
-	public class UnitPhysicsSystem : GameAppSystem, IUpdateSimulationPass
+	public class UnitPhysicsSystem : GameAppSystem, IPostUpdateSimulationPass
 	{
 		private IManagedWorldTime worldTime;
 
@@ -26,7 +26,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 
 		private EntityQuery unitQuery;
 
-		public void OnSimulationUpdate()
+		public void OnAfterSimulationUpdate()
 		{
 			var dt      = (float) worldTime.Delta.TotalSeconds;
 			var gravity = new Vector3(0, -26f, 0);

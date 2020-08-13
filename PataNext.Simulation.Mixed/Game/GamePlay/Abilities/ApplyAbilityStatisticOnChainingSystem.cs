@@ -1,4 +1,5 @@
-﻿using GameHost.Core.Ecs;
+﻿using System;
+using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
@@ -35,7 +36,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			{
 				ref readonly var state = ref stateAccessor[entity];
 				if ((state.Phase & EAbilityPhase.ActiveOrChaining) == 0)
-					return;
+					continue;
 
 				var              owner  = ownerAccessor[entity].Target;
 				ref readonly var modify = ref modifyAccessor[entity];

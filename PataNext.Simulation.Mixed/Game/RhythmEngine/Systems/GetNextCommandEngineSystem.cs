@@ -57,7 +57,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				ref readonly var state    = ref GameWorld.GetComponentData<RhythmEngineLocalState>(entity);
 				ref readonly var settings = ref GameWorld.GetComponentData<RhythmEngineSettings>(entity);
 				if (!state.CanRunCommands)
-					return;
+					continue;
 
 				var commandProgression = GameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(entity);
 				var predictedCommands  = GameWorld.GetBuffer<RhythmEnginePredictedCommandBuffer>(entity);
@@ -79,7 +79,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 						predictedCommands.Reinterpret<GameResource<RhythmCommandResource>>().AddRange(output.Span);
 					}
 
-					return;
+					continue;
 				}
 
 				// this is so laggy clients don't have a weird things when their command has been on another beat on the server

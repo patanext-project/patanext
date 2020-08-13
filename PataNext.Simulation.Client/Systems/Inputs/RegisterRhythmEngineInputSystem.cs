@@ -49,19 +49,22 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			DependencyResolver.Add(() => ref inputDatabase);
 			DependencyResolver.Add(() => ref gameWorld);
 			DependencyResolver.Add(() => ref time);
-			
+
 			DependencyResolver.Add(() => ref playableUnitProvider);
 			DependencyResolver.Add(() => ref abilityCollectionSystem);
 		}
 
 		private Dictionary<int, Entity> rhythmActionMap;
 		private Entity                  panningAction;
+		private Entity                  ability0Action;
+		private Entity                  ability1Action;
+		private Entity                  ability2Action;
 
 		private GameWorld  gameWorld;
 		private GameEntity gameEntityTest;
 
 		private int spawnInFrame;
-		
+
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
@@ -75,10 +78,10 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			if (spawnInFrame == -999 || spawnInFrame-- > 0)
 				return;
 			spawnInFrame = -999;
-			
-			var localKitDb         = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(gameWorld);
+
+			var localKitDb    = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(gameWorld);
 			var localAttachDb = new GameResourceDb<UnitAttachmentResource, UnitAttachmentResourceKey>(gameWorld);
-			var localEquipDb = new GameResourceDb<EquipmentResource, EquipmentResourceKey>(gameWorld);
+			var localEquipDb  = new GameResourceDb<EquipmentResource, EquipmentResourceKey>(gameWorld);
 
 			rhythmActionMap = new Dictionary<int, Entity>();
 			for (var i = 0; i < 4; i++)
@@ -94,7 +97,10 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				rhythmActionMap[i] = inputDatabase.RegisterSingle<RhythmInputAction>(new RhythmInputAction.Layout("kb and mouse", input));
 			}
 
-			panningAction = inputDatabase.RegisterSingle<AxisAction>(new AxisAction.Layout("kb and mouse", new[] {new CInput("keyboard/leftArrow")}, new[] {new CInput("keyboard/rightArrow")}));
+			panningAction  = inputDatabase.RegisterSingle<AxisAction>(new AxisAction.Layout("kb and mouse", new[] {new CInput("keyboard/leftArrow")}, new[] {new CInput("keyboard/rightArrow")}));
+			ability0Action = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", new CInput("keyboard/a"), new CInput("keyboard/d")));
+			ability1Action = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", new CInput("keyboard/w")));
+			ability2Action = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", new CInput("keyboard/s")));
 
 			gameEntityTest = gameWorld.CreateEntity();
 			gameWorld.AddComponent(gameEntityTest, new PlayerDescription());
@@ -118,7 +124,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(rhythmEngine, new GameCommandState());
 			gameWorld.AddComponent(rhythmEngine, new IsSimulationOwned());
 			GameCombo.AddToEntity(gameWorld, rhythmEngine);
-			
+
 			for (var i = 0; i != 1; i++)
 			{
 				var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
@@ -146,7 +152,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				displayedEquip.Add(new UnitDisplayedEquipment
 				{
 					Attachment = localAttachDb.GetOrCreate("Mask"),
-					Resource   = localEquipDb.GetOrCreate("Masks/n_taterazay")
+					Resource   = localEquipDb.GetOrCreate("Masks/n_kibadda")
 				});
 				displayedEquip.Add(new UnitDisplayedEquipment
 				{
@@ -162,7 +168,9 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				abilityCollectionSystem.SpawnFor("march", unit);
 				abilityCollectionSystem.SpawnFor("retreat", unit);
 				abilityCollectionSystem.SpawnFor("jump", unit);
+				abilityCollectionSystem.SpawnFor("charge", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
+				abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);
 
 				gameWorld.AddComponent(gameEntityTest, new ServerCameraState
 				{
@@ -176,7 +184,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 				gameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
 			}
-			
+
 			// No favor 
 			for (var i = 0; i != 4; i++)
 			{
@@ -191,7 +199,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 					},
 					Direction = UnitDirection.Right
 				});
-				
+
 				var tt = gameWorld.CreateEntity();
 				gameWorld.AddComponent(tt, new UnitTargetDescription());
 				gameWorld.AddComponent(tt, new Position());
@@ -221,13 +229,19 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			}
 		}
 
+		private void SetAbility(in GameTime gameTime, ref PlayerInputComponent playerInputComponent, in AbilitySelection newSelection)
+		{
+			playerInputComponent.AbilityInterFrame.Pressed = gameTime.Frame;
+			playerInputComponent.Ability                   = newSelection;
+		}
+
 		public void OnRhythmEngineSimulationPass()
 		{
 			if (spawnInFrame != -999)
 				return;
-			
+
 			GameTime gameTime = default;
-			foreach (var entity in gameWorld.QueryEntityWith(stackalloc [] {gameWorld.AsComponentType<GameTime>()}))
+			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[] {gameWorld.AsComponentType<GameTime>()}))
 			{
 				gameTime = gameWorld.GetComponentData<GameTime>(entity);
 				break;
@@ -235,9 +249,16 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 			if (gameTime.Frame == default)
 				return;
-			
+
 			ref var input = ref gameWorld.GetComponentData<PlayerInputComponent>(gameEntityTest);
 			input.Panning = panningAction.Get<AxisAction>().Value;
+
+			if (ability0Action.Get<PressAction>().HasBeenPressed)
+				SetAbility(in gameTime, ref input, AbilitySelection.Horizontal);
+			else if (ability1Action.Get<PressAction>().HasBeenPressed)
+				SetAbility(in gameTime, ref input, AbilitySelection.Top);
+			else if (ability2Action.Get<PressAction>().HasBeenPressed)
+				SetAbility(in gameTime, ref input, AbilitySelection.Bottom);
 
 			foreach (var kvp in rhythmActionMap)
 			{

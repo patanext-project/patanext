@@ -74,7 +74,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					{
 						state.RecoveryActivationBeat = renderBeat + 1;
 						executing                    = default;
-						return;
+						continue;
 					}
 					
 					var pressure = new FlowPressure(i + 1, state.Elapsed, settings.BeatInterval)

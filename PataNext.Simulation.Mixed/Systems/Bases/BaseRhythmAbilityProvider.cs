@@ -133,7 +133,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 				var folder = "{0}";
 				if (!string.IsNullOrEmpty(FilePathPrefix))
-					folder = string.Format(folder, FilePathPrefix + "/{0}/");
+					folder = string.Format(folder, FilePathPrefix + "/{0}");
 
 				var comboCommands = GetComboCommands();
 				if (comboCommands == null || comboCommands.Length == 0)
@@ -165,6 +165,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 		{
 			base.OnDependenciesResolved(dependencies);
 
+			Console.WriteLine($"{typeof(TAbility)} --> {FilePath}");
 			foreach (var file in abilityStorage.GetFilesAsync(FilePath).Result)
 			{
 				configuration = Encoding.UTF8.GetString(file.GetContentAsync().Result);
@@ -205,6 +206,10 @@ namespace PataNext.Module.Simulation.BaseSystems
 			{
 				Chaining = commandDb.GetOrCreate(GetChainingCommand())
 			};
+			GameWorld.GetComponentData<AbilityActivation>(entity) = new AbilityActivation
+			{
+				Selection = data.Selection
+			};
 
 			GameWorld.GetComponentData<Owner>(entity) = new Owner(data.Owner);
 			GameWorld.SetLinkedTo(entity, data.Owner, true);
@@ -216,10 +221,13 @@ namespace PataNext.Module.Simulation.BaseSystems
 				var stats = new Dictionary<string, StatisticModifier>();
 				StatisticModifierJson.FromMap(ref stats, GetConfigurationData());
 
+				Console.WriteLine(typeof(TAbility));
 				void TryGet(string val, out StatisticModifier modifier)
 				{
 					if (!stats.TryGetValue(val, out modifier))
 						modifier = StatisticModifier.Default;
+
+					Console.WriteLine($"Contains '{val}': {stats.ContainsKey(val)}\ndef={modifier.Defense}\natkMvm={modifier.MovementAttackSpeed}");
 				}
 
 				TryGet("active", out component.ActiveModifier);

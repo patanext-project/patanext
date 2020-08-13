@@ -21,43 +21,34 @@ using StormiumTeam.GameBase.Roles.Components;
 
 namespace PataNext.Simulation.Mixed.Abilities.CTate
 {
-	public struct TaterazayBasicDefendFrontalAbility : IComponentData
+	public struct TaterazayBasicDefendStayAbility : IComponentData
 	{
-		public float Range;
-
-		public class Register : RegisterGameHostComponentData<TaterazayBasicDefendFrontalAbility>
+		public class Register : RegisterGameHostComponentData<TaterazayBasicDefendStayAbility>
 		{
 		}
 	}
 
-	public class TaterazayBasicDefendFrontalAbilityProvider : BaseRhythmAbilityProvider<TaterazayBasicDefendFrontalAbility>
+	public class TaterazayBasicDefendStayAbilityProvider : BaseRhythmAbilityProvider<TaterazayBasicDefendStayAbility>
 	{
 		protected override string FilePathPrefix => "tate";
 
-		public TaterazayBasicDefendFrontalAbilityProvider(WorldCollection collection) : base(collection)
+		public TaterazayBasicDefendStayAbilityProvider(WorldCollection collection) : base(collection)
 		{
 		}
 
-		public override string MasterServerId => "CTate.BasicDefendFrontal";
+		public override string MasterServerId => "CTate.BasicDefendStay";
 
 		public override ComponentType GetChainingCommand()
 		{
 			return GameWorld.AsComponentType<DefendCommand>();
 		}
-
-		public override void SetEntityData(GameEntity entity, CreateAbility data)
-		{
-			base.SetEntityData(entity, data);
-
-			GameWorld.GetComponentData<TaterazayBasicDefendFrontalAbility>(entity).Range = 10;
-		}
 	}
 
-	public class TaterazayBasicDefendFrontalAbilitySystem : BaseAbilitySystem
+	public class TaterazayBasicDefendStayAbilitySystem : BaseAbilitySystem
 	{
 		private IManagedWorldTime worldTime;
 
-		public TaterazayBasicDefendFrontalAbilitySystem(WorldCollection collection) : base(collection)
+		public TaterazayBasicDefendStayAbilitySystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref worldTime);
 		}
@@ -67,8 +58,7 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 		public override void OnAbilityUpdate()
 		{
 			var dt = (float) worldTime.Delta.TotalSeconds;
-
-			var abilityAccessor         = new ComponentDataAccessor<TaterazayBasicDefendFrontalAbility>(GameWorld);
+			
 			var abilityStateAccessor    = new ComponentDataAccessor<AbilityState>(GameWorld);
 			var ownerAccessor           = new ComponentDataAccessor<Owner>(GameWorld);
 			var playStateAccessor       = new ComponentDataAccessor<UnitPlayState>(GameWorld);
@@ -77,7 +67,7 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 			foreach (var entity in (abilityQuery ??= CreateEntityQuery(stackalloc[]
 			{
 				AsComponentType<AbilityState>(),
-				AsComponentType<TaterazayBasicDefendFrontalAbility>(),
+				AsComponentType<TaterazayBasicDefendStayAbility>(),
 				AsComponentType<Owner>()
 			})).GetEntities())
 			{
@@ -85,7 +75,6 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 				if (!state.IsActiveOrChaining)
 					continue;
 
-				ref readonly var ability        = ref abilityAccessor[entity];
 				ref readonly var owner          = ref ownerAccessor[entity].Target;
 				ref readonly var playState      = ref playStateAccessor[owner];
 				ref var          unitController = ref controllerStateAccessor[owner];
@@ -102,17 +91,16 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 				}
 
 				ref readonly var targetEntity = ref GetComponentData<Relative<UnitTargetDescription>>(owner).Target;
-				ref readonly var direction    = ref GetComponentData<UnitDirection>(owner).Value;
 				ref readonly var unitPosition = ref GetComponentData<Position>(owner).Value;
-				
-				var targetPosition = GetComponentData<Position>(targetEntity).Value.X + ability.Range * direction;
+
+				var targetPosition = GetComponentData<Position>(targetEntity).Value.X;
 				velocity.X = AbilityUtility.GetTargetVelocityX(new AbilityUtility.GetTargetVelocityParameters
 				{
 					TargetPosition   = new Vector3(targetPosition, 0, 0),
 					PreviousPosition = unitPosition,
 					PreviousVelocity = velocity,
 					PlayState        = playState,
-					Acceleration     = 25,
+					Acceleration     = 5,
 					Delta            = dt
 				});
 				unitController.ControlOverVelocityX = true;
