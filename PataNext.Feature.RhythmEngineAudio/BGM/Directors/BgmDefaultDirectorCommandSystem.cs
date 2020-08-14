@@ -12,10 +12,16 @@ using GameHost.Native.Char;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource.Components;
 using Microsoft.Extensions.Logging;
+using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
+using PataNext.Simulation.Client.Systems;
+using PataNext.Simulation.mixed.Components.GamePlay.Abilities;
+using StormiumTeam.GameBase.Camera.Components;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Roles.Descriptions;
 using ZLogger;
 
 
@@ -24,11 +30,13 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 	public class BgmDefaultDirectorCommandSystem : BgmDirectorySystemBase<BgmDefaultDirector, BgmDefaultSamplesLoader>
 	{
 		private readonly Dictionary<CharBuffer64, ComboBasedOutput> commandComboBasedOutputs;
+		private readonly Bindable<List<ResourceHandle<AudioResource>>>                     onHeroModeCombo;
 		private readonly Bindable<ResourceHandle<AudioResource>>    onEnterFever;
 		private readonly Bindable<ResourceHandle<AudioResource>>    onFeverLost;
 
 		private EntitySet               commandSet;
 		private LoadAudioResourceSystem loadAudio;
+		private AbilityHeroVoiceManager heroVoiceManager;
 
 		private CustomModule module;
 
@@ -39,11 +47,13 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 		public BgmDefaultDirectorCommandSystem(WorldCollection collection) : base(collection)
 		{
 			commandComboBasedOutputs = new Dictionary<CharBuffer64, ComboBasedOutput>();
+			onHeroModeCombo          = new Bindable<List<ResourceHandle<AudioResource>>>();
 
 			onEnterFever = new Bindable<ResourceHandle<AudioResource>>();
 			onFeverLost  = new Bindable<ResourceHandle<AudioResource>>();
 
 			DependencyResolver.Add(() => ref loadAudio);
+			DependencyResolver.Add(() => ref heroVoiceManager);
 			DependencyResolver.Add(() => ref module);
 			DependencyResolver.Add(() => ref logger);
 		}
@@ -57,6 +67,20 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 
 			onEnterFever.Default = loadAudio.Load("voice_fever.wav", storage);
 			onFeverLost.Default  = loadAudio.Load("fever_lost.wav", storage);
+			
+			onHeroModeCombo.Default = new List<ResourceHandle<AudioResource>>();
+
+			var heroModeComboStorage = await storage.GetOrCreateDirectoryAsync("HeroMode/Combo/");
+			foreach (var file in heroModeComboStorage.GetFilesAsync("return*.wav").Result)
+			{
+				var resource = loadAudio.Load(file);
+				
+				var index = file.Name[6];
+				if (index < onHeroModeCombo.Default.Count)
+					onHeroModeCombo.Default.Insert(index, resource);
+				else
+					onHeroModeCombo.Default.Add(resource);
+			}
 
 			audioPlayer = World.Mgr.CreateEntity();
 			AudioPlayerUtility.Initialize(audioPlayer, new StandardAudioPlayerComponent());
@@ -83,6 +107,35 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				return;
 			
 			loadFiles();
+
+			var isHeroMode              = false;
+			var heroModeCommandResource = default(ResourceHandle<AudioResource>);
+			if (TryGetComponentData(LocalEngine, out Relative<PlayerDescription> relativePlayer))
+			{
+				CameraState cameraState = default, localCamState = default;
+				if (TryGetComponentData(relativePlayer.Target, out ServerCameraState serverCameraState))
+				{
+					cameraState = serverCameraState.Data;
+				}
+				else if (TryGetComponentData(relativePlayer.Target, out LocalCameraState localCameraState))
+				{
+					cameraState = localCameraState.Data;
+				}
+
+				if ((int) localCamState.Mode > (int) cameraState.Mode)
+					cameraState = localCamState;
+
+				if (GameWorld.Contains(cameraState.Target) && TryGetComponentData(cameraState.Target, out OwnerActiveAbility activeAbility)
+				                                           && activeAbility.Incoming != default
+				                                           && TryGetComponentData(activeAbility.Incoming, out AbilityActivation abilityActivation)
+				                                           && TryGetComponentData(activeAbility.Incoming, out AbilityState abilityState)
+				                                           && abilityActivation.Type == EAbilityActivationType.HeroMode)
+				{
+					isHeroMode = true;
+					if (TryGetComponentData(activeAbility.Incoming, out NamedAbilityId namedAbilityId))
+						heroModeCommandResource = heroVoiceManager.GetResource(namedAbilityId.Value.ToString());
+				}
+			}
 
 			var comboSettings = GameWorld.GetComponentData<GameCombo.Settings>(LocalEngine);
 			var comboState    = GameWorld.GetComponentData<GameCombo.State>(LocalEngine);
@@ -124,11 +177,29 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 					if (doFeverShout)
 					{
 						resourceHandle = onEnterFever.Value.IsLoaded ? onEnterFever.Value : onEnterFever.Default;
+
+						Director.HeroModeCombo.Value = 0;
+					}
+					else if (isHeroMode)
+					{
+						if (heroModeCommandResource.IsLoaded)
+							resourceHandle = heroModeCommandResource;
+						else Director.HeroModeCombo.Value++;
+
+						if (Director.HeroModeCombo.Value > 0)
+						{
+							var comboList = onHeroModeCombo.Value ?? onHeroModeCombo.Default;
+							resourceHandle = comboList[Director.HeroModeCombo.Value % comboList.Count];
+						}
+
+						Director.HeroModeCombo.Value++;
 					}
 					else if (output.Map.TryGetValue(key, out var resourceMap)
 					         && resourceMap.TryGetValue(Director.GetNextCycle(LocalInformation.NextCommandStr, key), out var resource))
 					{
 						resourceHandle = resource;
+
+						Director.HeroModeCombo.Value = 0;
 					}
 
 					if (resourceHandle.Entity != default && resourceHandle.IsLoaded)

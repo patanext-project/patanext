@@ -29,14 +29,12 @@ namespace PataNext.Simulation.Client.Systems
 		{
 			if (currentLoadedBgm.Span.SequenceEqual(LocalInformation.ActiveBgmId.Span) && isBgmLoaded)
 				return;
-
-			Console.WriteLine(">>>> 0");
+			
 			currentLoadedBgm = LocalInformation.ActiveBgmId;
 			if (currentLoadedBgm.GetLength() == 0)
 				return;
 
 			isBgmLoaded = true;
-			Console.WriteLine(">>>> 1");
 
 			// We use a double scheduler strategy.
 			// - First schedule from the client app (main thread) to get the requested BGM file.

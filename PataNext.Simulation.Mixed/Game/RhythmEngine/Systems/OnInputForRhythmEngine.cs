@@ -5,6 +5,7 @@ using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
+using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase.Time.Components;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
@@ -81,6 +82,9 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					{
 						IsSliderEnd = action.IsSliding
 					};
+
+					if (Math.Abs(pressure.Score) <= FlowPressure.Perfect && HasComponent<RhythmSummonEnergy>(entity))
+						GetComponentData<RhythmSummonEnergy>(entity).Value += 5;
 
 					progressionBuffer.Add(new RhythmEngineLocalCommandBuffer {Value = pressure});
 					state.LastPressure = pressure;

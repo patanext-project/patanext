@@ -2,7 +2,7 @@
     "modifiers":
     {
         "perfect": {
-            "movement_speed": 2.0
+            "movement_speed": 1.2
         }
     }
 }

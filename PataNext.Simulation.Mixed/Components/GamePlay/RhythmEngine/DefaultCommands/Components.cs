@@ -44,4 +44,39 @@ namespace PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultComm
 		{
 		}
 	}
+	
+	public struct SummonCommand : IComponentData
+	{
+		public class Register : RegisterGameHostComponentData<SummonCommand>
+		{
+		}
+	}
+	
+	public struct PartyCommand : IComponentData
+	{
+		public class Register : RegisterGameHostComponentData<PartyCommand>
+		{
+		}
+	}
+	
+	public struct BackwardCommand : IComponentData
+	{
+		public class Register : RegisterGameHostComponentData<BackwardCommand>
+		{
+		}
+	}
+	
+	public struct QuickDefend : IComponentData
+	{
+		public class Register : RegisterGameHostComponentData<QuickDefend>
+		{
+		}
+	}
+	
+	public struct QuickRetreat : IComponentData
+	{
+		public class Register : RegisterGameHostComponentData<QuickRetreat>
+		{
+		}
+	}
 }

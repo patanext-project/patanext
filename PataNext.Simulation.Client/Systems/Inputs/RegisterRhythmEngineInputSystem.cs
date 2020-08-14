@@ -1,16 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Serialization;
 using BepuUtilities;
 using DefaultEcs;
 using GameHost.Core;
 using GameHost.Core.Ecs;
+using GameHost.Core.IO;
+using GameHost.Core.Modules;
+using GameHost.Core.Threading;
 using GameHost.Inputs.DefaultActions;
 using GameHost.Inputs.Layouts;
 using GameHost.Inputs.Systems;
+using GameHost.IO;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
 using GameHost.Worlds.Components;
+using Newtonsoft.Json;
 using PataNext.Game.Inputs.Actions;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
@@ -25,6 +34,7 @@ using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
 using PataNext.Module.Simulation.Systems;
+using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
@@ -33,25 +43,48 @@ using StormiumTeam.GameBase.Time.Components;
 
 namespace PataNext.Simulation.Client.Systems.Inputs
 {
+	// TODO: Temporary struct until we have real JSON support for editing inputs
+	public struct JInputSettings
+	{
+		public float    SliderSensibility;
+		public string[] PataKeys;
+		public string[] PonKeys;
+		public string[] DonKeys;
+		public string[] ChakaKeys;
+		public string[] Ability0Keys;
+		public string[] Ability1Keys;
+		public string[] Ability2Keys;
+		public string[] PanningNegativeKeys;
+		public string[] PanningPositiveKeys;
+	}
+
 	[UpdateAfter(typeof(SetGameTimeSystem))]
 	[UpdateAfter(typeof(ReceiveInputDataSystem))]
 	[UpdateBefore(typeof(ManageComponentTagSystem))]
 	public class RegisterRhythmEngineInputSystem : AppSystem, IRhythmEngineSimulationPass
 	{
-		private InputDatabase     inputDatabase;
+		private InputDatabase     inputDb;
 		private IManagedWorldTime time;
 
 		private PlayableUnitProvider    playableUnitProvider;
 		private AbilityCollectionSystem abilityCollectionSystem;
 
+		private IScheduler scheduler;
+		private GameHostModule module;
+
+		private JInputSettings inputSettings;
+
 		public RegisterRhythmEngineInputSystem(WorldCollection collection) : base(collection)
 		{
-			DependencyResolver.Add(() => ref inputDatabase);
+			DependencyResolver.Add(() => ref inputDb);
 			DependencyResolver.Add(() => ref gameWorld);
 			DependencyResolver.Add(() => ref time);
 
 			DependencyResolver.Add(() => ref playableUnitProvider);
 			DependencyResolver.Add(() => ref abilityCollectionSystem);
+			
+			DependencyResolver.Add(() => ref scheduler);
+			DependencyResolver.Add(() => ref module);
 		}
 
 		private Dictionary<int, Entity> rhythmActionMap;
@@ -70,6 +103,41 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			base.OnDependenciesResolved(dependencies);
 
 			spawnInFrame = 10;
+			
+			module.Storage.Subscribe((_, storage) =>
+			{
+				module.Storage.UnsubscribeCurrent();
+
+				scheduler.Schedule(() => { CreateInputs(new StorageCollection {storage, module.DllStorage}.GetOrCreateDirectoryAsync("Inputs").Result); }, default);
+			}, true);
+		}
+
+		private void CreateInputs(IStorage storage)
+		{
+			rhythmActionMap = new Dictionary<int, Entity>();
+			
+			using var stream = new MemoryStream(storage.GetFilesAsync("input.json").Result.First().GetContentAsync().Result);
+			using var reader = new JsonTextReader(new StreamReader(stream));
+			
+			var serializer = new JsonSerializer();
+			var input      = serializer.Deserialize<JInputSettings>(reader);
+			Console.WriteLine(input.SliderSensibility);
+
+			static CInput[] ct(IEnumerable<string> map) => map.Select(str => new CInput(str)).ToArray();
+
+			const string lyt = "kb and mouse";
+			rhythmActionMap[0] = inputDb.RegisterSingle<RhythmInputAction>(new RhythmInputAction.Layout(lyt, ct(input.PataKeys)));
+			rhythmActionMap[1] = inputDb.RegisterSingle<RhythmInputAction>(new RhythmInputAction.Layout(lyt, ct(input.PonKeys)));
+			rhythmActionMap[2] = inputDb.RegisterSingle<RhythmInputAction>(new RhythmInputAction.Layout(lyt, ct(input.DonKeys)));
+			rhythmActionMap[3] = inputDb.RegisterSingle<RhythmInputAction>(new RhythmInputAction.Layout(lyt, ct(input.ChakaKeys)));
+			
+			ability0Action = inputDb.RegisterSingle<PressAction>(new PressAction.Layout(lyt, ct(input.Ability0Keys)));
+			ability1Action = inputDb.RegisterSingle<PressAction>(new PressAction.Layout(lyt, ct(input.Ability1Keys)));
+			ability2Action = inputDb.RegisterSingle<PressAction>(new PressAction.Layout(lyt, ct(input.Ability2Keys)));
+			
+			panningAction = inputDb.RegisterSingle<AxisAction>(new AxisAction.Layout(lyt, ct(input.PanningNegativeKeys), ct(input.PanningPositiveKeys)));
+
+			inputSettings = input;
 		}
 
 		protected override void OnUpdate()
@@ -82,26 +150,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			var localKitDb    = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(gameWorld);
 			var localAttachDb = new GameResourceDb<UnitAttachmentResource, UnitAttachmentResourceKey>(gameWorld);
 			var localEquipDb  = new GameResourceDb<EquipmentResource, EquipmentResourceKey>(gameWorld);
-
-			rhythmActionMap = new Dictionary<int, Entity>();
-			for (var i = 0; i < 4; i++)
-			{
-				var input = i switch
-				{
-					0 => new CInput("keyboard/numpad4"),
-					1 => new CInput("keyboard/numpad6"),
-					2 => new CInput("keyboard/numpad2"),
-					3 => new CInput("keyboard/numpad8"),
-					_ => throw new InvalidOperationException()
-				};
-				rhythmActionMap[i] = inputDatabase.RegisterSingle<RhythmInputAction>(new RhythmInputAction.Layout("kb and mouse", input));
-			}
-
-			panningAction  = inputDatabase.RegisterSingle<AxisAction>(new AxisAction.Layout("kb and mouse", new[] {new CInput("keyboard/leftArrow")}, new[] {new CInput("keyboard/rightArrow")}));
-			ability0Action = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", new CInput("keyboard/a"), new CInput("keyboard/d")));
-			ability1Action = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", new CInput("keyboard/w")));
-			ability2Action = inputDatabase.RegisterSingle<PressAction>(new PressAction.Layout("kb and mouse", new CInput("keyboard/s")));
-
+			
 			gameEntityTest = gameWorld.CreateEntity();
 			gameWorld.AddComponent(gameEntityTest, new PlayerDescription());
 			gameWorld.AddComponent(gameEntityTest, new PlayerInputComponent());
@@ -124,6 +173,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			gameWorld.AddComponent(rhythmEngine, new GameCommandState());
 			gameWorld.AddComponent(rhythmEngine, new IsSimulationOwned());
 			GameCombo.AddToEntity(gameWorld, rhythmEngine);
+			RhythmSummonEnergy.AddToEntity(gameWorld, rhythmEngine);
 
 			for (var i = 0; i != 1; i++)
 			{
@@ -187,15 +237,15 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			}
 
 			// No favor 
-			for (var i = 0; i != 4; i++)
+			for (var i = 0; i != 32; i++)
 			{
 				var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
 				{
 					Statistics = new UnitStatistics
 					{
-						BaseWalkSpeed       = 2,
-						FeverWalkSpeed      = 2.2f,
-						MovementAttackSpeed = 3.1f,
+						BaseWalkSpeed       = 0.75f,
+						FeverWalkSpeed      = 0.75f,
+						MovementAttackSpeed = 0.75f,
 						Weight              = 8.5f,
 					},
 					Direction = UnitDirection.Right
@@ -204,7 +254,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				var tt = gameWorld.CreateEntity();
 				gameWorld.AddComponent(tt, new UnitTargetDescription());
 				gameWorld.AddComponent(tt, new Position());
-				gameWorld.GetComponentData<Position>(tt).Value.X = i;
+				gameWorld.GetComponentData<Position>(tt).Value.X = i * 10;
 
 				gameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("yarida"))));
 				gameWorld.AddComponent(unit, new UnitEnemySeekingState());
@@ -253,6 +303,10 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			if (spawnInFrame != -999)
 				return;
 
+			// inputs not created
+			if (rhythmActionMap == null)
+				return;
+
 			GameTime gameTime = default;
 			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[] {gameWorld.AsComponentType<GameTime>()}))
 			{
@@ -279,7 +333,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				ref var action       = ref input.Actions[kvp.Key];
 
 				action.IsActive  = rhythmAction.Active;
-				action.IsSliding = (action.IsSliding && rhythmAction.UpCount > 0) || rhythmAction.IsSliding;
+				action.IsSliding = (action.IsSliding && rhythmAction.UpCount > 0) || rhythmAction.ActiveTime.TotalSeconds >= inputSettings.SliderSensibility;
 
 				if (rhythmAction.DownCount > 0)
 					action.InterFrame.Pressed = gameTime.Frame;

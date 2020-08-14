@@ -1,4 +1,5 @@
-﻿using DefaultEcs;
+﻿using System;
+using DefaultEcs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
@@ -27,6 +28,9 @@ namespace PataNext.Feature.RhythmEngineAudio
 					simulationApplication.Data.Collection.GetOrCreate(typeof(LoadActiveBgmSystem));
 				}
 			}
+			
+			foreach (var file in DllStorage.GetFilesAsync("*.*").Result)
+				Console.WriteLine("---------- " + file.Name + " ,  " + file.FullName);
 
 			global.Collection.GetOrCreate(typeof(BgmManager));
 		}

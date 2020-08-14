@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
@@ -18,6 +20,7 @@ using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using PataNext.Module.Simulation.Systems;
+using PataNext.Simulation.mixed.Components.GamePlay.Abilities;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
 
@@ -27,6 +30,11 @@ namespace PataNext.Module.Simulation.BaseSystems
 	{
 		public GameEntity       Owner     { get; set; }
 		public AbilitySelection Selection { get; set; }
+	}
+
+	public struct Resources
+	{
+		public string HeroModeActivationSound;
 	}
 
 	public abstract class BaseRhythmAbilityProvider : BaseProvider<CreateAbility>
@@ -69,7 +77,8 @@ namespace PataNext.Module.Simulation.BaseSystems
 			}
 		}
 
-		public abstract string MasterServerId { get; }
+		public abstract string    MasterServerId { get; }
+		public abstract Resources Resources      { get; }
 
 		private AbilityCollectionSystem abilityCollectionSystem;
 
@@ -163,6 +172,11 @@ namespace PataNext.Module.Simulation.BaseSystems
 		{
 		}
 
+		private         Resources resources;
+		public override Resources Resources => resources;
+
+		private static ReadOnlySpan<byte> Utf8Bom => new byte[] {0xEF, 0xBB, 0xBF};
+
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
@@ -172,6 +186,17 @@ namespace PataNext.Module.Simulation.BaseSystems
 			{
 				configuration = Encoding.UTF8.GetString(file.GetContentAsync().Result);
 				break;
+			}
+
+			if (!string.IsNullOrEmpty(configuration))
+			{
+				using var stream   = new MemoryStream(Encoding.UTF8.GetBytes(configuration));
+				using var document = JsonDocument.Parse(stream);
+				if (document.RootElement.TryGetProperty("resources", out var prop))
+				{
+					if (prop.TryGetProperty(nameof(Resources.HeroModeActivationSound), out var heroModeProp))
+						resources.HeroModeActivationSound = heroModeProp.GetString();
+				}
 			}
 		}
 
@@ -198,6 +223,12 @@ namespace PataNext.Module.Simulation.BaseSystems
 					GameWorld.AsComponentType<AbilityModifyStatsOnChaining>(),
 					GameWorld.AsComponentType<AbilityControlVelocity>()
 				});
+
+			if (MasterServerId != null)
+				entityComponents.AddRange(stackalloc ComponentType[]
+				{
+					GameWorld.AsComponentType<NamedAbilityId>()
+				});
 		}
 
 		public override void SetEntityData(GameEntity entity, CreateAbility data)
@@ -211,8 +242,8 @@ namespace PataNext.Module.Simulation.BaseSystems
 			};
 			GameWorld.GetComponentData<AbilityActivation>(entity) = new AbilityActivation
 			{
-				Selection = data.Selection,
-				HeroModeMaxCombo = -1,
+				Selection                                = data.Selection,
+				HeroModeMaxCombo                         = -1,
 				HeroModeImperfectLimitBeforeDeactivation = 2
 			};
 
@@ -227,6 +258,9 @@ namespace PataNext.Module.Simulation.BaseSystems
 			GameWorld.GetComponentData<Owner>(entity) = new Owner(data.Owner);
 			GameWorld.SetLinkedTo(entity, data.Owner, true);
 
+			if (MasterServerId != null)
+				GameWorld.GetComponentData<NamedAbilityId>(entity) = new NamedAbilityId(MasterServerId);
+
 			if (UseStatsModification)
 			{
 				ref var component = ref GameWorld.GetComponentData<AbilityModifyStatsOnChaining>(entity);
@@ -234,13 +268,13 @@ namespace PataNext.Module.Simulation.BaseSystems
 				var stats = new Dictionary<string, StatisticModifier>();
 				StatisticModifierJson.FromMap(ref stats, GetConfigurationData());
 
-				Console.WriteLine(typeof(TAbility));
+				//Console.WriteLine(typeof(TAbility));
 				void TryGet(string val, out StatisticModifier modifier)
 				{
 					if (!stats.TryGetValue(val, out modifier))
 						modifier = StatisticModifier.Default;
 
-					Console.WriteLine($"Contains '{val}': {stats.ContainsKey(val)}\ndef={modifier.Defense}\natkMvm={modifier.MovementAttackSpeed}");
+					//Console.WriteLine($"Contains '{val}': {stats.ContainsKey(val)}\ndef={modifier.Defense}\natkMvm={modifier.MovementAttackSpeed}");
 				}
 
 				TryGet("active", out component.ActiveModifier);

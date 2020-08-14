@@ -25,7 +25,8 @@ public static class StatisticModifierJson
 			if (json == null)
 				return;
 			
-			using (var reader = JsonDocument.Parse(json.ToLower()))
+			using var stream   = new MemoryStream(Encoding.UTF8.GetBytes(json.ToLower()));
+			using var reader = JsonDocument.Parse(stream);
 			{
 				var root = reader.RootElement;
 				if (!root.TryGetProperty("modifiers", out var modifierProp))

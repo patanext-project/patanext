@@ -12,6 +12,7 @@ using GameHost.Core;
 	 {
 		 public readonly Bindable<IncomingCommandData> IncomingCommand;
 		 public readonly Bindable<bool>                IsFever;
+		 public readonly Bindable<int>                HeroModeCombo;
 
 		 private readonly Dictionary<int, int>           commandCycle;
 
@@ -20,8 +21,9 @@ using GameHost.Core;
 			 Loader          = new BgmDefaultSamplesLoader(store);
 			 IncomingCommand = new Bindable<IncomingCommandData>();
 			 IsFever         = new Bindable<bool>();
+			 HeroModeCombo   = new Bindable<int>();
 
-			 commandCycle         = new Dictionary<int, int>();
+			 commandCycle = new Dictionary<int, int>();
 		 }
 
 		 public int GetNextCycle(CharBuffer64 commandId, string state)

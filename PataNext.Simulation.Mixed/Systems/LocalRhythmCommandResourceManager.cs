@@ -29,6 +29,13 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.With(2, RhythmKeys.Pata),
 				RhythmCommandAction.With(3, RhythmKeys.Pon),
 			}).Entity, new MarchCommand());
+			DataBase.GetOrCreate(AsComponentType<BackwardCommand>(), "backward", new[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Chaka),
+				RhythmCommandAction.With(1, RhythmKeys.Pata),
+				RhythmCommandAction.With(2, RhythmKeys.Chaka),
+				RhythmCommandAction.With(3, RhythmKeys.Pata),
+			});
 			AddComponent(DataBase.GetOrCreate(AsComponentType<RetreatCommand>(), "retreat", new[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Pon),
@@ -64,7 +71,14 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.With(2, RhythmKeys.Chaka),
 				RhythmCommandAction.With(3, RhythmKeys.Chaka),
 			});
-			/*gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("summon", 4)).Entity).AddRangeReinterpret(stackalloc[]
+			DataBase.GetOrCreate(AsComponentType<PartyCommand>(), "party", new[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Pata),
+				RhythmCommandAction.With(1, RhythmKeys.Pon),
+				RhythmCommandAction.With(2, RhythmKeys.Don),
+				RhythmCommandAction.With(3, RhythmKeys.Chaka),
+			});
+			DataBase.GetOrCreate(AsComponentType<SummonCommand>(), "summon", new[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Don),
 				RhythmCommandAction.With(1, RhythmKeys.Don),
@@ -72,11 +86,18 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.WithOffset(2, 0.5f, RhythmKeys.Don),
 				RhythmCommandAction.WithOffset(3, 0, RhythmKeys.Don),
 			});
-			gameWorld.AddBuffer<RhythmCommandActionBuffer>(localCommandDb.GetOrCreate(("quick_defend", 4)).Entity).AddRangeReinterpret(stackalloc[]
+			
+			// not yet
+			/*AddComponent(DataBase.GetOrCreate(AsComponentType<QuickDefend>(), "quick_defend", new[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Chaka),
 				RhythmCommandAction.WithSlider(1, 1, RhythmKeys.Pon)
-			});*/
+			}).Entity, new DefendCommand());
+			AddComponent(DataBase.GetOrCreate(AsComponentType<QuickRetreat>(), "quick_retreat", new[]
+			{
+				RhythmCommandAction.WithSlider(0, 2, RhythmKeys.Pon),
+				RhythmCommandAction.With(1, RhythmKeys.Pata)
+			}).Entity, new RetreatCommand());*/
 		}
 	}
 }

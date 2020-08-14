@@ -3,6 +3,7 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase.Time.Components;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
@@ -44,6 +45,17 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				if (previousBeats != currentBeats)
 					state.NewBeatTick = (uint) gameTime.Frame;
 				state.CurrentBeat = currentBeats;
+			}
+
+			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
+			{
+				AsComponentType<GameCombo.Settings>(),
+				AsComponentType<GameCombo.State>(),
+				AsComponentType<RhythmSummonEnergy>()
+			}))
+			{
+				if (!GetComponentData<GameCombo.Settings>(entity).CanEnterFever(GetComponentData<GameCombo.State>(entity)))
+					GetComponentData<RhythmSummonEnergy>(entity) = default;
 			}
 		}
 	}

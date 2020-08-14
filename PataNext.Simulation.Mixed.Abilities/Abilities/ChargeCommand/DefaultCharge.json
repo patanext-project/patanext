@@ -1,0 +1,15 @@
+﻿{
+  "modifiers": {
+    "active": {
+      "receive_damage": 0.9
+    },
+    "fever": {
+      "receive_damage": 0.9,
+      "movement_attack_speed": 1.2
+    },
+    "perfect": {
+      "receive_damage": 0.9,
+      "movement_attack_speed": 1.2
+    }
+  }
+}

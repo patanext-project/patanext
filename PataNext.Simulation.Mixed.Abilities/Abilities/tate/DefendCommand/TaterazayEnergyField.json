@@ -1,0 +1,11 @@
+{
+  "resources": {
+    "HeroModeActivationSound": "[module,PataNext.Game.Client.Resources]/Abilities/tate/TateEnergyField.ogg"
+  },
+  "modifiers": {
+    "active": 
+    {
+      "receive_damage": 0.4
+    }
+  }
+}

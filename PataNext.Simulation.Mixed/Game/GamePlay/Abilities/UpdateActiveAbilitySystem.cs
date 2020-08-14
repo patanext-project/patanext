@@ -14,6 +14,7 @@ using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
+using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
 using StormiumTeam.GameBase.Time.Components;
@@ -71,8 +72,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			{
 				// Indicate whether or not we own the entity simulation.
 				// If we don't, we should only fill displaying state, and not modifying external and internal state.
-				var isSimulationOwned = GameWorld.HasComponent<IsSimulationOwned>(entity);
-				var abilityBuffer     = GameWorld.GetBuffer<OwnedRelative<AbilityDescription>>(entity);
+				var isSimulationOwned   = GameWorld.HasComponent<IsSimulationOwned>(entity);
+				var abilityBuffer       = GameWorld.GetBuffer<OwnedRelative<AbilityDescription>>(entity);
 
 				ref var activeSelf = ref ownerActiveAbilityAccessor[entity];
 
@@ -84,6 +85,9 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				ref readonly var gameComboSettings = ref gameComboSettingsAccessor[engineEntity];
 				ref readonly var gameCommandState  = ref gameCommandStateAccessor[engineEntity];
 
+				// Indicate whether or not we own the engine simulation
+				var isRhythmEngineOwned = GameWorld.HasComponent<IsSimulationOwned>(engineEntity);
+				
 				var isNewIncomingCommand = updateAndCheckNewIncomingCommand(gameComboState, gameCommandState, executingCommand, ref activeSelf);
 
 				#region Check For Active Hero Mode
@@ -253,11 +257,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 
 							activeController.ActivationVersion++;
 
-							if (activeAbilityActivation.Type == EAbilityActivationType.HeroMode && isSimulationOwned)
+							if (activeAbilityActivation.Type == EAbilityActivationType.HeroMode && isRhythmEngineOwned
+							&& HasComponent<RhythmSummonEnergy>(engineEntity))
 							{
-								// TODO: Add JinnEnergy
-								/*gameCombo.JinnEnergy                   += 15;
-								gameComboStateFromEntity[engineEntity] =  gameCombo;*/
+								GetComponentData<RhythmSummonEnergy>(engineEntity).Value += 15;
 							}
 						}
 					}

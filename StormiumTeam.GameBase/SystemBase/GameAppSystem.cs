@@ -1,6 +1,7 @@
 ﻿using System;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 
@@ -54,6 +55,11 @@ namespace StormiumTeam.GameBase.SystemBase
 
 			result = defaultData;
 			return false;
+		}
+
+		public ComponentDataAccessor<T> GetAccessor<T>() where T : struct, IComponentData
+		{
+			return new ComponentDataAccessor<T>(GameWorld);
 		}
 
 		public EntityQuery CreateEntityQuery(Span<Type> all = default, Span<Type> none = default)
