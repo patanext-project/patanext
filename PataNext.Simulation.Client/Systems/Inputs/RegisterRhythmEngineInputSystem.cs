@@ -216,8 +216,10 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				});
 
 				abilityCollectionSystem.SpawnFor("march", unit);
+				abilityCollectionSystem.SpawnFor("backward", unit);
 				abilityCollectionSystem.SpawnFor("retreat", unit);
 				abilityCollectionSystem.SpawnFor("jump", unit);
+				abilityCollectionSystem.SpawnFor("party", unit);
 				abilityCollectionSystem.SpawnFor("charge", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);

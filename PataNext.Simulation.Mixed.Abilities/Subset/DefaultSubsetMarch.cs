@@ -148,7 +148,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 					ref var velocity = ref GetComponentData<Velocity>(owner).Value;
 
 					// to not make tanks op, we need to get the weight from entity and use it as an acceleration factor
-					acceleration = Math.Clamp(RcpSafe(unitPlayState.Weight), 0, 1) * subSet.AccelerationFactor * 50;
+					// We need to get the abs of the AccelerationFactor since the backward ability use -1
+					acceleration = Math.Clamp(RcpSafe(unitPlayState.Weight), 0, 1) * Math.Abs(subSet.AccelerationFactor) * 50;
 					acceleration = Math.Min(acceleration * timeDelta, 1);
 
 					walkSpeed = unitPlayState.MovementSpeed;

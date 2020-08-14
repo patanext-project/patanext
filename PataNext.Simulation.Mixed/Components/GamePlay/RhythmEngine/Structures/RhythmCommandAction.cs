@@ -31,7 +31,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures
 			return 0.0f;
 		}
 
-		private static bool isValid(int beat, double offset, TimeSpan commandStart, TimeSpan elapsed, TimeSpan beatInterval, float scoreLimit = 0.6f)
+		private static bool isValid(int beat, double offset, TimeSpan commandStart, TimeSpan elapsed, TimeSpan beatInterval, float scoreLimit = 0.4f)
 		{
 			elapsed -= commandStart;
 

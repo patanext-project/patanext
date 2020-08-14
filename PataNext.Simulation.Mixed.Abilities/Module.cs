@@ -26,12 +26,18 @@ namespace PataNext.Simulation.Mixed.Abilities
 				{
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilitySystem));
+					
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilityProvider));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilitySystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultRetreatAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultRetreatAbilitySystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilitySystem));
+					
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilityProvider));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilitySystem));
 					
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultChargeAbilityProvider));
 

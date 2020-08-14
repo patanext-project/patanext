@@ -13,7 +13,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures
 	public struct FlowPressure
 	{
 		public const float  Error   = 0.99f;
-		public const double Perfect = 0.18f;
+		public const double Perfect = 0.16f;
 
 		/// <summary>
 		///     Is this the end of a slider?
