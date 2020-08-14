@@ -75,6 +75,7 @@ namespace PataNext.Export.Desktop.Updater
 					else
 					{
 						notification.State = ProgressNotificationState.Cancelled;
+						notification.Text  = "Update failed :(";
 						Logger.Error(ex, "Update failed!");
 					}
 				}
