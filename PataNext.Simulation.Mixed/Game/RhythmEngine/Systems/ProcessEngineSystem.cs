@@ -1,4 +1,5 @@
-﻿using GameHost.Core;
+﻿using System;
+using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
@@ -25,7 +26,6 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
 			{
-				GameWorld.AsComponentType<RhythmEngineIsPlaying>(),
 				GameWorld.AsComponentType<RhythmEngineController>(),
 				GameWorld.AsComponentType<RhythmEngineLocalState>(),
 				GameWorld.AsComponentType<RhythmEngineSettings>()
@@ -40,11 +40,19 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				var previousBeats = RhythmEngineUtility.GetActivationBeat(previous, settings.BeatInterval);
 
 				state.Elapsed = worldTime.Total - controller.StartTime;
+				if (state.Elapsed < TimeSpan.Zero && HasComponent<RhythmEngineIsPlaying>(entity))
+					GameWorld.RemoveComponent(entity, AsComponentType<RhythmEngineIsPlaying>());
 
 				var currentBeats = RhythmEngineUtility.GetActivationBeat(state, settings);
 				if (previousBeats != currentBeats)
 					state.NewBeatTick = (uint) gameTime.Frame;
 				state.CurrentBeat = currentBeats;
+
+				if (!HasComponent<RhythmEngineIsPlaying>(entity))
+				{
+					state.RecoveryActivationBeat = -1;
+					state.LastPressure           = default;
+				}
 			}
 
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]

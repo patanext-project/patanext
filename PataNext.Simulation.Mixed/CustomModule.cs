@@ -60,6 +60,9 @@ namespace PataNext.Module.Simulation
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.GetNextCommandEngineSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ApplyCommandEngineSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.RhythmEngineResizeCommandBufferSystem));
+
+					simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.YaridaTrainingGameMode));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.StartYaridaTrainingGameMode));
 				}
 			}
 		}

@@ -91,7 +91,10 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			var comboState    = GameWorld.GetComponentData<GameCombo.State>(LocalEngine);
 
 			if (state.CurrentBeat < 0)
+			{
+				AudioPlayerUtility.Stop(audioPlayer);
 				return;
+			}
 
 			var targetAudio = m_LastClip;
 

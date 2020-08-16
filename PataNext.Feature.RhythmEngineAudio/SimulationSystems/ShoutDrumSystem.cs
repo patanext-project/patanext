@@ -86,7 +86,7 @@ namespace PataNext.Simulation.Client.Systems
 
 		public override bool CanUpdate()
 		{
-			return LocalEngine != default && base.CanUpdate();
+			return LocalEngine != default && LocalInformation.Elapsed >= TimeSpan.Zero && base.CanUpdate();
 		}
 
 		private EntityQuery abilityQuery;

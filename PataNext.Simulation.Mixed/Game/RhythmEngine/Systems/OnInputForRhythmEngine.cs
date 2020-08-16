@@ -40,6 +40,8 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				ref var executing = ref GameWorld.GetComponentData<GameCommandState>(entity);
 				
 				var renderBeat = RhythmEngineUtility.GetFlowBeat(state, settings);
+				if (renderBeat < 0)
+					return;
 
 				var progressionBuffer = GameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(entity);
 				var predictedBuffer   = GameWorld.GetBuffer<RhythmEnginePredictedCommandBuffer>(entity);
