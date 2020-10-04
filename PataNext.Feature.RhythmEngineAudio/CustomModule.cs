@@ -29,9 +29,6 @@ namespace PataNext.Feature.RhythmEngineAudio
 				}
 			}
 			
-			foreach (var file in DllStorage.GetFilesAsync("*.*").Result)
-				Console.WriteLine("---------- " + file.Name + " ,  " + file.FullName);
-
 			global.Collection.GetOrCreate(typeof(BgmManager));
 		}
 	}

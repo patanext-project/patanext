@@ -1,10 +1,17 @@
-﻿using DefaultEcs;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using DefaultEcs;
 using GameHost.Core.Ecs.Passes;
 using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
+using StormiumTeam.GameBase.Network.MasterServer;
+using StormiumTeam.GameBase.Network.MasterServer.StandardAuthService;
+using StormiumTeam.GameBase.Network.MasterServer.User;
+using StormiumTeam.GameBase.Network.MasterServer.UserService;
 using StormiumTeam.GameBase.Time;
 
 [assembly: RegisterAvailableModule("GameBase", "StormiumTeam", typeof(StormiumTeam.GameBase.Module))]
@@ -26,6 +33,12 @@ namespace StormiumTeam.GameBase
 					systemCollection.AddPass(new IPostUpdateSimulationPass.RegisterPass(), new[] {typeof(IUpdateSimulationPass.RegisterPass)}, null);
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
+
+					simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
+
+					simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));
 				}
 			}
 		}

@@ -213,69 +213,83 @@ namespace PataNext.Module.Simulation.GameModes
 			GameCombo.AddToEntity(GameWorld, rhythmEngine);
 			RhythmSummonEnergy.AddToEntity(GameWorld, rhythmEngine);
 
-			var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
+			GameEntity first = default;
+			for (var i = 0; i < 4; i++)
 			{
-				Statistics = new UnitStatistics
+				var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
 				{
-					BaseWalkSpeed       = 2,
-					FeverWalkSpeed      = 2.2f,
-					MovementAttackSpeed = 3.1f,
-					Weight              = 8.5f,
-				},
-				Direction = UnitDirection.Right
-			});
-			GameWorld.GetComponentData<Position>(unit).Value.X       = positionX;
-			GameWorld.GetComponentData<Position>(unitTarget).Value.X = positionX;
+					Statistics = new UnitStatistics
+					{
+						BaseWalkSpeed       = 2,
+						FeverWalkSpeed      = 2.2f,
+						MovementAttackSpeed = 3.1f,
+						Weight              = 8.5f,
+					},
+					Direction = UnitDirection.Right
+				});
+				GameWorld.GetComponentData<Position>(unit).Value.X       = positionX;
+				GameWorld.GetComponentData<Position>(unitTarget).Value.X = positionX;
 
-			GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
-			GameWorld.AddComponent(unit, new Relative<PlayerDescription>(playerEntity));
-			GameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
-			GameWorld.AddComponent(unit, new UnitEnemySeekingState());
-			GameWorld.AddComponent(unit, new UnitTargetOffset());
-			GameWorld.AddComponent(unit, new UnitTargetControlTag());
+				GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
+				GameWorld.AddComponent(unit, new Relative<PlayerDescription>(playerEntity));
+				GameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
+				GameWorld.AddComponent(unit, new UnitEnemySeekingState());
 
-			var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
-			displayedEquip.Add(new UnitDisplayedEquipment
-			{
-				Attachment = localAttachDb.GetOrCreate("Mask"),
-				Resource   = localEquipDb.GetOrCreate("Masks/n_kibadda")
-			});
-			displayedEquip.Add(new UnitDisplayedEquipment
-			{
-				Attachment = localAttachDb.GetOrCreate("LeftEquipment"),
-				Resource   = localEquipDb.GetOrCreate("Shields/default_shield")
-			});
-			displayedEquip.Add(new UnitDisplayedEquipment
-			{
-				Attachment = localAttachDb.GetOrCreate("RightEquipment"),
-				Resource   = localEquipDb.GetOrCreate("Swords/default_sword")
-			});
-
-			abilityCollectionSystem.SpawnFor("march", unit);
-			abilityCollectionSystem.SpawnFor("backward", unit);
-			RetreatAbility = abilityCollectionSystem.SpawnFor("retreat", unit);
-			abilityCollectionSystem.SpawnFor("jump", unit);
-			abilityCollectionSystem.SpawnFor("party", unit);
-			abilityCollectionSystem.SpawnFor("charge", unit);
-			abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
-			abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);
-			abilityCollectionSystem.SpawnFor("CTate.EnergyField", unit);
-
-			GameWorld.AddComponent(playerEntity, new ServerCameraState
-			{
-				Data =
+				if (first == default)
 				{
-					Mode   = CameraMode.Forced,
-					Offset = RigidTransform.Identity,
-					Target = unit
+					GameWorld.AddComponent(unit, new UnitTargetControlTag());
+					GameWorld.AddComponent(unit, new UnitTargetOffset());
+					
+					GameWorld.AddComponent(playerEntity, new ServerCameraState
+					{
+						Data =
+						{
+							Mode   = CameraMode.Forced,
+							Offset = RigidTransform.Identity,
+							Target = unit
+						}
+					});
+
+					first = unit;
 				}
-			});
+				else
+				{
+					GameWorld.AddComponent(unit, new UnitTargetOffset {Value = 1 + i});
+				}
 
-			GameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
+				var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/mask"),
+					Resource   = localEquipDb.GetOrCreate("Masks/n_kibadda")
+				});
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/l_eq"),
+					Resource   = localEquipDb.GetOrCreate("Shields/default_shield")
+				});
+				displayedEquip.Add(new UnitDisplayedEquipment
+				{
+					Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/r_eq"),
+					Resource   = localEquipDb.GetOrCreate("Swords/default_sword")
+				});
+
+				abilityCollectionSystem.SpawnFor("march", unit);
+				abilityCollectionSystem.SpawnFor("backward", unit);
+				RetreatAbility = abilityCollectionSystem.SpawnFor("retreat", unit);
+				abilityCollectionSystem.SpawnFor("jump", unit);
+				abilityCollectionSystem.SpawnFor("party", unit);
+				abilityCollectionSystem.SpawnFor("charge", unit);
+				abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
+				abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);
+				abilityCollectionSystem.SpawnFor("CTate.EnergyField", unit);
+
+				GameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
+			}
 
 			RhythmEngine = rhythmEngine;
 
-			return unit;
+			return first;
 		}
 
 		private GameEntity SpawnYarida(float initialPosX, float positionX)

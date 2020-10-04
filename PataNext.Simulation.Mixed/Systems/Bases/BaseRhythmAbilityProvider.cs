@@ -180,8 +180,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-
-			Console.WriteLine($"{typeof(TAbility)} --> {FilePath}");
+			
 			foreach (var file in abilityStorage.GetFilesAsync(FilePath).Result)
 			{
 				configuration = Encoding.UTF8.GetString(file.GetContentAsync().Result);

@@ -57,7 +57,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 				var previousPosition = translation;
 				var target = controllerState.OverrideTargetPosition || !TryGetComponentData<Relative<UnitTargetDescription>>(entity, out var relativeTarget)
 					? controllerState.TargetPosition
-					: GetComponentData<Position>(relativeTarget.Target).Value.X;
+					: GetComponentData<Position>(relativeTarget.Target).Value.X + GetComponentData<UnitTargetOffset>(entity).Value;
 
 				// TODO: Livable state
 				/*if (livableHealthFromEntity.Exists(entity) && livableHealthFromEntity[entity].IsDead)

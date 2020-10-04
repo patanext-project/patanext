@@ -138,7 +138,6 @@ namespace PataNext.Export.Desktop
 		{
 			if (e.Key == Key.G && e.ControlPressed)
 			{
-				Console.WriteLine(!showIntegrated);
 				showIntegrated = !showIntegrated;
 			}
 

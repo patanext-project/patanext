@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Runtime;
@@ -12,12 +13,16 @@ using GameHost.Game;
 using GameHost.IO;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
+using NetFabric.Hyperlinq;
+using osu.Framework.Threading;
 using ZLogger;
 
 namespace PataNext.Export.Desktop
 {
 	class Program
 	{
+		private static int currentVal;
+		
 		static async Task Main(string[] args)
 		{
 			CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;

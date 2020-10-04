@@ -59,7 +59,6 @@ namespace PataNext.Simulation.Client.Systems
 
 					ghModule.Storage.Subscribe((_, localStorage) =>
 					{
-						Console.WriteLine("OnStorage");
 						if (localStorage == null)
 							return;
 

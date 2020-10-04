@@ -18,11 +18,6 @@ using System.Threading.Tasks;
 
 		public BgmDefaultSamplesLoader(BgmStore store) : base(store)
 		{
-			Console.WriteLine(store);
-			Console.WriteLine(store.CurrentPath);
-			foreach (var file in store.GetFilesAsync("*.*").Result)
-				Console.WriteLine(file.FullName);
-			
 			commandsTaskMap = new TaskMap<CharBuffer64, ComboBasedCommand>(async key =>
 			{
 				var files = (await Store.GetFilesAsync($"commands/{key}/*.ogg"))
@@ -42,7 +37,6 @@ using System.Threading.Tasks;
 
 				if (files.Length == 0)
 					throw new InvalidOperationException($"No files found for soundtrack");
-				Console.WriteLine(">>> " + files.Length);
 
 				return new SlicedSoundTrack(files);
 			});

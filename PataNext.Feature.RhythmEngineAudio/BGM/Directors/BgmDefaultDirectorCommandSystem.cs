@@ -150,8 +150,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 					Start     = LocalInformation.CommandStartTime,
 					End       = LocalInformation.CommandEndTime
 				};
-
-				Console.WriteLine(LocalInformation.NextCommand.Entity.Id);
+				
 				if (LocalInformation.NextCommand != default
 				    && LocalInformation.CommandStartTime > TimeSpan.Zero
 				    && commandComboBasedOutputs.TryGetValue(LocalInformation.NextCommandStr, out var output))
