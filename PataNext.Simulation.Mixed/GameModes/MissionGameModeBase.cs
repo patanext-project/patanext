@@ -1,9 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using BepuUtilities;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
+using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.GameModes
@@ -30,9 +38,14 @@ namespace PataNext.Module.Simulation.GameModes
 
 		protected override async Task GetStateMachine(CancellationToken token)
 		{
+			await GameModeInitialisation();
+
 			while (!token.IsCancellationRequested)
 			{
+				await GameModeStartRound();
+
 				EndRoundQuery.RemoveAllEntities();
+
 				while (!token.IsCancellationRequested
 				       && !EndRoundQuery.Any())
 				{
@@ -40,13 +53,23 @@ namespace PataNext.Module.Simulation.GameModes
 					await Task.Yield();
 				}
 
+				await GameModeEndRound();
 				await Task.Yield();
 			}
+
+			await GameModeCleanUp();
 		}
 
-		protected virtual Task GameModePlayLoop()
+		public void RequestEndRound()
 		{
-			return Task.CompletedTask;
+			GameWorld.AddComponent(GameWorld.CreateEntity(), default(GameModeRequestEndRound));
 		}
+
+		protected virtual Task GameModeInitialisation() => Task.CompletedTask;
+		protected virtual Task GameModeStartRound()     => Task.CompletedTask;
+
+		protected virtual Task GameModePlayLoop()  => Task.CompletedTask;
+		protected virtual Task GameModeEndRound()  => Task.CompletedTask;
+		protected virtual Task GameModeCleanUp() => Task.CompletedTask;
 	}
 }

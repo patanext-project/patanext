@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.InterTick;
@@ -12,7 +13,7 @@ namespace PataNext.Module.Simulation.Components
 		Bottom     = 2
 	}
 
-	public unsafe struct PlayerInputComponent : IComponentData
+	public unsafe struct GameRhythmInputComponent : IComponentData
 	{
 		public struct RhythmAction
 		{
@@ -41,7 +42,22 @@ namespace PataNext.Module.Simulation.Components
 		public AbilitySelection      Ability;
 		public float                 Panning;
 
-		public class Register : RegisterGameHostComponentData<PlayerInputComponent>
+		public class Register : RegisterGameHostComponentData<GameRhythmInputComponent>
+		{
+		}
+	}
+
+	public unsafe struct FreeRoamInputComponent : IComponentData
+	{
+		public float                 HorizontalMovement;
+		public InterFramePressAction Up;
+		public InterFramePressAction Down;
+
+		// Should they be known to the host?
+		/*public InterFramePressAction Confirm;
+		public InterFramePressAction Cancel;*/
+
+		public class Register : RegisterGameHostComponentData<FreeRoamInputComponent>
 		{
 		}
 	}

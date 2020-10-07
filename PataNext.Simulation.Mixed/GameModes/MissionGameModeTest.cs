@@ -21,13 +21,31 @@ namespace PataNext.Module.Simulation.GameModes
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			GameWorld.AddComponent(GameWorld.CreateEntity(), new MissionGameModeTest());
+			//GameWorld.AddComponent(GameWorld.CreateEntity(), new MissionGameModeTest());
+		}
+
+		protected override async Task GameModeInitialisation()
+		{
+			Console.WriteLine("----- Initialize gamemode");
+		}
+
+		protected override async Task GameModeStartRound()
+		{
+			Console.WriteLine("Start Round");
+			await Task.Delay(100);
 		}
 
 		protected override async Task GameModePlayLoop()
 		{
-			await Task.Delay(100);
 			Console.WriteLine(Thread.CurrentThread.Name);
+
+			RequestEndRound();
+		}
+
+		protected override async Task GameModeEndRound()
+		{
+			Console.WriteLine("End Round");
+			await Task.Delay(1000);
 		}
 	}
 }

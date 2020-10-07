@@ -14,6 +14,7 @@ using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 {

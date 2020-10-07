@@ -81,5 +81,25 @@ namespace StormiumTeam.GameBase.SystemBase
 
 			return query;
 		}
+
+		public EntityQuery QueryWith(EntityQuery b, Span<Type> span)
+		{
+			Span<ComponentType> convertedAll  = stackalloc ComponentType[b.All.Length + span.Length];
+			b.All.CopyTo(convertedAll);
+			
+			for (var i = b.All.Length - 1; i < span.Length; i++)
+				convertedAll[i] = GameWorld.AsComponentType(span[i]);
+			return CreateEntityQuery(convertedAll, b.None);
+		}
+
+		public EntityQuery QueryWithout(EntityQuery b, Span<Type> span)
+		{
+			Span<ComponentType> convertedNone = stackalloc ComponentType[b.None.Length + span.Length];
+			b.None.CopyTo(convertedNone);
+
+			for (var i = b.None.Length - 1; i < span.Length; i++)
+				convertedNone[i] = GameWorld.AsComponentType(span[i]);
+			return CreateEntityQuery(b.All, convertedNone);
+		}
 	}
 }

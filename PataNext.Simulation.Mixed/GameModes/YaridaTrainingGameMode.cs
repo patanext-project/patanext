@@ -23,7 +23,7 @@ using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
-using MathHelper = StormiumTeam.GameBase.MathHelper;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Module.Simulation.GameModes
 {
@@ -48,6 +48,7 @@ namespace PataNext.Module.Simulation.GameModes
 		}
 
 		GameResourceDb<UnitKitResource, UnitKitResourceKey>               localKitDb;
+		GameResourceDb<UnitArchetypeResource, UnitArchetypeResourceKey>   localArchetypeDb;
 		GameResourceDb<UnitAttachmentResource, UnitAttachmentResourceKey> localAttachDb;
 		GameResourceDb<EquipmentResource, EquipmentResourceKey>           localEquipDb;
 
@@ -55,9 +56,10 @@ namespace PataNext.Module.Simulation.GameModes
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			localKitDb    = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(GameWorld);
-			localAttachDb = new GameResourceDb<UnitAttachmentResource, UnitAttachmentResourceKey>(GameWorld);
-			localEquipDb  = new GameResourceDb<EquipmentResource, EquipmentResourceKey>(GameWorld);
+			localKitDb       = new GameResourceDb<UnitKitResource, UnitKitResourceKey>(GameWorld);
+			localArchetypeDb = new GameResourceDb<UnitArchetypeResource, UnitArchetypeResourceKey>(GameWorld);
+			localAttachDb    = new GameResourceDb<UnitAttachmentResource, UnitAttachmentResourceKey>(GameWorld);
+			localEquipDb     = new GameResourceDb<EquipmentResource, EquipmentResourceKey>(GameWorld);
 		}
 
 		private GameEntity   GameMode;
@@ -191,7 +193,7 @@ namespace PataNext.Module.Simulation.GameModes
 		{
 			var playerEntity = GameWorld.CreateEntity();
 			GameWorld.AddComponent(playerEntity, new PlayerDescription());
-			GameWorld.AddComponent(playerEntity, new PlayerInputComponent());
+			GameWorld.AddComponent(playerEntity, new GameRhythmInputComponent());
 			GameWorld.AddComponent(playerEntity, new PlayerIsLocal());
 
 			var unitTarget = GameWorld.CreateEntity();
@@ -239,6 +241,7 @@ namespace PataNext.Module.Simulation.GameModes
 				{
 					GameWorld.AddComponent(unit, new UnitTargetControlTag());
 					GameWorld.AddComponent(unit, new UnitTargetOffset());
+					GameWorld.AddComponent(unit, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResourceKey("st:pn/archetype/uberhero_std_unit"))));
 					
 					GameWorld.AddComponent(playerEntity, new ServerCameraState
 					{
@@ -255,6 +258,7 @@ namespace PataNext.Module.Simulation.GameModes
 				else
 				{
 					GameWorld.AddComponent(unit, new UnitTargetOffset {Value = 1 + i});
+					GameWorld.AddComponent(unit, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResourceKey("st:pn/archetype/patapon_std_unit"))));
 				}
 
 				var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
@@ -278,7 +282,8 @@ namespace PataNext.Module.Simulation.GameModes
 				abilityCollectionSystem.SpawnFor("backward", unit);
 				RetreatAbility = abilityCollectionSystem.SpawnFor("retreat", unit);
 				abilityCollectionSystem.SpawnFor("jump", unit);
-				abilityCollectionSystem.SpawnFor("party", unit);
+				if (first == unit)
+					abilityCollectionSystem.SpawnFor("party", unit);
 				abilityCollectionSystem.SpawnFor("charge", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);

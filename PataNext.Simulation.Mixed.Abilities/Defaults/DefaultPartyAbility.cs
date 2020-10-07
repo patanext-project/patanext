@@ -41,8 +41,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 			GameWorld.GetComponentData<DefaultPartyAbility>(entity) = new DefaultPartyAbility
 			{
 				TickPerSecond = TimeSpan.FromSeconds(0.1),
-				EnergyPerTick = 1,
-				EnergyOnActivation = 30
+				EnergyPerTick = 0,
+				EnergyOnActivation = 150
 			};
 		}
 	}
@@ -101,9 +101,12 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 							GetComponentData<RhythmSummonEnergy>(engineSet.Engine).Value += energy * ability.EnergyPerTick;
 						}
 					}
-					
+
 					if (isActivationFrame)
+					{
 						GetComponentData<RhythmSummonEnergy>(engineSet.Engine).Value += ability.EnergyOnActivation;
+						Console.WriteLine("PARTY!");
+					}
 				}
 				else
 					ability.TickProgression = default;

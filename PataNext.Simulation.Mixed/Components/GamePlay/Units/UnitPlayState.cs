@@ -23,7 +23,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 
 		public readonly float GetAcceleration()
 		{
-			return Math.Clamp(MathHelper.RcpSafe(Weight), 0, 1);
+			return Math.Clamp(MathUtils.RcpSafe(Weight), 0, 1);
 		}
 		
 		public class Register : RegisterGameHostComponentData<UnitPlayState>

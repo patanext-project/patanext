@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using GameHost.Simulation.TabEcs.Interfaces;
 
-namespace PataNext.Module.Simulation.Components
+namespace StormiumTeam.GameBase.Transform.Components
 {
 	public struct Position : IComponentData
 	{

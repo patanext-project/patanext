@@ -15,6 +15,7 @@ using PataNext.Simulation.Mixed.Abilities.Defaults;
 using PataNext.Simulation.Mixed.Abilities.Subset;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Module.Simulation.Tests
 {

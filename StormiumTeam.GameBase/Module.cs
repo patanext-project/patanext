@@ -12,6 +12,7 @@ using StormiumTeam.GameBase.Network.MasterServer;
 using StormiumTeam.GameBase.Network.MasterServer.StandardAuthService;
 using StormiumTeam.GameBase.Network.MasterServer.User;
 using StormiumTeam.GameBase.Network.MasterServer.UserService;
+using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Time;
 
 [assembly: RegisterAvailableModule("GameBase", "StormiumTeam", typeof(StormiumTeam.GameBase.Module))]
@@ -33,6 +34,7 @@ namespace StormiumTeam.GameBase
 					systemCollection.AddPass(new IPostUpdateSimulationPass.RegisterPass(), new[] {typeof(IUpdateSimulationPass.RegisterPass)}, null);
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(PhysicsSystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));

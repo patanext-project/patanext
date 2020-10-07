@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using BepuUtilities;
 
 namespace StormiumTeam.GameBase
 {
-	public static class MathHelper
+	public static class MathUtils
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float LerpNormalized(float a, float b, float t)
@@ -33,7 +34,7 @@ namespace StormiumTeam.GameBase
 					throw new IndexOutOfRangeException();
 			}
 		}
-		
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float MoveTowards(float current, float target, float maxDelta)
 		{
@@ -47,5 +48,25 @@ namespace StormiumTeam.GameBase
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float UnlerpNormalized(float a, float b, float t) => a.Equals(b) ? 0.0f : Math.Clamp((t - a) / (b - a), 0, 1);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 ToAngles(Quaternion quaternion)
+		{
+			//return Vector3.Normalize(new Vector3 {X=quaternion.X, Y=quaternion.Y, Z=quaternion.Z});
+			return Vector3.Transform(Vector3.UnitY, quaternion);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 ToAngles(Quaternion quaternion, Vector3 up)
+		{
+			return Vector3.Transform(up, quaternion);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Quaternion FromDirection(Vector3 vector)
+		{
+			QuaternionEx.GetQuaternionBetweenNormalizedVectors(Vector3.UnitY, vector, out var quat);
+			return quat;
+		}
 	}
 }

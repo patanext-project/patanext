@@ -15,6 +15,7 @@ using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Abilities.Subset;
 using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Simulation.Mixed.Abilities.CTate
 {

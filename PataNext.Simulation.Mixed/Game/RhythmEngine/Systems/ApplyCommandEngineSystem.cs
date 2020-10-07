@@ -53,6 +53,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 			}))
 			{
 				ref readonly var state        = ref GameWorld.GetComponentData<RhythmEngineLocalState>(entity);
+				ref readonly var comboSettings        = ref GameWorld.GetComponentData<GameCombo.Settings>(entity);
 				ref var          settings     = ref GameWorld.GetComponentData<RhythmEngineSettings>(entity);
 				ref var          comboState   = ref GameWorld.GetComponentData<GameCombo.State>(entity);
 				ref var          commandState = ref GameWorld.GetComponentData<GameCommandState>(entity);
@@ -124,20 +125,24 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					commandState.EndTimeMs      = (int) (executing.ActivationBeatEnd * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 
 					if (TryGetComponentData(entity, out Relative<PlayerDescription> relativePlayer)
-					    && TryGetComponentData(relativePlayer.Target, out PlayerInputComponent playerInputComponent))
+					    && TryGetComponentData(relativePlayer.Target, out GameRhythmInputComponent playerInputComponent))
 					{
 						commandState.Selection = playerInputComponent.Ability;
 					}
 
+					var wasFever = comboSettings.CanEnterFever(comboState);
+					
 					comboState.Count++;
 					comboState.Score += (float) (executing.Power - 0.5) * 2;
 					if (comboState.Score < 0)
 						comboState.Score = 0;
 
 					// We have a little bonus when doing a perfect command
-					if (executing.IsPerfect && HasComponent(entity, AsComponentType<RhythmSummonEnergy>()))
+					if (executing.IsPerfect
+					    && wasFever
+					    && HasComponent(entity, AsComponentType<RhythmSummonEnergy>()))
 					{
-						GetComponentData<RhythmSummonEnergy>(entity).Value += 10;
+						GetComponentData<RhythmSummonEnergy>(entity).Value += 20;
 					}
 
 					Console.WriteLine($"Score={comboState.Score}, Power={executing.Power}");

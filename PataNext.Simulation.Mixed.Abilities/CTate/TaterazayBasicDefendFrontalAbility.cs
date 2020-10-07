@@ -18,6 +18,7 @@ using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Simulation.Mixed.Abilities.CTate
 {
@@ -95,7 +96,7 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 					if (state.IsChaining)
 					{
 						unitController.ControlOverVelocityX = true;
-						velocity.X                          = MathHelper.LerpNormalized(velocity.X, 0, playState.GetAcceleration() * 50 * dt);
+						velocity.X                          = MathUtils.LerpNormalized(velocity.X, 0, playState.GetAcceleration() * 50 * dt);
 					}
 
 					continue;

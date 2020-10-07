@@ -62,21 +62,21 @@ namespace PataNext.Module.Simulation.Game.GamePlay
 
 		public static float GetTargetVelocityX(GetTargetVelocityParameters param, float deaccel_distance = -1, float deaccel_distance_max = -1)
 		{
-			var speed = MathHelper.LerpNormalized(Math.Abs(param.PreviousVelocity.X),
+			var speed = MathUtils.LerpNormalized(Math.Abs(param.PreviousVelocity.X),
 				param.PlayState.MovementAttackSpeed,
 				param.PlayState.GetAcceleration() * param.Acceleration * param.Delta);
 
 			if (deaccel_distance >= 0)
 			{
-				var dist = MathHelper.Distance(param.TargetPosition.X, param.PreviousPosition.X);
+				var dist = MathUtils.Distance(param.TargetPosition.X, param.PreviousPosition.X);
 				if (dist > deaccel_distance && dist < deaccel_distance_max)
 				{
-					speed *= MathHelper.UnlerpNormalized(deaccel_distance, deaccel_distance_max, dist);
+					speed *= MathUtils.UnlerpNormalized(deaccel_distance, deaccel_distance_max, dist);
 					speed =  Math.Max(speed, param.Delta);
 				}
 			}
 
-			var newPosX = MathHelper.MoveTowards(param.PreviousPosition.X, param.TargetPosition.X, speed * param.Delta);
+			var newPosX = MathUtils.MoveTowards(param.PreviousPosition.X, param.TargetPosition.X, speed * param.Delta);
 
 			return (newPosX - param.PreviousPosition.X) / param.Delta;
 		}

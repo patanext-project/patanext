@@ -12,6 +12,7 @@ using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Module.Simulation.Game.GamePlay.Units
 {
@@ -86,10 +87,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 					}
 					else
 					{
-						var acceleration = Math.Clamp(MathHelper.RcpSafe(unitPlayState.Weight), 0, 1) * 10;
+						var acceleration = Math.Clamp(MathUtils.RcpSafe(unitPlayState.Weight), 0, 1) * 10;
 						acceleration = Math.Min(acceleration * dt, 1) * 0.75f;
 
-						velocity.X = MathHelper.LerpNormalized(velocity.X, 0, acceleration);
+						velocity.X = MathUtils.LerpNormalized(velocity.X, 0, acceleration);
 					}
 				}
 

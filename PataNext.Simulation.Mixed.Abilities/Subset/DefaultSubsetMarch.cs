@@ -12,8 +12,8 @@ using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
-
-using static StormiumTeam.GameBase.MathHelper;
+using StormiumTeam.GameBase.Transform.Components;
+using static StormiumTeam.GameBase.MathUtils;
 
 namespace PataNext.Simulation.Mixed.Abilities.Subset
 {

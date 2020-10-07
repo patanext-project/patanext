@@ -99,12 +99,12 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 					velocity.Y = Math.Max(velocity.Y - 60 * dt, 0);
 
 				if (ability.ActiveTime < 3.25f)
-					velocity.X = MathHelper.LerpNormalized(velocity.X, 0, dt * (ability.ActiveTime + 1));
+					velocity.X = MathUtils.LerpNormalized(velocity.X, 0, dt * (ability.ActiveTime + 1));
 
 				if (!ability.IsJumping && velocity.Y > 0)
 				{
 					velocity.Y = Math.Max(velocity.Y - 10 * dt, 0);
-					velocity.Y = MathHelper.LerpNormalized(velocity.Y, 0, 5 * dt);
+					velocity.Y = MathUtils.LerpNormalized(velocity.Y, 0, 5 * dt);
 				}
 
 				ability.ActiveTime += dt;

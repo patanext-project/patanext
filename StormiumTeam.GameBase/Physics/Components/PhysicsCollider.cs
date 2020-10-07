@@ -4,6 +4,7 @@ using GameHost.Simulation.TabEcs.Interfaces;
 
 namespace StormiumTeam.GameBase.Physics.Components
 {
+	
 	public struct PhysicsCollider : IComponentData
 	{
 		public TypedIndex Shape;

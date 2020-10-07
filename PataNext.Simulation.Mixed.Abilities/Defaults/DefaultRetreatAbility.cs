@@ -15,6 +15,7 @@ using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Simulation.Mixed.Abilities.Defaults
 {
@@ -96,7 +97,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 				ref var velocity = ref GetComponentData<Velocity>(owner).Value;
 				if (!state.IsActiveOrChaining)
 				{
-					if (MathHelper.Distance(ability.StartPosition, translation.X) > 2.5f
+					if (MathUtils.Distance(ability.StartPosition, translation.X) > 2.5f
 					    && ability.ActiveTime > 0.1f)
 					{
 						velocity.X = (ability.StartPosition - translation.X) * 3;
@@ -127,7 +128,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 				// there is a little stop when the character is stopping retreating
 				if (ability.ActiveTime >= DefaultRetreatAbility.StopTime && ability.ActiveTime <= walkbackTime)
 					// if he weight more, he will stop faster
-					velocity.X = MathHelper.LerpNormalized(velocity.X, 0, playState.Weight * 0.25f * dt);
+					velocity.X = MathUtils.LerpNormalized(velocity.X, 0, playState.Weight * 0.25f * dt);
 
 				if (!ability.IsRetreating && ability.ActiveTime > walkbackTime)
 				{
@@ -135,7 +136,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 					if (wasRetreating)
 						ability.BackVelocity = Math.Abs(ability.StartPosition - translation.X) * 2.8f;
 
-					var newPosX = MathHelper.MoveTowards(translation.X, ability.StartPosition, ability.BackVelocity * dt);
+					var newPosX = MathUtils.MoveTowards(translation.X, ability.StartPosition, ability.BackVelocity * dt);
 					velocity.X = (newPosX - translation.X) / dt;
 				}
 

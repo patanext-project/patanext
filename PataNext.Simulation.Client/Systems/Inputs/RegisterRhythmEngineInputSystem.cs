@@ -156,7 +156,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			Console.WriteLine("END");*/
 		}
 
-		private void SetAbility(in GameTime gameTime, ref PlayerInputComponent playerInputComponent, in AbilitySelection newSelection)
+		private void SetAbility(in GameTime gameTime, ref GameRhythmInputComponent playerInputComponent, in AbilitySelection newSelection)
 		{
 			playerInputComponent.AbilityInterFrame.Pressed = gameTime.Frame;
 			playerInputComponent.Ability                   = newSelection;
@@ -181,11 +181,11 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			if (gameTime.Frame == default)
 				return;
 
-			var query = GameWorld.QueryEntityWith(stackalloc[] {AsComponentType<PlayerInputComponent>()});
+			var query = GameWorld.QueryEntityWith(stackalloc[] {AsComponentType<GameRhythmInputComponent>()});
 			if (!query.TryGetFirst(out var playerEntity))
 				return;
 
-			ref var input = ref GameWorld.GetComponentData<PlayerInputComponent>(playerEntity);
+			ref var input = ref GameWorld.GetComponentData<GameRhythmInputComponent>(playerEntity);
 			input.Panning = panningAction.Get<AxisAction>().Value;
 
 			if (ability0Action.Get<PressAction>().HasBeenPressed)

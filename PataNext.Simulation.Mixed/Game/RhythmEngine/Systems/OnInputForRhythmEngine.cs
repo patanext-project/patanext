@@ -23,7 +23,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				return;
 			
 			// solo only for now
-			if (!GameWorld.TryGetSingleton(out PlayerInputComponent playerInput))
+			if (!GameWorld.TryGetSingleton(out GameRhythmInputComponent playerInput))
 				return;
 
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
@@ -86,7 +86,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					};
 
 					if (Math.Abs(pressure.Score) <= FlowPressure.Perfect && HasComponent<RhythmSummonEnergy>(entity))
-						GetComponentData<RhythmSummonEnergy>(entity).Value += 5;
+						GetComponentData<RhythmSummonEnergy>(entity).Value += 10;
 
 					progressionBuffer.Add(new RhythmEngineLocalCommandBuffer {Value = pressure});
 					state.LastPressure = pressure;

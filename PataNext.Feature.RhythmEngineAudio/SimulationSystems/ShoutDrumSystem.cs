@@ -119,9 +119,9 @@ namespace PataNext.Simulation.Client.Systems
 				}
 			}
 
-			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[] {gameWorld.AsComponentType<PlayerInputComponent>()}))
+			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[] {gameWorld.AsComponentType<GameRhythmInputComponent>()}))
 			{
-				var next = gameWorld.GetComponentData<PlayerInputComponent>(entity);
+				var next = gameWorld.GetComponentData<GameRhythmInputComponent>(entity);
 
 				var score    = 0;
 				var state    = gameWorld.GetComponentData<RhythmEngineLocalState>(LocalEngine);
