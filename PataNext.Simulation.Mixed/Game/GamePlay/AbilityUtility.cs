@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using GameHost.Simulation.Utility.InterTick;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;

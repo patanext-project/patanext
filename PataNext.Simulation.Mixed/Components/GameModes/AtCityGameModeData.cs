@@ -2,7 +2,7 @@
 
 namespace PataNext.Module.Simulation.Components.GameModes
 {
-	public struct CityRoamGameModeData : IComponentData
+	public struct AtCityGameModeData : IComponentData
 	{
 		
 	}

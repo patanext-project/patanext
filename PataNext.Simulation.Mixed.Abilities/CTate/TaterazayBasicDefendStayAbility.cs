@@ -14,7 +14,8 @@ using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.GamePlay;
-using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using PataNext.Module.Simulation.Game.GamePlay.Abilities;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
@@ -58,13 +59,8 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 
 		public override void OnAbilityUpdate()
 		{
-			var dt = (float) worldTime.Delta.TotalSeconds;
-			
 			var abilityStateAccessor    = new ComponentDataAccessor<AbilityState>(GameWorld);
-			var ownerAccessor           = new ComponentDataAccessor<Owner>(GameWorld);
-			var playStateAccessor       = new ComponentDataAccessor<UnitPlayState>(GameWorld);
-			var controllerStateAccessor = new ComponentDataAccessor<UnitControllerState>(GameWorld);
-			var velocityAccessor        = new ComponentDataAccessor<Velocity>(GameWorld);
+			var controlVelocityAccessor = new ComponentDataAccessor<AbilityControlVelocity>(GameWorld);
 			foreach (var entity in (abilityQuery ??= CreateEntityQuery(stackalloc[]
 			{
 				AsComponentType<AbilityState>(),
@@ -76,35 +72,18 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 				if (!state.IsActiveOrChaining)
 					continue;
 
-				ref readonly var owner          = ref ownerAccessor[entity].Target;
-				ref readonly var playState      = ref playStateAccessor[owner];
-				ref var          unitController = ref controllerStateAccessor[owner];
-				ref var          velocity       = ref velocityAccessor[owner].Value;
+				ref var control = ref controlVelocityAccessor[entity];
 				if (!state.IsActive)
 				{
 					if (state.IsChaining)
 					{
-						unitController.ControlOverVelocityX = true;
-						velocity.X                          = MathUtils.LerpNormalized(velocity.X, 0, playState.GetAcceleration() * 50 * dt);
+						control.StayAtCurrentPositionX(5);
 					}
 
 					continue;
 				}
 
-				ref readonly var targetEntity = ref GetComponentData<Relative<UnitTargetDescription>>(owner).Target;
-				ref readonly var unitPosition = ref GetComponentData<Position>(owner).Value;
-
-				var targetPosition = GetComponentData<Position>(targetEntity).Value.X;
-				velocity.X = AbilityUtility.GetTargetVelocityX(new AbilityUtility.GetTargetVelocityParameters
-				{
-					TargetPosition   = new Vector3(targetPosition, 0, 0),
-					PreviousPosition = unitPosition,
-					PreviousVelocity = velocity,
-					PlayState        = playState,
-					Acceleration     = 5,
-					Delta            = dt
-				});
-				unitController.ControlOverVelocityX = true;
+				control.ResetPositionX(50);
 			}
 		}
 	}

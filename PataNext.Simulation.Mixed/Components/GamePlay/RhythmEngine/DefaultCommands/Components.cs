@@ -1,7 +1,7 @@
 ﻿using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 
-namespace PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands
+namespace PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands
 {
 	public struct MarchCommand : IComponentData
 	{

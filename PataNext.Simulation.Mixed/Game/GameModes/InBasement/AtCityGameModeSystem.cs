@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using GameHost.Core.Ecs;
+using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GameModes;
@@ -11,9 +11,14 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.GameModes.InBasement
 {
-	public class CityRoamGameModeSystem : GameModeSystemBase<CityRoamGameModeData>
+	public class AtCityGameModeSystem : GameModeSystemBase<AtCityGameModeData>
 	{
-		public CityRoamGameModeSystem(WorldCollection collection) : base(collection)
+		public struct PlayerFreeRoamCharacter : IComponentData
+		{
+			
+		}
+		
+		public AtCityGameModeSystem(WorldCollection collection) : base(collection)
 		{
 		}
 

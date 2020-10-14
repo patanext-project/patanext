@@ -50,10 +50,8 @@ namespace StormiumTeam.GameBase.SystemBase
 			switch (gameModeQuery.Any())
 			{
 				case true when currentTask == null:
-					ccs = new CancellationTokenSource();
-					currentTask = Task.Factory
-					                  .StartNew(() => GetStateMachine(ccs.Token), ccs.Token, TaskCreationOptions.AttachedToParent, TaskScheduler)
-					                  .Unwrap();
+					ccs         = new CancellationTokenSource();
+					currentTask = TaskRunUtility.StartUnwrap(GetStateMachine, TaskScheduler, ccs.Token);
 					break;
 				case false when currentTask != null:
 					ccs?.Dispose();

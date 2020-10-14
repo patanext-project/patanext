@@ -13,7 +13,7 @@ using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Abilities.Subset;
-using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Transform.Components;
 
@@ -123,6 +123,7 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 						control.IsActive       = true;
 						control.TargetPosition = targetPosition;
 						control.Acceleration   = 25;
+						control.OffsetFactor   = 0;
 					}
 				}
 				

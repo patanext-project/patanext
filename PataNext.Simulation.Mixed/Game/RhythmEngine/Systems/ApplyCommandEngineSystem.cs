@@ -9,7 +9,7 @@ using GameHost.Simulation.Utility.Resource.Components;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Resources.Keys;
-using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components;
 using ZLogger;
@@ -23,9 +24,16 @@ namespace PataNext.Module.Simulation.Systems
 			DependencyResolver.Add<LocalRhythmCommandResourceManager>();
 		}
 
-		public GameEntity SpawnFor(string                     abilityId, GameEntity owner,
-		                           AbilitySelection           selection = AbilitySelection.Horizontal,
-		                           Dictionary<string, object> data      = null)
+		public GameEntity SpawnFor<TJsonData>(string           abilityId,                               GameEntity owner,
+		                           AbilitySelection selection = AbilitySelection.Horizontal, 
+		                           TJsonData jsonData = default)
+		{
+			return SpawnFor(abilityId, owner, selection, JsonConvert.SerializeObject(jsonData));
+		}
+
+		public GameEntity SpawnFor(string           abilityId, GameEntity owner,
+		                           AbilitySelection selection = AbilitySelection.Horizontal,
+		                           string           jsonData  = null)
 		{
 			if (!providerMap.TryGetValue(abilityId, out var provider))
 			{
@@ -33,7 +41,7 @@ namespace PataNext.Module.Simulation.Systems
 				return default;
 			}
 
-			provider.DataMap = data;
+			provider.ProvidedJson = jsonData;
 			return provider.SpawnEntityWithArguments(new CreateAbility
 			{
 				Owner     = owner,

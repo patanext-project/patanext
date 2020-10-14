@@ -10,7 +10,7 @@ using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Abilities.Subset;
-using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 
 namespace PataNext.Simulation.Mixed.Abilities.Defaults
 {

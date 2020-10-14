@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using Collections.Pooled;
@@ -13,14 +12,13 @@ using GameHost.Native;
 using GameHost.Native.Fixed;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
-using GameHost.Simulation.Utility.Resource;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using PataNext.Module.Simulation.Systems;
-using PataNext.Simulation.mixed.Components.GamePlay.Abilities;
+using PataNext.Simulation.Mixed.Components.GamePlay.Abilities;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
 
@@ -99,7 +97,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 			abilityCollectionSystem.Register(this);
 		}
 
-		public Dictionary<string, object> DataMap;
+		public string ProvidedJson;
 
 		/// <summary>
 		/// Get the chaining command (tail) of this ability
@@ -164,7 +162,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 					// ignored (DllStorage will throw an exception if it does not exist)
 				}
 
-				return $"{folder}/{typeof(TAbility).Name.Replace("Ability", string.Empty)}.json";
+				return $"{folder}/{typeof(TAbility).Name.Replace("Ability", string.Empty)}";
 			}
 		}
 
@@ -181,7 +179,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 		{
 			base.OnDependenciesResolved(dependencies);
 			
-			foreach (var file in abilityStorage.GetFilesAsync(FilePath).Result)
+			foreach (var file in abilityStorage.GetFilesAsync(FilePath + ".json").Result)
 			{
 				configuration = Encoding.UTF8.GetString(file.GetContentAsync().Result);
 				break;

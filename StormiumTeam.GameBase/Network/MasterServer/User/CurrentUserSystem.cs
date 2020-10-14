@@ -30,13 +30,13 @@ namespace StormiumTeam.GameBase.Network.MasterServer.User
 			singletonEntity.Set(new CurrentUser());
 		}
 
-		public UserToken Token { get; private set; }
+		public UserToken User { get; private set; }
 
 		public void Set(UserToken userToken)
 		{
 			logger.ZLogInformation("Current User: {0}", userToken.Representation);
 
-			Token = userToken;
+			User = userToken;
 			singletonEntity.Set(new CurrentUser(userToken));
 		}
 	}

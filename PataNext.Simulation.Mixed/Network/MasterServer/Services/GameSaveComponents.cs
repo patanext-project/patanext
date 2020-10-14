@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs.Interfaces;
@@ -34,7 +33,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 
 			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
-				var representation = await Service.CreateSave(currentUserSystem.Token, entity.Get<CreateGameSaveRequest>().Name);
+				var representation = await Service.CreateSave(currentUserSystem.User, entity.Get<CreateGameSaveRequest>().Name);
 				entity.Set(new Response {SaveId = representation});
 			}
 		}
@@ -58,7 +57,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 
 			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
-				var saveIds = await Service.ListSaves(currentUserSystem.Token.Representation);
+				var saveIds = await Service.ListSaves(currentUserSystem.User.Representation);
 				entity.Set(new Response {Results = saveIds});
 			}
 		}

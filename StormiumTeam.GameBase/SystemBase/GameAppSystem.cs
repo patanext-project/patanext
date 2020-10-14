@@ -84,6 +84,8 @@ namespace StormiumTeam.GameBase.SystemBase
 
 		public EntityQuery QueryWith(EntityQuery b, Span<Type> span)
 		{
+			b ??= new EntityQuery(GameWorld, Array.Empty<ComponentType>());
+			
 			Span<ComponentType> convertedAll  = stackalloc ComponentType[b.All.Length + span.Length];
 			b.All.CopyTo(convertedAll);
 			
@@ -94,6 +96,8 @@ namespace StormiumTeam.GameBase.SystemBase
 
 		public EntityQuery QueryWithout(EntityQuery b, Span<Type> span)
 		{
+			b ??= new EntityQuery(GameWorld, Array.Empty<ComponentType>());
+			
 			Span<ComponentType> convertedNone = stackalloc ComponentType[b.None.Length + span.Length];
 			b.None.CopyTo(convertedNone);
 

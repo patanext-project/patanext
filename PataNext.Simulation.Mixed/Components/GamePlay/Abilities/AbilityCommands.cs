@@ -1,6 +1,5 @@
 ﻿using GameHost.Native;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
-using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.Resource;
 using PataNext.Module.Simulation.Resources;

@@ -3,7 +3,6 @@ using System.Numerics;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
-using GameHost.Simulation.Utility.InterTick;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;

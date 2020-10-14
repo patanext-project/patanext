@@ -4,10 +4,11 @@ using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
+using Newtonsoft.Json;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
-using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine;
-using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase.Roles.Components;
 
 namespace PataNext.Simulation.Mixed.Abilities.Defaults
@@ -16,7 +17,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 	{
 		public TimeSpan TickProgression;
 		public TimeSpan TickPerSecond;
-		public bool  WasActive;
+		public bool     WasActive;
 
 		public int EnergyPerTick;
 		public int EnergyOnActivation;
@@ -29,6 +30,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 		}
 
 		public override string MasterServerId => "party";
+
 		public override ComponentType GetChainingCommand()
 		{
 			return GameWorld.AsComponentType<PartyCommand>();
@@ -38,29 +40,35 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 		{
 			base.SetEntityData(entity, data);
 
-			GameWorld.GetComponentData<DefaultPartyAbility>(entity) = new DefaultPartyAbility
+			if (ProvidedJson == null || !JsonConvert.DeserializeAnonymousType(ProvidedJson, new {disableEnergy = false}).disableEnergy)
 			{
-				TickPerSecond = TimeSpan.FromSeconds(0.1),
-				EnergyPerTick = 0,
-				EnergyOnActivation = 150
-			};
+				GameWorld.GetComponentData<DefaultPartyAbility>(entity) = new DefaultPartyAbility
+				{
+					TickPerSecond      = TimeSpan.FromSeconds(0.1),
+					EnergyPerTick      = 0,
+					EnergyOnActivation = 150
+				};
+			}
 		}
 	}
 
 	public class DefaultPartyAbilitySystem : BaseAbilitySystem
 	{
 		private IManagedWorldTime worldTime;
-		
+
 		public DefaultPartyAbilitySystem(WorldCollection collection) : base(collection)
 		{
+			World.Remove(this);
+			
 			DependencyResolver.Add(() => ref worldTime);
 		}
 
 		private EntityQuery abilityQuery;
+
 		public override void OnAbilityUpdate()
 		{
 			var dt = worldTime.Delta;
-			
+
 			var abilityAccessor   = GetAccessor<DefaultPartyAbility>();
 			var stateAccessor     = GetAccessor<AbilityState>();
 			var engineSetAccessor = GetAccessor<AbilityEngineSet>();
@@ -74,13 +82,13 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 			})).GetEntities())
 			{
 				ref var ability = ref abilityAccessor[entity];
-				
+
 				ref readonly var state = ref stateAccessor[entity];
 				if (!state.IsActive)
 				{
 					ability.TickProgression = default;
 					ability.WasActive       = false;
-					return;
+					continue;
 				}
 
 				var isActivationFrame = false;

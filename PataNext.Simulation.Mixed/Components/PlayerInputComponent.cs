@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.InterTick;

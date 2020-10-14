@@ -1,6 +1,5 @@
 ﻿using GameHost.Core;
 using GameHost.Core.Ecs;
-using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using PataNext.Module.Simulation.Passes;
 using StormiumTeam.GameBase.SystemBase;

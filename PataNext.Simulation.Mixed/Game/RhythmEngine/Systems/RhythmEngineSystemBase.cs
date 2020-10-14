@@ -1,7 +1,6 @@
 ﻿using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Application;
-using GameHost.Simulation.TabEcs;
 using PataNext.Module.Simulation.Passes;
 using StormiumTeam.GameBase.SystemBase;
 using StormiumTeam.GameBase.Time;

@@ -1,7 +1,7 @@
 ﻿using GameHost.Native.Char;
 using GameHost.Simulation.TabEcs.Interfaces;
 
-namespace PataNext.Simulation.mixed.Components.GamePlay.Abilities
+namespace PataNext.Simulation.Mixed.Components.GamePlay.Abilities
 {
 	public readonly struct NamedAbilityId : IComponentData
 	{

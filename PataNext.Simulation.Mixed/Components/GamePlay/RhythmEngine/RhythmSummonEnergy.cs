@@ -2,7 +2,7 @@
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 
-namespace PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine
+namespace PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine
 {
 	public struct RhythmSummonEnergy : IComponentData
 	{

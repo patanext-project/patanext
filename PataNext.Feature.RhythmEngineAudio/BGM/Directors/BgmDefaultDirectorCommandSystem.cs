@@ -18,7 +18,7 @@ using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
 using PataNext.Simulation.Client.Systems;
-using PataNext.Simulation.mixed.Components.GamePlay.Abilities;
+using PataNext.Simulation.Mixed.Components.GamePlay.Abilities;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;

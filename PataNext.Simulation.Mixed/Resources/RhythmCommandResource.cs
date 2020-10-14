@@ -1,7 +1,6 @@
 ﻿using System;
 using GameHost.Injection;
 using GameHost.Native.Char;
-using GameHost.Native.Fixed;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.Resource;

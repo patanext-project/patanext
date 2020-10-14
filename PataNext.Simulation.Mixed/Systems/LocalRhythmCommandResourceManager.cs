@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using GameHost.Core.Ecs;
-using GameHost.Simulation.TabEcs;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.Resources;
-using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.Systems

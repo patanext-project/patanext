@@ -18,7 +18,7 @@ using PataNext.Module.Simulation.Game.Providers;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
 using PataNext.Module.Simulation.Systems;
-using PataNext.Simulation.mixed.Components.GamePlay.RhythmEngine;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
@@ -216,7 +216,7 @@ namespace PataNext.Module.Simulation.GameModes
 			RhythmSummonEnergy.AddToEntity(GameWorld, rhythmEngine);
 
 			GameEntity first = default;
-			for (var i = 0; i < 4; i++)
+			for (var i = 0; i < 7; i++)
 			{
 				var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
 				{
@@ -232,17 +232,18 @@ namespace PataNext.Module.Simulation.GameModes
 				GameWorld.GetComponentData<Position>(unit).Value.X       = positionX;
 				GameWorld.GetComponentData<Position>(unitTarget).Value.X = positionX;
 
-				GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
 				GameWorld.AddComponent(unit, new Relative<PlayerDescription>(playerEntity));
 				GameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
 				GameWorld.AddComponent(unit, new UnitEnemySeekingState());
 
+				var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
 				if (first == default)
 				{
 					GameWorld.AddComponent(unit, new UnitTargetControlTag());
 					GameWorld.AddComponent(unit, new UnitTargetOffset());
 					GameWorld.AddComponent(unit, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResourceKey("st:pn/archetype/uberhero_std_unit"))));
-					
+					GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("taterazay"))));
+
 					GameWorld.AddComponent(playerEntity, new ServerCameraState
 					{
 						Data =
@@ -253,37 +254,47 @@ namespace PataNext.Module.Simulation.GameModes
 						}
 					});
 
+					displayedEquip.Add(new UnitDisplayedEquipment
+					{
+						Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/mask"),
+						Resource   = localEquipDb.GetOrCreate("Masks/n_kibadda")
+					});
+					displayedEquip.Add(new UnitDisplayedEquipment
+					{
+						Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/l_eq"),
+						Resource   = localEquipDb.GetOrCreate("Shields/default_shield")
+					});
+					displayedEquip.Add(new UnitDisplayedEquipment
+					{
+						Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/r_eq"),
+						Resource   = localEquipDb.GetOrCreate("Swords/default_sword")
+					});
+
 					first = unit;
 				}
 				else
 				{
-					GameWorld.AddComponent(unit, new UnitTargetOffset {Value = 1 + i});
+					GameWorld.AddComponent(unit, new UnitTargetOffset {Value = 1 + i * 0.5f});
 					GameWorld.AddComponent(unit, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResourceKey("st:pn/archetype/patapon_std_unit"))));
-				}
+					GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("yarida"))));
 
-				var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
-				displayedEquip.Add(new UnitDisplayedEquipment
-				{
-					Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/mask"),
-					Resource   = localEquipDb.GetOrCreate("Masks/n_kibadda")
-				});
-				displayedEquip.Add(new UnitDisplayedEquipment
-				{
-					Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/l_eq"),
-					Resource   = localEquipDb.GetOrCreate("Shields/default_shield")
-				});
-				displayedEquip.Add(new UnitDisplayedEquipment
-				{
-					Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/r_eq"),
-					Resource   = localEquipDb.GetOrCreate("Swords/default_sword")
-				});
+					displayedEquip.Add(new UnitDisplayedEquipment
+					{
+						Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/r_eq"),
+						Resource   = localEquipDb.GetOrCreate("Spears/default_spear_smaller")
+					});
+					displayedEquip.Add(new UnitDisplayedEquipment
+					{
+						Attachment = localAttachDb.GetOrCreate("st:pn/equip_root/helmet"),
+						Resource   = localEquipDb.GetOrCreate("Helmets/default_helmet_small")
+					});
+				}
 
 				abilityCollectionSystem.SpawnFor("march", unit);
 				abilityCollectionSystem.SpawnFor("backward", unit);
 				RetreatAbility = abilityCollectionSystem.SpawnFor("retreat", unit);
 				abilityCollectionSystem.SpawnFor("jump", unit);
-				if (first == unit)
-					abilityCollectionSystem.SpawnFor("party", unit);
+				abilityCollectionSystem.SpawnFor("party", unit, jsonData: new {disableEnergy = first != unit});
 				abilityCollectionSystem.SpawnFor("charge", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);
