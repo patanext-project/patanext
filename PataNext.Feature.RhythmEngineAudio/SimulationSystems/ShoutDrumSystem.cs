@@ -109,7 +109,7 @@ namespace PataNext.Simulation.Client.Systems
 					AsComponentType<AbilityState>(),
 					AsComponentType<AbilityActivation>(),
 					AsComponentType<Owner>()
-				})).GetEntities())
+				})))
 				{
 					if (activationAccessor[ability].Type == EAbilityActivationType.HeroMode
 					    && stateAccessor[ability].Phase == EAbilityPhase.WillBeActive)

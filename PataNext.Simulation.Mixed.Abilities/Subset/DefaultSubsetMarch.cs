@@ -98,7 +98,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 			validOwnerQuery.CheckForNewArchetypes();
 
 			var timeDelta = (float) worldTime.Delta.TotalSeconds;
-			foreach (var entity in abilityQuery.GetEntities())
+			foreach (var entity in abilityQuery.GetEnumerator())
 			{
 				ref readonly var owner = ref GetComponentData<Owner>(entity).Target;
 				if (!validOwnerQuery.MatchAgainst(owner))

@@ -103,7 +103,7 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 				AsComponentType<AbilityEngineSet>(),
 				AsComponentType<Owner>(),
 				AsComponentType<AbilityControlVelocity>()
-			})).GetEntities())
+			})))
 			{
 				// TODO: Remove buff if owner is invalid
 				

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using GameHost.Core.Ecs;
@@ -42,7 +43,10 @@ namespace PataNext.Module.Simulation.GameModes
 					await Task.Yield();
 
 				trainingGameMode.Start(64);
-			}, taskScheduler, CancellationToken.None);
+			}, taskScheduler, CancellationToken.None).ContinueWith(t =>
+			{
+				Console.WriteLine($"{t.Exception}");
+			});
 		}
 	}
 }

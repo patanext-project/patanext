@@ -66,7 +66,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			var abilityActivationAccessor  = new ComponentDataAccessor<AbilityActivation>(GameWorld);
 			var abilityCommands  = new ComponentDataAccessor<AbilityCommands>(GameWorld);
 			var engineSetAccessor  = new ComponentDataAccessor<AbilityEngineSet>(GameWorld);
-			foreach (var entity in abilityQuery.GetEntities())
+			foreach (var entity in abilityQuery.GetEnumerator())
 			{
 				// Indicate whether or not we own the entity simulation.
 				// If we don't, we should only fill displaying state, and not modifying external and internal state.
@@ -200,7 +200,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 						state.Combo = 0;
 					}
 
-					activeSelf.Active = default;
+					activeSelf.PreviousActive = activeSelf.Active;
+					activeSelf.Active   = default;
 				}
 
 				// Set next active ability, and reset imperfect data if active.
@@ -214,7 +215,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 							state.Combo = 0;
 						}
 
-						activeSelf.Active = activeSelf.Incoming;
+						activeSelf.PreviousActive = activeSelf.Active;
+						activeSelf.Active   = activeSelf.Incoming;
 						if (HasComponent(activeSelf.Active, abilityStateComponent))
 						{
 							ref var state = ref abilityStateAccessor[activeSelf.Active];

@@ -43,7 +43,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 				AsComponentType<Position>(),
 				AsComponentType<Velocity>(),
 				AsComponentType<UnitPlayState>(),
-			})).GetEntities())
+			})))
 			{
 				ref var          controllerState = ref controllerStateAccessor[entity];
 				ref var          groundState     = ref groundStateAccessor[entity].Value;

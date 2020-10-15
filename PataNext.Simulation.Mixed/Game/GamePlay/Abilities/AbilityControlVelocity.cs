@@ -91,7 +91,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			{
 				AsComponentType<AbilityControlVelocity>(),
 				AsComponentType<Owner>()
-			})).GetEntities())
+			})))
 			{
 				ref var target = ref targetAccessor[entity];
 				if (!target.IsActive)

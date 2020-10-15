@@ -26,7 +26,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Team
 				typeof(TeamMovableArea),
 				typeof(TeamDescription),
 				typeof(IsSimulationOwned)
-			})).GetEntities())
+			})))
 			{
 				movableAreaAccessor[entity] = new TeamMovableArea {Left = float.PositiveInfinity, Right = float.NegativeInfinity};
 			}
@@ -40,7 +40,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Team
 				typeof(Position),
 				typeof(Relative<TeamDescription>),
 				typeof(IsSimulationOwned)
-			})).GetEntities())
+			})))
 			{
 				ref readonly var teamRelative = ref teamRelativeAccessor[entity];
 				if (!HasComponent<TeamMovableArea>(teamRelative.Target))

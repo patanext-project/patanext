@@ -66,7 +66,7 @@ namespace PataNext.Simulation.Mixed.Abilities.CTate
 				AsComponentType<AbilityState>(),
 				AsComponentType<TaterazayBasicDefendStayAbility>(),
 				AsComponentType<Owner>()
-			})).GetEntities())
+			})))
 			{
 				ref readonly var state = ref abilityStateAccessor[entity];
 				if (!state.IsActiveOrChaining)

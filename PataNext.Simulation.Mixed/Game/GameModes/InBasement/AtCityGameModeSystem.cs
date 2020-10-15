@@ -38,14 +38,14 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			while (!token.IsCancellationRequested)
 			{
 				// Add missing input component to players
-				foreach (var entity in playerWithoutInputQuery.GetEntities())
+				foreach (var entity in playerWithoutInputQuery.GetEnumerator())
 					AddComponent<FreeRoamInputComponent>(entity);
 
 				await Task.Yield();
 			}
 
 			// Remove input component from players
-			foreach (var entity in playerWithInputQuery.GetEntities())
+			foreach (var entity in playerWithInputQuery.GetEnumerator())
 				GameWorld.RemoveComponent(entity, AsComponentType<FreeRoamInputComponent>());
 		}
 	}

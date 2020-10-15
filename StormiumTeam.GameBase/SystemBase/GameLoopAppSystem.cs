@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Ecs.Passes;
+using GameHost.Core.Threading;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
@@ -12,16 +13,27 @@ namespace StormiumTeam.GameBase.SystemBase
 	public abstract class GameLoopAppSystem : GameAppSystem
 	{
 		protected readonly bool IsAutomaticExecution;
-		
-		private List<ForEachExecutor> executors;
+
+		private List<ForEachExecutor> executors = new List<ForEachExecutor>();
+
+		protected IScheduler LoopScheduler;
 
 		public GameLoopAppSystem(WorldCollection collection) : base(collection)
 		{
 			throw new Exception("You need to set the second parameter 'isAutomatic' of this constructor.\nAnd your constructor should consist of only the 'WorldCollection' argument.");
 		}
-		
+
 		public GameLoopAppSystem(WorldCollection collection, bool isAutomatic) : base(collection)
 		{
+			IsAutomaticExecution = isAutomatic;
+			LoopScheduler        = new Scheduler();
+		}
+
+		public override bool CanUpdate()
+		{
+			LoopScheduler.Run();
+
+			return base.CanUpdate();
 		}
 
 		protected override void OnUpdate()
@@ -30,16 +42,16 @@ namespace StormiumTeam.GameBase.SystemBase
 
 			if (!IsAutomaticExecution)
 				return;
-			
+
 			foreach (var exec in executors)
 				exec.Run();
 		}
 
 		protected void RunExecutors()
 		{
-			if (!IsAutomaticExecution)
+			if (IsAutomaticExecution)
 				throw new Exception("IsAutomaticExecution is true. Create this system with 'isAutomatic' argument in constructor set to false.");
-			
+
 			foreach (var exec in executors)
 				exec.Run();
 		}
@@ -59,29 +71,38 @@ namespace StormiumTeam.GameBase.SystemBase
 			Add(new ForEachExecutorEntityEnumerator {Action = action, Query = query});
 		}
 
-		
+
 		protected void Add<T1>(ForEachExecutorEntity<T1>.Func action, EntityQuery query = null)
 			where T1 : struct, IComponentData
 		{
-			var final = QueryWith(query, new[] {typeof(T1)});
-			Add(new ForEachExecutorEntity<T1> {Inner = this, Action = action, Query = final});
+			LoopScheduler.Schedule(() =>
+			{
+				var final = QueryWith(query, new[] {typeof(T1)});
+				Add(new ForEachExecutorEntity<T1> {Inner = this, Action = action, Query = final});
+			}, default);
 		}
-		
+
 		protected void Add<T1, T2>(ForEachExecutorEntity<T1, T2>.Func action, EntityQuery query = null)
 			where T1 : struct, IComponentData
 			where T2 : struct, IComponentData
 		{
-			var final = QueryWith(query, new[] {typeof(T1), typeof(T2)});
-			Add(new ForEachExecutorEntity<T1, T2> {Inner = this, Action = action, Query = final});
+			LoopScheduler.Schedule(() =>
+			{
+				var final = QueryWith(query, new[] {typeof(T1), typeof(T2)});
+				Add(new ForEachExecutorEntity<T1, T2> {Inner = this, Action = action, Query = final});
+			}, default);
 		}
-		
+
 		protected void Add<T1, T2, T3>(ForEachExecutorEntity<T1, T2, T3>.Func action, EntityQuery query = null)
 			where T1 : struct, IComponentData
 			where T2 : struct, IComponentData
 			where T3 : struct, IComponentData
 		{
-			var final = QueryWith(query, new[] {typeof(T1), typeof(T2), typeof(T3)});
-			Add(new ForEachExecutorEntity<T1, T2, T3> {Inner = this, Action = action, Query = final});
+			LoopScheduler.Schedule(() =>
+			{
+				var final = QueryWith(query, new[] {typeof(T1), typeof(T2), typeof(T3)});
+				Add(new ForEachExecutorEntity<T1, T2, T3> {Inner = this, Action = action, Query = final});
+			}, default);
 		}
 	}
 
@@ -97,7 +118,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		
 		public override void Run()
 		{
-			foreach (var entity in Query.GetEntities())
+			foreach (var entity in Query.GetEnumerator())
 				Action(entity);
 		}
 	}
@@ -109,7 +130,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		
 		public override void Run()
 		{
-			Action(Query.GetEntities());
+			Action(Query.GetEnumerator());
 		}
 	}
 	
@@ -125,7 +146,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		public override void Run()
 		{
 			var accessorT1 = Inner.GetAccessor<T1>();
-			foreach (var entity in Query.GetEntities())
+			foreach (var entity in Query.GetEnumerator())
 			{
 				if (!Action(entity, ref accessorT1[entity]))
 					break;
@@ -147,7 +168,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		{
 			var accessorT1 = Inner.GetAccessor<T1>();
 			var accessorT2 = Inner.GetAccessor<T2>();
-			foreach (var entity in Query.GetEntities())
+			foreach (var entity in Query.GetEnumerator())
 			{
 				if (!Action(entity, ref accessorT1[entity], ref accessorT2[entity]))
 					break;
@@ -171,7 +192,7 @@ namespace StormiumTeam.GameBase.SystemBase
 			var accessorT1 = Inner.GetAccessor<T1>();
 			var accessorT2 = Inner.GetAccessor<T2>();
 			var accessorT3 = Inner.GetAccessor<T3>();
-			foreach (var entity in Query.GetEntities())
+			foreach (var entity in Query.GetEnumerator())
 			{
 				if (!Action(entity, ref accessorT1[entity], ref accessorT2[entity], ref accessorT3[entity]))
 					break;

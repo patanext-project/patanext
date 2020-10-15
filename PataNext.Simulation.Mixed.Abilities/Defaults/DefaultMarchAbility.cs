@@ -74,7 +74,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 				typeof(DefaultMarchAbility),
 				typeof(DefaultSubsetMarch),
 				typeof(AbilityState)
-			})).GetEntities())
+			})))
 			{
 				subsetAccessor[entity].IsActive = abilityAccessor[entity].IsActive;
 			}

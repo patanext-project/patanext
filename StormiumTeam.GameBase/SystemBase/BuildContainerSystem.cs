@@ -44,10 +44,10 @@ namespace StormiumTeam.GameBase.SystemBase
 		public void ForceUpdate()
 		{
 			// We could actually get the buffer Componentboard for more linear performance
-			foreach (var owner in ownerQuery.GetEntities())
+			foreach (var owner in ownerQuery.GetEnumerator())
 				GameWorld.GetBuffer<OwnedRelative<TDescription>>(owner).Clear();
 
-			foreach (var child in childQuery.GetEntities())
+			foreach (var child in childQuery.GetEnumerator())
 			{
 				var owner = GetComponentData<Owner>(child).Target;
 				if (!GameWorld.Contains(owner))

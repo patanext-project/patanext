@@ -31,7 +31,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				AsComponentType<AbilityModifyStatsOnChaining>(),
 				AsComponentType<AbilityEngineSet>(),
 				AsComponentType<Owner>(),
-			})).GetEntities())
+			})))
 			{
 				ref readonly var state = ref stateAccessor[entity];
 				if ((state.Phase & EAbilityPhase.ActiveOrChaining) == 0)

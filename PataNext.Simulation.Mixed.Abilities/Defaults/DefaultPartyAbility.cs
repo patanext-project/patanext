@@ -7,6 +7,7 @@ using GameHost.Worlds.Components;
 using Newtonsoft.Json;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
+using PataNext.Simulation.mixed.Components.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase.Roles.Components;
@@ -49,6 +50,11 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 					EnergyOnActivation = 150
 				};
 			}
+
+			GameWorld.AddComponent(entity, new ExecutableAbility((owner, self, state) =>
+			{
+				Console.WriteLine($"{owner}; {self}; {state.Phase}");
+			}));
 		}
 	}
 
@@ -73,13 +79,13 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 			var stateAccessor     = GetAccessor<AbilityState>();
 			var engineSetAccessor = GetAccessor<AbilityEngineSet>();
 			var ownerAccessor     = GetAccessor<Owner>();
-			foreach (var entity in (abilityQuery ??= CreateEntityQuery(new[]
+			foreach (var entity in abilityQuery ??= CreateEntityQuery(new[]
 			{
 				AsComponentType<DefaultPartyAbility>(),
 				AsComponentType<AbilityState>(),
 				AsComponentType<AbilityEngineSet>(),
 				AsComponentType<Owner>()
-			})).GetEntities())
+			}))
 			{
 				ref var ability = ref abilityAccessor[entity];
 

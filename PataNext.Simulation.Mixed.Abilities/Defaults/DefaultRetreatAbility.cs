@@ -75,11 +75,11 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 		{
 			var dt = (float) worldTime.Delta.TotalSeconds;
 
-			foreach (var entity in (abilityQuery ??= CreateEntityQuery(new[]
+			foreach (var entity in abilityQuery ??= CreateEntityQuery(new[]
 			{
 				typeof(DefaultRetreatAbility),
 				typeof(AbilityState)
-			})).GetEntities())
+			}))
 			{
 				ref var          ability = ref GetComponentData<DefaultRetreatAbility>(entity);
 				ref readonly var state   = ref GetComponentData<AbilityState>(entity);

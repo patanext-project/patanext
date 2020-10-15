@@ -13,6 +13,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		public int LastCommandActiveTime;
 		public int LastActivationTime;
 
+		public GameEntity PreviousActive;
 		public GameEntity Active;
 		public GameEntity Incoming;
 

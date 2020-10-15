@@ -48,6 +48,7 @@ namespace PataNext.Module.Simulation
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.UpdateActiveAbilitySystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ApplyAbilityStatisticOnChainingSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ExecuteActiveAbilitySystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.AbilityControlVelocitySystem));
@@ -62,8 +63,6 @@ namespace PataNext.Module.Simulation
 					simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.YaridaTrainingGameMode));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.StartYaridaTrainingGameMode));
 					
-					simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.MissionGameModeTestSystem));
-
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.CreateGameSaveRequest.Process));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.ListGameSaveRequest.Process));
 				}

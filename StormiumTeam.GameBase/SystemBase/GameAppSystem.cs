@@ -64,6 +64,9 @@ namespace StormiumTeam.GameBase.SystemBase
 
 		public EntityQuery CreateEntityQuery(Span<Type> all = default, Span<Type> none = default)
 		{
+			if (GameWorld == null)
+				throw new NullReferenceException(nameof(GameWorld));
+			
 			Span<ComponentType> convertedAll  = stackalloc ComponentType[all.Length];
 			Span<ComponentType> convertedNone = stackalloc ComponentType[none.Length];
 			for (var i = 0; i != all.Length; i++)
@@ -84,7 +87,8 @@ namespace StormiumTeam.GameBase.SystemBase
 
 		public EntityQuery QueryWith(EntityQuery b, Span<Type> span)
 		{
-			b ??= new EntityQuery(GameWorld, Array.Empty<ComponentType>());
+			if (b == null)
+				return CreateEntityQuery(span, Array.Empty<Type>());
 			
 			Span<ComponentType> convertedAll  = stackalloc ComponentType[b.All.Length + span.Length];
 			b.All.CopyTo(convertedAll);
@@ -96,7 +100,8 @@ namespace StormiumTeam.GameBase.SystemBase
 
 		public EntityQuery QueryWithout(EntityQuery b, Span<Type> span)
 		{
-			b ??= new EntityQuery(GameWorld, Array.Empty<ComponentType>());
+			if (b == null)
+				return CreateEntityQuery(Array.Empty<Type>(), span);
 			
 			Span<ComponentType> convertedNone = stackalloc ComponentType[b.None.Length + span.Length];
 			b.None.CopyTo(convertedNone);

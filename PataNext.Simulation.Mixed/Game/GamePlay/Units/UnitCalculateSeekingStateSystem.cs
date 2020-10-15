@@ -1,4 +1,5 @@
-﻿using GameHost.Core.Ecs;
+﻿using System;
+using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using StormiumTeam.GameBase;

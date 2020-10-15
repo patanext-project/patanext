@@ -56,7 +56,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			if (Service == null)
 				return;
 			
-			foreach (var entity in unprocessedEntityQuery.GetEntities())
+			foreach (var entity in unprocessedEntityQuery.GetEnumerator())
 			{
 				GameWorld.AddComponent(entity, new InProcess<TRequestComponent>());
 				Task.Factory.StartNew(() => ProcessRequest(entity), CancellationToken.None, TaskCreationOptions.None, taskScheduler);

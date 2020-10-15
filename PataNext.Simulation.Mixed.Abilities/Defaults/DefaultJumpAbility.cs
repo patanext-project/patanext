@@ -62,7 +62,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 			{
 				typeof(DefaultJumpAbility),
 				typeof(AbilityState)
-			})).GetEntities())
+			})))
 			{
 				ref var          ability = ref GetComponentData<DefaultJumpAbility>(entity);
 				ref readonly var state   = ref GetComponentData<AbilityState>(entity);
