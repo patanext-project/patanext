@@ -13,11 +13,10 @@ namespace PataNext.Simulation.Client.Systems
 	[RestrictToApplication(typeof(SimulationApplication))]
 	public class LoadActiveBgmSystem : PresentationRhythmEngineSystemBase
 	{
-		private IScheduler  scheduler;
-		private GlobalWorld globalWorld;
-
 		private CharBuffer64 currentLoadedBgm;
+		private GlobalWorld  globalWorld;
 		private bool         isBgmLoaded;
+		private IScheduler   scheduler;
 
 		public LoadActiveBgmSystem(WorldCollection collection) : base(collection)
 		{
@@ -29,7 +28,7 @@ namespace PataNext.Simulation.Client.Systems
 		{
 			if (currentLoadedBgm.Span.SequenceEqual(LocalInformation.ActiveBgmId.Span) && isBgmLoaded)
 				return;
-			
+
 			currentLoadedBgm = LocalInformation.ActiveBgmId;
 			if (currentLoadedBgm.GetLength() == 0)
 				return;
@@ -46,7 +45,7 @@ namespace PataNext.Simulation.Client.Systems
 				            where ent.Has<BgmFile>()
 				            select ent.Get<BgmFile>())
 					.FirstOrDefault(bmgFile => bmgFile.Description.Id.AsSpan().SequenceEqual(currentLoadedBgm.Span));
-				
+
 				//Console.WriteLine($"File exist for '{currentLoadedBgm}' ? {file != null}");
 				if (file == null)
 					return;

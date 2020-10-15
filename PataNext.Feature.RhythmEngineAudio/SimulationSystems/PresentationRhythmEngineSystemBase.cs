@@ -6,13 +6,11 @@ using GameHost.Simulation.Application;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
-using GameHost.Simulation.Utility.Resource.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
-using PataNext.Module.Simulation.Resources.Keys;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
@@ -25,28 +23,15 @@ namespace PataNext.Simulation.Client.Systems
 	[UpdateAfter(typeof(ApplyCommandEngineSystem))]
 	public class PresentationRhythmEngineSystemStart : AppSystem, IRhythmEngineSimulationPass
 	{
-		public struct RhythmEngineInformation
-		{
-			public CharBuffer64 ActiveBgmId;
-
-			public TimeSpan Elapsed;
-
-			public GameResource<RhythmCommandResource> NextCommand;
-			public CharBuffer64                        NextCommandStr;
-
-			public TimeSpan CommandStartTime;
-			public TimeSpan CommandEndTime;
-		}
-
-		public GameEntity              LocalRhythmEngine { get; set; }
-		public RhythmEngineInformation LocalInformation  { get; set; }
-
 		private GameWorld gameWorld;
 
 		public PresentationRhythmEngineSystemStart(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref gameWorld);
 		}
+
+		public GameEntity              LocalRhythmEngine { get; set; }
+		public RhythmEngineInformation LocalInformation  { get; set; }
 
 		public void OnRhythmEngineSimulationPass()
 		{
@@ -105,6 +90,19 @@ namespace PataNext.Simulation.Client.Systems
 
 			LocalInformation = localInfo;
 		}
+
+		public struct RhythmEngineInformation
+		{
+			public CharBuffer64 ActiveBgmId;
+
+			public TimeSpan Elapsed;
+
+			public GameResource<RhythmCommandResource> NextCommand;
+			public CharBuffer64                        NextCommandStr;
+
+			public TimeSpan CommandStartTime;
+			public TimeSpan CommandEndTime;
+		}
 	}
 
 	[RestrictToApplication(typeof(SimulationApplication))]
@@ -113,19 +111,19 @@ namespace PataNext.Simulation.Client.Systems
 	{
 		private PresentationRhythmEngineSystemStart start;
 
-		public GameEntity                                                  LocalEngine      => start.LocalRhythmEngine;
-		public PresentationRhythmEngineSystemStart.RhythmEngineInformation LocalInformation => start.LocalInformation;
-
 		protected PresentationRhythmEngineSystemBase(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref start);
 		}
 
-		protected abstract void OnUpdatePass();
+		public GameEntity                                                  LocalEngine      => start.LocalRhythmEngine;
+		public PresentationRhythmEngineSystemStart.RhythmEngineInformation LocalInformation => start.LocalInformation;
 
 		public void OnAfterSimulationUpdate()
 		{
 			OnUpdatePass();
 		}
+
+		protected abstract void OnUpdatePass();
 	}
 }

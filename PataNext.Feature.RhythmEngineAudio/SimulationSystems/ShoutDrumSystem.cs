@@ -26,17 +26,22 @@ namespace PataNext.Simulation.Client.Systems
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureDrum =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
 
-		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureVoice =
-			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
-
 		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureSlider =
 			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
 
+		private readonly PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>> audioOnPressureVoice =
+			new PooledDictionary<int, PooledDictionary<int, ResourceHandle<AudioResource>>>();
+
+		private EntityQuery abilityQuery;
+
 		private ResourceHandle<AudioResource> audioOnHeroMode;
+
+		private Entity    commandAudioPlayer;
+		private GameWorld gameWorld;
 
 		private LoadAudioResourceSystem loadAudioResource;
 		private CustomModule            module;
-		private GameWorld               gameWorld;
+		private Entity                  onPerfectAudioPlayer;
 
 		public ShoutDrumSystem(WorldCollection collection) : base(collection)
 		{
@@ -70,10 +75,7 @@ namespace PataNext.Simulation.Client.Systems
 					audioOnPressureVoice[key][rank] = loadAudioResource.Load($"voice_{key}_{rank}.wav", drumStorage);
 				}
 
-				for (var rank = 0; rank != 2; rank++)
-				{
-					audioOnPressureSlider[key][rank] = loadAudioResource.Load($"drum_{key}_p{rank}.wav", drumStorage);
-				}
+				for (var rank = 0; rank != 2; rank++) audioOnPressureSlider[key][rank] = loadAudioResource.Load($"drum_{key}_p{rank}.wav", drumStorage);
 			}
 
 			audioOnHeroMode = loadAudioResource.Load("voice_on_hero_mode.wav", drumStorage);
@@ -81,15 +83,10 @@ namespace PataNext.Simulation.Client.Systems
 			AudioPlayerUtility.SetResource(onPerfectAudioPlayer, loadAudioResource.Load("on_perfect.wav", effectStorage));
 		}
 
-		private Entity commandAudioPlayer;
-		private Entity onPerfectAudioPlayer;
-
 		public override bool CanUpdate()
 		{
 			return LocalEngine != default && LocalInformation.Elapsed >= TimeSpan.Zero && base.CanUpdate();
 		}
-
-		private EntityQuery abilityQuery;
 
 		protected override void OnUpdatePass()
 		{
@@ -104,19 +101,15 @@ namespace PataNext.Simulation.Client.Systems
 			{
 				var stateAccessor      = new ComponentDataAccessor<AbilityState>(GameWorld);
 				var activationAccessor = new ComponentDataAccessor<AbilityActivation>(GameWorld);
-				foreach (var ability in (abilityQuery ??= CreateEntityQuery(new[]
+				foreach (var ability in abilityQuery ??= CreateEntityQuery(new[]
 				{
 					AsComponentType<AbilityState>(),
 					AsComponentType<AbilityActivation>(),
 					AsComponentType<Owner>()
-				})))
-				{
+				}))
 					if (activationAccessor[ability].Type == EAbilityActivationType.HeroMode
 					    && stateAccessor[ability].Phase == EAbilityPhase.WillBeActive)
-					{
 						isHeroModeIncoming = true;
-					}
-				}
 			}
 
 			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[] {gameWorld.AsComponentType<GameRhythmInputComponent>()}))

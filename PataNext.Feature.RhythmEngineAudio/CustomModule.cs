@@ -1,5 +1,4 @@
-﻿using System;
-using DefaultEcs;
+﻿using DefaultEcs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
@@ -17,7 +16,6 @@ namespace PataNext.Feature.RhythmEngineAudio
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
 			foreach (var listener in global.World.Get<IListener>())
-			{
 				if (listener is SimulationApplication simulationApplication)
 				{
 					simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemStart));
@@ -27,8 +25,7 @@ namespace PataNext.Feature.RhythmEngineAudio
 					simulationApplication.Data.Collection.GetOrCreate(typeof(BgmDefaultDirectorSoundtrackSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(LoadActiveBgmSystem));
 				}
-			}
-			
+
 			global.Collection.GetOrCreate(typeof(BgmManager));
 		}
 	}

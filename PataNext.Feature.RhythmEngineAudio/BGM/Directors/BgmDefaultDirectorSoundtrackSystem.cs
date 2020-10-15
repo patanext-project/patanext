@@ -15,18 +15,28 @@ using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.Passes;
 using ZLogger;
 
-
 namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 {
 	[UpdateAfter(typeof(BgmDefaultDirectorCommandSystem))]
 	public class BgmDefaultDirectorSoundtrackSystem : BgmDirectorySystemBase<BgmDefaultDirector, BgmDefaultSamplesLoader>
 	{
-		private LoadAudioResourceSystem         loadAudio;
-		private BgmDefaultDirectorCommandSystem commandSystem;
-
-		private ILogger logger;
+		public const int SongBeatSize = 4;
 
 		private Entity audioPlayer;
+		private int    BgmFeverComboStart;
+
+		private bool                            BgmWasFever;
+		private BgmDefaultDirectorCommandSystem commandSystem;
+		private LoadAudioResourceSystem         loadAudio;
+
+		private ILogger                       logger;
+		private int                           m_EndFeverEntranceAt;
+		private ResourceHandle<AudioResource> m_LastClip;
+		private int                           m_NextLoopTrigger;
+
+		private readonly Dictionary<string, PooledList<ResourceHandle<AudioResource>>> mappedResources;
+
+		private readonly HashSet<CharBuffer64> thrownException = new HashSet<CharBuffer64>();
 
 		public BgmDefaultDirectorSoundtrackSystem(WorldCollection collection) : base(collection)
 		{
@@ -53,7 +63,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				mappedResources.Clear();
 
 				BgmWasFever          = default;
-				BgmFeverComboStart        = default;
+				BgmFeverComboStart   = default;
 				m_LastClip           = default;
 				m_EndFeverEntranceAt = default;
 
@@ -62,14 +72,6 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 
 			return canUpdate;
 		}
-
-		public const int SongBeatSize = 4;
-
-		private bool                          BgmWasFever;
-		private int                           BgmFeverComboStart;
-		private ResourceHandle<AudioResource> m_LastClip;
-		private int                           m_EndFeverEntranceAt;
-		private int                           m_NextLoopTrigger;
 
 		protected override void OnUpdatePass()
 		{
@@ -106,7 +108,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			{
 				if (!comboSettings.CanEnterFever(comboState))
 				{
-					BgmWasFever   = false;
+					BgmWasFever        = false;
 					BgmFeverComboStart = 0;
 
 					var score = Math.Max((int) comboState.Score + Math.Max(comboState.Score >= 1.9 ? 1 + comboState.Count : 0, 0), comboState.Count);
@@ -118,7 +120,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				else
 				{
 					track = Director.GetNextTrack(true, true, 0);
-					
+
 					if (!BgmWasFever)
 					{
 						m_EndFeverEntranceAt = activationBeat + mappedResources["fever_entrance"].Count * SongBeatSize * 2;
@@ -160,7 +162,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				activationBeat = cmdStartActivationBeat - 1;
 
 			var nextBeatDelay = (activationBeat + 1) * settings.BeatInterval - state.Elapsed;
-			
+
 			// Check if we should change clips or if we are requested to...
 			var hasSwitched = false;
 			if (m_LastClip != targetAudio) // switch audio if we are requested to
@@ -176,13 +178,12 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			if (!hasSwitched && m_NextLoopTrigger > 0 && activationBeat >= m_NextLoopTrigger && currentResource.IsLoaded)
 			{
 				hasSwitched = Switch(targetAudio, nextBeatDelay);
-				
+
 				m_NextLoopTrigger = activationBeat + SongBeatSize * 2;
 			}
-			
+
 			if (!hasSwitched && currentResource != default && AudioPlayerUtility.GetPlayTime(audioPlayer) + TimeSpan.FromSeconds(0.1) >= currentResource.Result.Length)
 			{
-
 			}
 		}
 
@@ -209,8 +210,6 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			return hasSwitched;
 		}
 
-		private HashSet<CharBuffer64> thrownException = new HashSet<CharBuffer64>();
-
 		private void loadFiles()
 		{
 			if (!(Director.Loader.GetSoundtrack() is BgmDefaultSamplesLoader.SlicedSoundTrack slicedSoundTrack))
@@ -222,15 +221,10 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 					return;
 
 				var list = new PooledList<ResourceHandle<AudioResource>>(files.Count);
-				foreach (var file in files)
-				{
-					list.Add(loadAudio.Load(file));
-				}
+				foreach (var file in files) list.Add(loadAudio.Load(file));
 
 				mappedResources[identifier] = list;
 			}
 		}
-
-		private Dictionary<string, PooledList<ResourceHandle<AudioResource>>> mappedResources;
 	}
 }

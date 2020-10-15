@@ -48,14 +48,12 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM
 
 	internal class BgmZipStore : BgmStore
 	{
-		private readonly string computedPath;
-
 		public BgmZipStore(BgmFile source) : base(source)
 		{
-			computedPath = source.FullName;
+			CurrentPath = source.FullName;
 		}
 
-		public override string CurrentPath => computedPath;
+		public override string CurrentPath { get; }
 
 		public override async Task<IEnumerable<IFile>> GetFilesAsync(string pattern)
 		{

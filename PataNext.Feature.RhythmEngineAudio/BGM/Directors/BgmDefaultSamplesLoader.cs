@@ -1,20 +1,20 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
- using Collections.Pooled;
- using GameHost.Core.IO;
- using GameHost.Native.Char;
+using Collections.Pooled;
+using GameHost.Core.IO;
+using GameHost.Native.Char;
 
- namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
+namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 {
 	public class BgmDefaultSamplesLoader : BgmSamplesLoaderBase
 	{
+		private readonly TaskMap<byte, SlicedSoundTrack>          bgmTaskMap;
 		private readonly TaskMap<CharBuffer64, ComboBasedCommand> commandsTaskMap;
-		private readonly TaskMap<byte, SlicedSoundTrack> bgmTaskMap;
-		private readonly TaskMap<string, SingleFile>        filesTaskMap;
+		private readonly TaskMap<string, SingleFile>              filesTaskMap;
 
 		public BgmDefaultSamplesLoader(BgmStore store) : base(store)
 		{
@@ -31,12 +31,12 @@ using System.Threading.Tasks;
 			});
 			bgmTaskMap = new TaskMap<byte, SlicedSoundTrack>(async key =>
 			{
-				var files = (await Store.GetFilesAsync($"soundtrack/*.ogg"))
-				            .Concat(await Store.GetFilesAsync($"soundtrack/*.wav"))
+				var files = (await Store.GetFilesAsync("soundtrack/*.ogg"))
+				            .Concat(await Store.GetFilesAsync("soundtrack/*.wav"))
 				            .ToArray();
 
 				if (files.Length == 0)
-					throw new InvalidOperationException($"No files found for soundtrack");
+					throw new InvalidOperationException("No files found for soundtrack");
 
 				return new SlicedSoundTrack(files);
 			});
@@ -172,10 +172,8 @@ using System.Threading.Tasks;
 					if (!mappedFile.TryGetValue(key, out var list)) mappedFile[key] = list = new PooledList<IFile>(2);
 
 					if (int.TryParse(Regex.Match(nameWithoutExt, "[^_]+$").Value, out var idx))
-					{
 						if (list.Count < idx)
 							list.AddSpan(idx - list.Count);
-					}
 
 					if (idx >= 0)
 						list.Insert(idx, f);
@@ -183,10 +181,7 @@ using System.Threading.Tasks;
 						list.Add(f);
 				}
 
-				foreach (var list in mappedFile.Values)
-				{
-					list.RemoveAll(f => f is null);
-				}
+				foreach (var list in mappedFile.Values) list.RemoveAll(f => f is null);
 			}
 
 			public ReadOnlySpan<IFile> BeforeEntrance => mappedFile["before_entrance"].Span;
