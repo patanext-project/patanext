@@ -1,17 +1,20 @@
-﻿using DefaultEcs;
+﻿using System;
+using DefaultEcs;
+using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
+using GameHost.Core.Modules.Feature;
+using GameHost.Core.Threading;
 using GameHost.Injection;
 using GameHost.IO;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
 using PataNext.Game.Abilities;
-using PataNext.Module.Simulation.Passes;
-using StormiumTeam.GameBase;
+using Module = PataNext.CoreAbilities.Mixed.Module;
 
-[assembly: RegisterAvailableModule("PataNext Standard Abilities", "guerro", typeof(PataNext.Simulation.Mixed.Abilities.Module))]
+[assembly: RegisterAvailableModule("PataNext Standard Abilities", "guerro", typeof(Module))]
 
-namespace PataNext.Simulation.Mixed.Abilities
+namespace PataNext.CoreAbilities.Mixed
 {
 	public class Module : GameHostModule, IModuleHasAbilityDescStorage
 	{
@@ -26,7 +29,7 @@ namespace PataNext.Simulation.Mixed.Abilities
 				{
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilitySystem));
-					
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilitySystem));
 
@@ -35,10 +38,10 @@ namespace PataNext.Simulation.Mixed.Abilities
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilitySystem));
-					
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilitySystem));
-					
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultChargeAbilityProvider));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilityProvider));
@@ -46,7 +49,7 @@ namespace PataNext.Simulation.Mixed.Abilities
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilitySystem));
-					
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilitySystem));
 
@@ -64,8 +67,33 @@ namespace PataNext.Simulation.Mixed.Abilities
 
 				abilityDescStorage = new AbilityDescStorage(storage.GetOrCreateDirectoryAsync("Abilities").Result);
 			}, true);
+
+			global.Scheduler.Schedule(tryLoadModule, SchedulingParameters.AsOnce);
 		}
 
 		public AbilityDescStorage Value => abilityDescStorage;
+
+		private void tryLoadModule()
+		{
+			var global = new ContextBindingStrategy(Ctx.Parent, true).Resolve<GlobalWorld>();
+			foreach (var ent in global.World)
+			{
+				if (ent.TryGet(out RegisteredModule registeredModule)
+				    && registeredModule.State == ModuleState.None
+				    && registeredModule.Description.NameId == "PataNext.CoreAbilities.Server")
+				{
+					Console.WriteLine("Load Server Module!");
+					global.World.CreateEntity()
+					      .Set(new RequestLoadModule {Module = ent});
+					return;
+				}
+			}
+			
+			global.Scheduler.Schedule(tryLoadModule, SchedulingParameters.AsOnce);
+		}
+
+		protected override void OnDispose()
+		{
+		}
 	}
 }

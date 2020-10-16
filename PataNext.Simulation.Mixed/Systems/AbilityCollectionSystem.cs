@@ -51,7 +51,6 @@ namespace PataNext.Module.Simulation.Systems
 
 		public void Register(BaseRhythmAbilityProvider abilityProvider)
 		{
-			Console.WriteLine("Register ability: " + abilityProvider.MasterServerId);
 			providerMap[abilityProvider.MasterServerId] = abilityProvider;
 		}
 	}

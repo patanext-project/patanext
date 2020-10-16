@@ -6,7 +6,6 @@ using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.BaseSystems;
-using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
@@ -15,7 +14,7 @@ using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Transform.Components;
 using static StormiumTeam.GameBase.MathUtils;
 
-namespace PataNext.Simulation.Mixed.Abilities.Subset
+namespace PataNext.CoreAbilities.Mixed.Subset
 {
 	/// <summary>
 	/// Represent a subset of the march ability that can be used on other abilities.
@@ -100,16 +99,16 @@ namespace PataNext.Simulation.Mixed.Abilities.Subset
 			var timeDelta = (float) worldTime.Delta.TotalSeconds;
 			foreach (var entity in abilityQuery.GetEnumerator())
 			{
-				ref readonly var owner = ref GetComponentData<Owner>(entity).Target;
-				if (!validOwnerQuery.MatchAgainst(owner))
-					continue;
-
 				ref var subSet = ref GetComponentData<DefaultSubsetMarch>(entity);
 				if (!subSet.IsActive)
 				{
 					subSet.ActiveTime = 0;
 					continue;
 				}
+			
+				ref readonly var owner = ref GetComponentData<Owner>(entity).Target;
+				if (!validOwnerQuery.MatchAgainst(owner))
+					continue;
 
 				ref readonly var unitTargetRelative = ref GetComponentData<Relative<UnitTargetDescription>>(owner).Target;
 				ref readonly var unitPlayState      = ref GetComponentData<UnitPlayState>(owner);

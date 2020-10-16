@@ -5,12 +5,12 @@ using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
+using PataNext.CoreAbilities.Mixed.Subset;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
-using PataNext.Simulation.Mixed.Abilities.Subset;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 
-namespace PataNext.Simulation.Mixed.Abilities.Defaults
+namespace PataNext.CoreAbilities.Mixed.Defaults
 {
 	/// <summary>
 	/// The default backward ability
@@ -24,7 +24,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 		{}
 	}
 
-	public class DefaultBackwardAbilityProvider : BaseRhythmAbilityProvider<DefaultBackwardAbility>
+	public class DefaultBackwardAbilityProvider : BaseRuntimeRhythmAbilityProvider<DefaultBackwardAbility>
 	{
 		public override string MasterServerId => "backward";
 

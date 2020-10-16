@@ -1,6 +1,6 @@
 ﻿using GameHost.Core.Ecs;
+using PataNext.CoreAbilities.Mixed.CTate;
 using PataNext.Game.Abilities;
-using PataNext.Simulation.Mixed.Abilities.CTate;
 
 namespace PataNext.Simulation.Client.Abilities
 {

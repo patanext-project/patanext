@@ -17,6 +17,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 		}
 
 		private EntityQuery abilityMaskQuery;
+		private EntityQuery setupQuery;
 		private EntityQuery executorQuery;
 
 		public void OnAbilitySimulationPass()
@@ -26,6 +27,15 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				typeof(AbilityState),
 				typeof(ExecutableAbility)
 			})).CheckForNewArchetypes();
+
+			var setupAccessor = GetAccessor<SetupExecutableAbility>();
+			foreach (var entity in setupQuery ??= CreateEntityQuery(new[]
+			{
+				typeof(SetupExecutableAbility)
+			}))
+			{
+				setupAccessor[entity].Function(entity);
+			}
 
 			var ownerActiveAbilityAccessor = GetAccessor<OwnerActiveAbility>();
 			var executableAccessor         = GetAccessor<ExecutableAbility>();

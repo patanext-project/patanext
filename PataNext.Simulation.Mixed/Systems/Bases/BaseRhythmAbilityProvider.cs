@@ -10,8 +10,10 @@ using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Native;
 using GameHost.Native.Fixed;
+using GameHost.Simulation.Application;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
+using Microsoft.Extensions.Logging;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
@@ -35,6 +37,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 		public string HeroModeActivationSound;
 	}
 
+	[RestrictToApplication(typeof(SimulationApplication))]
 	public abstract class BaseRhythmAbilityProvider : BaseProvider<CreateAbility>
 	{
 		/// <summary>
@@ -82,12 +85,14 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 		protected LocalRhythmCommandResourceManager localRhythmCommandResourceManager;
 		protected AbilityDescStorage                abilityStorage;
+		protected ILogger                           logger;
 
 		protected BaseRhythmAbilityProvider(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref abilityCollectionSystem);
 			DependencyResolver.Add(() => ref localRhythmCommandResourceManager);
 			DependencyResolver.Add(() => ref abilityStorage, new GetAbilityDescStorageStrategy(this));
+			DependencyResolver.Add(() => ref logger);
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
@@ -130,7 +135,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 	{
 		protected virtual string FilePathPrefix => string.Empty;
 
-		protected virtual string FilePath
+		protected virtual string FolderPath
 		{
 			get
 			{
@@ -142,7 +147,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 				var folder = "{0}";
 				if (!string.IsNullOrEmpty(FilePathPrefix))
-					folder = string.Format(folder, FilePathPrefix + "/{0}");
+					folder = string.Format(folder, FilePathPrefix + "\\{0}");
 
 				var comboCommands = GetComboCommands();
 				if (comboCommands == null || comboCommands.Length == 0)
@@ -162,9 +167,11 @@ namespace PataNext.Module.Simulation.BaseSystems
 					// ignored (DllStorage will throw an exception if it does not exist)
 				}
 
-				return $"{folder}/{typeof(TAbility).Name.Replace("Ability", string.Empty)}";
+				return folder;
 			}
 		}
+		
+		protected virtual string FilePath => $"{FolderPath}\\{typeof(TAbility).Name.Replace("Ability", string.Empty)}";
 
 		protected BaseRhythmAbilityProvider(WorldCollection collection) : base(collection)
 		{

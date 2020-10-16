@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using GameHost.Core.IO;
 using GameHost.IO;
 
 namespace StormiumTeam.GameBase
 {
+	public interface IStorageProvideWatcher
+	{
+		FileSystemWatcher CreateWatcher();
+	}
+	
 	public class StorageWatcher : IDisposable
 	{
 		private List<FileSystemWatcher> watchers = new List<FileSystemWatcher>();
@@ -17,13 +23,8 @@ namespace StormiumTeam.GameBase
 		{
 			Filters = filters;
 		}
-		
-		public StorageWatcher(IStorage storage)
-		{
-			Add(storage);
-		}
 
-		public void Add(IStorage storage)
+		public bool Add(IStorage storage)
 		{
 			void addWatcher(FileSystemWatcher watcher)
 			{
@@ -35,9 +36,18 @@ namespace StormiumTeam.GameBase
 				                       | NotifyFilters.FileName
 				                       | NotifyFilters.CreationTime;
 
-				watcher.Created += OnAnyUpdate;
-				watcher.Changed += OnAnyUpdate;
-				watcher.Deleted += OnAnyUpdate;
+				watcher.Created += (sender, args) =>
+				{
+					OnAnyUpdate?.Invoke(sender, args);
+				};
+				watcher.Changed += (sender, args) =>
+				{
+					OnAnyUpdate?.Invoke(sender, args);
+				};
+				watcher.Deleted += (sender, args) =>
+				{
+					OnAnyUpdate?.Invoke(sender, args);
+				};
 
 				watcher.EnableRaisingEvents = true;
 
@@ -48,24 +58,19 @@ namespace StormiumTeam.GameBase
 			{
 				case LocalStorage localStorage:
 					addWatcher(new FileSystemWatcher(localStorage.CurrentPath ?? throw new InvalidOperationException("did not expect null")));
-					break;
+					return true;
 				case StorageCollection collection:
-				{
-					foreach (var child in collection)
-					{
-						Add(child);
-					}
-
-					break;
-				}
+					return collection.Aggregate(false, (current, child) => current | Add(child));
 				case ChildStorage childStorage:
+					return childStorage.parent != null && Add(childStorage.parent);
+				case IStorageProvideWatcher provider:
 				{
-					if (childStorage.parent != null)
-						Add(childStorage.parent);
-					
-					break;
+					addWatcher(provider.CreateWatcher());
+					return true;
 				}
 			}
+
+			return false;
 		}
 
 		public void Dispose()

@@ -7,12 +7,11 @@ using GameHost.Worlds.Components;
 using Newtonsoft.Json;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
-using PataNext.Simulation.mixed.Components.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase.Roles.Components;
 
-namespace PataNext.Simulation.Mixed.Abilities.Defaults
+namespace PataNext.CoreAbilities.Mixed.Defaults
 {
 	public struct DefaultPartyAbility : IComponentData
 	{
@@ -24,7 +23,7 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 		public int EnergyOnActivation;
 	}
 
-	public class DefaultPartyAbilityProvider : BaseRhythmAbilityProvider<DefaultPartyAbility>
+	public class DefaultPartyAbilityProvider : BaseRuntimeRhythmAbilityProvider<DefaultPartyAbility>
 	{
 		public DefaultPartyAbilityProvider(WorldCollection collection) : base(collection)
 		{
@@ -50,11 +49,6 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 					EnergyOnActivation = 150
 				};
 			}
-
-			GameWorld.AddComponent(entity, new ExecutableAbility((owner, self, state) =>
-			{
-				Console.WriteLine($"{owner}; {self}; {state.Phase}");
-			}));
 		}
 	}
 
@@ -64,8 +58,6 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 
 		public DefaultPartyAbilitySystem(WorldCollection collection) : base(collection)
 		{
-			World.Remove(this);
-			
 			DependencyResolver.Add(() => ref worldTime);
 		}
 
@@ -87,9 +79,8 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 				AsComponentType<Owner>()
 			}))
 			{
-				ref var ability = ref abilityAccessor[entity];
-
-				ref readonly var state = ref stateAccessor[entity];
+				ref var          ability = ref abilityAccessor[entity];
+				ref readonly var state   = ref stateAccessor[entity];
 				if (!state.IsActive)
 				{
 					ability.TickProgression = default;
@@ -100,7 +91,6 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 				var isActivationFrame = false;
 				if (!ability.WasActive)
 					isActivationFrame = ability.WasActive = true;
-
 				ref readonly var engineSet = ref engineSetAccessor[entity];
 				if (engineSet.ComboSettings.CanEnterFever(engineSet.ComboState))
 				{
@@ -110,17 +100,13 @@ namespace PataNext.Simulation.Mixed.Abilities.Defaults
 						var energy = (int) (ability.TickProgression / ability.TickPerSecond);
 						if (energy > 0)
 						{
-							ability.TickProgression = default;
-
+							ability.TickProgression                                      =  default;
 							GetComponentData<RhythmSummonEnergy>(engineSet.Engine).Value += energy * ability.EnergyPerTick;
 						}
 					}
 
 					if (isActivationFrame)
-					{
 						GetComponentData<RhythmSummonEnergy>(engineSet.Engine).Value += ability.EnergyOnActivation;
-						Console.WriteLine("PARTY!");
-					}
 				}
 				else
 					ability.TickProgression = default;

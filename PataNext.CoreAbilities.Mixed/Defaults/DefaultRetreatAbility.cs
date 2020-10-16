@@ -6,18 +6,16 @@ using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.BaseSystems;
-using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Units;
-using PataNext.Simulation.Mixed.Abilities.Subset;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Transform.Components;
 
-namespace PataNext.Simulation.Mixed.Abilities.Defaults
+namespace PataNext.CoreAbilities.Mixed.Defaults
 {
 	public struct DefaultRetreatAbility : IComponentData
 	{

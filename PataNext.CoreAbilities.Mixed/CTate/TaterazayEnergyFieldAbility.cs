@@ -1,5 +1,4 @@
-﻿using System;
-using Collections.Pooled;
+﻿using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
@@ -7,17 +6,16 @@ using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
+using PataNext.CoreAbilities.Mixed.Subset;
 using PataNext.Module.Simulation.BaseSystems;
-using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
-using PataNext.Simulation.Mixed.Abilities.Subset;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Transform.Components;
 
-namespace PataNext.Simulation.Mixed.Abilities.CTate
+namespace PataNext.CoreAbilities.Mixed.CTate
 {
 	public struct TaterazayEnergyFieldAbility : IComponentData
 	{
