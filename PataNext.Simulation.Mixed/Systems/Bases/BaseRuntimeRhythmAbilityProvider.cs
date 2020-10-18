@@ -121,6 +121,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 		public void SetScriptObject(AbilityScript script, bool disposeAtNextSet = true)
 		{
+			Console.WriteLine("Set Script Object");
 			if (CurrentScriptObject != null && IsScriptDisposable)
 			{
 				if (CurrentScriptObject is IDisposable disposable)

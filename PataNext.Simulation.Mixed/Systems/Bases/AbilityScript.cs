@@ -68,7 +68,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 					return;
 
 				provider.SetScriptObject(this, disposeAtNextSet: false);
-			});
+			}, true);
 		}
 
 		public override void Dispose()

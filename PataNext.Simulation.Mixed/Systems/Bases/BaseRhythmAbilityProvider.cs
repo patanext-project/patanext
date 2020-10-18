@@ -7,6 +7,7 @@ using System.Text.Json;
 using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
+using GameHost.Core.Modules.Feature;
 using GameHost.Injection;
 using GameHost.Native;
 using GameHost.Native.Fixed;
@@ -75,6 +76,11 @@ namespace PataNext.Module.Simulation.BaseSystems
 			public Func<object> GetResolver(Type type)
 			{
 				return () => ResolveNow(type);
+			}
+
+			public override string ToString()
+			{
+				return $"GeAbilityDescStorage({(module == null ? "null" : $"{module.Source.Get<RegisteredModule>().Description.NameId}")})";
 			}
 		}
 

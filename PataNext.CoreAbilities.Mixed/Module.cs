@@ -83,8 +83,8 @@ namespace PataNext.CoreAbilities.Mixed
 				    && registeredModule.Description.NameId == "PataNext.CoreAbilities.Server")
 				{
 					Console.WriteLine("Load Server Module!");
-					global.World.CreateEntity()
-					      .Set(new RequestLoadModule {Module = ent});
+					/*global.World.CreateEntity()
+					      .Set(new RequestLoadModule {Module = ent});*/
 					return;
 				}
 			}
