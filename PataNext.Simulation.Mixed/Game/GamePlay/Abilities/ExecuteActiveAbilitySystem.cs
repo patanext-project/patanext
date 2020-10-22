@@ -1,4 +1,5 @@
 ﻿using GameHost.Core.Ecs;
+using GameHost.Core.Threading;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.TabEcs.Interfaces;
@@ -12,8 +13,11 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 {
 	public class ExecuteActiveAbilitySystem : GameAppSystem, IAbilitySimulationPass
 	{
+		public readonly IScheduler Post;
+
 		public ExecuteActiveAbilitySystem(WorldCollection collection) : base(collection)
 		{
+			Post = new Scheduler();
 		}
 
 		private EntityQuery abilityMaskQuery;
@@ -49,6 +53,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				TryInvoke(entity, ownerActiveAbility.Active, in executableAccessor);
 				TryInvoke(entity, ownerActiveAbility.Incoming, in executableAccessor);
 			}
+
+			Post.Run();
 		}
 
 		private void TryInvoke(GameEntity owner, GameEntity ability, in ComponentDataAccessor<ExecutableAbility> accessor)

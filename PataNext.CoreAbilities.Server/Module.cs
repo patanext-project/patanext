@@ -15,11 +15,19 @@ using Module = PataNext.CoreAbilities.Server.Module;
 
 namespace PataNext.CoreAbilities.Server
 {
+	public class Test : AppSystem
+	{
+		public Test(WorldCollection collection) : base(collection)
+		{
+		}
+	}
+	
 	public class Module : GameHostModule
 	{
+		private List<Type> systemTypes = new List<Type>();
+		
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
-			var systemTypes = new List<Type>();
 			AppSystemResolver.ResolveFor<SimulationApplication>(typeof(Module).Assembly, systemTypes);
 
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
@@ -27,14 +35,18 @@ namespace PataNext.CoreAbilities.Server
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
-					foreach (var type in systemTypes)
-						AddDisposable((IDisposable) simulationApplication.Data.Collection.GetOrCreate(type));
+					simulationApplication.Schedule(() =>
+					{
+						foreach (var type in systemTypes)
+							AddDisposable((IDisposable) simulationApplication.Data.Collection.GetOrCreate(type));
+					}, default);
 				}
 			}
 		}
 
 		protected override void OnDispose()
 		{
+			systemTypes.Clear();
 		}
 	}
 }

@@ -46,6 +46,14 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 		protected abstract void OnSetup(GameEntity   self);
 		protected abstract void OnExecute(GameEntity owner, GameEntity self, AbilityState state);
+
+		public override void Dispose()
+		{
+			base.Dispose();
+
+			setup   = null;
+			execute = null;
+		}
 	}
 
 	public abstract class AbilityScriptModule<TProvider> : AbilityScript
@@ -62,13 +70,13 @@ namespace PataNext.Module.Simulation.BaseSystems
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			provider.IsLoadingScriptObject.Subscribe((previous, next) =>
+			AddDisposable(provider.IsLoadingScriptObject.Subscribe((previous, next) =>
 			{
 				if (next || provider.CurrentScriptObject != null)
 					return;
 
 				provider.SetScriptObject(this, disposeAtNextSet: false);
-			}, true);
+			}, true));
 		}
 
 		public override void Dispose()
