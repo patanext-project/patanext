@@ -40,7 +40,6 @@ namespace PataNext.CoreAbilities.Mixed
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilitySystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilityProvider));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilitySystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultChargeAbilityProvider));
 
@@ -52,6 +51,8 @@ namespace PataNext.CoreAbilities.Mixed
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilityProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilitySystem));
+
+					simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaBasicAttackAbilityProvider));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));
 				}

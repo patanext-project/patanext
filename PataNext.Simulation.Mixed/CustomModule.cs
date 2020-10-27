@@ -52,6 +52,7 @@ namespace PataNext.Module.Simulation
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.AbilityControlVelocitySystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculateSeekingStateSystem));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));

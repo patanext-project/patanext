@@ -207,7 +207,16 @@ namespace PataNext.Module.Simulation.BaseSystems
 					if (prop.TryGetProperty(nameof(Resources.HeroModeActivationSound), out var heroModeProp))
 						resources.HeroModeActivationSound = heroModeProp.GetString();
 				}
+				if (document.RootElement.TryGetProperty("config", out prop))
+				{
+					ReadConfiguration(prop);
+				}
 			}
+		}
+
+		protected virtual void ReadConfiguration(JsonElement jsonElement)
+		{
+
 		}
 
 		public override void GetComponents(PooledList<ComponentType> entityComponents)
@@ -278,13 +287,10 @@ namespace PataNext.Module.Simulation.BaseSystems
 				var stats = new Dictionary<string, StatisticModifier>();
 				StatisticModifierJson.FromMap(ref stats, GetConfigurationData());
 
-				//Console.WriteLine(typeof(TAbility));
 				void TryGet(string val, out StatisticModifier modifier)
 				{
 					if (!stats.TryGetValue(val, out modifier))
 						modifier = StatisticModifier.Default;
-
-					//Console.WriteLine($"Contains '{val}': {stats.ContainsKey(val)}\ndef={modifier.Defense}\natkMvm={modifier.MovementAttackSpeed}");
 				}
 
 				TryGet("active", out component.ActiveModifier);

@@ -49,9 +49,22 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			}))
 			{
 				ref readonly var ownerActiveAbility = ref ownerActiveAbilityAccessor[entity];
-				TryInvoke(entity, ownerActiveAbility.PreviousActive, in executableAccessor);
-				TryInvoke(entity, ownerActiveAbility.Active, in executableAccessor);
-				TryInvoke(entity, ownerActiveAbility.Incoming, in executableAccessor);
+
+				// Don't execute duplicate abilities
+				if (ownerActiveAbility.PreviousActive != ownerActiveAbility.Active)
+				{
+					TryInvoke(entity, ownerActiveAbility.PreviousActive, in executableAccessor);
+					TryInvoke(entity, ownerActiveAbility.Active, in executableAccessor);
+					if (ownerActiveAbility.PreviousActive != ownerActiveAbility.Incoming
+						&& ownerActiveAbility.Active != ownerActiveAbility.Incoming)
+						TryInvoke(entity, ownerActiveAbility.Incoming, in executableAccessor);
+				}
+				else
+				{
+					TryInvoke(entity, ownerActiveAbility.Active, in executableAccessor);
+						if (ownerActiveAbility.Active != ownerActiveAbility.Incoming)
+						TryInvoke(entity, ownerActiveAbility.Incoming, in executableAccessor);
+				}
 			}
 
 			Post.Run();

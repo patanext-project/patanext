@@ -84,7 +84,7 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 					continue;
 				}
 
-				control.SetTargetPositionX(ability.Range, 50, 0.75f);
+				control.SetCursorPositionX(ability.Range, 50, 0.75f);
 			}
 		}
 	}

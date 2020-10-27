@@ -49,5 +49,10 @@ namespace StormiumTeam.GameBase.SystemBase
 			SpawnBatchEntitiesWithArguments(MemoryMarshal.CreateSpan(ref data, 1), MemoryMarshal.CreateSpan(ref output, 1));
 			return output;
 		}
+
+		public void SpawnAndForget(TCreateData data) 
+		{
+			SpawnEntityWithArguments(data);
+		}
 	}
 }

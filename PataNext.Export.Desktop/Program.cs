@@ -24,7 +24,7 @@ namespace PataNext.Export.Desktop
 		private static int currentVal;
 		
 		static async Task Main(string[] args)
-		{
+		{ 
 			CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
 			var enableVisuals    = true;
@@ -54,7 +54,7 @@ namespace PataNext.Export.Desktop
 			};
 			options.Parse(args);
 			
-			var clientDirectory = new DirectoryInfo(Environment.CurrentDirectory + "/clients/");
+			var clientDirectory = new DirectoryInfo(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + "/clients/");
 			if (!clientDirectory.Exists)
 			{
 				clientDirectory.Create();
@@ -75,6 +75,7 @@ namespace PataNext.Export.Desktop
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Module));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Client.Resources.Module));
 
+System.Console.WriteLine(clientDirectory);
 			foreach (var clientData in clientDirectory.GetFiles("*.json", SearchOption.TopDirectoryOnly))
 			{
 				var client     = JsonSerializer.Deserialize<ClientBootstrap>(File.ReadAllText(clientData.FullName));
@@ -85,6 +86,8 @@ namespace PataNext.Export.Desktop
 
 				var clientBootstrap = gameBootstrap.Global.World.CreateEntity();
 				clientBootstrap.Set(client);
+
+				System.Console.WriteLine(client.ExecutablePath);
 
 				if (launchClientJson != string.Empty && clientData.FullName == new FileInfo(launchClientJson).FullName)
 				{

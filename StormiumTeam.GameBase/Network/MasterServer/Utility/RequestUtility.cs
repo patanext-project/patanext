@@ -27,6 +27,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 				onCompletion(e, response);
 				foreach (var disposable in disposables)
 					disposable.Dispose();
+
+				Array.Clear(disposables, 0, disposables.Length);
 			});
 			disposables[1] = world.SubscribeComponentChanged((in Entity e, in TResponse _, in TResponse response) =>
 			{
@@ -36,6 +38,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 				onCompletion(e, response);
 				foreach (var disposable in disposables)
 					disposable.Dispose();
+
+				Array.Clear(disposables, 0, disposables.Length);
 			});
 
 			return ent;
@@ -43,6 +47,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 
 		public static void UpdateAndTrack<TRequest, TResponse>(Entity entity, TRequest request, Action<Entity, TResponse> onCompletion)
 		{
+			entity.Set(request);
+
 			var disposables = new IDisposable[2];
 			disposables[0] = entity.World.SubscribeComponentAdded((in Entity e, in TResponse response) =>
 			{
@@ -52,6 +58,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 				onCompletion(e, response);
 				foreach (var disposable in disposables)
 					disposable.Dispose();
+
+				Array.Clear(disposables, 0, disposables.Length);
 			});
 			disposables[1] = entity.World.SubscribeComponentChanged((in Entity e, in TResponse _, in TResponse response) =>
 			{
@@ -61,6 +69,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 				onCompletion(e, response);
 				foreach (var disposable in disposables)
 					disposable.Dispose();
+
+				Array.Clear(disposables, 0, disposables.Length);
 			});
 		}
 	}

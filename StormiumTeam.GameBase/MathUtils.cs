@@ -20,6 +20,22 @@ namespace StormiumTeam.GameBase
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float DivSafe(float x, float y)
+		{
+			if (x == 0 || y == 0)
+				return 0;
+			return x / y;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int DivSafe(int x, int y)
+		{
+			if (x == 0 || y == 0)
+				return 0;
+			return x / y;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ref float Ref(this ref Vector3 vec3, int i)
 		{
 			switch (i)
@@ -34,6 +50,9 @@ namespace StormiumTeam.GameBase
 					throw new IndexOutOfRangeException();
 			}
 		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2 XY(this Vector3 vec3) => new Vector2(vec3.X, vec3.Y);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float MoveTowards(float current, float target, float maxDelta)

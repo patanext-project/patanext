@@ -38,6 +38,12 @@ namespace StormiumTeam.GameBase.SystemBase
 			return ref GameWorld.GetComponentData<T>(entity);
 		}
 
+		public ComponentBuffer<T> GetBuffer<T>(GameEntity entity)
+			where T : struct, IComponentBuffer
+		{
+			return GameWorld.GetBuffer<T>(entity);
+		}
+
 		public ComponentReference AddComponent<T>(GameEntity entity, T data = default)
 			where T : struct, IComponentData
 		{
@@ -54,6 +60,19 @@ namespace StormiumTeam.GameBase.SystemBase
 			}
 
 			result = defaultData;
+			return false;
+		}
+
+		public bool TryGetComponentBuffer<T>(GameEntity entity, out ComponentBuffer<T> result)
+			where T : struct, IComponentBuffer
+		{
+			if (HasComponent<T>(entity))
+			{
+				result = GetBuffer<T>(entity);
+				return true;
+			}
+
+			result = default;
 			return false;
 		}
 

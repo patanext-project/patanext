@@ -34,16 +34,28 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 
 		public void ResetPositionX(float acceleration, float offsetFactor = 1)
 		{
-			SetTargetPositionX(0, acceleration, offsetFactor);
+			SetCursorPositionX(0, acceleration, offsetFactor);
 		}
 
-		public void SetTargetPositionX(float position, float acceleration, float offsetFactor = 1)
+		public void SetCursorPositionX(float position, float acceleration, float offsetFactor = 1)
 		{
 			Keep    = default;
 			Control = default;
 
 			IsActive         = true;
 			TargetFromCursor = true;
+			TargetPosition.X = position;
+			OffsetFactor     = offsetFactor;
+			Acceleration     = acceleration;
+		}
+
+		public void SetAbsolutePositionX(float position, float acceleration, float offsetFactor = 1)
+		{
+			Keep    = default;
+			Control = default;
+
+			IsActive         = true;
+			TargetFromCursor = false;
 			TargetPosition.X = position;
 			OffsetFactor     = offsetFactor;
 			Acceleration     = acceleration;
@@ -98,8 +110,6 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 					continue;
 				target.IsActive = false;
 
-				Console.WriteLine("?");
-
 				ref readonly var owner = ref ownerAccessor[entity].Target;
 
 				ref var position   = ref positionAccessor[owner].Value;
@@ -128,7 +138,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 
 					if (MathF.Abs(target.OffsetFactor) > 0.01f && TryGetComponentData(owner, out UnitTargetOffset offset))
 					{
-						targetPosition.X += offset.Value * target.OffsetFactor;
+						targetPosition.X += offset.Idle * target.OffsetFactor;
 					}
 
 					velocity.X = AbilityUtility.GetTargetVelocityX(new AbilityUtility.GetTargetVelocityParameters
@@ -140,8 +150,6 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 						Acceleration     = target.Acceleration,
 						Delta            = dt
 					}, 0, 0.5f);
-
-					Console.WriteLine("yes");
 				}
 
 				controller.ControlOverVelocityX = true;

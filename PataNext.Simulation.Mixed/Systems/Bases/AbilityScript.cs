@@ -2,6 +2,7 @@
 using System.Linq;
 using GameHost.Core.Ecs;
 using GameHost.Injection;
+using GameHost.Simulation.Application;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
@@ -11,6 +12,7 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.BaseSystems
 {
+	[RestrictToApplication(typeof(SimulationApplication))]
 	public abstract class AbilityScript : GameAppSystem
 	{
 		protected GameEntity lastGlobal;

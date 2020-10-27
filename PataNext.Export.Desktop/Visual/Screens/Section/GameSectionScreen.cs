@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
+using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
@@ -45,6 +46,7 @@ namespace PataNext.Export.Desktop.Visual.Screens.Section
                                 if (!entity.Has<ClientBootstrap>())
                                     continue;
 
+                                Logger.Log("client");
                                 var launch = world.CreateEntity();
                                 launch.Set(new LaunchClient(entity));
                                 break;

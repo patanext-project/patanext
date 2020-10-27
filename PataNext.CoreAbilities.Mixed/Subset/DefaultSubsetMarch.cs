@@ -118,7 +118,7 @@ namespace PataNext.CoreAbilities.Mixed.Subset
 				ref var targetPosition = ref GetComponentData<Position>(unitTargetRelative).Value.X;
 				ref var ownerPosition  = ref GetComponentData<Position>(owner).Value.X;
 
-				ref readonly var targetOffset = ref GetComponentData<UnitTargetOffset>(owner).Value;
+				ref readonly var targetOffset = ref GetComponentData<UnitTargetOffset>(owner).Idle;
 
 				float acceleration, walkSpeed;
 				int   direction;

@@ -20,6 +20,7 @@ using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Resources.Keys;
 using PataNext.Module.Simulation.Systems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
@@ -217,7 +218,9 @@ namespace PataNext.Module.Simulation.GameModes
 			RhythmSummonEnergy.AddToEntity(GameWorld, rhythmEngine);
 
 			GameEntity first = default;
-			for (var i = 0; i < 7; i++)
+
+			var yariCount = 6;
+			for (var i = 0; i < 1 + yariCount; i++)
 			{
 				var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
 				{
@@ -227,6 +230,7 @@ namespace PataNext.Module.Simulation.GameModes
 						FeverWalkSpeed      = 2.2f,
 						MovementAttackSpeed = 3.1f,
 						Weight              = 8.5f,
+						AttackSpeed			= 2f,
 					},
 					Direction = UnitDirection.Right
 				});
@@ -275,7 +279,8 @@ namespace PataNext.Module.Simulation.GameModes
 				}
 				else
 				{
-					GameWorld.AddComponent(unit, new UnitTargetOffset {Value = 1 + i * 0.5f});
+					GameWorld.AddComponent(unit, new UnitTargetOffset {Idle = 1 + i * 0.5f, Attack = UnitTargetOffset.CenterComputeV1(i - 1, yariCount, 0.5f)});
+
 					GameWorld.AddComponent(unit, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResourceKey("st:pn/archetype/patapon_std_unit"))));
 					GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResourceKey("yarida"))));
 
@@ -300,6 +305,8 @@ namespace PataNext.Module.Simulation.GameModes
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
 				abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);
 				abilityCollectionSystem.SpawnFor("CTate.EnergyField", unit);
+
+				abilityCollectionSystem.SpawnFor("st:pn/ability/yari_default_spear_attack", unit);
 
 				GameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
 			}

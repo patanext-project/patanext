@@ -24,14 +24,17 @@ namespace PataNext.Export.Desktop
 		
 		public AddConsoleAsRpcClient(WorldCollection collection) : base(collection)
 		{
+			System.Console.WriteLine("is this created?");
 			thread = new Thread(() =>
 			{
 				while (!cancellationTokenSource.IsCancellationRequested)
 				{
 					var str = Console.ReadLine();
+					System.Console.WriteLine("write");
 					if (string.IsNullOrEmpty(str))
 						return;
 					
+					System.Console.WriteLine(str);
 					if (str.StartsWith("rpc "))
 						linesToExecute.Enqueue(str.Replace("rpc ", string.Empty));
 				}
@@ -51,6 +54,7 @@ namespace PataNext.Export.Desktop
 		{
 			base.OnDependenciesResolved(dependencies);
 
+			System.Console.WriteLine("topkek");
 			listener.Server.Subscribe((previous, next) =>
 			{
 				if (next == null)
@@ -63,6 +67,7 @@ namespace PataNext.Export.Desktop
 					
 				netManager?.DisconnectAll();
 				netManager.Connect("127.0.0.1", port, string.Empty);
+				Console.WriteLine("connected to rpc!");
 			}, true);
 			
 			thread.Start();
