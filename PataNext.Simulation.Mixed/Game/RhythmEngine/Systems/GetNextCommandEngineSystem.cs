@@ -7,11 +7,9 @@ using GameHost.Native.Fixed;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
-using GameHost.Simulation.Utility.Resource.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Resources;
-using PataNext.Module.Simulation.Resources.Keys;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 {
@@ -29,7 +27,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 			var commandSetBuffer = new FixedBuffer128<GameEntity>();
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
 			{
-				GameWorld.AsComponentType<GameResourceKey<RhythmCommandResourceKey>>(),
+				GameWorld.AsComponentType<RhythmCommandResource>(),
 				GameWorld.AsComponentType<RhythmCommandActionBuffer>()
 			}))
 			{

@@ -7,6 +7,7 @@ using GameHost.Simulation.TabEcs.Interfaces;
 using Newtonsoft.Json;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using StormiumTeam.GameBase;
 
 namespace PataNext.CoreAbilities.Mixed.CYari
 {
@@ -32,7 +33,7 @@ namespace PataNext.CoreAbilities.Mixed.CYari
         }
 
         protected override string FilePathPrefix => "yari";
-        public override string MasterServerId => "st:pn/ability/yari_default_spear_attack";
+        public override string MasterServerId => resPath.Create(new [] {"ability", "yari", "def_atk"}, ResPath.EType.MasterServer);
 
         public override ComponentType GetChainingCommand()
         {

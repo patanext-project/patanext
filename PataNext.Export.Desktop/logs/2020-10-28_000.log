@@ -1,0 +1,12 @@
+[Information, 10/28/2020 00:25:34, PataNext.Module.Simulation.CustomModule] My custom module has been loaded!
+[Information, 10/28/2020 00:25:34, GameHost.Core.Client.StartGameHostListener] RPC Server started on port: 9000
+[Information, 10/28/2020 00:25:34, GameHost.Core.Modules.Feature.GatherAvailableModuleSystem] Discovered Module PataNext.CoreAbilities.Server.dll (fullPath=C:\Users\guerr\Documents\Projets\PublishedOnGithub\patanext\PataNext.Export.Desktop\bin\Debug\netcoreapp3.1\Modules\PataNext.CoreAbilities.Server.dll)
+[Information, 10/28/2020 00:29:04, PataNext.Module.Simulation.CustomModule] My custom module has been loaded!
+[Information, 10/28/2020 00:29:05, GameHost.Core.Client.StartGameHostListener] RPC Server started on port: 9000
+[Information, 10/28/2020 00:29:05, GameHost.Core.Modules.Feature.GatherAvailableModuleSystem] Discovered Module PataNext.CoreAbilities.Server.dll (fullPath=C:\Users\guerr\Documents\Projets\PublishedOnGithub\patanext\PataNext.Export.Desktop\bin\Debug\netcoreapp3.1\Modules\PataNext.CoreAbilities.Server.dll)
+[Information, 10/28/2020 16:11:09, PataNext.Module.Simulation.CustomModule] My custom module has been loaded!
+[Information, 10/28/2020 16:11:10, GameHost.Core.Client.StartGameHostListener] RPC Server started on port: 9000
+[Information, 10/28/2020 16:11:10, GameHost.Core.Modules.Feature.GatherAvailableModuleSystem] Discovered Module PataNext.CoreAbilities.Server.dll (fullPath=C:\Users\guerr\Documents\Projets\PublishedOnGithub\patanext\PataNext.Export.Desktop\bin\Debug\netcoreapp3.1\Modules\PataNext.CoreAbilities.Server.dll)
+[Information, 10/28/2020 16:16:06, PataNext.Module.Simulation.CustomModule] My custom module has been loaded!
+[Information, 10/28/2020 16:16:06, GameHost.Core.Client.StartGameHostListener] RPC Server started on port: 9000
+[Information, 10/28/2020 16:16:06, GameHost.Core.Modules.Feature.GatherAvailableModuleSystem] Discovered Module PataNext.CoreAbilities.Server.dll (fullPath=C:\Users\guerr\Documents\Projets\PublishedOnGithub\patanext\PataNext.Export.Desktop\bin\Debug\netcoreapp3.1\Modules\PataNext.CoreAbilities.Server.dll)

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using GameHost.Core.Ecs;
+using GameHost.Simulation.TabEcs;
 using GameHost.Utility;
+using PataNext.Module.Simulation.Components.GameModes;
 using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.GameModes
@@ -12,20 +14,17 @@ namespace PataNext.Module.Simulation.GameModes
 	{
 		private TaskScheduler taskScheduler;
 
-		private YaridaTrainingGameMode trainingGameMode;
-
-		private const int targetFrame = 10;
-
 		public StartYaridaTrainingGameMode(WorldCollection collection) : base(collection)
 		{
-			DependencyResolver.Add(() => ref trainingGameMode);
 			DependencyResolver.Add(() => ref taskScheduler);
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-			
+
+			AddComponent(CreateEntity(), new BasicTestGameMode());
+
 			/*TaskRunUtility.StartUnwrap(async (ccs) =>
 			{
 				for (var frame = 0; frame < targetFrame; frame++)
@@ -37,16 +36,6 @@ namespace PataNext.Module.Simulation.GameModes
 
 				AddComponent(CreateEntity(), new AtCityGameModeData());
 			}, taskScheduler, CancellationToken.None);*/
-			TaskRunUtility.StartUnwrap(async (ccs) =>
-			{
-				for (var frame = 0; frame < targetFrame; frame++)
-					await Task.Yield();
-
-				trainingGameMode.Start(64);
-			}, taskScheduler, CancellationToken.None).ContinueWith(t =>
-			{
-				Console.WriteLine($"{t.Exception}");
-			});
 		}
 	}
 }

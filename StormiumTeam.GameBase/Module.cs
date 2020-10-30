@@ -8,6 +8,7 @@ using GameHost.Injection;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
+using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.Network.MasterServer;
 using StormiumTeam.GameBase.Network.MasterServer.StandardAuthService;
 using StormiumTeam.GameBase.Network.MasterServer.User;
@@ -28,19 +29,24 @@ namespace StormiumTeam.GameBase
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
-					var systemCollection = simulationApplication.Data.Collection.DefaultSystemCollection;
-					systemCollection.AddPass(new IPreUpdateSimulationPass.RegisterPass(), new[] {typeof(UpdatePassRegister)}, null);
-					systemCollection.AddPass(new IUpdateSimulationPass.RegisterPass(), new[] {typeof(IPreUpdateSimulationPass.RegisterPass)}, null);
-					systemCollection.AddPass(new IPostUpdateSimulationPass.RegisterPass(), new[] {typeof(IUpdateSimulationPass.RegisterPass)}, null);
+					simulationApplication.Schedule(() =>
+					{
+						var systemCollection = simulationApplication.Data.Collection.DefaultSystemCollection;
+						systemCollection.AddPass(new IPreUpdateSimulationPass.RegisterPass(), new[] {typeof(UpdatePassRegister)}, null);
+						systemCollection.AddPass(new IUpdateSimulationPass.RegisterPass(), new[] {typeof(IPreUpdateSimulationPass.RegisterPass)}, null);
+						systemCollection.AddPass(new IPostUpdateSimulationPass.RegisterPass(), new[] {typeof(IUpdateSimulationPass.RegisterPass)}, null);
 
-					simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(PhysicsSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(PhysicsSystem));
 
-					simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(BuildTeamEntityContainerSystem));
 
-					simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
+
+						simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));
+					}, default);
 				}
 			}
 		}

@@ -46,7 +46,6 @@ namespace PataNext.CoreAbilities.Mixed
         {
             if (currentTime > impl.AttackStart.Add(impl.DelayBeforeAttack) && !impl.DidAttack)
             {
-                System.Console.WriteLine("Frame " + currentTime.TotalMilliseconds);
                 impl.DidAttack = true;
                 return true;
             }

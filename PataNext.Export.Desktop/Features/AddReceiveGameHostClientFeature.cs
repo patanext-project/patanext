@@ -98,7 +98,7 @@ namespace PataNext.Export.Desktop
 					if (!gameClientProcess.HasExited)
 						gameClientProcess.Kill();
 				}
-				catch (ArgumentException ex)
+				catch (ArgumentException)
 				{
 
 				}

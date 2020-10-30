@@ -22,6 +22,7 @@ using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using PataNext.Module.Simulation.Systems;
 using PataNext.Simulation.Mixed.Components.GamePlay.Abilities;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
 
@@ -92,6 +93,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 		protected LocalRhythmCommandResourceManager localRhythmCommandResourceManager;
 		protected AbilityDescStorage                abilityStorage;
 		protected ILogger                           logger;
+		protected ResPathGen                        resPath;
 
 		protected BaseRhythmAbilityProvider(WorldCollection collection) : base(collection)
 		{
@@ -99,6 +101,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 			DependencyResolver.Add(() => ref localRhythmCommandResourceManager);
 			DependencyResolver.Add(() => ref abilityStorage, new GetAbilityDescStorageStrategy(this));
 			DependencyResolver.Add(() => ref logger);
+			DependencyResolver.Add(() => ref resPath);
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)

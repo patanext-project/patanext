@@ -73,13 +73,12 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
                 
                 targetPosition.X -= deltaPosition.X;
 
+                if (ability.AttackStart == default)
+                    controlVelocity.SetAbsolutePositionX(targetPosition.X, 50);
+
                 const float distanceMercy = 4f;
-                if (MathF.Abs(targetPosition.X - position.X) < distanceMercy && ability.TriggerAttack(worldTime.ToStruct(), TimeSpan.FromSeconds(playState.AttackSpeed))) {
-                    controlVelocity.SetAbsolutePositionX(targetPosition.X, 50);
-                }
-                else if (ability.AttackStart == default) {
-                    controlVelocity.SetAbsolutePositionX(targetPosition.X, 50);
-                }
+                if (MathF.Abs(targetPosition.X - position.X) < distanceMercy && ability.TriggerAttack(worldTime.ToStruct(), TimeSpan.FromSeconds(playState.AttackSpeed))) 
+                {}
 
                 controlVelocity.OffsetFactor = 0;
             }
@@ -90,6 +89,11 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
         protected override void OnSetup(GameEntity self)
         {
             random.Next();
+        }
+        
+        public override void Dispose()
+        {
+            projectileProvider = null;
         }
     }
 }

@@ -203,7 +203,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			{
 				AudioPlayerUtility.SetResource(audioPlayer, targetAudio);
 				AudioPlayerUtility.PlayDelayed(audioPlayer, delay);
-
+				
 				hasSwitched = true;
 			}
 

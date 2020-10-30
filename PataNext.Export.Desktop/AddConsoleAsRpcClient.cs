@@ -21,29 +21,26 @@ namespace PataNext.Export.Desktop
 
 		private ConcurrentQueue<string> linesToExecute;
 		private CancellationTokenSource cancellationTokenSource;
-		
+
 		public AddConsoleAsRpcClient(WorldCollection collection) : base(collection)
 		{
-			System.Console.WriteLine("is this created?");
-			thread = new Thread(() =>
+			thread = new(() =>
 			{
 				while (!cancellationTokenSource.IsCancellationRequested)
 				{
 					var str = Console.ReadLine();
-					System.Console.WriteLine("write");
 					if (string.IsNullOrEmpty(str))
 						return;
 					
-					System.Console.WriteLine(str);
 					if (str.StartsWith("rpc "))
 						linesToExecute.Enqueue(str.Replace("rpc ", string.Empty));
 				}
 			});
-			linesToExecute = new ConcurrentQueue<string>();
-			cancellationTokenSource = new CancellationTokenSource();
-			
+			linesToExecute          = new();
+			cancellationTokenSource = new();
+
 			AddDisposable(cancellationTokenSource);
-			
+
 			DependencyResolver.Add(() => ref listener);
 		}
 
@@ -53,21 +50,19 @@ namespace PataNext.Export.Desktop
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-
-			System.Console.WriteLine("topkek");
+			
 			listener.Server.Subscribe((previous, next) =>
 			{
 				if (next == null)
 					return;
 
 				var port = next.LocalPort;
-				netManager ??= new NetManager(eventListener);
+				netManager ??= new(eventListener);
 				if (!netManager.IsRunning)
 					netManager.Start();
 					
 				netManager?.DisconnectAll();
 				netManager.Connect("127.0.0.1", port, string.Empty);
-				Console.WriteLine("connected to rpc!");
 			}, true);
 			
 			thread.Start();

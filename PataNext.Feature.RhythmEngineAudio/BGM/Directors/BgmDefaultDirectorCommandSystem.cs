@@ -10,13 +10,11 @@ using GameHost.Core.IO;
 using GameHost.IO;
 using GameHost.Native.Char;
 using GameHost.Simulation.Utility.EntityQuery;
-using GameHost.Simulation.Utility.Resource.Components;
 using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
-using PataNext.Module.Simulation.Resources.Keys;
 using PataNext.Simulation.Client.Systems;
 using PataNext.Simulation.Mixed.Components.GamePlay.Abilities;
 using StormiumTeam.GameBase.Camera.Components;
@@ -225,7 +223,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 		{
 			foreach (var commandEntity in GameWorld.QueryEntityWith(stackalloc[]
 			{
-				GameWorld.AsComponentType<GameResourceKey<RhythmCommandResourceKey>>()
+				GameWorld.AsComponentType<RhythmCommandResource>()
 			}))
 			{
 				var cmd = GameWorld.GetComponentData<RhythmCommandIdentifier>(commandEntity).Value;
