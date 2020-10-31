@@ -8,7 +8,11 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Resource;
 using GameHost.Worlds.Components;
+using PataNext.Module.Simulation.Components.GamePlay;
+using PataNext.Module.Simulation.Components.Roles;
+using PataNext.Module.Simulation.Game.Visuals;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.Physics.Components;
@@ -33,9 +37,11 @@ namespace PataNext.CoreAbilities.Server
 
         public override void GetComponents(PooledList<ComponentType> entityComponents)
         {
-            entityComponents.AddRange(new [] 
+            entityComponents.AddRange(new[]
             {
+                GameWorld.AsComponentType<ProjectileDescription>(),
                 GameWorld.AsComponentType<Owner>(),
+                GameWorld.AsComponentType<EntityVisual>(),
                 GameWorld.AsComponentType<SpearProjectile>(),
                 GameWorld.AsComponentType<Position>(),
                 GameWorld.AsComponentType<Velocity>()
@@ -44,16 +50,17 @@ namespace PataNext.CoreAbilities.Server
 
         public override void SetEntityData(GameEntity entity, (GameEntity owner, Vector3 pos, Vector3 vel, Vector3 gravity) args)
         {
-            GameWorld.GetComponentData<Owner>(entity) = new Owner(args.owner);
+            GameWorld.GetComponentData<Owner>(entity)                   = new Owner(args.owner);
+            GameWorld.GetComponentData<EntityVisual>(entity)       = default;
             GameWorld.GetComponentData<SpearProjectile>(entity).Gravity = args.gravity;
-            GameWorld.GetComponentData<Position>(entity).Value = args.pos;
-            GameWorld.GetComponentData<Velocity>(entity).Value = args.vel;
+            GameWorld.GetComponentData<Position>(entity).Value          = args.pos;
+            GameWorld.GetComponentData<Velocity>(entity).Value          = args.vel;
         }
     }
 
     public class SpearProjectileSystem : GameLoopAppSystem, IUpdateSimulationPass
     {
-        private PhysicsSystem physicsSystem;
+        private PhysicsSystem     physicsSystem;
         private IManagedWorldTime worldTime;
 
         public SpearProjectileSystem(WorldCollection collection) : base(collection, false)
@@ -63,18 +70,18 @@ namespace PataNext.CoreAbilities.Server
         }
 
         private EntityQuery colliderQuery;
-        private Sphere sphereCollider;
+        private Sphere      sphereCollider;
 
         protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
         {
             base.OnDependenciesResolved(dependencies);
 
-            colliderQuery  = CreateEntityQuery(new [] {typeof(PhysicsCollider), typeof(Position)});
+            colliderQuery  = CreateEntityQuery(new[] {typeof(PhysicsCollider), typeof(Position)});
             sphereCollider = new Sphere(0.1f);
 
-            Add((GameEntity ent, ref SpearProjectile proj, ref Position pos, ref Velocity vel) => 
+            Add((GameEntity ent, ref SpearProjectile proj, ref Position pos, ref Velocity vel) =>
             {
-                pos.Value += vel.Value    * (float) worldTime.Delta.TotalSeconds;
+                pos.Value += vel.Value * (float) worldTime.Delta.TotalSeconds;
                 vel.Value += proj.Gravity * (float) worldTime.Delta.TotalSeconds;
 
                 var didCollide = pos.Value.Y <= 0; // ground may have a collidable or not, but we don't care
@@ -103,17 +110,18 @@ namespace PataNext.CoreAbilities.Server
                     }
                 }
 
-                if (didCollide) {
+                if (didCollide)
+                {
                     LoopScheduler.Schedule(GameWorld.RemoveEntity, ent, default);
                 }
 
                 return true;
             });
-        } 
+        }
 
         private EntityQuery entityWithoutBuffer;
 
-        public void OnSimulationUpdate() 
+        public void OnSimulationUpdate()
         {
             colliderQuery.CheckForNewArchetypes();
             RunExecutors();

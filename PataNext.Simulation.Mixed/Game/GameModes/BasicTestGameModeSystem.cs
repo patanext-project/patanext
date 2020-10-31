@@ -60,6 +60,7 @@ namespace PataNext.Module.Simulation.GameModes
 		{
 			// We need to wait some frames before ability providers are registered
 			// (I'm thinking of a better way, perhaps a method in AbilityCollectionSystem called SpawnForLater(CancellationToken))
+			// (Or perhaps we should wait for all modules to be loaded, and their AppObjects to have no dependencies left?)
 			var frameToWait = 16;
 			while (frameToWait-- > 0)
 			{
@@ -68,11 +69,17 @@ namespace PataNext.Module.Simulation.GameModes
 
 			var entities = SpawnArmy(new[]
 			{
+				// Hatapon
 				(new[]
 				{
-					(true, resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer))
+					(true, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer))
+				}, 0f),
+				// UberHero
+				(new[]
+				{
+					(false, resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer))
 				}, 6f),
-				(new []
+				(new[]
 				{
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
@@ -80,7 +87,16 @@ namespace PataNext.Module.Simulation.GameModes
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer))
-				}, 0f)
+				}, 3f),
+				(new[]
+				{
+					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
+					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
+					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
+					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
+					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
+					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer))
+				}, -3f)
 			});
 
 			for (var army = 0; army < entities.Length; army++)
@@ -96,24 +112,24 @@ namespace PataNext.Module.Simulation.GameModes
 					abilityCollectionSystem.SpawnFor("charge", unit);
 
 					var displayedEquip = GetBuffer<UnitDisplayedEquipment>(unit);
-					if (army == 0)
+					if (army == 1)
 					{
 						// it's kinda a special case
 						GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("taterazay"))));
 						
 						displayedEquip.Add(new UnitDisplayedEquipment
 						{
-							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "equip_root", "mask"}, ResPath.EType.MasterServer)),
+							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
 							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "kibadda"}, ResPath.EType.ClientResource))
 						});
 						displayedEquip.Add(new UnitDisplayedEquipment
 						{
-							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "equip_root", "l_eq"}, ResPath.EType.MasterServer)),
+							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "l_eq"}, ResPath.EType.MasterServer)),
 							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "shields", "default_shield"}, ResPath.EType.ClientResource))
 						});
 						displayedEquip.Add(new UnitDisplayedEquipment
 						{
-							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "equip_root", "r_eq"}, ResPath.EType.MasterServer)),
+							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
 							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "swords", "default_sword"}, ResPath.EType.ClientResource))
 						});
 						
@@ -128,12 +144,12 @@ namespace PataNext.Module.Simulation.GameModes
 						displayedEquip.Add(new UnitDisplayedEquipment
 						{
 							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
-							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "spears", "default_spear_small"}, ResPath.EType.ClientResource))
+							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "spears", "default_spear:small"}, ResPath.EType.ClientResource))
 						});
 						displayedEquip.Add(new UnitDisplayedEquipment
 						{
 							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "helmet"}, ResPath.EType.MasterServer)),
-							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "helmets", "default_helmet_small"}, ResPath.EType.ClientResource))
+							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "helmets", "default_helmet:small"}, ResPath.EType.ClientResource))
 						});
 						
 						abilityCollectionSystem.SpawnFor(resPathGen.Create(new [] {"ability", "yari", "def_atk"}, ResPath.EType.MasterServer), unit);
@@ -198,9 +214,11 @@ namespace PataNext.Module.Simulation.GameModes
 					GameWorld.AddComponent(unit, new UnitEnemySeekingState());
 					GameWorld.AddComponent(unit, new UnitTargetOffset
 					{
-						Idle   = array[army].armyPos + u * 0.5f,
+						Idle   = array[army].armyPos + UnitTargetOffset.CenterComputeV1(u, array[army].args.Length, 0.5f),
 						Attack = UnitTargetOffset.CenterComputeV1(u, array[army].args.Length, 0.5f)
 					});
+
+					Console.WriteLine($"{army} -> {array[army].armyPos};{u} -> {array[army].armyPos + u * 0.5f}");
 
 					GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
 
