@@ -1,4 +1,5 @@
-﻿using GameHost.Native.Char;
+﻿using System;
+using GameHost.Native.Char;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.Resource.Interfaces;
@@ -7,7 +8,7 @@ using StormiumTeam.GameBase;
 
 namespace PataNext.Module.Simulation.Components.GamePlay
 {
-	public struct GameGraphicResource : IGameResourceDescription
+	public struct GameGraphicResource : IGameResourceDescription, IEquatable<GameGraphicResource>
 	{
 		public readonly CharBuffer128 Value;
 

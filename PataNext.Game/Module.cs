@@ -6,11 +6,14 @@ using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.IO;
 using GameHost.Simulation.Application;
+using GameHost.Simulation.Utility.Resource;
 using GameHost.Threading;
+using GameHost.Utility;
 using GameHost.Worlds;
-using PataNext.Game;
 using PataNext.Game.Abilities;
 using PataNext.Game.BGM;
+using StormiumTeam.GameBase;
+using Module = PataNext.Game.Module;
 
 [assembly: RegisterAvailableModule("PataNext.Game", "guerro", typeof(Module))]
 
@@ -23,6 +26,8 @@ namespace PataNext.Game
 			var global  = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
 			var systems = new List<Type>();
 			AppSystemResolver.ResolveFor<SimulationApplication>(GetType().Assembly, systems);
+
+			global.Context.BindExisting(DefaultEntity<ResPathDefaults>.Create(global.World, new() {Author = "st", ModPack = "pn"}));
 
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{

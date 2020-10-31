@@ -3,11 +3,15 @@ using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
+using GameHost.Simulation.Utility.Resource;
 using GameHost.Threading;
+using GameHost.Utility;
 using GameHost.Worlds;
 using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation;
+using PataNext.Module.Simulation.Components.GamePlay;
 using PataNext.Module.Simulation.Passes;
+using PataNext.Module.Simulation.Resources;
 using StormiumTeam.GameBase;
 
 [assembly: RegisterAvailableModule("PataNext Simulation", "guerro", typeof(CustomModule))]
@@ -18,10 +22,15 @@ namespace PataNext.Module.Simulation
 	{
 		public CustomModule(Entity source, Context ctxParent, GameHostModuleDescription original) : base(source, ctxParent, original)
 		{
-			var logger = (ILogger) new DefaultAppObjectStrategy(this, new WorldCollection(ctxParent, null)).ResolveNow(typeof(ILogger));
-			logger.Log(LogLevel.Information, "My custom module has been loaded!");
-
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
+
+			global.Context.BindExisting(DefaultEntity<GameResourceDb<EquipmentResource>.Defaults>.Create(global.World, new()));
+			global.Context.BindExisting(DefaultEntity<GameResourceDb<GameGraphicResource>.Defaults>.Create(global.World, new()));
+			global.Context.BindExisting(DefaultEntity<GameResourceDb<RhythmCommandResource>.Defaults>.Create(global.World, new()));
+			global.Context.BindExisting(DefaultEntity<GameResourceDb<UnitArchetypeResource>.Defaults>.Create(global.World, new()));
+			global.Context.BindExisting(DefaultEntity<GameResourceDb<UnitAttachmentResource>.Defaults>.Create(global.World, new()));
+			global.Context.BindExisting(DefaultEntity<GameResourceDb<UnitKitResource>.Defaults>.Create(global.World, new()));
+
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{
 				if (listener is SimulationApplication simulationApplication)
@@ -42,7 +51,7 @@ namespace PataNext.Module.Simulation
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Providers.PlayableUnitProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
-					
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.MountDescription.RegisterContainer));
 
@@ -65,7 +74,7 @@ namespace PataNext.Module.Simulation
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.BasicTestGameModeSystem));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.StartYaridaTrainingGameMode));
-					
+
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.CreateGameSaveRequest.Process));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.ListGameSaveRequest.Process));
 				}

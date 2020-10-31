@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Injection;
+using GameHost.Utility;
 
 namespace StormiumTeam.GameBase
 {
@@ -93,12 +95,15 @@ namespace StormiumTeam.GameBase
 
     public class ResPathGen : AppObject
     {
-        private World world;
-
         public ResPathGen(Context context) : base(context)
         {
-            DependencyResolver.Add(() => ref world);
-            DependencyResolver.OnComplete(_ => { });
+            DependencyResolver.Add<DefaultEntity<ResPathDefaults>>();
+            DependencyResolver.OnComplete(deps =>
+            {
+                StateEntity = deps.OfType<DefaultEntity<ResPathDefaults>>()
+                                  .First()
+                                  .Entity;
+            });
         }
 
         private Entity stateEntity;
@@ -111,6 +116,8 @@ namespace StormiumTeam.GameBase
                 stateEntity = value;
                 if (!stateEntity.Has<ResPathDefaults>())
                     stateEntity.Set(new ResPathDefaults());
+                
+                DependencyResolver.Dependencies.Clear();
             }
         }
 
