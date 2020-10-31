@@ -123,7 +123,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				                                           && activeAbility.Incoming != default
 				                                           && TryGetComponentData(activeAbility.Incoming, out AbilityActivation abilityActivation)
 				                                           && TryGetComponentData(activeAbility.Incoming, out AbilityState abilityState)
-				                                           && abilityActivation.Type == EAbilityActivationType.HeroMode)
+				                                           && abilityActivation.Type.HasFlag(EAbilityActivationType.HeroMode))
 				{
 					isHeroMode = true;
 					if (TryGetComponentData(activeAbility.Incoming, out NamedAbilityId namedAbilityId))

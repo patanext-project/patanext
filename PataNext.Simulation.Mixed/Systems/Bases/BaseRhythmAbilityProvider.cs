@@ -278,7 +278,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 			}
 
 			GameWorld.GetComponentData<Owner>(entity) = new Owner(data.Owner);
-			GameWorld.SetLinkedTo(entity, data.Owner, true);
+			GameWorld.Link(entity, data.Owner, true);
 
 			if (MasterServerId != null)
 				GameWorld.GetComponentData<NamedAbilityId>(entity) = new NamedAbilityId(MasterServerId);

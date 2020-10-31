@@ -42,7 +42,9 @@ namespace PataNext.Module.Simulation
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Providers.PlayableUnitProvider));
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
+					
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.MountDescription.RegisterContainer));
 
 					simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculatePlayStateSystem));
 

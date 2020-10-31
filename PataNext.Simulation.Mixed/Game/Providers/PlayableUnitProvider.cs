@@ -41,9 +41,11 @@ namespace PataNext.Module.Simulation.Game.Providers
 				GameWorld.AsComponentType<GroundState>(),
 				GameWorld.AsComponentType<Position>(),
 				GameWorld.AsComponentType<Velocity>(),
-				
+
 				GameWorld.AsComponentType<OwnerActiveAbility>(),
-				GameWorld.AsComponentType<OwnedRelative<AbilityDescription>>()
+
+				GameWorld.AsComponentType<OwnedRelative<AbilityDescription>>(),
+				GameWorld.AsComponentType<OwnedRelative<MountDescription>>()
 			});
 		}
 

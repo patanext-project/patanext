@@ -107,7 +107,7 @@ namespace PataNext.Simulation.Client.Systems
 					AsComponentType<AbilityActivation>(),
 					AsComponentType<Owner>()
 				}))
-					if (activationAccessor[ability].Type == EAbilityActivationType.HeroMode
+					if (activationAccessor[ability].Type.HasFlag(EAbilityActivationType.HeroMode)
 					    && stateAccessor[ability].Phase == EAbilityPhase.WillBeActive)
 						isHeroModeIncoming = true;
 			}
