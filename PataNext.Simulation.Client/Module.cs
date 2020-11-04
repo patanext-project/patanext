@@ -19,8 +19,11 @@ namespace PataNext.Simulation.Client
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
-					simulationApplication.Data.Collection.GetOrCreate(typeof(RegisterRhythmEngineInputSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(AbilityHeroVoiceManager));
+					simulationApplication.Schedule(() =>
+					{
+						simulationApplication.Data.Collection.GetOrCreate(typeof(RegisterRhythmEngineInputSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(AbilityHeroVoiceManager));
+					}, default);
 				}
 			}
 		}

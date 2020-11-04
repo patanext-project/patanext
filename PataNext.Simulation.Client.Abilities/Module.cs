@@ -20,7 +20,7 @@ namespace PataNext.Simulation.Client.Abilities
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
-					simulationApplication.Data.Collection.GetOrCreate(typeof(TaterazayEnergyFieldClientProvider));
+					simulationApplication.Schedule(() => { simulationApplication.Data.Collection.GetOrCreate(typeof(TaterazayEnergyFieldClientProvider)); }, default);
 				}
 			}
 		}

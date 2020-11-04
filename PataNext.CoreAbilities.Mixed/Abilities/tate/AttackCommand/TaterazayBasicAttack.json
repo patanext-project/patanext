@@ -1,0 +1,23 @@
+{
+    "modifiers":
+    {
+      "fever": {
+        "attack": 1.2,
+        "movement_attack_speed": 1.6,
+        "movement_return_speed": 1.2
+      },
+      "perfect": {
+        "attack": 1.2,
+        "movement_attack_speed": 1.2,
+        "movement_return_speed": 1.4,
+        "attack_speed": 0.6
+      },
+      "charge": {
+        "id": "charge",
+        "attack": 2.0,
+        "receive_damage": 0.9,
+        "movement_attack_speed": 1.2,
+        "attack_speed": 0.9
+      }
+    }
+  }

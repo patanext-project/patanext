@@ -15,7 +15,7 @@ using StormiumTeam.GameBase.Transform.Components;
 using ZLogger;
 
 namespace StormiumTeam.GameBase.Physics.Systems
-{	
+{
 	public class PhysicsSystem : GameAppSystem
 	{
 		private ILogger logger;
@@ -25,6 +25,8 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		public Simulation Simulation { get; }
 
 		public BufferPool BufferPool { get; }
+
+		public const float MaximumDistance = 0f;
 
 		public PhysicsSystem(WorldCollection collection) : base(collection)
 		{
@@ -43,7 +45,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 
 			if (sizeof(TypedIndex) != sizeof(PhysicsCollider))
 				throw new Exception("size mismatch");
-			
+
 			disposeComponentType = GameWorld.RegisterComponent("DisposeShapeFromTypeIndex", new CallDisposeBoard(this, sizeof(TypedIndex), 0));
 		}
 
@@ -58,13 +60,48 @@ namespace StormiumTeam.GameBase.Physics.Systems
 
 			var disposeComponent = GameWorld.AddComponent(entity, disposeComponentType);
 			GameWorld.GetComponentBoard<CallDisposeBoard>(disposeComponentType).SetValue(disposeComponent.Id, index);
-			
+
 			return index;
+		}
+
+		public unsafe bool Sweep(GameEntity    against, TypedIndex shape, RigidPose pose, BodyVelocity velocity,
+		                         out HitResult hit,
+		                         float         maximumT = MaximumDistance)
+		{
+			if (!TryGetComponentData(against, out PhysicsCollider againstCollider))
+			{
+				hit = default;
+				return false;
+			}
+
+			var againstPose = RigidPose.Identity;
+			if (TryGetComponentData(against, out Position position))
+				againstPose.Position = position.Value;
+
+			Simulation.Shapes[againstCollider.Shape.Type].GetShapeData(againstCollider.Shape.Index, out var shapePointer, out _);
+			Simulation.Shapes[shape.Type].GetShapeData(shape.Index, out var thisShapePtr, out _);
+
+			var swee = Sweep(
+				shapePointer, againstCollider.Shape.Type, againstPose, default,
+				thisShapePtr, shape.Type, pose, velocity,
+				out hit,
+				maximumT
+			);
+
+			if (swee)
+			{
+				Simulation.Shapes.UpdateBounds(againstPose, ref againstCollider.Shape, out var b1);
+				Simulation.Shapes.UpdateBounds(pose, ref shape, out var b2);
+
+				Console.WriteLine($"A(min={b1.Min} max={b1.Max}) B(min={b2.Min} max={b2.Max}) && {b1.Contains(ref b2)} && {hit.time0} {hit.time1}");
+			}
+
+			return swee;
 		}
 
 		public unsafe bool Sweep<TShape>(GameEntity    against, TShape collider, RigidPose pose, BodyVelocity velocity,
 		                                 out HitResult hit,
-		                                 float         maximumT = 50f)
+		                                 float         maximumT = MaximumDistance)
 			where TShape : IShape
 		{
 			if (!TryGetComponentData(against, out PhysicsCollider againstCollider))
@@ -89,7 +126,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		public unsafe bool Sweep(PhysicsCollider colliderA, RigidPose poseA, BodyVelocity velocityA,
 		                         PhysicsCollider colliderB, RigidPose poseB, BodyVelocity velocityB,
 		                         out HitResult   hit,
-		                         float           maximumT = 50f)
+		                         float           maximumT = MaximumDistance)
 		{
 			Simulation.Shapes[colliderA.Shape.Type].GetShapeData(colliderA.Shape.Index, out var shapePointerA, out _);
 			Simulation.Shapes[colliderB.Shape.Type].GetShapeData(colliderB.Shape.Index, out var shapePointerB, out _);
@@ -104,7 +141,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		public unsafe bool Sweep(void*         a, int typeA, RigidPose poseA, BodyVelocity velocityA,
 		                         void*         b, int typeB, RigidPose poseB, BodyVelocity velocityB,
 		                         out HitResult hit,
-		                         float         maximumT = 50f)
+		                         float         maximumT = MaximumDistance)
 		{
 			var task = Simulation.NarrowPhase.SweepTaskRegistry.GetTask(typeA, typeB);
 			if (task == null)
@@ -114,6 +151,8 @@ namespace StormiumTeam.GameBase.Physics.Systems
 				return false;
 			}
 
+			//Console.WriteLine($"{poseA.Position} {poseB.Position}");
+
 			var filter = new AlwaysTrueSweepFilter();
 			var intersect = task.Sweep(
 				a, typeA, poseA.Orientation, velocityA,
@@ -121,6 +160,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 				maximumT, 1e-2f, 1e-5f, 25, ref filter, Simulation.Shapes, Simulation.NarrowPhase.SweepTaskRegistry, BufferPool,
 				out hit.time0, out hit.time1, out hit.position, out hit.normal
 			);
+			hit.position += poseA.Position;
 
 			return intersect;
 		}

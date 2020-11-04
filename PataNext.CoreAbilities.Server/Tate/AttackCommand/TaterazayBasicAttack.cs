@@ -1,38 +1,31 @@
 using System;
-using System.Collections.Generic;
-using System.Numerics;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Worlds.Components;
 using PataNext.CoreAbilities.Mixed;
-using PataNext.CoreAbilities.Mixed.CYari;
+using PataNext.CoreAbilities.Mixed.CTate;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
-using PataNext.Module.Simulation.Components.Units;
-using PataNext.Module.Simulation.Game.GamePlay;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
-using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Transform.Components;
 
-namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
+namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
 {
-    public class DefaultSpearAttack : AbilityScriptModule<YaridaBasicAttackAbilityProvider>
+    public class TaterazayBasicAttack : AbilityScriptModule<TaterazayBasicAttackAbilityProvider>
     {
         private IManagedWorldTime          worldTime;
-        private SpearProjectileProvider    projectileProvider;
         private ExecuteActiveAbilitySystem execute;
 
-        public DefaultSpearAttack(WorldCollection collection) : base(collection)
+        public TaterazayBasicAttack(WorldCollection collection) : base(collection)
         {
             DependencyResolver.Add(() => ref worldTime);
-            DependencyResolver.Add(() => ref projectileProvider);
             DependencyResolver.Add(() => ref execute);
         }
 
         protected override void OnExecute(GameEntity owner, GameEntity self, AbilityState state)
         {
-            ref var ability = ref GetComponentData<YaridaBasicAttackAbility>(self);
+            ref var ability = ref GetComponentData<TaterazayBasicAttackAbility>(self);
             ability.Cooldown -= worldTime.Delta;
 
             ref var controlVelocity = ref GetComponentData<AbilityControlVelocity>(self);
@@ -40,10 +33,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
             ref readonly var position     = ref GetComponentData<Position>(owner).Value;
             ref readonly var playState    = ref GetComponentData<UnitPlayState>(owner);
             ref readonly var seekingState = ref GetComponentData<UnitEnemySeekingState>(owner);
-            ref readonly var direction    = ref GetComponentData<UnitDirection>(owner);
             ref readonly var offset       = ref GetComponentData<UnitTargetOffset>(owner);
-
-            var throwOffset = new Vector2(direction.Value, 1.25f);
 
             if (!state.IsActiveOrChaining)
             {
@@ -59,13 +49,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
 
                 if (ability.CanAttackThisFrame(worldTime.Total, TimeSpan.FromSeconds(playState.AttackSpeed)))
                 {
-                    // Todo: accuracy should be stored in UnitPlayState (so we could have spears/skills that would be more precise)
-                    var accuracy       = AbilityUtility.CompileStat(GetComponentData<AbilityEngineSet>(self), 0.2f, 1, 2.5, 1.5);
-                    var throwOffsetXYZ = new Vector3(throwOffset, 0);
-                    execute.Post.Schedule(projectileProvider.SpawnAndForget, (owner,
-                        position + throwOffsetXYZ,
-                        new Vector3 {X = ability.ThrowVelocity.X, Y = ability.ThrowVelocity.Y + accuracy * (float) random.NextDouble()},
-                        new Vector3(ability.Gravity, 0)), default);
+                    // attack code
                 }
             }
             else if (state.IsChaining)
@@ -75,19 +59,11 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
             if (state.IsActive && enemyPrioritySelf != default)
             {
                 var targetPosition = GetComponentData<Position>(enemyPrioritySelf).Value;
-                var deltaPosition  = PredictTrajectory.Simple(throwOffset - Vector2.UnitX * offset.Attack, ability.ThrowVelocity, ability.Gravity);
-                // Search for any weakpoint the enemy has, and if it does, add it to the deltaPosition var
-                if (TryGetComponentBuffer<UnitWeakPoint>(enemyPrioritySelf, out var weakPoints)
-                    && weakPoints.GetNearest(targetPosition - position) is var (weakPoint, dist) && dist >= 0)
-                    deltaPosition += weakPoint.XY();
-
-                targetPosition.X -= deltaPosition.X;
-
                 if (ability.AttackStart == default)
                     controlVelocity.SetAbsolutePositionX(targetPosition.X, 50);
 
                 // We should have a mercy in the distance of where the unit is and where it should throw. (it shouldn't be able to only throw at a perfect position)
-                const float distanceMercy = 4f;
+                const float distanceMercy = 2f;
                 // If we're near enough of where we should throw the spear, throw it.
                 if (MathF.Abs(targetPosition.X - position.X) < distanceMercy && ability.TriggerAttack(worldTime.ToStruct()))
                 {
@@ -97,17 +73,8 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
             }
         }
 
-
-        private Random random = new Random(Environment.TickCount);
-
         protected override void OnSetup(GameEntity self)
         {
-            random.Next();
-        }
-
-        public override void Dispose()
-        {
-            projectileProvider = null;
         }
     }
 }

@@ -29,11 +29,16 @@ namespace PataNext.CoreAbilities.Mixed
 
     public static class SimpleAttackAbilityExtensions
     {
-        public static bool TriggerAttack<T>(this ref T impl, in WorldTime worldTime, TimeSpan cooldown) where T : struct, ISimpleAttackAbility 
+        public static void StopAttack<T>(this ref T impl) where T : struct, ISimpleAttackAbility
+        {
+            impl.AttackStart = default;
+            impl.DidAttack   = false;
+        }
+
+        public static bool TriggerAttack<T>(this ref T impl, in WorldTime worldTime) where T : struct, ISimpleAttackAbility 
         {
             if (impl.AttackStart == TimeSpan.Zero && impl.Cooldown <= TimeSpan.Zero)
             {
-                impl.Cooldown    = cooldown;
                 impl.AttackStart = worldTime.Total;
                 impl.DidAttack   = false;
                 return true;
@@ -42,10 +47,11 @@ namespace PataNext.CoreAbilities.Mixed
             return false;
         }
 
-        public static bool CanAttackThisFrame<T>(this ref T impl, in TimeSpan currentTime) where T : struct, ISimpleAttackAbility
+        public static bool CanAttackThisFrame<T>(this ref T impl, in TimeSpan currentTime, TimeSpan cooldown) where T : struct, ISimpleAttackAbility
         {
             if (currentTime > impl.AttackStart.Add(impl.DelayBeforeAttack) && !impl.DidAttack)
             {
+                impl.Cooldown  = cooldown;
                 impl.DidAttack = true;
                 return true;
             }

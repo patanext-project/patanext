@@ -18,12 +18,15 @@ namespace PataNext.Feature.RhythmEngineAudio
 			foreach (var listener in global.World.Get<IListener>())
 				if (listener is SimulationApplication simulationApplication)
 				{
-					simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemStart));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(ShoutDrumSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(OnNewBeatSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(BgmDefaultDirectorCommandSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(BgmDefaultDirectorSoundtrackSystem));
-					simulationApplication.Data.Collection.GetOrCreate(typeof(LoadActiveBgmSystem));
+					simulationApplication.Schedule(() =>
+					{
+						simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemStart));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(ShoutDrumSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(OnNewBeatSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(BgmDefaultDirectorCommandSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(BgmDefaultDirectorSoundtrackSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(LoadActiveBgmSystem));
+					}, default);
 				}
 
 			global.Collection.GetOrCreate(typeof(BgmManager));

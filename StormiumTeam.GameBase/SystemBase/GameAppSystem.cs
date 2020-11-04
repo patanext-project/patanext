@@ -112,8 +112,8 @@ namespace StormiumTeam.GameBase.SystemBase
 			Span<ComponentType> convertedAll  = stackalloc ComponentType[b.All.Length + span.Length];
 			b.All.CopyTo(convertedAll);
 			
-			for (var i = b.All.Length - 1; i < span.Length; i++)
-				convertedAll[i] = GameWorld.AsComponentType(span[i]);
+			for (var i = 0; i < span.Length; i++)
+				convertedAll[b.All.Length + i] = GameWorld.AsComponentType(span[i]);
 			return CreateEntityQuery(convertedAll, b.None);
 		}
 
@@ -126,7 +126,7 @@ namespace StormiumTeam.GameBase.SystemBase
 			b.None.CopyTo(convertedNone);
 
 			for (var i = b.None.Length - 1; i < span.Length; i++)
-				convertedNone[i] = GameWorld.AsComponentType(span[i]);
+				convertedNone[b.None.Length + i] = GameWorld.AsComponentType(span[i]);
 			return CreateEntityQuery(b.All, convertedNone);
 		}
 	}

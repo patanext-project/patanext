@@ -35,7 +35,7 @@ namespace StormiumTeam.GameBase.GamePlay
 			foreach (var child in childQuery ??= CreateEntityQuery(new [] {typeof(Relative<TeamDescription>)}))
 			{
 				var team = GetComponentData<Relative<TeamDescription>>(child).Target;
-				if (!GameWorld.Contains(team))
+				if (!teamQuery.MatchAgainst(team))
 					throw new InvalidOperationException();
 				GameWorld.GetBuffer<TeamEntityContainer>(team).Add(new TeamEntityContainer(child));
 			}

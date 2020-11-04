@@ -9,12 +9,14 @@ using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
 using StormiumTeam.GameBase.GamePlay;
+using StormiumTeam.GameBase.GamePlay.HitBoxes;
 using StormiumTeam.GameBase.Network.MasterServer;
 using StormiumTeam.GameBase.Network.MasterServer.StandardAuthService;
 using StormiumTeam.GameBase.Network.MasterServer.User;
 using StormiumTeam.GameBase.Network.MasterServer.UserService;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Time;
+using StormiumTeam.GameBase.Time.Components;
 
 [assembly: RegisterAvailableModule("GameBase", "StormiumTeam", typeof(StormiumTeam.GameBase.Module))]
 
@@ -40,12 +42,16 @@ namespace StormiumTeam.GameBase
 						simulationApplication.Data.Collection.GetOrCreate(typeof(PhysicsSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(BuildTeamEntityContainerSystem));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(HitBoxAgainstEnemiesSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(RemoveEntityWithEndTimeSystem));
 					}, default);
 				}
 			}

@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using Collections.Pooled;
 using DefaultEcs;
+using GameHost.Core;
 using GameHost.Core.Ecs;
+using GameHost.Core.Threading;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
@@ -12,14 +15,18 @@ using GameHost.Simulation.Utility.Resource;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components.GamePlay;
 using PataNext.Module.Simulation.Components.Roles;
+using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Visuals;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay;
+using StormiumTeam.GameBase.GamePlay.HitBoxes;
+using StormiumTeam.GameBase.GamePlay.Projectiles;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
+using StormiumTeam.GameBase.Time.Components;
 using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.CoreAbilities.Server
@@ -31,8 +38,11 @@ namespace PataNext.CoreAbilities.Server
 
     public class SpearProjectileProvider : BaseProvider<(GameEntity owner, Vector3 pos, Vector3 vel, Vector3 gravity)>
     {
+        private PhysicsSystem physicsSystem;
+
         public SpearProjectileProvider(WorldCollection collection) : base(collection)
         {
+            DependencyResolver.Add(() => ref physicsSystem);
         }
 
         public override void GetComponents(PooledList<ComponentType> entityComponents)
@@ -44,87 +54,88 @@ namespace PataNext.CoreAbilities.Server
                 GameWorld.AsComponentType<EntityVisual>(),
                 GameWorld.AsComponentType<SpearProjectile>(),
                 GameWorld.AsComponentType<Position>(),
-                GameWorld.AsComponentType<Velocity>()
+                GameWorld.AsComponentType<Velocity>(),
+
+                GameWorld.AsComponentType<HitBox>(),
+                GameWorld.AsComponentType<HitBoxAgainstEnemies>(),
+                GameWorld.AsComponentType<HitBoxHistory>()
             });
         }
 
         public override void SetEntityData(GameEntity entity, (GameEntity owner, Vector3 pos, Vector3 vel, Vector3 gravity) args)
         {
+            EntityVisual visual = default;
+            
             GameWorld.GetComponentData<Owner>(entity)                   = new Owner(args.owner);
-            GameWorld.GetComponentData<EntityVisual>(entity)       = default;
+            GameWorld.GetComponentData<EntityVisual>(entity)            = visual;
             GameWorld.GetComponentData<SpearProjectile>(entity).Gravity = args.gravity;
             GameWorld.GetComponentData<Position>(entity).Value          = args.pos;
             GameWorld.GetComponentData<Velocity>(entity).Value          = args.vel;
+
+            GameWorld.GetComponentData<HitBox>(entity) = new HitBox(args.owner, 0);
+
+            if (GameWorld.HasComponent<Relative<TeamDescription>>(args.owner))
+            {
+                var team = GameWorld.GetComponentData<Relative<TeamDescription>>(args.owner);
+                GameWorld.AddComponent(entity, new HitBoxAgainstEnemies(team.Target));
+            }
+
+            physicsSystem.SetColliderShape(entity, new Sphere(0.1f));
         }
     }
 
+    [UpdateBefore(typeof(HitBoxAgainstEnemies))]
     public class SpearProjectileSystem : GameLoopAppSystem, IUpdateSimulationPass
     {
-        private PhysicsSystem     physicsSystem;
         private IManagedWorldTime worldTime;
+
+        private Scheduler postScheduler = new Scheduler();
 
         public SpearProjectileSystem(WorldCollection collection) : base(collection, false)
         {
-            DependencyResolver.Add(() => ref physicsSystem);
             DependencyResolver.Add(() => ref worldTime);
         }
-
-        private EntityQuery colliderQuery;
-        private Sphere      sphereCollider;
 
         protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
         {
             base.OnDependenciesResolved(dependencies);
 
-            colliderQuery  = CreateEntityQuery(new[] {typeof(PhysicsCollider), typeof(Position)});
-            sphereCollider = new Sphere(0.1f);
-
             Add((GameEntity ent, ref SpearProjectile proj, ref Position pos, ref Velocity vel) =>
             {
+                var dt = (float) worldTime.Delta.TotalSeconds;
+                vel.Value += proj.Gravity * dt;
                 pos.Value += vel.Value * (float) worldTime.Delta.TotalSeconds;
-                vel.Value += proj.Gravity * (float) worldTime.Delta.TotalSeconds;
-
-                var didCollide = pos.Value.Y <= 0; // ground may have a collidable or not, but we don't care
-                if (TryGetComponentData<Relative<TeamDescription>>(ent, out var teamRelative)
-                    && TryGetComponentBuffer<TeamEnemies>(teamRelative.Target, out var teamEnemies))
+                
+                var history = GetBuffer<HitBoxHistory>(ent);
+                if (history.Count > 0 || pos.Value.Y <= 0)
                 {
-                    foreach (var teamEnemy in teamEnemies)
-                    {
-                        if (!TryGetComponentBuffer<TeamEntityContainer>(teamEnemy.Team, out var container))
-                            continue;
-
-                        foreach (var entity in container)
-                        {
-                            if (!colliderQuery.MatchAgainst(entity.Value))
-                                continue;
-
-                            if (!physicsSystem.Sweep(entity.Value, sphereCollider, new RigidPose(pos.Value), new BodyVelocity(vel.Value), out var hit))
-                                continue;
-
-                            didCollide = true;
-                            break;
-                        }
-
-                        if (didCollide) // goto?
-                            break;
-                    }
+                    postScheduler.Schedule(onHit, (ent, worldTime.Total.Add(TimeSpan.FromSeconds(1))), default);
                 }
-
-                if (didCollide)
-                {
-                    LoopScheduler.Schedule(GameWorld.RemoveEntity, ent, default);
-                }
-
+                
                 return true;
+            }, CreateEntityQuery(none: new[] {typeof(ProjectileEndedTag)}));
+        }
+
+        private void onHit((GameEntity ent, TimeSpan time) args)
+        {
+            GameWorld.AddRemoveMultipleComponent(args.ent, stackalloc[]
+            {
+                AsComponentType<ProjectileEndedTag>(),
+                AsComponentType<ProjectileExplodedEndReason>()
+            }, stackalloc[]
+            {
+                AsComponentType<HitBox>()
             });
+            postScheduler.Schedule(GameWorld.RemoveEntity, args.ent, default);
         }
 
         private EntityQuery entityWithoutBuffer;
 
         public void OnSimulationUpdate()
         {
-            colliderQuery.CheckForNewArchetypes();
             RunExecutors();
+            
+            postScheduler.Run();
         }
     }
 }

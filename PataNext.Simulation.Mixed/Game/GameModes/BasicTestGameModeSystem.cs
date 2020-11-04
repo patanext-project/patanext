@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
+using BepuPhysics;
+using BepuPhysics.Collidables;
 using BepuUtilities;
+using BepuUtilities.Memory;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
@@ -18,6 +22,8 @@ using PataNext.Module.Simulation.Systems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Camera.Components;
+using StormiumTeam.GameBase.GamePlay;
+using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Transform.Components;
@@ -37,6 +43,8 @@ namespace PataNext.Module.Simulation.GameModes
 		private PlayableUnitProvider    playableUnitProvider;
 		private AbilityCollectionSystem abilityCollectionSystem;
 
+		private PhysicsSystem physicsSystem;
+
 		public BasicTestGameModeSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref resPathGen);
@@ -44,6 +52,7 @@ namespace PataNext.Module.Simulation.GameModes
 
 			DependencyResolver.Add(() => ref playableUnitProvider);
 			DependencyResolver.Add(() => ref abilityCollectionSystem);
+			DependencyResolver.Add(() => ref physicsSystem);
 
 			DependencyResolver.Add(() => ref localKitDb);
 			DependencyResolver.Add(() => ref localArchetypeDb);
@@ -66,6 +75,25 @@ namespace PataNext.Module.Simulation.GameModes
 			{
 				await Task.Yield();
 			}
+
+			var playerEntity = GameWorld.CreateEntity();
+			GameWorld.AddComponent(playerEntity, new PlayerDescription());
+			GameWorld.AddComponent(playerEntity, new GameRhythmInputComponent());
+			GameWorld.AddComponent(playerEntity, new PlayerIsLocal());
+
+			var rhythmEngine = GameWorld.CreateEntity();
+			GameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
+			GameWorld.AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(2))});
+			GameWorld.AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
+			GameWorld.AddComponent(rhythmEngine, new RhythmEngineLocalState());
+			GameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
+			GameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(playerEntity));
+			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>());
+			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
+			GameWorld.AddComponent(rhythmEngine, new GameCommandState());
+			GameWorld.AddComponent(rhythmEngine, new IsSimulationOwned());
+			GameCombo.AddToEntity(GameWorld, rhythmEngine);
+			RhythmSummonEnergy.AddToEntity(GameWorld, rhythmEngine);
 
 			var entities = SpawnArmy(new[]
 			{
@@ -97,15 +125,51 @@ namespace PataNext.Module.Simulation.GameModes
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer))
 				}, -3f)
-			});
+			}, playerEntity, rhythmEngine, out var thisTarget, -10);
+			AddComponent(thisTarget, new Relative<PlayerDescription>(playerEntity));
+
+			var enemies = SpawnArmy(new[]
+			{
+				(new[]
+				{
+					(true, resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer))
+				}, 0f)
+			}, default, rhythmEngine, out var enemyTarget);
+
+			var team = CreateEntity();
+			AddComponent(team, new TeamDescription());
+			GameWorld.AddBuffer<TeamAllies>(team);
+			GameWorld.AddBuffer<TeamEntityContainer>(team);
+			var enemyBuffer = GameWorld.AddBuffer<TeamEnemies>(team);
+
+			var enemyTeam = CreateEntity();
+			AddComponent(enemyTeam, new TeamDescription());
+			GameWorld.AddBuffer<TeamAllies>(enemyTeam);
+			GameWorld.AddBuffer<TeamEntityContainer>(enemyTeam);
+
+			var simpleCollidable = enemies[0][0];
+			AddComponent(simpleCollidable, new Relative<TeamDescription>(enemyTeam));
+
+			physicsSystem.BufferPool.Take(1, out Buffer<CompoundChild> b);
+			b[0] = new CompoundChild
+			{
+				ShapeIndex = physicsSystem.Simulation.Shapes.Add(new Box(1, 1.5f, 1)),
+				LocalPose  = new RigidPose(new Vector3(0, 0.75f, 0))
+			};
+
+			physicsSystem.SetColliderShape(simpleCollidable, new Compound(b));
+
+			enemyBuffer.Add(new TeamEnemies(enemyTeam));
 
 			for (var army = 0; army < entities.Length; army++)
 			{
 				var unitArray = entities[army];
 				foreach (var unit in unitArray)
 				{
+					AddComponent(unit, new Relative<TeamDescription>(team));
+
 					abilityCollectionSystem.SpawnFor("march", unit);
-					abilityCollectionSystem.SpawnFor("backward", unit); 
+					abilityCollectionSystem.SpawnFor("backward", unit);
 					abilityCollectionSystem.SpawnFor("retreat", unit);
 					abilityCollectionSystem.SpawnFor("jump", unit);
 					abilityCollectionSystem.SpawnFor("party", unit, jsonData: new {disableEnergy = army != 0});
@@ -116,7 +180,7 @@ namespace PataNext.Module.Simulation.GameModes
 					{
 						// it's kinda a special case
 						GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("taterazay"))));
-						
+
 						displayedEquip.Add(new UnitDisplayedEquipment
 						{
 							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
@@ -132,15 +196,17 @@ namespace PataNext.Module.Simulation.GameModes
 							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
 							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "swords", "default_sword"}, ResPath.EType.ClientResource))
 						});
-						
+
 						abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
 						abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);
 						abilityCollectionSystem.SpawnFor("CTate.EnergyField", unit);
+						
+						abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "tate", "def_atk"}, ResPath.EType.MasterServer), unit);
 					}
 					else
 					{
 						GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("yarida"))));
-						
+
 						displayedEquip.Add(new UnitDisplayedEquipment
 						{
 							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
@@ -151,38 +217,18 @@ namespace PataNext.Module.Simulation.GameModes
 							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "helmet"}, ResPath.EType.MasterServer)),
 							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "helmets", "default_helmet:small"}, ResPath.EType.ClientResource))
 						});
-						
-						abilityCollectionSystem.SpawnFor(resPathGen.Create(new [] {"ability", "yari", "def_atk"}, ResPath.EType.MasterServer), unit);
+
+						abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "yari", "def_atk"}, ResPath.EType.MasterServer), unit);
 					}
 				}
 			}
 		}
 
-		private GameEntity[][] SpawnArmy(((bool isLeader, string archetype)[] args, float armyPos)[] array, float spawnPosition = 0)
+		private GameEntity[][] SpawnArmy(((bool isLeader, string archetype)[] args, float armyPos)[] array, in GameEntity player, in GameEntity rhythmEngine, out GameEntity unitTarget, float spawnPosition = 0)
 		{
-			var playerEntity = GameWorld.CreateEntity();
-			GameWorld.AddComponent(playerEntity, new PlayerDescription());
-			GameWorld.AddComponent(playerEntity, new GameRhythmInputComponent());
-			GameWorld.AddComponent(playerEntity, new PlayerIsLocal());
-
-			var unitTarget = GameWorld.CreateEntity();
+			unitTarget = GameWorld.CreateEntity();
 			GameWorld.AddComponent(unitTarget, new UnitTargetDescription());
 			GameWorld.AddComponent(unitTarget, new Position());
-			GameWorld.AddComponent(unitTarget, new Relative<PlayerDescription>(playerEntity));
-
-			var rhythmEngine = GameWorld.CreateEntity();
-			GameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
-			GameWorld.AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(2))});
-			GameWorld.AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
-			GameWorld.AddComponent(rhythmEngine, new RhythmEngineLocalState());
-			GameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
-			GameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(playerEntity));
-			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>());
-			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
-			GameWorld.AddComponent(rhythmEngine, new GameCommandState());
-			GameWorld.AddComponent(rhythmEngine, new IsSimulationOwned());
-			GameCombo.AddToEntity(GameWorld, rhythmEngine);
-			RhythmSummonEnergy.AddToEntity(GameWorld, rhythmEngine);
 
 			GameWorld.GetComponentData<Position>(unitTarget).Value.X = spawnPosition;
 
@@ -198,7 +244,7 @@ namespace PataNext.Module.Simulation.GameModes
 						{
 							BaseWalkSpeed       = 2,
 							FeverWalkSpeed      = 2.2f,
-							MovementAttackSpeed = 3.1f,
+							MovementAttackSpeed = 2.2f,
 							Weight              = 8.5f,
 							AttackSpeed         = 2f,
 						},
@@ -207,9 +253,12 @@ namespace PataNext.Module.Simulation.GameModes
 
 					GameWorld.AddComponent(unit, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResource(array[army].args[u].archetype))));
 
-					GameWorld.AddComponent(unit, new Relative<PlayerDescription>(playerEntity));
 					GameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
-					GameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
+
+					if (player != default)
+						GameWorld.AddComponent(unit, new Relative<PlayerDescription>(player));
+					if (rhythmEngine != default)
+						GameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
 
 					GameWorld.AddComponent(unit, new UnitEnemySeekingState());
 					GameWorld.AddComponent(unit, new UnitTargetOffset
@@ -226,15 +275,17 @@ namespace PataNext.Module.Simulation.GameModes
 					{
 						GameWorld.AddComponent(unit, new UnitTargetControlTag());
 						GameWorld.AddComponent(unit, new UnitTargetOffset());
-						GameWorld.AddComponent(playerEntity, new ServerCameraState
-						{
-							Data =
+
+						if (player != default)
+							GameWorld.AddComponent(player, new ServerCameraState
 							{
-								Mode   = CameraMode.Forced,
-								Offset = RigidTransform.Identity,
-								Target = unit
-							}
-						});
+								Data =
+								{
+									Mode   = CameraMode.Forced,
+									Offset = RigidTransform.Identity,
+									Target = unit
+								}
+							});
 					}
 
 					result[army][u] = unit;

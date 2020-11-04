@@ -1,4 +1,5 @@
-﻿using GameHost.Simulation.TabEcs.Interfaces;
+﻿using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.Resource;
 using PataNext.Module.Simulation.Components.GamePlay;
 
@@ -33,6 +34,11 @@ namespace PataNext.Module.Simulation.Game.Visuals
 		{
 			Resource       = resource;
 			ClientPriority = clientPriority;
+		}
+
+		public class Register : RegisterGameHostComponentData<EntityVisual>
+		{
+
 		}
 	}
 }

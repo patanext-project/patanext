@@ -33,8 +33,12 @@ namespace PataNext.Game
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
-					foreach (var type in systems)
-						simulationApplication.Data.Collection.GetOrCreate(type);
+					simulationApplication.Schedule(() =>
+					{
+						;
+						foreach (var type in systems)
+							simulationApplication.Data.Collection.GetOrCreate(type);
+					}, default);
 				}
 			}
 		}

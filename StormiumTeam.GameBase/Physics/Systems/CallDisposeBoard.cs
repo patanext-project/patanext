@@ -21,8 +21,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 			var currValue = Read<TypedIndex>(row);
 			if (!currValue.Exists)
 				throw new InvalidOperationException("this should not happen");
-
-			Console.WriteLine("disposed!");
+			
 			physicsSystem.Simulation.Shapes.RecursivelyRemoveAndDispose(currValue, physicsSystem.BufferPool);
 			return true;
 		}
