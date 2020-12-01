@@ -27,7 +27,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 	}
 
 	public abstract class BaseRuntimeRhythmAbilityProvider<T> : BaseRhythmAbilityProvider<T>, IRuntimeAbilityProvider
-		where T : struct, IEntityComponent
+		where T : struct, IComponentData
 	{
 		private IScheduler  scheduler;
 		private GlobalWorld globalWorld;
@@ -54,26 +54,26 @@ namespace PataNext.Module.Simulation.BaseSystems
 		private ScriptRunner   scriptRunner;
 		private StorageWatcher watcher;
 
-		private void SetupWarning(GameEntity   self)
+		private void SetupWarning(GameEntity self)
 		{
 			//logger.ZLogWarning("Setup function should have been replaced!");
 		}
 
-		private void ExecuteWarning(GameEntity owner, GameEntity self, AbilityState state)
+		private void ExecuteWarning(GameEntity owner, GameEntity self, ref AbilityState state)
 		{
 			//logger.ZLogWarning("Execute function should have been replaced!");
 		}
 
 		private SetupExecutableAbility.Func setupWarning;
-		private ExecutableAbility.Func executeWarning;
-		
+		private ExecutableAbility.Func      executeWarning;
+
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			global = GameWorld.CreateEntity();
-			GameWorld.AddComponent(global, new SetupExecutableAbility(setupWarning ??= SetupWarning));
-			GameWorld.AddComponent(global, new ExecutableAbility(executeWarning ??= ExecuteWarning));
+			global = GameWorld.Safe(GameWorld.CreateEntity());
+			GameWorld.AddComponent(global.Handle, new SetupExecutableAbility(setupWarning ??= SetupWarning));
+			GameWorld.AddComponent(global.Handle, new ExecutableAbility(executeWarning    ??= ExecuteWarning));
 
 			var def = CreateDefaultScriptObject();
 			if (CurrentScriptObject is not null
@@ -102,11 +102,11 @@ namespace PataNext.Module.Simulation.BaseSystems
 			}, TaskContinuationOptions.OnlyOnRanToCompletion);
 		}
 
-		public override void SetEntityData(GameEntity entity, CreateAbility data)
+		public override void SetEntityData(GameEntityHandle entity, CreateAbility data)
 		{
 			base.SetEntityData(entity, data);
 
-			GameWorld.AssignComponent(entity, GameWorld.GetComponentReference<ExecutableAbility>(global));
+			GameWorld.AssignComponent(entity, GameWorld.GetComponentReference<ExecutableAbility>(global.Handle));
 		}
 
 		private void LoadScript(byte[] data)
@@ -135,9 +135,9 @@ namespace PataNext.Module.Simulation.BaseSystems
 			}
 
 			IsScriptDisposable = disposeAtNextSet;
-			
-			GameWorld.UpdateOwnedComponent(global, new SetupExecutableAbility(setupWarning ??= SetupWarning));
-			GameWorld.UpdateOwnedComponent(global, new ExecutableAbility(executeWarning ??= ExecuteWarning));
+
+			GameWorld.UpdateOwnedComponent(global.Handle, new SetupExecutableAbility(setupWarning ??= SetupWarning));
+			GameWorld.UpdateOwnedComponent(global.Handle, new ExecutableAbility(executeWarning    ??= ExecuteWarning));
 
 			CurrentScriptObject = script;
 			if (CurrentScriptObject != null)

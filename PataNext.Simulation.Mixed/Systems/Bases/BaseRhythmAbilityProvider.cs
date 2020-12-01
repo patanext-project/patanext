@@ -15,6 +15,8 @@ using GameHost.Simulation.Application;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
@@ -140,7 +142,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 	}
 
 	public abstract class BaseRhythmAbilityProvider<TAbility> : BaseRhythmAbilityProvider
-		where TAbility : struct, IEntityComponent
+		where TAbility : struct, IComponentData
 	{
 		protected virtual string FilePathPrefix => string.Empty;
 
@@ -179,7 +181,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 				return folder;
 			}
 		}
-		
+
 		protected virtual string FilePath => $"{FolderPath}\\{typeof(TAbility).Name.Replace("Ability", string.Empty)}";
 
 		protected BaseRhythmAbilityProvider(WorldCollection collection) : base(collection)
@@ -194,7 +196,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-			
+
 			foreach (var file in abilityStorage.GetFilesAsync(FilePath + ".json").Result)
 			{
 				configuration = Encoding.UTF8.GetString(file.GetContentAsync().Result);
@@ -210,6 +212,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 					if (prop.TryGetProperty(nameof(Resources.HeroModeActivationSound), out var heroModeProp))
 						resources.HeroModeActivationSound = heroModeProp.GetString();
 				}
+
 				if (document.RootElement.TryGetProperty("config", out prop))
 				{
 					ReadConfiguration(prop);
@@ -217,9 +220,17 @@ namespace PataNext.Module.Simulation.BaseSystems
 			}
 		}
 
+		public TAbility DefaultConfiguration { get; protected set; }
+
 		protected virtual void ReadConfiguration(JsonElement jsonElement)
 		{
+			var original = JObject.FromObject(DefaultConfiguration);
+			original.Merge(jsonElement.GetRawText(), new JsonMergeSettings
+			{
+				MergeArrayHandling = MergeArrayHandling.Union
+			});
 
+			DefaultConfiguration = JsonConvert.DeserializeObject<TAbility>(original.ToString());
 		}
 
 		public override void GetComponents(PooledList<ComponentType> entityComponents)
@@ -253,7 +264,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 				});
 		}
 
-		public override void SetEntityData(GameEntity entity, CreateAbility data)
+		public override void SetEntityData(GameEntityHandle entity, CreateAbility data)
 		{
 			var combos = new FixedBuffer32<GameEntity>();
 
@@ -278,10 +289,12 @@ namespace PataNext.Module.Simulation.BaseSystems
 			}
 
 			GameWorld.GetComponentData<Owner>(entity) = new Owner(data.Owner);
-			GameWorld.Link(entity, data.Owner, true);
+			GameWorld.Link(entity, data.Owner.Handle, true);
 
 			if (MasterServerId != null)
 				GameWorld.GetComponentData<NamedAbilityId>(entity) = new NamedAbilityId(MasterServerId);
+
+			GameWorld.GetComponentData<TAbility>(entity) = DefaultConfiguration;
 
 			if (UseStatsModification)
 			{

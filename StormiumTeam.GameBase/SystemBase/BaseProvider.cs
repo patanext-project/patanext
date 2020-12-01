@@ -28,13 +28,13 @@ namespace StormiumTeam.GameBase.SystemBase
 
 		public abstract void GetComponents(PooledList<ComponentType> entityComponents);
 
-		public abstract void SetEntityData(GameEntity entity, TCreateData data);
+		public abstract void SetEntityData(GameEntityHandle entity, TCreateData data);
 
-		public virtual void SpawnBatchEntitiesWithArguments(Span<TCreateData> array, Span<GameEntity> outputEntities)
+		public virtual void SpawnBatchEntitiesWithArguments(Span<TCreateData> array, Span<GameEntityHandle> outputEntities)
 		{
 			if (componentTypes.Count == 0)
 				throw new InvalidOperationException("Invalid Provider (0 components)");
-			
+
 			GameWorld.CreateEntityBulk(outputEntities);
 			for (var i = 0; i != outputEntities.Length; i++)
 			{
@@ -43,14 +43,14 @@ namespace StormiumTeam.GameBase.SystemBase
 			}
 		}
 
-		public virtual GameEntity SpawnEntityWithArguments(TCreateData data)
+		public virtual GameEntityHandle SpawnEntityWithArguments(TCreateData data)
 		{
-			GameEntity output = default;
+			GameEntityHandle output = default;
 			SpawnBatchEntitiesWithArguments(MemoryMarshal.CreateSpan(ref data, 1), MemoryMarshal.CreateSpan(ref output, 1));
 			return output;
 		}
 
-		public void SpawnAndForget(TCreateData data) 
+		public void SpawnAndForget(TCreateData data)
 		{
 			SpawnEntityWithArguments(data);
 		}

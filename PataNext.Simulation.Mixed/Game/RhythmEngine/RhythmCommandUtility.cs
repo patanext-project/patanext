@@ -100,9 +100,9 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 			return SameAsSequence(commandTarget, computedSpan, beatInterval);
 		}
 
-		public static void GetCommand<TCommandList, TOutputEntityList>(GameWorld    gameWorld,        Span<GameEntity>  entities,
-		                                                               TCommandList executingCommand, TOutputEntityList commandsOutput,
-		                                                               bool         isPredicted,      TimeSpan          beatInterval)
+		public static void GetCommand<TCommandList, TOutputEntityList>(GameWorld    gameWorld,        Span<GameEntityHandle> entities,
+		                                                               TCommandList executingCommand, TOutputEntityList      commandsOutput,
+		                                                               bool         isPredicted,      TimeSpan               beatInterval)
 			where TCommandList : IList<FlowPressure>
 			where TOutputEntityList : IList<GameResource<RhythmCommandResource>>
 		{
@@ -117,12 +117,12 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 				var actionBuffer = gameWorld.GetBuffer<RhythmCommandActionBuffer>(entity).Reinterpret<RhythmCommandAction>();
 				if (!isPredicted && SameAsSequence(actionBuffer, computedSpan, beatInterval))
 				{
-					commandsOutput.Add(new GameResource<RhythmCommandResource>(entity));
+					commandsOutput.Add(new GameResource<RhythmCommandResource>(gameWorld.Safe(entity)));
 					return;
 				}
 
 				if (isPredicted && CanBePredicted(actionBuffer, executingCommand, beatInterval))
-					commandsOutput.Add(new GameResource<RhythmCommandResource>(entity));
+					commandsOutput.Add(new GameResource<RhythmCommandResource>(gameWorld.Safe(entity)));
 			}
 		}
 	}

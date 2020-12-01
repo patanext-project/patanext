@@ -64,6 +64,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 			{
 				ref var          ability = ref GetComponentData<DefaultJumpAbility>(entity);
 				ref readonly var state   = ref GetComponentData<AbilityState>(entity);
+				ref readonly var playState   = ref GetComponentData<UnitPlayState>(entity);
 				ref readonly var owner   = ref GetComponentData<Owner>(entity).Target;
 
 				if (state.ActivationVersion != ability.LastActiveId)
@@ -97,7 +98,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 					velocity.Y = Math.Max(velocity.Y - 60 * dt, 0);
 
 				if (ability.ActiveTime < 3.25f)
-					velocity.X = MathUtils.LerpNormalized(velocity.X, 0, dt * (ability.ActiveTime + 1));
+					velocity.X = MathUtils.LerpNormalized(velocity.X, 0, dt * (ability.ActiveTime + 1) * Math.Max(0, 1 + playState.Weight * 0.1f));
 
 				if (!ability.IsJumping && velocity.Y > 0)
 				{

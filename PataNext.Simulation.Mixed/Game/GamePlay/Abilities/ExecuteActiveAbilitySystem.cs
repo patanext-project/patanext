@@ -38,7 +38,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				typeof(SetupExecutableAbility)
 			}))
 			{
-				setupAccessor[entity].Function(entity);
+				setupAccessor[entity].Function(Safe(entity));
 			}
 
 			var ownerActiveAbilityAccessor = GetAccessor<OwnerActiveAbility>();
@@ -56,13 +56,13 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 					TryInvoke(entity, ownerActiveAbility.PreviousActive, in executableAccessor);
 					TryInvoke(entity, ownerActiveAbility.Active, in executableAccessor);
 					if (ownerActiveAbility.PreviousActive != ownerActiveAbility.Incoming
-						&& ownerActiveAbility.Active != ownerActiveAbility.Incoming)
+					    && ownerActiveAbility.Active != ownerActiveAbility.Incoming)
 						TryInvoke(entity, ownerActiveAbility.Incoming, in executableAccessor);
 				}
 				else
 				{
 					TryInvoke(entity, ownerActiveAbility.Active, in executableAccessor);
-						if (ownerActiveAbility.Active != ownerActiveAbility.Incoming)
+					if (ownerActiveAbility.Active != ownerActiveAbility.Incoming)
 						TryInvoke(entity, ownerActiveAbility.Incoming, in executableAccessor);
 				}
 			}
@@ -70,10 +70,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			Post.Run();
 		}
 
-		private void TryInvoke(GameEntity owner, GameEntity ability, in ComponentDataAccessor<ExecutableAbility> accessor)
+		private void TryInvoke(GameEntityHandle owner, GameEntity ability, in ComponentDataAccessor<ExecutableAbility> accessor)
 		{
-			if (abilityMaskQuery.MatchAgainst(ability))
-				accessor[ability].Function?.Invoke(owner, ability, GetComponentData<AbilityState>(ability));
+			if (abilityMaskQuery.MatchAgainst(ability.Handle))
+				accessor[ability.Handle].Function?.Invoke(Safe(owner), ability, ref GetComponentData<AbilityState>(ability.Handle));
 		}
 	}
 }

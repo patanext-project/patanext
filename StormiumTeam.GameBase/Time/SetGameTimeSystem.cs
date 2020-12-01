@@ -20,7 +20,7 @@ namespace StormiumTeam.GameBase.Time
 			DependencyResolver.Add(() => ref managedWorldTime);
 		}
 
-		private GameEntity timeEntity;
+		private GameEntityHandle timeEntity;
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
@@ -29,13 +29,13 @@ namespace StormiumTeam.GameBase.Time
 			timeEntity = GameWorld.CreateEntity();
 			GameWorld.AddComponent<GameTime>(timeEntity);
 		}
-		
+
 		public void OnBeforeSimulationUpdate()
 		{
 			ref var gameTime = ref GameWorld.GetComponentData<GameTime>(timeEntity);
 			gameTime.Frame++;
 			gameTime.Delta   = (float) managedWorldTime.Delta.TotalSeconds;
-			gameTime.Elapsed = managedWorldTime.Total.TotalSeconds;	
+			gameTime.Elapsed = managedWorldTime.Total.TotalSeconds;
 		}
 	}
 }

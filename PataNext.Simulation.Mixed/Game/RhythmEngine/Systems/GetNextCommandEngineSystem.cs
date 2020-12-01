@@ -24,7 +24,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 
 		public override void OnRhythmEngineSimulationPass()
 		{
-			var commandSetBuffer = new FixedBuffer128<GameEntity>();
+			var commandSetBuffer = new FixedBuffer128<GameEntityHandle>();
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
 			{
 				GameWorld.AsComponentType<RhythmCommandResource>(),
@@ -87,7 +87,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				executingCommand.CommandTarget       = output[0];
 				executingCommand.ActivationBeatStart = targetBeat;
 				
-				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executingCommand.CommandTarget.Entity);
+				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executingCommand.CommandTarget.Handle);
 				var beatDuration         = 0;
 				foreach (var element in targetResourceBuffer.Span)
 					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + 1 + element.Value.Beat.Offset + element.Value.Beat.SliderLength));

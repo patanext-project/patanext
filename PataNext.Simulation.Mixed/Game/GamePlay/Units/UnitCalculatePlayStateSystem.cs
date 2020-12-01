@@ -1,4 +1,5 @@
-﻿using GameHost.Core.Ecs;
+﻿using System;
+using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
@@ -13,14 +14,14 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 	{
 		public UnitCalculatePlayStateSystem(WorldCollection collection) : base(collection, false)
 		{
-			Add((GameEntity entity, ref UnitPlayState state, ref UnitStatistics original) =>
+			Add((GameEntityHandle entity, ref UnitPlayState state, ref UnitStatistics original) =>
 			{
 				GameCombo.State    comboState    = default;
 				GameCombo.Settings comboSettings = default;
 				if (TryGetComponentData(entity, out Relative<RhythmEngineDescription> engineRelative))
 				{
-					comboState    = GetComponentData<GameCombo.State>(engineRelative.Target);
-					comboSettings = GetComponentData<GameCombo.Settings>(engineRelative.Target);
+					comboState    = GetComponentData<GameCombo.State>(engineRelative.Handle);
+					comboSettings = GetComponentData<GameCombo.Settings>(engineRelative.Handle);
 				}
 
 				state.MovementSpeed       = comboSettings.CanEnterFever(comboState) ? original.FeverWalkSpeed : original.BaseWalkSpeed;

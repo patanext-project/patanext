@@ -61,7 +61,7 @@ namespace StormiumTeam.GameBase.SystemBase
 			executors.Add(executor);
 		}
 
-		protected void Add(Action<GameEntity> action, EntityQuery query)
+		protected void Add(Action<GameEntityHandle> action, EntityQuery query)
 		{
 			Add(new ForEachExecutorEntity {Action = action, Query = query});
 		}
@@ -113,8 +113,8 @@ namespace StormiumTeam.GameBase.SystemBase
 	
 	public class ForEachExecutorEntity : ForEachExecutor
 	{
-		public Action<GameEntity> Action;
-		public EntityQuery    Query;
+		public Action<GameEntityHandle> Action;
+		public EntityQuery              Query;
 		
 		public override void Run()
 		{
@@ -137,7 +137,7 @@ namespace StormiumTeam.GameBase.SystemBase
 	public class ForEachExecutorEntity<T1> : ForEachExecutor 
 		where T1 : struct, IComponentData
 	{
-		public delegate bool Func(GameEntity entity, ref T1 t1);
+		public delegate bool Func(GameEntityHandle entity, ref T1 t1);
 		
 		public GameLoopAppSystem Inner;
 		public Func              Action;
@@ -158,7 +158,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		where T1 : struct, IComponentData
 		where T2 : struct, IComponentData
 	{
-		public delegate bool Func(GameEntity entity, ref T1 t1, ref T2 t2);
+		public delegate bool Func(GameEntityHandle entity, ref T1 t1, ref T2 t2);
 		
 		public GameLoopAppSystem Inner;
 		public Func              Action;
@@ -181,7 +181,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		where T2 : struct, IComponentData
 		where T3 : struct, IComponentData
 	{
-		public delegate bool Func(GameEntity entity, ref T1 t1, ref T2 t2, ref T3 t3);
+		public delegate bool Func(GameEntityHandle entity, ref T1 t1, ref T2 t2, ref T3 t3);
 		
 		public GameLoopAppSystem Inner;
 		public Func              Action;

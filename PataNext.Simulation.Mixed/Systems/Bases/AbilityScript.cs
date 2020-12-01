@@ -26,8 +26,8 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 		internal void Init(GameEntity global)
 		{
-			GameWorld.UpdateOwnedComponent(global, new SetupExecutableAbility(setup ??= Setup));
-			GameWorld.UpdateOwnedComponent(global, new ExecutableAbility(execute    ??= Execute));
+			GameWorld.UpdateOwnedComponent(global.Handle, new SetupExecutableAbility(setup ??= Setup));
+			GameWorld.UpdateOwnedComponent(global.Handle, new ExecutableAbility(execute    ??= Execute));
 
 			lastGlobal = global;
 		}
@@ -39,15 +39,15 @@ namespace PataNext.Module.Simulation.BaseSystems
 			OnSetup(self);
 		}
 
-		private void Execute(GameEntity owner, GameEntity self, AbilityState state)
+		private void Execute(GameEntity owner, GameEntity self, ref AbilityState state)
 		{
 			if (DependencyResolver.Dependencies.Count > 0)
 				return;
-			OnExecute(owner, self, state);
+			OnExecute(owner, self, ref state);
 		}
 
 		protected abstract void OnSetup(GameEntity   self);
-		protected abstract void OnExecute(GameEntity owner, GameEntity self, AbilityState state);
+		protected abstract void OnExecute(GameEntity owner, GameEntity self, ref AbilityState state);
 
 		public override void Dispose()
 		{

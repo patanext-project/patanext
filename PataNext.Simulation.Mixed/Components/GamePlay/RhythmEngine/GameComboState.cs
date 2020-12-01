@@ -6,7 +6,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 {
 	public static class GameCombo
 	{
-		public static void AddToEntity(GameWorld gameWorld, GameEntity entity)
+		public static void AddToEntity(GameWorld gameWorld, GameEntityHandle entity)
 		{
 			gameWorld.AddComponent(entity, new Settings {MaxComboToReachFever = 9, RequiredScoreStart = 4.0f, RequiredScoreStep = 0.5f});
 			gameWorld.AddComponent(entity, new State());

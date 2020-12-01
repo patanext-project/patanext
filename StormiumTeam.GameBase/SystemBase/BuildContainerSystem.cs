@@ -16,12 +16,12 @@ namespace StormiumTeam.GameBase.SystemBase
 		}
 
 		private EntityQuery ownerQuery, childQuery;
-		
+
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-			
-			ownerQuery = CreateEntityQuery(stackalloc []
+
+			ownerQuery = CreateEntityQuery(stackalloc[]
 			{
 				GameWorld.AsComponentType<OwnedRelative<TDescription>>()
 			});
@@ -43,16 +43,17 @@ namespace StormiumTeam.GameBase.SystemBase
 
 		public void ForceUpdate()
 		{
-			// We could actually get the buffer Componentboard for more linear performance
+			var bufferAccessor = GetBufferAccessor<OwnedRelative<TDescription>>();
 			foreach (var owner in ownerQuery.GetEnumerator())
-				GameWorld.GetBuffer<OwnedRelative<TDescription>>(owner).Clear();
+				bufferAccessor[owner].Clear();
 
 			foreach (var child in childQuery.GetEnumerator())
 			{
 				var owner = GetComponentData<Owner>(child).Target;
-				if (!GameWorld.Contains(owner))
-					throw new InvalidOperationException();
-				GameWorld.GetBuffer<OwnedRelative<TDescription>>(owner).Add(new OwnedRelative<TDescription>(child));
+				if (!ownerQuery.MatchAgainst(owner.Handle))
+					continue;
+
+				bufferAccessor[owner.Handle].Add(new OwnedRelative<TDescription>(Safe(child)));
 			}
 		}
 	}

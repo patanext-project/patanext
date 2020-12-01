@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Numerics;
 using System.Text.Json;
+using BepuPhysics.Collidables;
+using Collections.Pooled;
+using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using Newtonsoft.Json;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.GamePlay.HitBoxes;
+using StormiumTeam.GameBase.Physics.Systems;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.CoreAbilities.Mixed.CTate
 {
@@ -21,37 +27,45 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 
 	public class TaterazayBasicAttackAbilityProvider : BaseRuntimeRhythmAbilityProvider<TaterazayBasicAttackAbility>
 	{
+		private PhysicsSystem physicsSystem;
+
 		public TaterazayBasicAttackAbilityProvider(WorldCollection collection) : base(collection)
 		{
+			DefaultConfiguration = new TaterazayBasicAttackAbility
+			{
+				DelayBeforeAttack = TimeSpan.FromSeconds(0.15),
+				PauseAfterAttack  = TimeSpan.FromSeconds(0.5f)
+			};
+
+			DependencyResolver.Add(() => ref physicsSystem);
 		}
 
 		protected override string FilePathPrefix => "tate";
-		public override    string MasterServerId => resPath.Create(new [] {"ability", "tate", "def_atk"}, ResPath.EType.MasterServer);
-		
+		public override    string MasterServerId => resPath.Create(new[] {"ability", "tate", "def_atk"}, ResPath.EType.MasterServer);
+
 		public override ComponentType GetChainingCommand()
 		{
 			return GameWorld.AsComponentType<AttackCommand>();
 		}
-		
-		private TimeSpan attackDelay = TimeSpan.FromSeconds(0.15);
 
-		protected override void ReadConfiguration(JsonElement jsonElement)
+		public override void GetComponents(PooledList<ComponentType> entityComponents)
 		{
-			if (jsonElement.TryGetProperty("attackDelay", out var throwDelayProp))
-				attackDelay = TimeSpan.FromSeconds(throwDelayProp.GetDouble());
+			base.GetComponents(entityComponents);
+
+			// Needed for Hitbox
+			entityComponents.AddRange(new[]
+			{
+				GameWorld.AsComponentType<Position>(),
+				GameWorld.AsComponentType<HitBoxAgainstEnemies>(),
+				GameWorld.AsComponentType<HitBoxHistory>(),
+			});
 		}
 
 		public override void SetEntityData(GameEntity entity, CreateAbility data)
 		{
 			base.SetEntityData(entity, data);
 
-			GameWorld.GetComponentData<TaterazayBasicAttackAbility>(entity) = new TaterazayBasicAttackAbility
-			{ 
-				DelayBeforeAttack = TimeSpan.FromSeconds(Math.Max(
-					attackDelay.TotalSeconds, (ProvidedJson == null ? 0 : JsonConvert.DeserializeAnonymousType(ProvidedJson, new {throwDelay = 0.0}).throwDelay)
-				)),
-				PauseAfterAttack = TimeSpan.FromSeconds(0.5f)
-			};
+			physicsSystem.SetColliderShape(entity, new Sphere(3));
 		}
 	}
 }

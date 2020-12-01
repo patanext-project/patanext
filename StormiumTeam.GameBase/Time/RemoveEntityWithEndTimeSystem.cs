@@ -10,7 +10,7 @@ using StormiumTeam.GameBase.Time.Components;
 
 namespace StormiumTeam.GameBase.Time
 {
-	public class RemoveEntityWithEndTimeSystem : GameAppSystem, IPostUpdateSimulationPass
+	public class RemoveEntityWithEndTimeSystem : GameAppSystem, IPreUpdateSimulationPass
 	{
 		private IManagedWorldTime worldTime;
 
@@ -19,10 +19,10 @@ namespace StormiumTeam.GameBase.Time
 			DependencyResolver.Add(() => ref worldTime);
 		}
 
-		private EntityQuery            entityQuery;
-		private PooledList<GameEntity> toRemove = new();
+		private EntityQuery                  entityQuery;
+		private PooledList<GameEntityHandle> toRemove = new();
 
-		public void OnAfterSimulationUpdate()
+		public void OnBeforeSimulationUpdate()
 		{
 			toRemove.Clear();
 

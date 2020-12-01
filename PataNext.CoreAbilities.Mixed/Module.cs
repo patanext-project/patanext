@@ -50,13 +50,22 @@ namespace PataNext.CoreAbilities.Mixed
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilityProvider));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilitySystem));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayCounterAbilityProvider));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilityProvider));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilitySystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicAttackAbilityProvider));
 						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CGuard.GuardiraBasicDefendAbilityProvider));
+						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaBasicAttackAbilityProvider));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CPike.WooyariMultiAttackAbilityProvider));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CYumi.YumiyachaBasicAttackAbilityProvider));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CYumi.YumiyachaSnipeAttackAbilityProvider));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));						
 					}, default);

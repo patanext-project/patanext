@@ -1,4 +1,5 @@
 ﻿using System;
+using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.Features.Systems;
@@ -16,14 +17,14 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			DependencyResolver.Add(() => ref logger);
 		}
 
-		protected override void OnFeatureAdded(MasterServerFeature obj)
+		protected override void OnFeatureAdded(Entity entity, MasterServerFeature obj)
 		{
 			// Maybe we should support more connections?
 			if (Features.Count > 1)
 				throw new InvalidOperationException("Only one MasterServer feature is allowed!");
 		}
 
-		protected override void OnFeatureRemoved(MasterServerFeature obj)
+		protected override void OnFeatureRemoved(Entity entity, MasterServerFeature obj)
 		{
 			try
 			{
@@ -41,7 +42,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 		{
 			base.Dispose();
 
-			foreach (var feature in Features)
+			foreach (var (_, feature) in Features)
 			{
 				try
 				{

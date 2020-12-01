@@ -23,7 +23,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 
 		public override void OnRhythmEngineSimulationPass()
 		{
-			var commandSetBuffer = new FixedBuffer128<GameEntity>();
+			var commandSetBuffer = new FixedBuffer128<GameEntityHandle>();
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
 			{
 				GameWorld.AsComponentType<RhythmCommandResource>(),
@@ -51,11 +51,11 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				GameWorld.AsComponentType<GameCombo.State>(),
 			}))
 			{
-				ref readonly var state        = ref GameWorld.GetComponentData<RhythmEngineLocalState>(entity);
-				ref readonly var comboSettings        = ref GameWorld.GetComponentData<GameCombo.Settings>(entity);
-				ref var          settings     = ref GameWorld.GetComponentData<RhythmEngineSettings>(entity);
-				ref var          comboState   = ref GameWorld.GetComponentData<GameCombo.State>(entity);
-				ref var          commandState = ref GameWorld.GetComponentData<GameCommandState>(entity);
+				ref readonly var state         = ref GameWorld.GetComponentData<RhythmEngineLocalState>(entity);
+				ref readonly var comboSettings = ref GameWorld.GetComponentData<GameCombo.Settings>(entity);
+				ref var          settings      = ref GameWorld.GetComponentData<RhythmEngineSettings>(entity);
+				ref var          comboState    = ref GameWorld.GetComponentData<GameCombo.State>(entity);
+				ref var          commandState  = ref GameWorld.GetComponentData<GameCommandState>(entity);
 
 				if (!state.CanRunCommands)
 				{
@@ -93,7 +93,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					Console.WriteLine($"1 => {(rhythmActiveAtFlowBeat < flowBeat && checkStopBeat < activationBeat)} ({flowBeat})");
 					Console.WriteLine($"2 => {(executing.CommandTarget == default && predictedCommandBuffer.Count != 0 && rhythmActiveAtFlowBeat < state.LastPressure.FlowBeat)} ({flowBeat})");
 					Console.WriteLine($"3 => {(predictedCommandBuffer.Count == 0)} ({flowBeat})");*/
-					
+
 					comboState = default;
 					commandState.Reset();
 					executing = default;
@@ -111,7 +111,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					continue;
 				executing.WaitingForApply = false;
 
-				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executing.CommandTarget.Entity);
+				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executing.CommandTarget.Handle);
 				var beatDuration         = 0;
 				foreach (var element in targetResourceBuffer.Span)
 					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + 1 + element.Value.Beat.Offset + element.Value.Beat.SliderLength));
@@ -124,13 +124,13 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					commandState.EndTimeMs      = (int) (executing.ActivationBeatEnd * (settings.BeatInterval.Ticks / TimeSpan.TicksPerMillisecond));
 
 					if (TryGetComponentData(entity, out Relative<PlayerDescription> relativePlayer)
-					    && TryGetComponentData(relativePlayer.Target, out GameRhythmInputComponent playerInputComponent))
+					    && TryGetComponentData(relativePlayer.Handle, out GameRhythmInputComponent playerInputComponent))
 					{
 						commandState.Selection = playerInputComponent.Ability;
 					}
 
 					var wasFever = comboSettings.CanEnterFever(comboState);
-					
+
 					comboState.Count++;
 					comboState.Score += (float) (executing.Power - 0.5) * 2;
 					if (comboState.Score < 0)

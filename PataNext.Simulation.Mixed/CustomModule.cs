@@ -55,6 +55,7 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Providers.PlayableUnitProvider));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
 
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.UnitDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.MountDescription.RegisterContainer));
 
@@ -64,9 +65,14 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ApplyAbilityStatisticOnChainingSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ExecuteActiveAbilitySystem));
 
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Team.UpdateTeamMovableAreaSystem));
+						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.AbilityControlVelocitySystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculateSeekingStateSystem));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCollisionSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsAfterBlockUpdateSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));
@@ -80,6 +86,10 @@ namespace PataNext.Module.Simulation
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.CreateGameSaveRequest.Process));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.ListGameSaveRequest.Process));
+						
+						
+						// TEMPORARY SYSTEMS, THEY'LL NEED TO GET CONVERTED INTO REAL SYSTEMS.
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.TemporaryWayToGenerateDamageSystem));
 					}, default);
 				}
 			}

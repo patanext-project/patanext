@@ -30,7 +30,7 @@ namespace PataNext.Simulation.Client.Systems
 			DependencyResolver.Add(() => ref gameWorld);
 		}
 
-		public GameEntity              LocalRhythmEngine { get; set; }
+		public GameEntityHandle              LocalRhythmEngine { get; set; }
 		public RhythmEngineInformation LocalInformation  { get; set; }
 
 		public void OnRhythmEngineSimulationPass()
@@ -50,7 +50,7 @@ namespace PataNext.Simulation.Client.Systems
 				gameWorld.AsComponentType<Relative<PlayerDescription>>()
 			}))
 			{
-				if (gameWorld.GetComponentData<Relative<PlayerDescription>>(entity).Target != localPlayerEntity)
+				if (gameWorld.GetComponentData<Relative<PlayerDescription>>(entity).Target != gameWorld.Safe(localPlayerEntity))
 					continue;
 
 				LocalRhythmEngine = entity;
@@ -69,7 +69,7 @@ namespace PataNext.Simulation.Client.Systems
 					{
 						localInfo.NextCommand = executingCommand.CommandTarget;
 
-						var key = gameWorld.GetComponentData<RhythmCommandIdentifier>(localInfo.NextCommand.Entity).Value;
+						var key = gameWorld.GetComponentData<RhythmCommandIdentifier>(localInfo.NextCommand.Entity.Handle).Value;
 						localInfo.NextCommandStr = key;
 					}
 
@@ -116,7 +116,7 @@ namespace PataNext.Simulation.Client.Systems
 			DependencyResolver.Add(() => ref start);
 		}
 
-		public GameEntity                                                  LocalEngine      => start.LocalRhythmEngine;
+		public GameEntityHandle                                            LocalEngine      => start.LocalRhythmEngine;
 		public PresentationRhythmEngineSystemStart.RhythmEngineInformation LocalInformation => start.LocalInformation;
 
 		public void OnAfterSimulationUpdate()

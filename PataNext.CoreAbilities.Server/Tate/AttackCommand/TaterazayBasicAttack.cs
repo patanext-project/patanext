@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Worlds.Components;
@@ -8,11 +9,14 @@ using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
+using StormiumTeam.GameBase.GamePlay.HitBoxes;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
 {
-    public class TaterazayBasicAttack : AbilityScriptModule<TaterazayBasicAttackAbilityProvider>
+    public class TaterazayBasicAttack : ScriptBase<TaterazayBasicAttackAbilityProvider>
     {
         private IManagedWorldTime          worldTime;
         private ExecuteActiveAbilitySystem execute;
@@ -23,7 +27,7 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
             DependencyResolver.Add(() => ref execute);
         }
 
-        protected override void OnExecute(GameEntity owner, GameEntity self, AbilityState state)
+        protected override void OnExecute(GameEntity owner, GameEntity self, ref AbilityState state)
         {
             ref var ability = ref GetComponentData<TaterazayBasicAttackAbility>(self);
             ability.Cooldown -= worldTime.Delta;
@@ -32,9 +36,10 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
 
             ref readonly var position     = ref GetComponentData<Position>(owner).Value;
             ref readonly var playState    = ref GetComponentData<UnitPlayState>(owner);
-            ref readonly var seekingState = ref GetComponentData<UnitEnemySeekingState>(owner);
-            ref readonly var offset       = ref GetComponentData<UnitTargetOffset>(owner);
 
+            GameWorld.RemoveComponent(self, AsComponentType<HitBox>());
+            GetBuffer<HitBoxHistory>(self).Clear();
+            
             if (!state.IsActiveOrChaining)
             {
                 ability.StopAttack();
@@ -50,12 +55,16 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
                 if (ability.CanAttackThisFrame(worldTime.Total, TimeSpan.FromSeconds(playState.AttackSpeed)))
                 {
                     // attack code
+                    AddComponent(self, new HitBox(owner, default));
+                    GetComponentData<Position>(self).Value       = position + new Vector3(0, 1, 0);
+                    GetComponentData<UnitPlayState>(self)        = GetComponentData<UnitPlayState>(owner);
+                    GetComponentData<HitBoxAgainstEnemies>(self) = new HitBoxAgainstEnemies(GetComponentData<Relative<TeamDescription>>(owner).Target);
                 }
             }
             else if (state.IsChaining)
                 controlVelocity.StayAtCurrentPositionX(50);
 
-            var enemyPrioritySelf = seekingState.SelfEnemy | seekingState.Enemy;
+            var (enemyPrioritySelf, dist) = GetNearestEnemy(owner, 2, null);
             if (state.IsActive && enemyPrioritySelf != default)
             {
                 var targetPosition = GetComponentData<Position>(enemyPrioritySelf).Value;

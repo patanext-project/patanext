@@ -30,6 +30,11 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		/// </summary>
 		public int HeroModeImperfectCountWhileActive;
 
+		/// <summary>
+		/// How much commands left before this ability can be re-activated?
+		/// </summary>
+		public int CommandCooldown;
+
 		public int UpdateVersion;
 		public int ActivationVersion;
 

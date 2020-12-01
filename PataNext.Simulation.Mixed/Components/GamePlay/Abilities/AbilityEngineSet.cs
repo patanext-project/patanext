@@ -9,7 +9,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 {
 	public struct AbilityEngineSet : IComponentData
 	{
-		public GameEntity Engine;
+		public GameEntityHandle Engine;
 
 		public RhythmEngineLocalState       Process;
 		public RhythmEngineSettings         Settings;

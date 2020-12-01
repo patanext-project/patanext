@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using BepuPhysics;
 using BepuPhysics.Collidables;
@@ -32,7 +33,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		{
 		}
 
-		public AngularIntegrationMode AngularIntegrationMode => AngularIntegrationMode.Nonconserving;
+		public AngularIntegrationMode AngularIntegrationMode => AngularIntegrationMode.ConserveMomentum;
 	}
 
 	public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks

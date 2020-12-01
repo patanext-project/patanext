@@ -1,8 +1,10 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using GameHost.Core.Ecs;
 using GameHost.Native;
 using GameHost.Native.Fixed;
+using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
@@ -48,6 +50,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			});
 		}
 
+		private List<GameEntityHandle> abilityToUpdateCooldown = new();
+
 		// TODO: The foreach loop should do parallel work.
 		public void OnAbilityPreSimulationPass()
 		{
@@ -76,7 +80,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 
 				ref var activeSelf = ref ownerActiveAbilityAccessor[entity];
 
-				ref readonly var engineEntity      = ref relativeEngineAccessor[entity].Target;
+				var engineEntity = relativeEngineAccessor[entity].Handle;
+
 				ref readonly var engineState       = ref engineStateAccessor[engineEntity];
 				ref readonly var engineSettings    = ref engineSettingsAccessor[engineEntity];
 				ref readonly var executingCommand  = ref executingCommandAccessor[engineEntity];
@@ -87,19 +92,22 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				// Indicate whether or not we own the engine simulation
 				var isRhythmEngineOwned  = GameWorld.HasComponent<IsSimulationOwned>(engineEntity);
 				var isNewIncomingCommand = updateAndCheckNewIncomingCommand(gameComboState, gameCommandState, executingCommand, ref activeSelf);
+				var isActivation = activeSelf.LastActivationTime == -1
+				                   && gameComboState.Count > 0
+				                   && gameCommandState.StartTimeSpan <= engineState.Elapsed;
 
 				var isOnMount = false;
 
 				#region Check For Active Hero Mode
 
 				var isHeroModeActive = false;
-				if (TryGetComponentData(activeSelf.Active, out AbilityActivation activeAbilityActivation)
-				    && TryGetComponentData(activeSelf.Active, out AbilityCommands activeAbilityCommands)
+				if (TryGetComponentData(activeSelf.Active.Handle, out AbilityActivation activeAbilityActivation)
+				    && TryGetComponentData(activeSelf.Active.Handle, out AbilityCommands activeAbilityCommands)
 				    && activeAbilityActivation.Type.HasFlag(EAbilityActivationType.HeroMode))
 				{
 					isHeroModeActive = true;
 
-					ref var abilityState = ref abilityStateAccessor[activeSelf.Active];
+					ref var abilityState = ref abilityStateAccessor[activeSelf.Active.Handle];
 					// Set as inactive if we can't chain it with the next command.
 					if (executingCommand.CommandTarget != activeAbilityCommands.Chaining)
 					{
@@ -140,9 +148,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 					if (cmdIdx > 0 && activeSelf.CurrentCombo.GetLength() >= cmdIdx + 1)
 						previousCommand = activeSelf.CurrentCombo.Span[cmdIdx];
 
+					abilityToUpdateCooldown.Clear();
 					foreach (var ownedAbility in abilityBuffer)
 					{
-						var abilityEntity = ownedAbility.Target;
+						var abilityEntity = ownedAbility.Target.Handle;
 						if (!validAbilityMask.MatchAgainst(abilityEntity))
 							continue;
 
@@ -172,8 +181,16 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 							|| activation.Type.HasFlag(EAbilityActivationType.Unmounted) && isOnMount
 						);
 
+						if (abilityState.CommandCooldown > 0 && (activeSelf.Active != Safe(abilityEntity) || abilityState.Combo > 0))
+						{
+							canActivate = false;
+						}
+
 						if (!canActivate)
+						{
+							abilityToUpdateCooldown.Add(abilityEntity);
 							continue;
+						}
 
 						var commandPriority     = commands.Combos.GetLength();
 						var commandPriorityType = (int) activation.Type;
@@ -190,7 +207,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 							}
 
 							priorityType        = (int) activation.Type;
-							activeSelf.Incoming = abilityEntity;
+							activeSelf.Incoming = Safe(abilityEntity);
 						}
 					}
 				}
@@ -203,9 +220,9 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				    && activeSelf.Active != default)
 				{
 					// It might be possible that the entity got deleted... so we need to check if it got the component
-					if (HasComponent(activeSelf.Active, abilityStateComponent))
+					if (HasComponent(activeSelf.Active.Handle, abilityStateComponent))
 					{
-						ref var state = ref abilityStateAccessor[activeSelf.Active];
+						ref var state = ref abilityStateAccessor[activeSelf.Active.Handle];
 						state.Phase = EAbilityPhase.None;
 						state.Combo = 0;
 					}
@@ -217,28 +234,41 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				// Set next active ability, and reset imperfect data if active.
 				if (activeSelf.Active != activeSelf.Incoming)
 				{
-					if (executingCommand.ActivationBeatStart <= RhythmEngineUtility.GetActivationBeat(engineState, engineSettings))
+					if (isActivation)
 					{
-						if (HasComponent(activeSelf.Active, abilityStateComponent))
+						if (HasComponent(activeSelf.Active.Handle, abilityStateComponent))
 						{
-							ref var state = ref abilityStateAccessor[activeSelf.Active];
+							ref var state = ref abilityStateAccessor[activeSelf.Active.Handle];
 							state.Combo = 0;
 						}
 
 						activeSelf.PreviousActive = activeSelf.Active;
 						activeSelf.Active         = activeSelf.Incoming;
-						if (HasComponent(activeSelf.Active, abilityStateComponent))
+						if (HasComponent(activeSelf.Active.Handle, abilityStateComponent))
 						{
-							ref var state = ref abilityStateAccessor[activeSelf.Active];
+							ref var state = ref abilityStateAccessor[activeSelf.Active.Handle];
 							state.HeroModeImperfectCountWhileActive = 0;
 						}
+					}
+				}
+
+				// Decrease cooldowns of abilities that have one when a command has been triggered.
+				var engineElapsedMs = (int) (engineState.Elapsed.Ticks / TimeSpan.TicksPerMillisecond);
+				if (isActivation)
+				{
+					activeSelf.LastActivationTime = engineElapsedMs;
+
+					foreach (var abilityEntity in abilityToUpdateCooldown)
+					{
+						ref var cooldown = ref abilityStateAccessor[abilityEntity].CommandCooldown;
+						cooldown = Math.Max(0, cooldown - 1);
 					}
 				}
 
 				// We update incoming state before active state (in case if it's the same ability...)
 				if (activeSelf.Incoming != default)
 				{
-					ref var incomingState = ref abilityStateAccessor[activeSelf.Incoming];
+					ref var incomingState = ref abilityStateAccessor[activeSelf.Incoming.Handle];
 					incomingState.Phase |= EAbilityPhase.WillBeActive;
 					if (isNewIncomingCommand)
 					{
@@ -252,20 +282,21 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				// Update data in the active ability
 				if (activeSelf.Active != default)
 				{
-					ref var activeController = ref abilityStateAccessor[activeSelf.Active];
-					activeAbilityActivation = abilityActivationAccessor[activeSelf.Active];
+					ref var activeController = ref abilityStateAccessor[activeSelf.Active.Handle];
+					activeAbilityActivation = abilityActivationAccessor[activeSelf.Active.Handle];
 
-					var engineElapsedMs = (int) (engineState.Elapsed.Ticks / TimeSpan.TicksPerMillisecond);
 					if (gameCommandState.StartTimeSpan <= engineState.Elapsed)
 					{
 						activeController.Phase = EAbilityPhase.None;
-						if (activeSelf.LastActivationTime == -1)
+						if (isActivation)
 						{
-							activeSelf.LastActivationTime = engineElapsedMs;
 							if (activeController.ActivationVersion == 0)
 								activeController.ActivationVersion++;
 
 							activeController.ActivationVersion++;
+
+							if (activeAbilityActivation.DefaultCooldownOnActivation > 0)
+								GetComponentData<AbilityState>(activeSelf.Active.Handle).CommandCooldown += activeAbilityActivation.DefaultCooldownOnActivation;
 
 							if (activeAbilityActivation.Type.HasFlag(EAbilityActivationType.HeroMode) && isRhythmEngineOwned
 							                                                                          && HasComponent<RhythmSummonEnergy>(engineEntity))

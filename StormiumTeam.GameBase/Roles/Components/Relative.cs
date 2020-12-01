@@ -15,12 +15,14 @@ namespace StormiumTeam.GameBase.Roles.Components
 		/// Path to the entity
 		/// </summary>
 		public readonly GameEntity Target;
-		
+
+		public GameEntityHandle Handle => Target.Handle;
+
 		public Relative(GameEntity target)
 		{
 			Target = target;
 		}
-		
+
 		public abstract class Register : RegisterGameHostComponentData<Relative<TDescription>>
 		{
 		}

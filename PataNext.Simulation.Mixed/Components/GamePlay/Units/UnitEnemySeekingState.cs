@@ -11,10 +11,6 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 		public GameEntity Enemy;
 		public float      Distance;
 
-		public GameEntity SelfEnemy;
-		public Vector3    SelfEnemyPosition;
-		public float      SelfDistance;
-
 		public class Register : RegisterGameHostComponentData<UnitEnemySeekingState>
 		{
 		}

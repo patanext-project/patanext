@@ -17,40 +17,41 @@ namespace StormiumTeam.GameBase.SystemBase
 		}
 
 		public GameWorld GameWorld => gameWorld;
-
-		public GameEntity CreateEntity() => GameWorld.CreateEntity();
+		
+		public GameEntity       Safe(GameEntityHandle handle) => GameWorld.Safe(handle);
+		public GameEntityHandle CreateEntity()                 => GameWorld.CreateEntity();
 
 		public ComponentType AsComponentType<T>() where T : struct, IEntityComponent => GameWorld.AsComponentType<T>();
 
-		public bool HasComponent<T>(GameEntity entity) where T : struct, IEntityComponent
+		public bool HasComponent<T>(GameEntityHandle entity) where T : struct, IEntityComponent
 		{
 			return GameWorld.HasComponent<T>(entity);
 		}
 
-		public bool HasComponent(GameEntity entity, ComponentType componentType)
+		public bool HasComponent(GameEntityHandle entity, ComponentType componentType)
 		{
 			return GameWorld.HasComponent(entity, componentType);
 		}
 
-		public ref T GetComponentData<T>(GameEntity entity)
+		public ref T GetComponentData<T>(GameEntityHandle entity)
 			where T : struct, IComponentData
 		{
 			return ref GameWorld.GetComponentData<T>(entity);
 		}
 
-		public ComponentBuffer<T> GetBuffer<T>(GameEntity entity)
+		public ComponentBuffer<T> GetBuffer<T>(GameEntityHandle entity)
 			where T : struct, IComponentBuffer
 		{
 			return GameWorld.GetBuffer<T>(entity);
 		}
 
-		public ComponentReference AddComponent<T>(GameEntity entity, T data = default)
+		public ComponentReference AddComponent<T>(GameEntityHandle entity, T data = default)
 			where T : struct, IComponentData
 		{
 			return GameWorld.AddComponent(entity, data);
 		}
 
-		public bool TryGetComponentData<T>(GameEntity entity, out T result, T defaultData = default)
+		public bool TryGetComponentData<T>(GameEntityHandle entity, out T result, T defaultData = default)
 			where T : struct, IComponentData
 		{
 			if (HasComponent<T>(entity))
@@ -63,7 +64,7 @@ namespace StormiumTeam.GameBase.SystemBase
 			return false;
 		}
 
-		public bool TryGetComponentBuffer<T>(GameEntity entity, out ComponentBuffer<T> result)
+		public bool TryGetComponentBuffer<T>(GameEntityHandle entity, out ComponentBuffer<T> result)
 			where T : struct, IComponentBuffer
 		{
 			if (HasComponent<T>(entity))
@@ -79,6 +80,11 @@ namespace StormiumTeam.GameBase.SystemBase
 		public ComponentDataAccessor<T> GetAccessor<T>() where T : struct, IComponentData
 		{
 			return new ComponentDataAccessor<T>(GameWorld);
+		}
+
+		public ComponentBufferAccessor<T> GetBufferAccessor<T>() where T : struct, IComponentBuffer
+		{
+			return new ComponentBufferAccessor<T>(GameWorld);
 		}
 
 		public EntityQuery CreateEntityQuery(Span<Type> all = default, Span<Type> none = default)

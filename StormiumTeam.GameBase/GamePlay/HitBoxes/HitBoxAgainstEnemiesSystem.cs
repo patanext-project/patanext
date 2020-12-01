@@ -2,10 +2,13 @@
 using System.Numerics;
 using BepuPhysics;
 using GameHost.Core.Ecs;
+using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
+using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
 using StormiumTeam.GameBase.Time.Components;
 using StormiumTeam.GameBase.Transform.Components;
@@ -14,6 +17,10 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 {
 	public class HitBoxAgainstEnemiesSystem : GameAppSystem, IUpdateSimulationPass
 	{
+		private struct SystemEvent : IComponentData
+		{
+		}
+
 		private PhysicsSystem     physicsSystem;
 		private IManagedWorldTime worldTime;
 
@@ -23,11 +30,15 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 			DependencyResolver.Add(() => ref worldTime);
 		}
 
+		private EntityQuery eventQuery;
+
 		private EntityQuery hitboxQuery;
 		private EntityQuery colliderMask;
 
 		public void OnSimulationUpdate()
 		{
+			(eventQuery ??= CreateEntityQuery(new [] {typeof(SystemEvent)})).RemoveAllEntities();
+			
 			var dt = (float) worldTime.Delta.TotalSeconds;
 
 			colliderMask ??= CreateEntityQuery(new[] {typeof(PhysicsCollider), typeof(Position)});
@@ -48,7 +59,7 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 				typeof(PhysicsCollider)
 			}))
 			{
-				if (!TryGetComponentBuffer<TeamEnemies>(hitBoxAgainstEnemiesAccessor[entity].EnemyBufferSource, out var enemyBuffer))
+				if (!TryGetComponentBuffer<TeamEnemies>(hitBoxAgainstEnemiesAccessor[entity].EnemyBufferSource.Handle, out var enemyBuffer))
 					continue;
 
 				ref var hitBox = ref hitBoxAccessor[entity];
@@ -69,21 +80,33 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 
 				foreach (var teamEnemy in enemyBuffer.Span)
 				{
-					var entityContainer = GetBuffer<TeamEntityContainer>(teamEnemy.Team);
+					var entityContainer = GetBuffer<TeamEntityContainer>(teamEnemy.Team.Handle);
 					foreach (var enemy in entityContainer.Span)
 					{
-						if (!colliderMask.MatchAgainst(enemy.Value))
+						if (!colliderMask.MatchAgainst(enemy.Value.Handle))
 							continue;
 
-						if (!physicsSystem.Sweep(enemy.Value, thisShape, new RigidPose(thisPosition), new BodyVelocity(thisVelocity), out var hit))
+						if (historyBuffer.Reinterpret<GameEntity>().Contains(enemy.Value))
 							continue;
-						
-						var ev = GameWorld.CreateEntity();
-						GameWorld.AddComponent(ev, new Position());
-						GameWorld.AddComponent(ev, new RemoveEntityEndTime());
+
+						if (!physicsSystem.Sweep(enemy.Value.Handle, thisShape, new RigidPose(thisPosition), new BodyVelocity(thisVelocity), out var hit))
+							continue;
+
+						var ev = CreateEntity();
+						TryGetComponentData(entity, out Owner instigator);
+						AddComponent(ev, new HitBoxEvent
+						{
+							HitBox     = Safe(entity),
+							Instigator = instigator.Target,
+							Victim     = enemy.Value,
+
+							ContactPosition = hit.position,
+							ContactNormal   = hit.normal
+						});
+						AddComponent(ev, new SystemEvent());
 
 						if (historyBuffer.IsCreated)
-							historyBuffer.Add(new HitBoxHistory(ev, enemy.Value));
+							historyBuffer.Add(new HitBoxHistory(enemy.Value));
 					}
 				}
 			}

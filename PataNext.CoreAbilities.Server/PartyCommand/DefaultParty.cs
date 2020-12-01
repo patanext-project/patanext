@@ -26,7 +26,7 @@ namespace PataNext.CoreAbilities.Server.PartyCommand
 		{
 		}
 
-		protected override void OnExecute(GameEntity owner, GameEntity self, AbilityState state)
+		protected override void OnExecute(GameEntity owner, GameEntity self, ref AbilityState state)
 		{
 			ref var ability = ref GetComponentData<DefaultPartyAbility>(self);
 			if (!state.IsActive)

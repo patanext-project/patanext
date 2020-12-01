@@ -11,7 +11,7 @@ namespace PataNext.Module.Simulation.Systems
 	public class LocalRhythmCommandResourceManager : GameAppSystem
 	{
 		public RhythmCommandResourceDb DataBase;
-		
+
 		public LocalRhythmCommandResourceManager(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref DataBase);
@@ -27,7 +27,7 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.With(1, RhythmKeys.Pata),
 				RhythmCommandAction.With(2, RhythmKeys.Pata),
 				RhythmCommandAction.With(3, RhythmKeys.Pon),
-			}).Entity, new MarchCommand());
+			}).Handle, new MarchCommand());
 			DataBase.GetOrCreate(AsComponentType<BackwardCommand>(), "backward", new[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Chaka),
@@ -41,14 +41,14 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.With(1, RhythmKeys.Pata),
 				RhythmCommandAction.With(2, RhythmKeys.Pon),
 				RhythmCommandAction.With(3, RhythmKeys.Pata),
-			}).Entity, new RetreatCommand());
+			}).Handle, new RetreatCommand());
 			AddComponent(DataBase.GetOrCreate(AsComponentType<JumpCommand>(), "jump", new[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Don),
 				RhythmCommandAction.With(1, RhythmKeys.Don),
 				RhythmCommandAction.With(2, RhythmKeys.Chaka),
 				RhythmCommandAction.With(3, RhythmKeys.Chaka),
-			}).Entity, new JumpCommand());
+			}).Handle, new JumpCommand());
 			DataBase.GetOrCreate(AsComponentType<AttackCommand>(), "attack", new[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Pon),
@@ -85,7 +85,7 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.WithOffset(2, 0.5f, RhythmKeys.Don),
 				RhythmCommandAction.WithOffset(3, 0, RhythmKeys.Don),
 			});
-			
+
 			// not yet
 			/*AddComponent(DataBase.GetOrCreate(AsComponentType<QuickDefend>(), "quick_defend", new[]
 			{

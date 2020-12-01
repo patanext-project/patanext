@@ -9,36 +9,37 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace StormiumTeam.GameBase.GamePlay
 {
-    /// <summary>
-    /// Get team enemies of this team
-    /// </summary>
-    public struct TeamEntityContainer : IComponentBuffer 
-    {
-        public GameEntity Value;
+	/// <summary>
+	/// Get team enemies of this team
+	/// </summary>
+	public struct TeamEntityContainer : IComponentBuffer
+	{
+		public GameEntity Value;
 
-        public TeamEntityContainer(GameEntity entity) => Value = entity;
-    }
+		public TeamEntityContainer(GameEntity entity) => Value = entity;
+	}
 
-    public class BuildTeamEntityContainerSystem : GameAppSystem, IPreUpdateSimulationPass
-    {
-        public BuildTeamEntityContainerSystem(WorldCollection collection) : base(collection)
-        {
-        }
+	public class BuildTeamEntityContainerSystem : GameAppSystem, IPreUpdateSimulationPass
+	{
+		public BuildTeamEntityContainerSystem(WorldCollection collection) : base(collection)
+		{
+		}
 
-        private EntityQuery teamQuery, childQuery;
+		private EntityQuery teamQuery, childQuery;
 
-        public void OnBeforeSimulationUpdate()
-        {
-            foreach (var team in teamQuery ??= CreateEntityQuery(new [] {typeof(TeamEntityContainer)}))
-				GameWorld.GetBuffer<TeamEntityContainer>(team).Clear();
+		public void OnBeforeSimulationUpdate()
+		{
+			var bufferAccessor = GetBufferAccessor<TeamEntityContainer>();
+			foreach (var teamHandle in teamQuery ??= CreateEntityQuery(new[] {typeof(TeamEntityContainer)}))
+				bufferAccessor[teamHandle].Clear();
 
-			foreach (var child in childQuery ??= CreateEntityQuery(new [] {typeof(Relative<TeamDescription>)}))
+			foreach (var child in childQuery ??= CreateEntityQuery(new[] {typeof(Relative<TeamDescription>)}))
 			{
-				var team = GetComponentData<Relative<TeamDescription>>(child).Target;
-				if (!teamQuery.MatchAgainst(team))
+				var teamHandle = GetComponentData<Relative<TeamDescription>>(child).Handle;
+				if (!teamQuery.MatchAgainst(teamHandle))
 					throw new InvalidOperationException();
-				GameWorld.GetBuffer<TeamEntityContainer>(team).Add(new TeamEntityContainer(child));
+				bufferAccessor[teamHandle].Add(new TeamEntityContainer(Safe(child)));
 			}
-        }
-    }
+		}
+	}
 }

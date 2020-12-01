@@ -22,7 +22,7 @@ namespace PataNext.Simulation.mixed.Components.GamePlay.Abilities
 
 	public readonly struct ExecutableAbility : IComponentData
 	{
-		public delegate void Func(GameEntity owner, GameEntity self, AbilityState state);
+		public delegate void Func(GameEntity owner, GameEntity self, ref AbilityState state);
 
 		public readonly IntPtr FunctionPtr;
 

@@ -110,7 +110,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 					continue;
 				target.IsActive = false;
 
-				ref readonly var owner = ref ownerAccessor[entity].Target;
+				var owner = ownerAccessor[entity].Target.Handle;
 
 				ref var position   = ref positionAccessor[owner].Value;
 				ref var playState  = ref playStateAccessor[owner];
@@ -132,8 +132,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 					var targetPosition = target.TargetPosition;
 					if (target.TargetFromCursor && HasComponent(owner, cursorComponentType))
 					{
-						if (HasComponent(cursorAccessor[owner].Target, positionComponentType))
-							targetPosition += positionAccessor[cursorAccessor[owner].Target].Value;
+						if (HasComponent(cursorAccessor[owner].Handle, positionComponentType))
+							targetPosition += positionAccessor[cursorAccessor[owner].Handle].Value;
 					}
 
 					if (MathF.Abs(target.OffsetFactor) > 0.01f && TryGetComponentData(owner, out UnitTargetOffset offset))

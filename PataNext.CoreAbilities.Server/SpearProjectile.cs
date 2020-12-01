@@ -14,11 +14,13 @@ using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components.GamePlay;
+using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Visuals;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay;
+using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
 using StormiumTeam.GameBase.GamePlay.Projectiles;
 using StormiumTeam.GameBase.Physics.Components;
@@ -58,16 +60,15 @@ namespace PataNext.CoreAbilities.Server
 
                 GameWorld.AsComponentType<HitBox>(),
                 GameWorld.AsComponentType<HitBoxAgainstEnemies>(),
-                GameWorld.AsComponentType<HitBoxHistory>()
+                GameWorld.AsComponentType<HitBoxHistory>(),
+                
+                GameWorld.AsComponentType<UnitPlayState>(),
             });
         }
 
         public override void SetEntityData(GameEntity entity, (GameEntity owner, Vector3 pos, Vector3 vel, Vector3 gravity) args)
         {
-            EntityVisual visual = default;
-            
             GameWorld.GetComponentData<Owner>(entity)                   = new Owner(args.owner);
-            GameWorld.GetComponentData<EntityVisual>(entity)            = visual;
             GameWorld.GetComponentData<SpearProjectile>(entity).Gravity = args.gravity;
             GameWorld.GetComponentData<Position>(entity).Value          = args.pos;
             GameWorld.GetComponentData<Velocity>(entity).Value          = args.vel;
@@ -79,6 +80,8 @@ namespace PataNext.CoreAbilities.Server
                 var team = GameWorld.GetComponentData<Relative<TeamDescription>>(args.owner);
                 GameWorld.AddComponent(entity, new HitBoxAgainstEnemies(team.Target));
             }
+
+            GameWorld.GetComponentData<UnitPlayState>(entity) = GameWorld.GetComponentData<UnitPlayState>(args.owner);
 
             physicsSystem.SetColliderShape(entity, new Sphere(0.1f));
         }

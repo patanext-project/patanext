@@ -41,8 +41,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				ref readonly var modify = ref modifyAccessor[entity];
 				ref readonly var engineSet = ref engineSetAccessor[entity];
 
-				ref var playState  = ref playStateAccessor[owner];
-				var     hasCharged = HasComponent(engineSet.PreviousCommand.Entity, chargeComponentType);
+				ref var playState  = ref playStateAccessor[owner.Handle];
+				var     hasCharged = HasComponent(engineSet.PreviousCommand.Handle, chargeComponentType);
 
 				if (hasCharged && modify.SetChargeModifierAsFirst)
 					modify.ChargeModifier.Multiply(ref playState);

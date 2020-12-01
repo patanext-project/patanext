@@ -17,7 +17,7 @@ using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
 {
-    public class DefaultSpearAttack : AbilityScriptModule<YaridaBasicAttackAbilityProvider>
+    public class DefaultSpearAttack : ScriptBase<YaridaBasicAttackAbilityProvider>
     {
         private IManagedWorldTime          worldTime;
         private SpearProjectileProvider    projectileProvider;
@@ -30,18 +30,17 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
             DependencyResolver.Add(() => ref execute);
         }
 
-        protected override void OnExecute(GameEntity owner, GameEntity self, AbilityState state)
+        protected override void OnExecute(GameEntity owner, GameEntity self, ref AbilityState state)
         {
             ref var ability = ref GetComponentData<YaridaBasicAttackAbility>(self);
             ability.Cooldown -= worldTime.Delta;
 
             ref var controlVelocity = ref GetComponentData<AbilityControlVelocity>(self);
 
-            ref readonly var position     = ref GetComponentData<Position>(owner).Value;
-            ref readonly var playState    = ref GetComponentData<UnitPlayState>(owner);
-            ref readonly var seekingState = ref GetComponentData<UnitEnemySeekingState>(owner);
-            ref readonly var direction    = ref GetComponentData<UnitDirection>(owner);
-            ref readonly var offset       = ref GetComponentData<UnitTargetOffset>(owner);
+            ref readonly var position  = ref GetComponentData<Position>(owner).Value;
+            ref readonly var playState = ref GetComponentData<UnitPlayState>(owner);
+            ref readonly var direction = ref GetComponentData<UnitDirection>(owner);
+            ref readonly var offset    = ref GetComponentData<UnitTargetOffset>(owner);
 
             var throwOffset = new Vector2(direction.Value, 1.25f);
 
@@ -71,7 +70,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
             else if (state.IsChaining)
                 controlVelocity.StayAtCurrentPositionX(50);
 
-            var enemyPrioritySelf = seekingState.SelfEnemy | seekingState.Enemy;
+            var (enemyPrioritySelf, _) = GetNearestEnemy(owner, 4, null);
             if (state.IsActive && enemyPrioritySelf != default)
             {
                 var targetPosition = GetComponentData<Position>(enemyPrioritySelf).Value;

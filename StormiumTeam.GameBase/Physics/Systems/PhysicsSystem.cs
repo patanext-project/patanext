@@ -49,7 +49,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 			disposeComponentType = GameWorld.RegisterComponent("DisposeShapeFromTypeIndex", new CallDisposeBoard(this, sizeof(TypedIndex), 0));
 		}
 
-		public TypedIndex SetColliderShape<TShape>(GameEntity entity, TShape shape, bool disposeOnRemove = true)
+		public TypedIndex SetColliderShape<TShape>(GameEntityHandle entity, TShape shape, bool disposeOnRemove = true)
 			where TShape : unmanaged, IShape
 		{
 			if (TryGetComponentData(entity, out PhysicsCollider prev))
@@ -64,9 +64,9 @@ namespace StormiumTeam.GameBase.Physics.Systems
 			return index;
 		}
 
-		public unsafe bool Sweep(GameEntity    against, TypedIndex shape, RigidPose pose, BodyVelocity velocity,
-		                         out HitResult hit,
-		                         float         maximumT = MaximumDistance)
+		public unsafe bool Sweep(GameEntityHandle against, TypedIndex shape, RigidPose pose, BodyVelocity velocity,
+		                         out HitResult    hit,
+		                         float            maximumT = MaximumDistance)
 		{
 			if (!TryGetComponentData(against, out PhysicsCollider againstCollider))
 			{
@@ -88,20 +88,20 @@ namespace StormiumTeam.GameBase.Physics.Systems
 				maximumT
 			);
 
-			if (swee)
+			/*if (swee)
 			{
 				Simulation.Shapes.UpdateBounds(againstPose, ref againstCollider.Shape, out var b1);
 				Simulation.Shapes.UpdateBounds(pose, ref shape, out var b2);
 
 				Console.WriteLine($"A(min={b1.Min} max={b1.Max}) B(min={b2.Min} max={b2.Max}) && {b1.Contains(ref b2)} && {hit.time0} {hit.time1}");
-			}
+			}*/
 
 			return swee;
 		}
 
-		public unsafe bool Sweep<TShape>(GameEntity    against, TShape collider, RigidPose pose, BodyVelocity velocity,
-		                                 out HitResult hit,
-		                                 float         maximumT = MaximumDistance)
+		public unsafe bool Sweep<TShape>(GameEntityHandle against, TShape collider, RigidPose pose, BodyVelocity velocity,
+		                                 out HitResult    hit,
+		                                 float            maximumT = MaximumDistance)
 			where TShape : IShape
 		{
 			if (!TryGetComponentData(against, out PhysicsCollider againstCollider))
@@ -144,6 +144,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		                         float         maximumT = MaximumDistance)
 		{
 			var task = Simulation.NarrowPhase.SweepTaskRegistry.GetTask(typeA, typeB);
+
 			if (task == null)
 			{
 				logger.ZLogError("No Task Found for {0},{1}", typeA, typeB);

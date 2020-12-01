@@ -27,30 +27,17 @@ namespace PataNext.Simulation.Client.Systems
 		}
 
 		private readonly Dictionary<string, ResourceHandle<AudioResource>> audioMap = new Dictionary<string, ResourceHandle<AudioResource>>();
-
-		private string ReplaceFirst(string text, string search, string replace)
-		{
-			int pos = text.IndexOf(search);
-			if (pos < 0)
-			{
-				return text;
-			}
-
-			return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
-		}
-
+		
 		public void Register(string id, string path)
 		{
 			// for now it only support one match type...
 			foreach (Match match in Regex.Matches(path, "\\[(.*?)\\]"))
 			{
-				var splits = match.Value.Split(',');
-				System.Console.WriteLine("match");
+				var splits = match.Value.Substring(1, match.Value.Length - 2).Split(',');
 				if (splits.Length != 2)
 					continue;
 
 				var type = splits[0];
-				System.Console.WriteLine(type);
 				switch (type)
 				{
 					case "module":
@@ -73,8 +60,11 @@ namespace PataNext.Simulation.Client.Systems
 								ghModule.Storage.UnsubscribeCurrent();
 
 								var storage = new StorageCollection {localStorage, ghModule.DllStorage};
-								System.Console.WriteLine(path.Replace(match.Value, string.Empty));
-								var file    = storage.GetFilesAsync(path.Replace(match.Value, string.Empty)).Result.FirstOrDefault();
+								var m       = path.Replace(match.Value, string.Empty);
+								if (m.StartsWith('/') || m.StartsWith('\\'))
+									m = m.Substring(1);
+								
+								var file    = storage.GetFilesAsync(m).Result.FirstOrDefault();
 								if (file != null)
 								{
 									scheduler.Schedule(() => { RegisterFinalize(id, loadAudio.Load(file)); }, default);
@@ -90,44 +80,6 @@ namespace PataNext.Simulation.Client.Systems
 					}
 				}
 			}
-
-			/*if (path.StartsWith("[module,"))
-			{
-				path = path.Remove(0, "[module,".Length + path.LastIndexOf("[module,", StringComparison.InvariantCulture));
-
-				var moduleName = path.Substring(0, path.LastIndexOf(']'));
-				path = path.Remove(path.IndexOf(']'), 1);
-				path = ReplaceFirst(path, moduleName + "/", string.Empty);
-
-				globalWorld.Scheduler.Schedule(() =>
-				{
-					if (!globalWorld.Collection.TryGet(out ModuleManager moduleManager))
-						throw new Exception("ModuleManager not found in GlobalWorld?");
-
-					var ghModule = moduleManager.GetModule(moduleName);
-					if (ghModule == null)
-						throw new Exception("No module named: " + moduleName);
-
-					ghModule.Storage.Subscribe((_, localStorage) =>
-					{
-						if (localStorage == null)
-							return;
-
-						ghModule.Storage.UnsubscribeCurrent();
-
-						var storage = new StorageCollection {localStorage, ghModule.DllStorage};
-						var file    = storage.GetFilesAsync(path).Result.FirstOrDefault();
-						if (file != null)
-						{
-							scheduler.Schedule(() => { RegisterFinalize(id, loadAudio.Load(file)); }, default);
-						}
-						else
-						{
-							Console.WriteLine("Error with path=" + path);
-						}
-					}, true);
-				}, default);
-			}*/
 		}
 
 		private void RegisterFinalize(string id, ResourceHandle<AudioResource> audio)

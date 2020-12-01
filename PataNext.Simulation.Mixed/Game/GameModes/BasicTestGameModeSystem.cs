@@ -12,7 +12,9 @@ using GameHost.Simulation.Utility.Resource;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GameModes;
+using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using PataNext.Module.Simulation.Components.GamePlay.Team;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
@@ -23,6 +25,8 @@ using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.GamePlay;
+using StormiumTeam.GameBase.GamePlay.Health.Systems;
+using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
@@ -45,6 +49,8 @@ namespace PataNext.Module.Simulation.GameModes
 
 		private PhysicsSystem physicsSystem;
 
+		private DefaultHealthProvider healthProvider;
+
 		public BasicTestGameModeSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref resPathGen);
@@ -53,6 +59,8 @@ namespace PataNext.Module.Simulation.GameModes
 			DependencyResolver.Add(() => ref playableUnitProvider);
 			DependencyResolver.Add(() => ref abilityCollectionSystem);
 			DependencyResolver.Add(() => ref physicsSystem);
+
+			DependencyResolver.Add(() => ref healthProvider);
 
 			DependencyResolver.Add(() => ref localKitDb);
 			DependencyResolver.Add(() => ref localArchetypeDb);
@@ -80,6 +88,7 @@ namespace PataNext.Module.Simulation.GameModes
 			GameWorld.AddComponent(playerEntity, new PlayerDescription());
 			GameWorld.AddComponent(playerEntity, new GameRhythmInputComponent());
 			GameWorld.AddComponent(playerEntity, new PlayerIsLocal());
+			GameWorld.AddBuffer<OwnedRelative<UnitDescription>>(playerEntity);
 
 			var rhythmEngine = GameWorld.CreateEntity();
 			GameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
@@ -87,7 +96,7 @@ namespace PataNext.Module.Simulation.GameModes
 			GameWorld.AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
 			GameWorld.AddComponent(rhythmEngine, new RhythmEngineLocalState());
 			GameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
-			GameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(playerEntity));
+			GameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(playerEntity)));
 			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>());
 			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
 			GameWorld.AddComponent(rhythmEngine, new GameCommandState());
@@ -106,8 +115,8 @@ namespace PataNext.Module.Simulation.GameModes
 				(new[]
 				{
 					(false, resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer))
-				}, 6f),
-				(new[]
+				}, 3f),
+				/*(new[]
 				{
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
@@ -124,9 +133,9 @@ namespace PataNext.Module.Simulation.GameModes
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer)),
 					(false, resPathGen.Create(new[] {"archetype", "patapon_std_unit"}, ResPath.EType.MasterServer))
-				}, -3f)
+				}, -3f)*/
 			}, playerEntity, rhythmEngine, out var thisTarget, -10);
-			AddComponent(thisTarget, new Relative<PlayerDescription>(playerEntity));
+			AddComponent(thisTarget, new Relative<PlayerDescription>(Safe(playerEntity)));
 
 			var enemies = SpawnArmy(new[]
 			{
@@ -134,21 +143,35 @@ namespace PataNext.Module.Simulation.GameModes
 				{
 					(true, resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer))
 				}, 0f)
-			}, default, rhythmEngine, out var enemyTarget);
+			}, default, default, out var enemyTarget, 5);
 
 			var team = CreateEntity();
 			AddComponent(team, new TeamDescription());
+			AddComponent(team, new TeamMovableArea());
+			AddComponent(thisTarget, new Relative<TeamDescription>(Safe(team)));
 			GameWorld.AddBuffer<TeamAllies>(team);
 			GameWorld.AddBuffer<TeamEntityContainer>(team);
-			var enemyBuffer = GameWorld.AddBuffer<TeamEnemies>(team);
 
 			var enemyTeam = CreateEntity();
+			AddComponent(team, new TeamDescription());
 			AddComponent(enemyTeam, new TeamDescription());
+			AddComponent(enemyTeam, new TeamMovableArea());
 			GameWorld.AddBuffer<TeamAllies>(enemyTeam);
 			GameWorld.AddBuffer<TeamEntityContainer>(enemyTeam);
 
 			var simpleCollidable = enemies[0][0];
-			AddComponent(simpleCollidable, new Relative<TeamDescription>(enemyTeam));
+			AddComponent(simpleCollidable, new Relative<TeamDescription>(Safe(enemyTeam)));
+			AddComponent(simpleCollidable, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("taterazay"))));
+
+			GetComponentData<UnitStatistics>(simpleCollidable).Attack = 28;
+
+			var ability = abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "tate", "def_atk"}, ResPath.EType.MasterServer), simpleCollidable);
+			GetComponentData<AbilityState>(ability).Phase                 = EAbilityPhase.Active;
+			GetComponentData<OwnerActiveAbility>(simpleCollidable).Active = Safe(ability);
+
+			GameWorld.AddBuffer<UnitWeakPoint>(simpleCollidable)
+			         .Add(new UnitWeakPoint(new Vector3(0, 1, 0)));
+			GameWorld.GetComponentData<UnitDirection>(simpleCollidable) = UnitDirection.Left;
 
 			physicsSystem.BufferPool.Take(1, out Buffer<CompoundChild> b);
 			b[0] = new CompoundChild
@@ -159,14 +182,32 @@ namespace PataNext.Module.Simulation.GameModes
 
 			physicsSystem.SetColliderShape(simpleCollidable, new Compound(b));
 
-			enemyBuffer.Add(new TeamEnemies(enemyTeam));
+			GameWorld.AddBuffer<TeamEnemies>(team).Add(new TeamEnemies(Safe(enemyTeam)));
+			GameWorld.AddBuffer<TeamEnemies>(enemyTeam).Add(new TeamEnemies(Safe(team)));
+			GameWorld.AddComponent(team, new IsSimulationOwned());
+			GameWorld.AddComponent(enemyTeam, new IsSimulationOwned());
+
+			var tower = GameWorld.CreateEntity();
+			GameWorld.AddComponent(tower, new Position(x: -10));
+			GameWorld.AddComponent(tower, new EnvironmentCollider());
+			GameWorld.AddComponent(tower, new Relative<TeamDescription>(Safe(enemyTeam)));
+			physicsSystem.SetColliderShape(tower, new Box(3, 10, 1));
 
 			for (var army = 0; army < entities.Length; army++)
 			{
 				var unitArray = entities[army];
 				foreach (var unit in unitArray)
 				{
-					AddComponent(unit, new Relative<TeamDescription>(team));
+					physicsSystem.BufferPool.Take(1, out b);
+					b[0] = new CompoundChild
+					{
+						ShapeIndex = physicsSystem.Simulation.Shapes.Add(new Box(1, 1.5f, 1)),
+						LocalPose  = new RigidPose(new Vector3(0, 0.75f, 0))
+					};
+
+					physicsSystem.SetColliderShape(unit, new Compound(b));
+
+					AddComponent(unit, new Relative<TeamDescription>(Safe(team)));
 
 					abilityCollectionSystem.SpawnFor("march", unit);
 					abilityCollectionSystem.SpawnFor("backward", unit);
@@ -178,34 +219,87 @@ namespace PataNext.Module.Simulation.GameModes
 					var displayedEquip = GetBuffer<UnitDisplayedEquipment>(unit);
 					if (army == 1)
 					{
-						// it's kinda a special case
-						GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("taterazay"))));
+						void setTaterazay()
+						{
+							GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("taterazay"))));
 
-						displayedEquip.Add(new UnitDisplayedEquipment
-						{
-							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
-							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "kibadda"}, ResPath.EType.ClientResource))
-						});
-						displayedEquip.Add(new UnitDisplayedEquipment
-						{
-							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "l_eq"}, ResPath.EType.MasterServer)),
-							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "shields", "default_shield"}, ResPath.EType.ClientResource))
-						});
-						displayedEquip.Add(new UnitDisplayedEquipment
-						{
-							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
-							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "swords", "default_sword"}, ResPath.EType.ClientResource))
-						});
+							GetComponentData<UnitStatistics>(unit).Attack = 28;
 
-						abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
-						abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Top);
-						abilityCollectionSystem.SpawnFor("CTate.EnergyField", unit);
-						
-						abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "tate", "def_atk"}, ResPath.EType.MasterServer), unit);
+							displayedEquip.Add(new UnitDisplayedEquipment
+							{
+								Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
+								Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "taterazay"}, ResPath.EType.ClientResource))
+							});
+							displayedEquip.Add(new UnitDisplayedEquipment
+							{
+								Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "l_eq"}, ResPath.EType.MasterServer)),
+								Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "shields", "default_shield"}, ResPath.EType.ClientResource))
+							});
+							displayedEquip.Add(new UnitDisplayedEquipment
+							{
+								Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
+								Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "swords", "default_sword"}, ResPath.EType.ClientResource))
+							});
+
+							abilityCollectionSystem.SpawnFor("CTate.BasicDefendFrontal", unit);
+							abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", unit, AbilitySelection.Bottom);
+							abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "tate", "counter"}, ResPath.EType.MasterServer), unit, AbilitySelection.Top);
+							abilityCollectionSystem.SpawnFor("CTate.EnergyField", unit);
+
+							abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "tate", "def_atk"}, ResPath.EType.MasterServer), unit);
+						}
+
+						void setGuardira()
+						{
+							GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("guardira"))));
+
+							GetComponentData<UnitStatistics>(unit).Attack              = 28;
+							GetComponentData<UnitStatistics>(unit).MovementAttackSpeed = 1.9f;
+							GetComponentData<UnitStatistics>(unit).Weight              = 15;
+
+							displayedEquip.Add(new UnitDisplayedEquipment
+							{
+								Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
+								Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "guardira"}, ResPath.EType.ClientResource))
+							});
+							displayedEquip.Add(new UnitDisplayedEquipment
+							{
+								Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
+								Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "greatshields", "default_greatshield"}, ResPath.EType.ClientResource))
+							});
+
+							abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "guard", "def_def"}, ResPath.EType.MasterServer), unit);
+						}
+
+						void setWooyari()
+						{
+							GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("wooyari"))));
+
+							GetComponentData<UnitStatistics>(unit).Attack              = 28;
+							GetComponentData<UnitStatistics>(unit).MovementAttackSpeed = 2.1f;
+							GetComponentData<UnitStatistics>(unit).Weight              = 15;
+
+							displayedEquip.Add(new UnitDisplayedEquipment
+							{
+								Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
+								Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "yarida"}, ResPath.EType.ClientResource))
+							});
+							displayedEquip.Add(new UnitDisplayedEquipment
+							{
+								Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
+								Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "pikes", "default_pike"}, ResPath.EType.ClientResource))
+							});
+
+							abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "pike", "multi_atk"}, ResPath.EType.MasterServer), unit);
+						}
+
+						setTaterazay();
 					}
-					else
+					else if (army == 2)
 					{
 						GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("yarida"))));
+
+						GetComponentData<UnitStatistics>(unit).Attack = 10;
 
 						displayedEquip.Add(new UnitDisplayedEquipment
 						{
@@ -220,22 +314,46 @@ namespace PataNext.Module.Simulation.GameModes
 
 						abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "yari", "def_atk"}, ResPath.EType.MasterServer), unit);
 					}
+					else if (army == 3)
+					{
+						GameWorld.AddComponent(unit, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource("yumiyacha"))));
+
+						GetComponentData<UnitStatistics>(unit).AttackSeekRange = 28f;
+						GetComponentData<UnitStatistics>(unit).Attack          = 8;
+
+						displayedEquip.Add(new UnitDisplayedEquipment
+						{
+							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
+							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "bows", "default_bow:small"}, ResPath.EType.ClientResource))
+						});
+						displayedEquip.Add(new UnitDisplayedEquipment
+						{
+							Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "helmet"}, ResPath.EType.MasterServer)),
+							Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "helmets", "default_helmet:small"}, ResPath.EType.ClientResource))
+						});
+
+						abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "yumi", "def_atk"}, ResPath.EType.MasterServer), unit);
+						abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "yumi", "snipe_atk"}, ResPath.EType.MasterServer), unit, AbilitySelection.Top);
+					}
 				}
 			}
 		}
 
-		private GameEntity[][] SpawnArmy(((bool isLeader, string archetype)[] args, float armyPos)[] array, in GameEntity player, in GameEntity rhythmEngine, out GameEntity unitTarget, float spawnPosition = 0)
+		private GameEntityHandle[][] SpawnArmy(((bool isLeader, string archetype)[] args, float armyPos)[] array,
+		                                 in GameEntityHandle                                         player, in GameEntityHandle rhythmEngine, out GameEntityHandle unitTarget,
+		                                 float                                                       spawnPosition = 0)
 		{
 			unitTarget = GameWorld.CreateEntity();
 			GameWorld.AddComponent(unitTarget, new UnitTargetDescription());
 			GameWorld.AddComponent(unitTarget, new Position());
+			GameWorld.AddComponent(unitTarget, new UnitEnemySeekingState());
 
 			GameWorld.GetComponentData<Position>(unitTarget).Value.X = spawnPosition;
 
-			var result = new GameEntity[array.Length][];
+			var result = new GameEntityHandle[array.Length][];
 			for (var army = 0; army < result.Length; army++)
 			{
-				var entities = result[army] = new GameEntity[array[army].args.Length];
+				var entities = result[army] = new GameEntityHandle[array[army].args.Length];
 				for (var u = 0; u < entities.Length; u++)
 				{
 					var unit = playableUnitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
@@ -247,18 +365,25 @@ namespace PataNext.Module.Simulation.GameModes
 							MovementAttackSpeed = 2.2f,
 							Weight              = 8.5f,
 							AttackSpeed         = 2f,
+							AttackSeekRange     = 16f,
 						},
 						Direction = UnitDirection.Right
 					});
 
+					if (player != default)
+					{
+						GameWorld.Link(unit, player, true);
+						GameWorld.AddComponent(unit, new Owner(Safe(player)));
+					}
+
 					GameWorld.AddComponent(unit, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResource(array[army].args[u].archetype))));
 
-					GameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(unitTarget));
+					GameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(Safe(unitTarget)));
 
 					if (player != default)
-						GameWorld.AddComponent(unit, new Relative<PlayerDescription>(player));
+						GameWorld.AddComponent(unit, new Relative<PlayerDescription>(Safe(player)));
 					if (rhythmEngine != default)
-						GameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(rhythmEngine));
+						GameWorld.AddComponent(unit, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
 
 					GameWorld.AddComponent(unit, new UnitEnemySeekingState());
 					GameWorld.AddComponent(unit, new UnitTargetOffset
@@ -267,9 +392,14 @@ namespace PataNext.Module.Simulation.GameModes
 						Attack = UnitTargetOffset.CenterComputeV1(u, array[army].args.Length, 0.5f)
 					});
 
-					Console.WriteLine($"{army} -> {array[army].armyPos};{u} -> {array[army].armyPos + u * 0.5f}");
-
 					GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
+
+					healthProvider.SpawnEntityWithArguments(new DefaultHealthProvider.Create
+					{
+						value = 300,
+						max   = 300,
+						owner = Safe(unit)
+					});
 
 					if (array[army].args[u].isLeader)
 					{
@@ -283,7 +413,7 @@ namespace PataNext.Module.Simulation.GameModes
 								{
 									Mode   = CameraMode.Forced,
 									Offset = RigidTransform.Identity,
-									Target = unit
+									Target = Safe(unit)
 								}
 							});
 					}

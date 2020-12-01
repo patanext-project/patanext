@@ -9,12 +9,15 @@ using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
 using StormiumTeam.GameBase.GamePlay;
+using StormiumTeam.GameBase.GamePlay.Health.Systems;
+using StormiumTeam.GameBase.GamePlay.Health.Systems.Pass;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
 using StormiumTeam.GameBase.Network.MasterServer;
 using StormiumTeam.GameBase.Network.MasterServer.StandardAuthService;
 using StormiumTeam.GameBase.Network.MasterServer.User;
 using StormiumTeam.GameBase.Network.MasterServer.UserService;
 using StormiumTeam.GameBase.Physics.Systems;
+using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Time;
 using StormiumTeam.GameBase.Time.Components;
 
@@ -37,21 +40,35 @@ namespace StormiumTeam.GameBase
 						systemCollection.AddPass(new IPreUpdateSimulationPass.RegisterPass(), new[] {typeof(UpdatePassRegister)}, null);
 						systemCollection.AddPass(new IUpdateSimulationPass.RegisterPass(), new[] {typeof(IPreUpdateSimulationPass.RegisterPass)}, null);
 						systemCollection.AddPass(new IPostUpdateSimulationPass.RegisterPass(), new[] {typeof(IUpdateSimulationPass.RegisterPass)}, null);
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(PhysicsSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(BuildTeamEntityContainerSystem));
 						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(HitBoxAgainstEnemiesSystem));
+						systemCollection.AddPass(new RegisterHealthProcessPass(), null, null);
 
+						// Pre
+						simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(BuildTeamEntityContainerSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(HealthDescription.RegisterContainer));
+						
+						// Now
+						simulationApplication.Data.Collection.GetOrCreate(typeof(PhysicsSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(HitBoxAgainstEnemiesSystem));
+						
+						// Post
+						simulationApplication.Data.Collection.GetOrCreate(typeof(HealthSystem));
+						{
+							simulationApplication.Data.Collection.GetOrCreate(typeof(DefaultHealthProcess));
+							simulationApplication.Data.Collection.GetOrCreate(typeof(DefaultHealthProvider));
+						}
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(RemoveEntityWithEndTimeSystem));
+
+						// ???
 						simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));
 						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(RemoveEntityWithEndTimeSystem));
+						
 					}, default);
 				}
 			}

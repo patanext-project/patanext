@@ -22,7 +22,7 @@ namespace PataNext.Module.Simulation.Resources
 
 		public RhythmCommandResource(ComponentType identifier)
 		{
-			Identifier   = identifier;
+			Identifier = identifier;
 		}
 
 		public bool Equals(RhythmCommandResource other)
@@ -40,14 +40,14 @@ namespace PataNext.Module.Simulation.Resources
 			return Identifier.GetHashCode();
 		}
 	}
-	
+
 	public readonly struct RhythmCommandIdentifier : IComponentData
 	{
 		public readonly CharBuffer64 Value;
 
 		public RhythmCommandIdentifier(CharBuffer64 value) => Value = value;
 	}
-	
+
 	public class RhythmCommandResourceDb : GameResourceDb<RhythmCommandResource>
 	{
 		public RhythmCommandResourceDb(Context context) : base(context)
@@ -61,14 +61,14 @@ namespace PataNext.Module.Simulation.Resources
 		public GameResource<RhythmCommandResource> GetOrCreate(ComponentType type, string identifier = null, RhythmCommandAction[] buffer = null)
 		{
 			var resource = GetOrCreate(new RhythmCommandResource(type));
-			if (!GameWorld.HasComponent(resource.Entity, type))
-				GameWorld.AddComponent(resource.Entity, type);
-			
+			if (!GameWorld.HasComponent(resource.Handle, type))
+				GameWorld.AddComponent(resource.Handle, type);
+
 			if (identifier != null)
-				GameWorld.AddComponent(resource.Entity, new RhythmCommandIdentifier(identifier));
+				GameWorld.AddComponent(resource.Handle, new RhythmCommandIdentifier(identifier));
 
 			if (buffer != null)
-				GameWorld.AddBuffer<RhythmCommandActionBuffer>(resource.Entity).AddRangeReinterpret(buffer.AsSpan());
+				GameWorld.AddBuffer<RhythmCommandActionBuffer>(resource.Handle).AddRangeReinterpret(buffer.AsSpan());
 
 			return resource;
 		}

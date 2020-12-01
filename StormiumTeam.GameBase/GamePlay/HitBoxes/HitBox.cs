@@ -23,12 +23,10 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 
 	public readonly struct HitBoxHistory : IComponentBuffer
 	{
-		public readonly GameEntity Event;
 		public readonly GameEntity Victim;
 
-		public HitBoxHistory(GameEntity @event, GameEntity victim)
+		public HitBoxHistory(GameEntity victim)
 		{
-			Event  = @event;
 			Victim = victim;
 		}
 	}

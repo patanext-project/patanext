@@ -9,10 +9,12 @@ using GameHost.Core.Ecs;
 using GameHost.Core.IO;
 using GameHost.IO;
 using GameHost.Native.Char;
+using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
 using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Simulation.Client.Systems;
@@ -111,23 +113,48 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			var heroModeCommandResource = default(ResourceHandle<AudioResource>);
 			if (TryGetComponentData(LocalEngine, out Relative<PlayerDescription> relativePlayer))
 			{
-				CameraState cameraState = default, localCamState = default;
-				if (TryGetComponentData(relativePlayer.Target, out ServerCameraState serverCameraState))
-					cameraState                                                                                         = serverCameraState.Data;
-				else if (TryGetComponentData(relativePlayer.Target, out LocalCameraState localCameraState)) cameraState = localCameraState.Data;
+				GameEntity selectedAbility = default;
+				if (TryGetComponentBuffer<OwnedRelative<UnitDescription>>(relativePlayer.Handle, out var unitBuffer))
+				{
+					foreach (var unit in unitBuffer)
+					{
+						if (TryGetComponentData(unit.Target.Handle, out OwnerActiveAbility activeAbility)
+						    && activeAbility.Incoming != default
+						    && TryGetComponentData(activeAbility.Incoming.Handle, out AbilityActivation abilityActivation)
+						    && abilityActivation.Type.HasFlag(EAbilityActivationType.HeroMode))
+						{
+							selectedAbility = activeAbility.Incoming;
+						}
+					}
+				}
+				else
+				{
+					CameraState cameraState = default, localCamState = default;
+					if (TryGetComponentData(relativePlayer.Handle, out ServerCameraState serverCameraState))
+						cameraState                                                                                                = serverCameraState.Data;
+					else if (TryGetComponentData(relativePlayer.Handle, out LocalCameraState localCameraState)) cameraState = localCameraState.Data;
 
-				if ((int) localCamState.Mode > (int) cameraState.Mode)
-					cameraState = localCamState;
+					if ((int) localCamState.Mode > (int) cameraState.Mode)
+						cameraState = localCamState;
 
-				if (GameWorld.Contains(cameraState.Target) && TryGetComponentData(cameraState.Target, out OwnerActiveAbility activeAbility)
-				                                           && activeAbility.Incoming != default
-				                                           && TryGetComponentData(activeAbility.Incoming, out AbilityActivation abilityActivation)
-				                                           && TryGetComponentData(activeAbility.Incoming, out AbilityState abilityState)
-				                                           && abilityActivation.Type.HasFlag(EAbilityActivationType.HeroMode))
+					if (GameWorld.Contains(cameraState.Target.Handle) && TryGetComponentData(cameraState.Target.Handle, out OwnerActiveAbility activeAbility)
+					                                                  && activeAbility.Incoming != default
+					                                                  && TryGetComponentData(activeAbility.Incoming.Handle, out AbilityActivation abilityActivation)
+					                                                  && abilityActivation.Type.HasFlag(EAbilityActivationType.HeroMode))
+					{
+						selectedAbility = activeAbility.Incoming;
+					}
+				}
+
+				if (selectedAbility != default)
 				{
 					isHeroMode = true;
-					if (TryGetComponentData(activeAbility.Incoming, out NamedAbilityId namedAbilityId))
-						heroModeCommandResource = heroVoiceManager.GetResource(namedAbilityId.Value.ToString());
+					if (TryGetComponentData(selectedAbility.Handle, out NamedAbilityId namedAbilityId))
+					{
+						var next = heroVoiceManager.GetResource(namedAbilityId.Value.ToString());
+						if (heroModeCommandResource == default || next.IsLoaded)
+							heroModeCommandResource = next;
+					}
 				}
 			}
 
@@ -175,14 +202,23 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 					}
 					else if (isHeroMode)
 					{
+						Console.WriteLine(">> " + heroModeCommandResource.IsLoaded);
 						if (heroModeCommandResource.IsLoaded)
+						{
+							Console.WriteLine("use sound");
 							resourceHandle = heroModeCommandResource;
-						else Director.HeroModeCombo.Value++;
+						}
+						else
+						{
+							Director.HeroModeCombo.Value++;
+							Console.WriteLine("increment");
+						}
 
 						if (Director.HeroModeCombo.Value > 0)
 						{
 							var comboList = onHeroModeCombo.Value ?? onHeroModeCombo.Default;
 							resourceHandle = comboList[Director.HeroModeCombo.Value % comboList.Count];
+							Console.WriteLine("use combo");
 						}
 
 						Director.HeroModeCombo.Value++;

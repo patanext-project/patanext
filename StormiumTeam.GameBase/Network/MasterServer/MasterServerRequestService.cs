@@ -58,12 +58,12 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 
 		protected virtual bool ManageCallerStatus => false;
 
-		protected override void OnFeatureAdded(MasterServerFeature obj)
+		protected override void OnFeatureAdded(Entity entity, MasterServerFeature obj)
 		{
 			Service = MagicOnionClient.Create<TService>(obj.Channel);
 		}
 
-		protected override void OnFeatureRemoved(MasterServerFeature obj)
+		protected override void OnFeatureRemoved(Entity entity, MasterServerFeature obj)
 		{
 			Service = null;
 		}
