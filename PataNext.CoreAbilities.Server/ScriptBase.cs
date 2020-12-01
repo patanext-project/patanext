@@ -20,7 +20,9 @@ namespace PataNext.CoreAbilities.Server
 	public abstract class ScriptBase<TProvider> : AbilityScriptModule<TProvider>
 		where TProvider : AppObject, IRuntimeAbilityProvider
 	{
-		public (GameEntity enemy, float dist) GetNearestEnemy(GameEntity entity, float? maxSelfDistance, float? maxRelativeDistance, ENearestOrder nearestOrder = ENearestOrder.SelfThenRelative)
+		public (GameEntity enemy, float dist) GetNearestEnemy(GameEntityHandle entity,
+		                                                      float?           maxSelfDistance, float? maxRelativeDistance,
+		                                                      ENearestOrder    nearestOrder = ENearestOrder.SelfThenRelative)
 		{
 			if (!GameWorld.Contains(entity))
 				return default;
@@ -31,7 +33,7 @@ namespace PataNext.CoreAbilities.Server
 
 			Relative<UnitTargetDescription> relative;
 			UnitEnemySeekingState           seekingState;
-			
+
 			var result = (enemy: default(GameEntity), dist: 0f);
 			switch (nearestOrder)
 			{
@@ -44,7 +46,7 @@ namespace PataNext.CoreAbilities.Server
 					}
 
 					if (TryGetComponentData(entity, out relative)
-					    && TryGetComponentData(relative.Target, out seekingState))
+					    && TryGetComponentData(relative.Handle, out seekingState))
 					{
 						result = (seekingState.Enemy, seekingState.Distance);
 						if (result.dist <= maxRelativeDistance)
@@ -54,7 +56,7 @@ namespace PataNext.CoreAbilities.Server
 					return default;
 				case ENearestOrder.RelativeThenSelf:
 					if (TryGetComponentData(entity, out relative)
-					    && TryGetComponentData(relative.Target, out seekingState))
+					    && TryGetComponentData(relative.Handle, out seekingState))
 					{
 						result = (seekingState.Enemy, seekingState.Distance);
 						if (result.dist <= maxRelativeDistance)

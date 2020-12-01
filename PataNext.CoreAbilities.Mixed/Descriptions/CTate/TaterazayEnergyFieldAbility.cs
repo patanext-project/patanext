@@ -57,7 +57,7 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 			entityComponents.Add(GameWorld.AsComponentType<DefaultSubsetMarch>());
 		}
 
-		public override void SetEntityData(GameEntity entity, CreateAbility data)
+		public override void SetEntityData(GameEntityHandle entity, CreateAbility data)
 		{
 			base.SetEntityData(entity, data);
 
@@ -111,11 +111,11 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 				
 				ref var control = ref controlVelocityAccessor[entity];
 				ref var subset = ref subsetAccessor[entity];
-				subset.IsActive = (state.Phase & EAbilityPhase.Active) != 0 && HasComponent(engineSet.Command.Entity, marchCommandComponentType);
+				subset.IsActive = (state.Phase & EAbilityPhase.Active) != 0 && HasComponent(engineSet.Command.Handle, marchCommandComponentType);
 
 				if (TryGetComponentData(owner, out Relative<UnitTargetDescription> relativeTarget))
 				{
-					ref readonly var targetPosition = ref positionAccessor[relativeTarget.Target].Value;
+					ref readonly var targetPosition = ref positionAccessor[relativeTarget.Handle].Value;
 					if ((state.Phase & EAbilityPhase.ActiveOrChaining) != 0)
 					{
 						control.IsActive       = true;

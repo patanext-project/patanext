@@ -80,7 +80,7 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 
 			ref var velocity = ref GetComponentData<Velocity>(owner);
 
-			GameWorld.RemoveComponent(self, AsComponentType<HitBox>());
+			GameWorld.RemoveComponent(self.Handle, AsComponentType<HitBox>());
 			GetBuffer<HitBoxHistory>(self).Clear();
 
 			if (ability.PreviousActivation != state.ActivationVersion)
@@ -166,11 +166,11 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 					{
 						case WooyariMultiAttackAbility.EAttackType.Swing:
 						case WooyariMultiAttackAbility.EAttackType.Uppercut:
-							physicsSystem.SetColliderShape(self, new Sphere(7));
+							physicsSystem.SetColliderShape(self.Handle, new Sphere(7));
 							break;
 						case WooyariMultiAttackAbility.EAttackType.Stab:
 							GetComponentData<Position>(self).Value.X += 4;
-							physicsSystem.SetColliderShape(self, new Box(7, 1, 1));
+							physicsSystem.SetColliderShape(self.Handle, new Box(7, 1, 1));
 							break;
 						default:
 							throw new ArgumentOutOfRangeException(nameof(ability.Current), "couldn't attack!");
@@ -186,7 +186,7 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 			if (inputBuffer.Count > 0)
 				ability.Next = inputBuffer[0].Type;
 
-			var (enemyPrioritySelf, _) = GetNearestEnemy(owner, 4, null);
+			var (enemyPrioritySelf, _) = GetNearestEnemy(owner.Handle, 4, null);
 			if (state.IsActive && enemyPrioritySelf != default
 			                   && ability.AttackStart == TimeSpan.Zero)
 			{

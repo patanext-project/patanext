@@ -38,7 +38,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 			entityComponents.Add(GameWorld.AsComponentType<DefaultSubsetMarch>());
 		}
 
-		public override void SetEntityData(GameEntity entity, CreateAbility data)
+		public override void SetEntityData(GameEntityHandle entity, CreateAbility data)
 		{
 			base.SetEntityData(entity, data);
 

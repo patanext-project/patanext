@@ -79,7 +79,7 @@ namespace PataNext.CoreAbilities.Server.Yumi.AttackCommand
                 ability.AccumulatedAccuracy -= (float) worldTime.Delta.TotalSeconds * 0.1f;
             }
 
-            var (enemyPrioritySelf, _) = GetNearestEnemy(owner, 4, null);
+            var (enemyPrioritySelf, _) = GetNearestEnemy(owner.Handle, 4, null);
             if (state.IsActive && enemyPrioritySelf != default)
             {
                 var targetPosition = GetComponentData<Position>(enemyPrioritySelf).Value;

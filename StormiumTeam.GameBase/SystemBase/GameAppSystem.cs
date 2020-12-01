@@ -39,16 +39,34 @@ namespace StormiumTeam.GameBase.SystemBase
 			return ref GameWorld.GetComponentData<T>(entity);
 		}
 
+		public ref T GetComponentData<T>(GameEntity entity)
+			where T : struct, IComponentData
+		{
+			return ref GameWorld.GetComponentData<T>(entity.Handle);
+		}
+
 		public ComponentBuffer<T> GetBuffer<T>(GameEntityHandle entity)
 			where T : struct, IComponentBuffer
 		{
 			return GameWorld.GetBuffer<T>(entity);
 		}
 
+		public ComponentBuffer<T> GetBuffer<T>(GameEntity entity)
+			where T : struct, IComponentBuffer
+		{
+			return GameWorld.GetBuffer<T>(entity.Handle);
+		}
+
 		public ComponentReference AddComponent<T>(GameEntityHandle entity, T data = default)
 			where T : struct, IComponentData
 		{
 			return GameWorld.AddComponent(entity, data);
+		}
+
+		public ComponentReference AddComponent<T>(GameEntity entity, T data = default)
+			where T : struct, IComponentData
+		{
+			return GameWorld.AddComponent(entity.Handle, data);
 		}
 
 		public bool TryGetComponentData<T>(GameEntityHandle entity, out T result, T defaultData = default)
@@ -64,6 +82,12 @@ namespace StormiumTeam.GameBase.SystemBase
 			return false;
 		}
 
+		public bool TryGetComponentData<T>(GameEntity entity, out T result, T defaultData = default)
+			where T : struct, IComponentData
+		{
+			return TryGetComponentData(entity.Handle, out result, defaultData);
+		}
+
 		public bool TryGetComponentBuffer<T>(GameEntityHandle entity, out ComponentBuffer<T> result)
 			where T : struct, IComponentBuffer
 		{
@@ -75,6 +99,12 @@ namespace StormiumTeam.GameBase.SystemBase
 
 			result = default;
 			return false;
+		}
+
+		public bool TryGetComponentBuffer<T>(GameEntity entity, out ComponentBuffer<T> result)
+			where T : struct, IComponentBuffer
+		{
+			return TryGetComponentBuffer(entity.Handle, out result);
 		}
 
 		public ComponentDataAccessor<T> GetAccessor<T>() where T : struct, IComponentData

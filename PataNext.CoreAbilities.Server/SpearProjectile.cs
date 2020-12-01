@@ -61,12 +61,12 @@ namespace PataNext.CoreAbilities.Server
                 GameWorld.AsComponentType<HitBox>(),
                 GameWorld.AsComponentType<HitBoxAgainstEnemies>(),
                 GameWorld.AsComponentType<HitBoxHistory>(),
-                
+
                 GameWorld.AsComponentType<UnitPlayState>(),
             });
         }
 
-        public override void SetEntityData(GameEntity entity, (GameEntity owner, Vector3 pos, Vector3 vel, Vector3 gravity) args)
+        public override void SetEntityData(GameEntityHandle entity, (GameEntity owner, Vector3 pos, Vector3 vel, Vector3 gravity) args)
         {
             GameWorld.GetComponentData<Owner>(entity)                   = new Owner(args.owner);
             GameWorld.GetComponentData<SpearProjectile>(entity).Gravity = args.gravity;
@@ -75,13 +75,13 @@ namespace PataNext.CoreAbilities.Server
 
             GameWorld.GetComponentData<HitBox>(entity) = new HitBox(args.owner, 0);
 
-            if (GameWorld.HasComponent<Relative<TeamDescription>>(args.owner))
+            if (GameWorld.HasComponent<Relative<TeamDescription>>(args.owner.Handle))
             {
-                var team = GameWorld.GetComponentData<Relative<TeamDescription>>(args.owner);
+                var team = GameWorld.GetComponentData<Relative<TeamDescription>>(args.owner.Handle);
                 GameWorld.AddComponent(entity, new HitBoxAgainstEnemies(team.Target));
             }
 
-            GameWorld.GetComponentData<UnitPlayState>(entity) = GameWorld.GetComponentData<UnitPlayState>(args.owner);
+            GameWorld.GetComponentData<UnitPlayState>(entity) = GameWorld.GetComponentData<UnitPlayState>(args.owner.Handle);
 
             physicsSystem.SetColliderShape(entity, new Sphere(0.1f));
         }
@@ -103,23 +103,23 @@ namespace PataNext.CoreAbilities.Server
         {
             base.OnDependenciesResolved(dependencies);
 
-            Add((GameEntity ent, ref SpearProjectile proj, ref Position pos, ref Velocity vel) =>
+            Add((GameEntityHandle ent, ref SpearProjectile proj, ref Position pos, ref Velocity vel) =>
             {
                 var dt = (float) worldTime.Delta.TotalSeconds;
                 vel.Value += proj.Gravity * dt;
                 pos.Value += vel.Value * (float) worldTime.Delta.TotalSeconds;
-                
+
                 var history = GetBuffer<HitBoxHistory>(ent);
                 if (history.Count > 0 || pos.Value.Y <= 0)
                 {
                     postScheduler.Schedule(onHit, (ent, worldTime.Total.Add(TimeSpan.FromSeconds(1))), default);
                 }
-                
+
                 return true;
             }, CreateEntityQuery(none: new[] {typeof(ProjectileEndedTag)}));
         }
 
-        private void onHit((GameEntity ent, TimeSpan time) args)
+        private void onHit((GameEntityHandle ent, TimeSpan time) args)
         {
             GameWorld.AddRemoveMultipleComponent(args.ent, stackalloc[]
             {
@@ -137,7 +137,7 @@ namespace PataNext.CoreAbilities.Server
         public void OnSimulationUpdate()
         {
             RunExecutors();
-            
+
             postScheduler.Run();
         }
     }

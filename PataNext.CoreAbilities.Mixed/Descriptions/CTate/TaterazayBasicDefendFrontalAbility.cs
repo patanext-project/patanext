@@ -37,7 +37,7 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 			return GameWorld.AsComponentType<DefendCommand>();
 		}
 
-		public override void SetEntityData(GameEntity entity, CreateAbility data)
+		public override void SetEntityData(GameEntityHandle entity, CreateAbility data)
 		{
 			base.SetEntityData(entity, data);
 

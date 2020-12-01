@@ -70,7 +70,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
             else if (state.IsChaining)
                 controlVelocity.StayAtCurrentPositionX(50);
 
-            var (enemyPrioritySelf, _) = GetNearestEnemy(owner, 4, null);
+            var (enemyPrioritySelf, _) = GetNearestEnemy(owner.Handle, 4, null);
             if (state.IsActive && enemyPrioritySelf != default)
             {
                 var targetPosition = GetComponentData<Position>(enemyPrioritySelf).Value;

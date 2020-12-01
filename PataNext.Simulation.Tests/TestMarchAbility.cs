@@ -26,37 +26,37 @@ namespace PataNext.Module.Simulation.Tests
 		{
 			WorldCollection.GetOrCreate(wc => new DefaultMarchAbilitySystem(wc));
 			WorldCollection.GetOrCreate(wc => new DefaultSubsetMarchAbilitySystem(wc));
-			
+
 			var marchAbilityProvider = WorldCollection.GetOrCreate(wc => new DefaultMarchAbilityProvider(wc));
-			
+
 			RunScheduler();
 
 			var target = GameWorld.CreateEntity();
 			GameWorld.AddComponent(target, new Position());
-			
+
 			var unit = GameWorld.CreateEntity();
 			GameWorld.AddComponent(unit, new Position());
 			GameWorld.AddComponent(unit, new Velocity());
 			GameWorld.AddComponent(unit, new UnitPlayState
 			{
-				Weight = 10,
+				Weight        = 10,
 				MovementSpeed = 10
 			});
 			GameWorld.AddComponent(unit, new UnitControllerState());
 			GameWorld.AddComponent(unit, UnitDirection.Right);
 			GameWorld.AddComponent(unit, new UnitTargetOffset());
 			GameWorld.AddComponent(unit, new UnitTargetControlTag());
-			GameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(target));
-			
+			GameWorld.AddComponent(unit, new Relative<UnitTargetDescription>(GameWorld.Safe(target)));
+
 			var ability = marchAbilityProvider.SpawnEntityWithArguments(new CreateAbility
 			{
-				Owner     = unit,
+				Owner     = GameWorld.Safe(unit),
 				Selection = AbilitySelection.Horizontal
 			});
 			GameWorld.GetComponentData<AbilityState>(ability).Phase = EAbilityPhase.Active;
-			
+
 			RunScheduler();
-			
+
 			WorldTime.Delta = TimeSpan.FromSeconds(1f / 60f);
 			for (var i = 0; i != 1; i++)
 				WorldCollection.LoopPasses();

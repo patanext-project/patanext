@@ -37,7 +37,7 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
             ref readonly var position     = ref GetComponentData<Position>(owner).Value;
             ref readonly var playState    = ref GetComponentData<UnitPlayState>(owner);
 
-            GameWorld.RemoveComponent(self, AsComponentType<HitBox>());
+            GameWorld.RemoveComponent(self.Handle, AsComponentType<HitBox>());
             GetBuffer<HitBoxHistory>(self).Clear();
             
             if (!state.IsActiveOrChaining)
@@ -64,7 +64,7 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
             else if (state.IsChaining)
                 controlVelocity.StayAtCurrentPositionX(50);
 
-            var (enemyPrioritySelf, dist) = GetNearestEnemy(owner, 2, null);
+            var (enemyPrioritySelf, dist) = GetNearestEnemy(owner.Handle, 2, null);
             if (state.IsActive && enemyPrioritySelf != default)
             {
                 var targetPosition = GetComponentData<Position>(enemyPrioritySelf).Value;

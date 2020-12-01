@@ -107,7 +107,7 @@ namespace PataNext.CoreAbilities.Mixed.Subset
 				}
 			
 				ref readonly var owner = ref GetComponentData<Owner>(entity).Target;
-				if (!validOwnerQuery.MatchAgainst(owner))
+				if (!validOwnerQuery.MatchAgainst(owner.Handle))
 					continue;
 
 				ref readonly var unitTargetRelative = ref GetComponentData<Relative<UnitTargetDescription>>(owner).Target;
@@ -125,7 +125,7 @@ namespace PataNext.CoreAbilities.Mixed.Subset
 
 				// Cursor movement
 				if ((subSet.Target & DefaultSubsetMarch.ETarget.Cursor) != 0
-				    && GameWorld.HasComponent<UnitTargetControlTag>(owner)
+				    && GameWorld.HasComponent<UnitTargetControlTag>(owner.Handle)
 				    && subSet.ActiveTime <= 3.75f)
 				{
 					direction = GetComponentData<UnitDirection>(owner).Value;

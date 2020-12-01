@@ -66,7 +66,7 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 			});
 		}
 
-		public override void SetEntityData(GameEntity entity, CreateAbility data)
+		public override void SetEntityData(GameEntityHandle entity, CreateAbility data)
 		{
 			base.SetEntityData(entity, data);
 

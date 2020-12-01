@@ -60,7 +60,7 @@ namespace PataNext.CoreAbilities.Server.PartyCommand
 				ability.TickProgression = default;
 		}
 
-		private void addSummonEnergy((GameEntity engine, int add) args)
+		private void addSummonEnergy((GameEntityHandle engine, int add) args)
 		{
 			GetComponentData<RhythmSummonEnergy>(args.engine).Value += args.add;
 		}

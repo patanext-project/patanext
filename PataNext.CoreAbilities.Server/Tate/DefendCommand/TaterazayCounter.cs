@@ -48,7 +48,7 @@ namespace PataNext.CoreAbilities.Server.Tate.DefendCommand
 
 			ref readonly var position = ref GetComponentData<Position>(owner).Value;
 			
-			GameWorld.RemoveComponent(self, AsComponentType<HitBox>());
+			GameWorld.RemoveComponent(self.Handle, AsComponentType<HitBox>());
 			GetBuffer<HitBoxHistory>(self).Clear();
 
 			if (!state.IsActiveOrChaining)
@@ -94,7 +94,7 @@ namespace PataNext.CoreAbilities.Server.Tate.DefendCommand
 
 			if (state.IsActive && ability.AttackStart == default)
 			{
-				var (enemy, _) = GetNearestEnemy(owner, 4, 8);
+				var (enemy, _) = GetNearestEnemy(owner.Handle, 4, 8);
 				if (enemy != default)
 				{
 					var targetPosition = GetComponentData<Position>(enemy).Value;
