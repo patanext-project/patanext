@@ -20,6 +20,7 @@ using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Providers;
+using PataNext.Module.Simulation.Systems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.Network;
@@ -42,6 +43,8 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 		private FreeRoamUnitProvider unitProvider;
 		private NetReportTimeSystem  reportTimeSystem;
+		
+		private AbilityCollectionSystem abilityCollectionSystem;
 
 		private IManagedWorldTime worldTime;
 		
@@ -50,6 +53,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			DependencyResolver.Add(() => ref unitProvider);
 			DependencyResolver.Add(() => ref reportTimeSystem);
 			DependencyResolver.Add(() => ref worldTime);
+			DependencyResolver.Add(() => ref abilityCollectionSystem);
 		}
 
 		private EntityQuery playerQuery, playerWithoutInputQuery, playerWithInputQuery;
@@ -74,25 +78,39 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 				{
 					// Add RhythmEngine (fully simulated by client)
 					var rhythmEngine = GameWorld.CreateEntity();
-					GameWorld.AddComponent(rhythmEngine, new RhythmEngineDescription());
-					GameWorld.AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(1))});
-					GameWorld.AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
-					GameWorld.AddComponent(rhythmEngine, new RhythmEngineLocalState());
-					GameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
-					GameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(player)));
+					AddComponent(rhythmEngine, new RhythmEngineDescription());
+					AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(1))});
+					AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
+					AddComponent(rhythmEngine, new RhythmEngineLocalState());
+					AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
+					AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(player)));
 					GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEngineCommandProgressBuffer>());
 					GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
-					GameWorld.AddComponent(rhythmEngine, new GameCommandState());
-					GameWorld.AddComponent(rhythmEngine, new SetRemoteAuthority<SimulationAuthority>());
+					AddComponent(rhythmEngine, new GameCommandState());
+					AddComponent(rhythmEngine, new SetRemoteAuthority<SimulationAuthority>());
 					AddComponent(rhythmEngine, new NetworkedEntity());
 					AddComponent(rhythmEngine, new OwnedNetworkedEntity(Safe(player)));
 					GameCombo.AddToEntity(GameWorld, rhythmEngine);
 					RhythmSummonEnergy.AddToEntity(GameWorld, rhythmEngine);
 
 					GameWorld.RemoveComponent(character.Handle, AsComponentType<UnitFreeRoamMovement>());
-					GameWorld.AddComponent(player, AsComponentType<GameRhythmInputComponent>());
-					GameWorld.AddComponent(player, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
-					GameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(player)));
+					AddComponent(player, new GameRhythmInputComponent());
+					AddComponent(player, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
+					AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(player)));
+
+					abilityCollectionSystem.SpawnFor("march", character.Handle);
+
+					var unitTarget = GameWorld.CreateEntity();
+					GameWorld.AddComponent(unitTarget, new UnitTargetDescription());
+					GameWorld.AddComponent(unitTarget, new Position());
+					GameWorld.AddComponent(unitTarget, new UnitEnemySeekingState());
+
+					GameWorld.GetComponentData<Position>(unitTarget).Value.X = -10;
+
+					AddComponent(character, new Relative<UnitTargetDescription>(Safe(unitTarget)));
+					AddComponent(character, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
+					AddComponent(character, new UnitTargetControlTag());
+					AddComponent(character, new UnitTargetOffset());
 				}
 			}
 		}
@@ -128,7 +146,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			GameWorld.AddBuffer<TeamEnemies>(unitTeam.Handle).Add(new TeamEnemies(environmentTeam));
 			GameWorld.AddBuffer<TeamEnemies>(environmentTeam.Handle).Add(new TeamEnemies(unitTeam));
 			
-			CreateBox(new Vector3(-3, 0, 0));
+			CreateBox(new Vector3(15, 0, 0));
 
 			while (!token.IsCancellationRequested)
 			{
@@ -141,7 +159,15 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					var character = Safe(unitProvider.SpawnEntityWithArguments(new PlayableUnitProvider.Create
 					{
 						Direction = UnitDirection.Right,
-						Statistics = new UnitStatistics()
+						Statistics = new UnitStatistics
+						{
+							BaseWalkSpeed       = 2,
+							FeverWalkSpeed      = 2.2f,
+							MovementAttackSpeed = 2.2f,
+							Weight              = 8.5f,
+							AttackSpeed         = 2f,
+							AttackSeekRange     = 16f,
+						}
 					}));
 
 					AddComponent(player, new PlayerFreeRoamCharacter {Entity = character});

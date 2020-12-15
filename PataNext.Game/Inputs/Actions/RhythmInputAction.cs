@@ -37,9 +37,6 @@ namespace PataNext.Game.Inputs.Actions
                 foreach (var entity in InputQuery.GetEntities())
                 {
                     ref var current = ref entity.Get<RhythmInputAction>();
-                    if (current.DownCount > 0)
-                        Console.WriteLine("RESET");
-                    
                     current.DownCount = 0;
                     current.UpCount   = 0;
                 }
@@ -93,9 +90,6 @@ namespace PataNext.Game.Inputs.Actions
             UpCount    += buffer.ReadValue<uint>();
             Active     =  buffer.ReadValue<bool>();
             ActiveTime =  buffer.ReadValue<TimeSpan>();
-
-            if (DownCount > 0)
-                Console.WriteLine(DownCount);
         }
     }
 }

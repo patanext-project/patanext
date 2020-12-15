@@ -39,8 +39,8 @@ namespace StormiumTeam.GameBase.Transform.Components
 
 			public uint X, Y, Z;
 
-			private static readonly BoundedRange RangeXz = new(-2000, 2000, 0.02f);
-			private static readonly BoundedRange RangeY  = new(-500, 500, 0.02f);
+			private static readonly BoundedRange RangeXz = new(-2000, 2000, 0.01f);
+			private static readonly BoundedRange RangeY  = new(-500, 500, 0.01f);
 
 			public void Serialize(in BitBuffer buffer, in Snapshot baseline, in EmptySnapshotSetup setup)
 			{

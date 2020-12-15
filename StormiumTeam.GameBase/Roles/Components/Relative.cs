@@ -49,27 +49,26 @@ namespace StormiumTeam.GameBase.Roles.Components
 	{
 		public uint Tick { get; set; }
 
-		public GameEntity Entity;
+		public Ghost Ghost;
 
 		public void Serialize(in BitBuffer buffer, in RelativeSnapshot<TDescription> baseline, in GhostSetup setup)
 		{
-			buffer.AddUIntD4Delta(Entity.Id, baseline.Entity.Id)
-			      .AddUIntD4Delta(Entity.Version, baseline.Entity.Version);
+			buffer.AddGhostDelta(Ghost, baseline.Ghost);
 		}
 
 		public void Deserialize(in BitBuffer buffer, in RelativeSnapshot<TDescription> baseline, in GhostSetup setup)
 		{
-			Entity = new GameEntity(buffer.ReadUIntD4Delta(baseline.Entity.Id), buffer.ReadUIntD4Delta(baseline.Entity.Version));
+			Ghost = buffer.ReadGhostDelta(baseline.Ghost);
 		}
 
 		public void FromComponent(in Relative<TDescription> component, in GhostSetup setup)
 		{
-			Entity = setup[component.Target];
+			Ghost = setup.ToGhost(component.Target);
 		}
 
 		public void ToComponent(ref Relative<TDescription> component, in GhostSetup setup)
 		{
-			component = new Relative<TDescription>(setup[Entity]);
+			component = new Relative<TDescription>(setup.FromGhost(Ghost));
 		}
 	}
 }

@@ -117,7 +117,6 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 				if (rhythmAction.DownCount > 0)
 				{
-					Console.WriteLine("press");
 					action.InterFrame.Pressed = gameTime.Frame;
 				}
 

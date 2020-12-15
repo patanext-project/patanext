@@ -34,31 +34,27 @@ namespace StormiumTeam.GameBase.Roles.Components
 		{
 			public uint Tick { get; set; }
 
-			public GameEntity Target;
+			public Ghost Ghost;
 
 			public void Serialize(in BitBuffer buffer, in Snapshot baseline, in GhostSetup setup)
 			{
-				buffer.AddUIntD4Delta(Target.Id, baseline.Target.Id)
-				      .AddUIntD4Delta(Target.Version, baseline.Target.Version);
+				buffer.AddGhostDelta(Ghost, baseline.Ghost);
 			}
 
 			public void Deserialize(in BitBuffer buffer, in Snapshot baseline, in GhostSetup setup)
 			{
-				Target = new GameEntity(
-					buffer.ReadUIntD4Delta(baseline.Target.Id),
-					buffer.ReadUIntD4Delta(baseline.Target.Version)
-				);
+				Ghost = buffer.ReadGhostDelta(baseline.Ghost);
 			}
 
 			public void FromComponent(in Owner component, in GhostSetup setup)
 			{
-				Target = setup[component.Target];
+				Ghost = setup.ToGhost(component.Target);
 			}
 
 			// ReSharper disable RedundantAssignment
 			public void ToComponent(ref Owner component, in GhostSetup setup)
 			{
-				component = new Owner(setup[Target]);
+				component = new Owner(setup.FromGhost(Ghost));
 			}
 			// ReSharper restore RedundantAssignment
 		}

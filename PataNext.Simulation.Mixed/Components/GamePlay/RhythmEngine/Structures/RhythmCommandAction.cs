@@ -6,8 +6,8 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures
 	{
 		public int Target;
 
-		private double offset;
-		private int    sliderLength;
+		internal double offset;
+		internal int    sliderLength;
 
 		public double Offset
 		{

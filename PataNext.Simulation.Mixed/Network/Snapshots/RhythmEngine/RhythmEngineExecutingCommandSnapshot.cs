@@ -1,8 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using GameHost.Injection;
 using GameHost.Revolution.NetCode;
 using GameHost.Revolution.Snapshot.Serializers;
 using GameHost.Revolution.Snapshot.Systems;
+using GameHost.Revolution.Snapshot.Systems.Instigators;
 using GameHost.Revolution.Snapshot.Utilities;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.Resource;
@@ -22,7 +24,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 			{
 				AddToBufferSettings = false;
 			}
-			
+
 			protected override IAuthorityArchetype? GetAuthorityArchetype()
 			{
 				return AuthoritySerializer<SimulationAuthority>.CreateAuthorityArchetype(GameWorld);
@@ -31,12 +33,12 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 
 		public uint Tick { get; set; }
 
-		private bool       WaitingForApply;
-		private int        ActivationBeatStart;
-		private int        ActivationBeatEnd;
-		private GameEntity CommandTarget;
-		private GameEntity Previous;
-		private int        PowerInteger;
+		private bool  WaitingForApply;
+		private int   ActivationBeatStart;
+		private int   ActivationBeatEnd;
+		private Ghost CommandTarget;
+		private Ghost Previous;
+		private int   PowerInteger;
 
 		public void Serialize(in BitBuffer buffer, in RhythmEngineExecutingCommandSnapshot baseline, in GhostSetup setup)
 		{
@@ -48,10 +50,8 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 			buffer.AddBool(WaitingForApply)
 			      .AddIntDelta(ActivationBeatStart, baseline.ActivationBeatStart)
 			      .AddIntDelta(ActivationBeatEnd, baseline.ActivationBeatEnd)
-			      .AddUIntD4Delta(CommandTarget.Id, baseline.CommandTarget.Id)
-			      .AddUIntD4Delta(CommandTarget.Version, baseline.CommandTarget.Version)
-			      .AddUIntD4Delta(Previous.Id, baseline.Previous.Id)
-			      .AddUIntD4Delta(Previous.Version, baseline.Previous.Version)
+			      .AddGhostDelta(CommandTarget, baseline.CommandTarget)
+			      .AddGhostDelta(Previous, baseline.Previous)
 			      .AddIntDelta(PowerInteger, baseline.PowerInteger);
 		}
 
@@ -67,8 +67,8 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 			WaitingForApply     = buffer.ReadBool();
 			ActivationBeatStart = buffer.ReadIntDelta(baseline.ActivationBeatStart);
 			ActivationBeatEnd   = buffer.ReadIntDelta(baseline.ActivationBeatEnd);
-			CommandTarget       = new GameEntity(buffer.ReadUIntD4Delta(baseline.CommandTarget.Id), buffer.ReadUIntD4Delta(baseline.CommandTarget.Version));
-			Previous            = new GameEntity(buffer.ReadUIntD4Delta(baseline.Previous.Id), buffer.ReadUIntD4Delta(baseline.Previous.Version));
+			CommandTarget       = buffer.ReadGhostDelta(baseline.CommandTarget);
+			Previous            = buffer.ReadGhostDelta(baseline.Previous);
 			PowerInteger        = buffer.ReadIntDelta(baseline.PowerInteger);
 		}
 
@@ -77,8 +77,8 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 			WaitingForApply     = component.WaitingForApply;
 			ActivationBeatStart = component.ActivationBeatStart;
 			ActivationBeatEnd   = component.ActivationBeatEnd;
-			CommandTarget       = setup[component.CommandTarget.Entity];
-			Previous            = setup[component.Previous.Entity];
+			CommandTarget       = setup.ToGhost(component.CommandTarget.Entity);
+			Previous            = setup.ToGhost(component.Previous.Entity);
 			PowerInteger        = component.PowerInteger;
 		}
 
@@ -87,8 +87,8 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 			component.WaitingForApply     = WaitingForApply;
 			component.ActivationBeatStart = ActivationBeatStart;
 			component.ActivationBeatEnd   = ActivationBeatEnd;
-			component.CommandTarget       = new GameResource<RhythmCommandResource>(setup[CommandTarget]);
-			component.Previous            = new GameResource<RhythmCommandResource>(setup[Previous]);
+			component.CommandTarget       = new GameResource<RhythmCommandResource>(setup.FromGhost(CommandTarget));
+			component.Previous            = new GameResource<RhythmCommandResource>(setup.FromGhost(Previous));
 			component.PowerInteger        = PowerInteger;
 		}
 	}

@@ -16,6 +16,7 @@ using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.FreeRoam;
 using PataNext.Module.Simulation.Game.Providers;
 using PataNext.Module.Simulation.Network.Snapshots;
+using PataNext.Module.Simulation.Network.Snapshots.Resources;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using StormiumTeam.GameBase;
@@ -44,9 +45,16 @@ namespace PataNext.Module.Simulation
 
 			void registerSnapshots()
 			{
+				resources();
 				input();
 				gameMode();
 				gamePlay();
+
+				void resources()
+				{
+					sc.Register(instigator => new RhythmCommandResourceSnapshot.Serializer(instigator, appCtx));
+					sc.Register(instigator => new RhythmCommandIdentifierSnapshot.Serializer(instigator, appCtx));
+				}
 
 				void input()
 				{

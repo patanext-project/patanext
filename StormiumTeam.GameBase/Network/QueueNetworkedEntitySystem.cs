@@ -8,6 +8,7 @@ using GameHost.Revolution.Snapshot.Systems.Instigators;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Resource.Components;
 using StormiumTeam.GameBase.SystemBase;
 
 namespace StormiumTeam.GameBase.Network
@@ -41,14 +42,18 @@ namespace StormiumTeam.GameBase.Network
 			return base.CanUpdate() && features.Count != 0;
 		}
 
-		private EntityQuery networkedEntities, ownedEntities;
+		private EntityQuery networkedEntities,
+		                    ownedEntities,
+		                    // TODO: Should we really send resources like that? Should we restrict it to be server only?
+		                    resourceEntities;
 
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
 
-			networkedEntities   ??= CreateEntityQuery(new[] {typeof(NetworkedEntity)});
-			ownedEntities       ??= CreateEntityQuery(new[] {typeof(SnapshotOwnedWriteArchetype)});
+			networkedEntities ??= CreateEntityQuery(new[] {typeof(NetworkedEntity)});
+			ownedEntities     ??= CreateEntityQuery(new[] {typeof(SnapshotOwnedWriteArchetype)});
+			resourceEntities  ??= CreateEntityQuery(new[] {typeof(IsResourceEntity)});
 
 			foreach (var (entity, feature) in features)
 			{
@@ -58,7 +63,7 @@ namespace StormiumTeam.GameBase.Network
 				foreach (var handle in networkedEntities)
 				{
 					//Console.WriteLine($"queue {handle}");
-					broadcastInstigator.QueuedEntities[Safe(handle)] = EntitySnapshotPriority.SendAtAllCost;
+					broadcastInstigator.QueuedEntities[Safe(handle)] = EntitySnapshotPriority.Archetype;
 
 					if (HasComponent<OwnedNetworkedEntity>(handle))
 					{
@@ -77,6 +82,12 @@ namespace StormiumTeam.GameBase.Network
 							client.OwnedEntities.Add(new ClientOwnedEntity(Safe(handle), 0, default));
 						}
 					}
+				}
+
+				foreach (var handle in resourceEntities)
+				{
+					//Console.WriteLine($"queue {handle.Id}");
+					broadcastInstigator.QueuedEntities[Safe(handle)] = EntitySnapshotPriority.SendAtAllCost;
 				}
 
 				foreach (var handle in ownedEntities)
