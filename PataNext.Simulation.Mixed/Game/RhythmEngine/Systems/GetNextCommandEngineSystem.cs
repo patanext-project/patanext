@@ -48,7 +48,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				GameWorld.AsComponentType<RhythmEngineSettings>(),
 				GameWorld.AsComponentType<RhythmEngineLocalState>(),
 				GameWorld.AsComponentType<RhythmEngineExecutingCommand>(),
-				GameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>(),
+				GameWorld.AsComponentType<RhythmEngineCommandProgressBuffer>(),
 				GameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>(),
 			}))
 			{
@@ -57,7 +57,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				if (!state.CanRunCommands)
 					continue;
 
-				var commandProgression = GameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(entity);
+				var commandProgression = GameWorld.GetBuffer<RhythmEngineCommandProgressBuffer>(entity);
 				var predictedCommands  = GameWorld.GetBuffer<RhythmEnginePredictedCommandBuffer>(entity);
 
 				ref var executingCommand = ref GameWorld.GetComponentData<RhythmEngineExecutingCommand>(entity);

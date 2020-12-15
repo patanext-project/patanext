@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Text.Json;
 using BepuPhysics.Collidables;
+using Box2D.NetStandard.Collision.Shapes;
 using Collections.Pooled;
 using DefaultEcs;
 using GameHost.Core.Ecs;
@@ -11,6 +12,7 @@ using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
+using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Transform.Components;
 
@@ -27,7 +29,7 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 
 	public class TaterazayBasicAttackAbilityProvider : BaseRuntimeRhythmAbilityProvider<TaterazayBasicAttackAbility>
 	{
-		private PhysicsSystem physicsSystem;
+		private IPhysicsSystem physicsSystem;
 
 		public TaterazayBasicAttackAbilityProvider(WorldCollection collection) : base(collection)
 		{
@@ -65,7 +67,10 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 		{
 			base.SetEntityData(entity, data);
 
-			physicsSystem.SetColliderShape(entity, new Sphere(3));
+			var entitySettings = World.Mgr.CreateEntity();
+			entitySettings.Set<Shape>(new CircleShape {Radius = 3});
+			
+			physicsSystem.AssignCollider(entity, entitySettings);
 		}
 	}
 }

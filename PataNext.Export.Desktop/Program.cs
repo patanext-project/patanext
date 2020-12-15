@@ -24,7 +24,7 @@ namespace PataNext.Export.Desktop
 		private static int currentVal;
 		
 		static async Task Main(string[] args)
-		{ 
+		{
 			CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
 			var enableVisuals    = true;

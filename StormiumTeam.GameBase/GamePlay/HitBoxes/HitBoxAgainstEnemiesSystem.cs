@@ -6,6 +6,7 @@ using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
+using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
@@ -21,7 +22,7 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 		{
 		}
 
-		private PhysicsSystem     physicsSystem;
+		private IPhysicsSystem     physicsSystem;
 		private IManagedWorldTime worldTime;
 
 		public HitBoxAgainstEnemiesSystem(WorldCollection collection) : base(collection)
@@ -50,7 +51,6 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 			var hitBoxAgainstEnemiesAccessor = GetAccessor<HitBoxAgainstEnemies>();
 			var positionAccessor             = GetAccessor<Position>();
 			var velocityAccessor             = GetAccessor<Velocity>();
-			var colliderAccessor             = GetAccessor<PhysicsCollider>();
 			foreach (var entity in hitboxQuery ??= CreateEntityQuery(new[]
 			{
 				typeof(HitBox),
@@ -66,8 +66,7 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 				if (TryGetComponentBuffer<HitBoxHistory>(entity, out var historyBuffer)
 				    && hitBox.MaxHits > 0 && historyBuffer.Count >= hitBox.MaxHits)
 					continue;
-
-				var thisShape    = colliderAccessor[entity].Shape;
+				
 				var thisPosition = positionAccessor[entity].Value;
 
 				Vector3 thisVelocity = default;
@@ -88,8 +87,8 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 
 						if (historyBuffer.Reinterpret<GameEntity>().Contains(enemy.Value))
 							continue;
-
-						if (!physicsSystem.Sweep(enemy.Value.Handle, thisShape, new RigidPose(thisPosition), new BodyVelocity(thisVelocity), out var hit))
+						
+						if (!physicsSystem.Distance(enemy.Value.Handle, entity, 0, default, new EntityOverrides {Position = thisPosition, Velocity = thisVelocity}, out var result))
 							continue;
 
 						var ev = CreateEntity();
@@ -100,8 +99,8 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 							Instigator = instigator.Target,
 							Victim     = enemy.Value,
 
-							ContactPosition = hit.position,
-							ContactNormal   = hit.normal
+							ContactPosition = result.Position,
+							ContactNormal   = result.Normal
 						});
 						AddComponent(ev, new SystemEvent());
 

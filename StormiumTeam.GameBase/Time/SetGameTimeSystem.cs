@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.Utility.Time;
 using GameHost.Worlds.Components;
 using StormiumTeam.GameBase.SystemBase;
-using StormiumTeam.GameBase.Time.Components;
 
 namespace StormiumTeam.GameBase.Time
 {

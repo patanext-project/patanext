@@ -8,6 +8,7 @@ using GameHost.Core.Modules;
 using GameHost.IO;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Time;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase.Time.Components;
 

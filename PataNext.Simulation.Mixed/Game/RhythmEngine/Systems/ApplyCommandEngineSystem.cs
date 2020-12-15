@@ -45,7 +45,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				GameWorld.AsComponentType<RhythmEngineSettings>(),
 				GameWorld.AsComponentType<RhythmEngineLocalState>(),
 				GameWorld.AsComponentType<RhythmEngineExecutingCommand>(),
-				GameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>(),
+				GameWorld.AsComponentType<RhythmEngineCommandProgressBuffer>(),
 				GameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>(),
 				GameWorld.AsComponentType<GameCombo.Settings>(),
 				GameWorld.AsComponentType<GameCombo.State>(),

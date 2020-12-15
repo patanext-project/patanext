@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Numerics;
 using BepuPhysics.Collidables;
+using Box2D.NetStandard.Collision.Shapes;
+using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Time;
 using GameHost.Worlds.Components;
 using PataNext.CoreAbilities.Mixed;
 using PataNext.CoreAbilities.Mixed.CPike;
@@ -14,6 +17,7 @@ using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
+using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
@@ -28,13 +32,22 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 		private IManagedWorldTime          worldTimeManaged;
 		private ExecuteActiveAbilitySystem execute;
 
-		private PhysicsSystem physicsSystem;
+		private IPhysicsSystem physicsSystem;
 
+		private Entity swingSettings;
+		private Entity stabSettings;
+		
 		public WooyariMultiAttack(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref worldTimeManaged);
 			DependencyResolver.Add(() => ref execute);
 			DependencyResolver.Add(() => ref physicsSystem);
+
+			swingSettings = World.Mgr.CreateEntity();
+			swingSettings.Set<Shape>(new CircleShape {Radius = 7});
+			
+			stabSettings  = World.Mgr.CreateEntity();
+			swingSettings.Set<Shape>(new PolygonShape(3.5f, 0.5f, new Vector2(4, 0), 0));
 		}
 		
 		private Dictionary<WooyariMultiAttackAbility.ECombo, (int buildUpMs, int releaseMs)> timeMap = new()
@@ -166,11 +179,10 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 					{
 						case WooyariMultiAttackAbility.EAttackType.Swing:
 						case WooyariMultiAttackAbility.EAttackType.Uppercut:
-							physicsSystem.SetColliderShape(self.Handle, new Sphere(7));
+							physicsSystem.AssignCollider(self.Handle, swingSettings);
 							break;
 						case WooyariMultiAttackAbility.EAttackType.Stab:
-							GetComponentData<Position>(self).Value.X += 4;
-							physicsSystem.SetColliderShape(self.Handle, new Box(7, 1, 1));
+							physicsSystem.AssignCollider(self.Handle, stabSettings);
 							break;
 						default:
 							throw new ArgumentOutOfRangeException(nameof(ability.Current), "couldn't attack!");

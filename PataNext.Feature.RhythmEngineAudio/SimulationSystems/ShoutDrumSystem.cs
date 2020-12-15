@@ -10,6 +10,7 @@ using GameHost.IO;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Time;
 using PataNext.Feature.RhythmEngineAudio;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
@@ -125,7 +126,7 @@ namespace PataNext.Simulation.Client.Systems
 				if (state.IsRecovery(RhythmEngineUtility.GetFlowBeat(state, settings)))
 					score = 2;
 
-				var cmdBuffer = gameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(LocalEngine);
+				var cmdBuffer = gameWorld.GetBuffer<RhythmEngineCommandProgressBuffer>(LocalEngine);
 				var executing = gameWorld.GetComponentData<RhythmEngineExecutingCommand>(LocalEngine);
 
 				// since this system may update after CmdBuffer get clear, we need to check if we have an active command target to determine if we can use a slider sound

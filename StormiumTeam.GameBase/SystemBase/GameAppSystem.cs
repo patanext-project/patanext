@@ -17,9 +17,10 @@ namespace StormiumTeam.GameBase.SystemBase
 		}
 
 		public GameWorld GameWorld => gameWorld;
-		
+
 		public GameEntity       Safe(GameEntityHandle handle) => GameWorld.Safe(handle);
-		public GameEntityHandle CreateEntity()                 => GameWorld.CreateEntity();
+		public GameEntityHandle CreateEntity()                => GameWorld.CreateEntity();
+		public TemporaryEntity  CreateTemporary()             => new(gameWorld);
 
 		public ComponentType AsComponentType<T>() where T : struct, IEntityComponent => GameWorld.AsComponentType<T>();
 
@@ -117,24 +118,27 @@ namespace StormiumTeam.GameBase.SystemBase
 			return new ComponentBufferAccessor<T>(GameWorld);
 		}
 
-		public EntityQuery CreateEntityQuery(Span<Type> all = default, Span<Type> none = default)
+		public EntityQuery CreateEntityQuery(Span<Type> all = default, Span<Type> none = default, Span<Type> or = default)
 		{
 			if (GameWorld == null)
 				throw new NullReferenceException(nameof(GameWorld));
-			
+
 			Span<ComponentType> convertedAll  = stackalloc ComponentType[all.Length];
 			Span<ComponentType> convertedNone = stackalloc ComponentType[none.Length];
+			Span<ComponentType> convertedOr   = stackalloc ComponentType[or.Length];
 			for (var i = 0; i != all.Length; i++)
 				convertedAll[i] = GameWorld.AsComponentType(all[i]);
 			for (var i = 0; i != none.Length; i++)
 				convertedNone[i] = GameWorld.AsComponentType(none[i]);
+			for (var i = 0; i != or.Length; i++)
+				convertedOr[i] = GameWorld.AsComponentType(or[i]);
 
-			return CreateEntityQuery(convertedAll, convertedNone);
+			return CreateEntityQuery(convertedAll, convertedNone, convertedOr);
 		}
 
-		public EntityQuery CreateEntityQuery(Span<ComponentType> all = default, Span<ComponentType> none = default)
+		public EntityQuery CreateEntityQuery(Span<ComponentType> all = default, Span<ComponentType> none = default, Span<ComponentType> or = default)
 		{
-			var query = new EntityQuery(GameWorld, new FinalizedQuery {All = all, None = none});
+			var query = new EntityQuery(GameWorld, new FinalizedQuery {All = all, None = none, Or = or});
 			AddDisposable(query);
 
 			return query;
@@ -144,26 +148,39 @@ namespace StormiumTeam.GameBase.SystemBase
 		{
 			if (b == null)
 				return CreateEntityQuery(span, Array.Empty<Type>());
-			
-			Span<ComponentType> convertedAll  = stackalloc ComponentType[b.All.Length + span.Length];
+
+			Span<ComponentType> convertedAll = stackalloc ComponentType[b.All.Length + span.Length];
 			b.All.CopyTo(convertedAll);
-			
+
 			for (var i = 0; i < span.Length; i++)
 				convertedAll[b.All.Length + i] = GameWorld.AsComponentType(span[i]);
-			return CreateEntityQuery(convertedAll, b.None);
+			return CreateEntityQuery(convertedAll, b.None, b.Or);
 		}
 
 		public EntityQuery QueryWithout(EntityQuery b, Span<Type> span)
 		{
 			if (b == null)
 				return CreateEntityQuery(Array.Empty<Type>(), span);
-			
+
 			Span<ComponentType> convertedNone = stackalloc ComponentType[b.None.Length + span.Length];
 			b.None.CopyTo(convertedNone);
 
-			for (var i = b.None.Length - 1; i < span.Length; i++)
+			for (var i = 0; i < span.Length; i++)
 				convertedNone[b.None.Length + i] = GameWorld.AsComponentType(span[i]);
-			return CreateEntityQuery(b.All, convertedNone);
+			return CreateEntityQuery(b.All, convertedNone, b.Or);
+		}
+
+		public EntityQuery QueryOr(EntityQuery b, Span<Type> span)
+		{
+			if (b == null)
+				return CreateEntityQuery(Array.Empty<Type>(), Array.Empty<Type>(), span);
+
+			Span<ComponentType> convertedOr = stackalloc ComponentType[b.Or.Length + span.Length];
+			b.Or.CopyTo(convertedOr);
+
+			for (var i = 0; i < span.Length; i++)
+				convertedOr[b.Or.Length + i] = GameWorld.AsComponentType(span[i]);
+			return CreateEntityQuery(b.All, b.None, b.Or);
 		}
 	}
 }

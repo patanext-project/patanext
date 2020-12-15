@@ -6,6 +6,7 @@ using GameHost.Threading;
 using GameHost.Worlds;
 using PataNext.Client.Systems;
 using PataNext.Feature.RhythmEngineAudio.BGM.Directors;
+using PataNext.Simulation.Client;
 using PataNext.Simulation.Client.Systems;
 
 namespace PataNext.Feature.RhythmEngineAudio
@@ -18,6 +19,9 @@ namespace PataNext.Feature.RhythmEngineAudio
 			foreach (var listener in global.World.Get<IListener>())
 				if (listener is SimulationApplication simulationApplication)
 				{
+					if (!simulationApplication.AssignedEntity.Has<IClientSimulationApplication>())
+						continue;
+
 					simulationApplication.Schedule(() =>
 					{
 						simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemStart));

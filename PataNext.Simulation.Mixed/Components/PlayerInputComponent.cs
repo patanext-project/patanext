@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+using GameHost.Revolution.Snapshot.Serializers;
+using GameHost.Revolution.Snapshot.Utilities;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.InterTick;
@@ -46,7 +49,7 @@ namespace PataNext.Module.Simulation.Components
 		}
 	}
 
-	public unsafe struct FreeRoamInputComponent : IComponentData
+	public partial struct FreeRoamInputComponent : IComponentData
 	{
 		public float                 HorizontalMovement;
 		public InterFramePressAction Up;

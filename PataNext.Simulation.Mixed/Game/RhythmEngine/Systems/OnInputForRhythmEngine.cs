@@ -2,6 +2,7 @@
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Time;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
@@ -32,7 +33,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				GameWorld.AsComponentType<RhythmEngineController>(),
 				GameWorld.AsComponentType<RhythmEngineLocalState>(),
 				GameWorld.AsComponentType<RhythmEngineSettings>(),
-				GameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>()
+				GameWorld.AsComponentType<RhythmEngineCommandProgressBuffer>()
 			}))
 			{
 				ref var state = ref GameWorld.GetComponentData<RhythmEngineLocalState>(entity);
@@ -43,7 +44,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				if (renderBeat < 0)
 					return;
 
-				var progressionBuffer = GameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(entity);
+				var progressionBuffer = GameWorld.GetBuffer<RhythmEngineCommandProgressBuffer>(entity);
 				var predictedBuffer   = GameWorld.GetBuffer<RhythmEnginePredictedCommandBuffer>(entity);
 				for (var i = 0; i < playerInput.Actions.Length; i++)
 				{
@@ -88,7 +89,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					if (Math.Abs(pressure.Score) <= FlowPressure.Perfect && HasComponent<RhythmSummonEnergy>(entity))
 						GetComponentData<RhythmSummonEnergy>(entity).Value += 10;
 
-					progressionBuffer.Add(new RhythmEngineLocalCommandBuffer {Value = pressure});
+					progressionBuffer.Add(new RhythmEngineCommandProgressBuffer {Value = pressure});
 					state.LastPressure = pressure;
 				}
 			}

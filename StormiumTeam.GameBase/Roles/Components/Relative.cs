@@ -25,6 +25,7 @@ namespace StormiumTeam.GameBase.Roles.Components
 
 		public abstract class Register : RegisterGameHostComponentData<Relative<TDescription>>
 		{
+			
 		}
 	}
 }

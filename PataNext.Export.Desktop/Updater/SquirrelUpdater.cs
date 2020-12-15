@@ -36,7 +36,7 @@ namespace PataNext.Export.Desktop.Updater
 					return;
 
 				try
-				{
+				{					
 					var info = await updateManager.CheckForUpdate(!deltaPatching);
 					if (info.ReleasesToApply.Count == 0)
 					{

@@ -35,7 +35,6 @@ namespace PataNext.Game
 				{
 					simulationApplication.Schedule(() =>
 					{
-						;
 						foreach (var type in systems)
 							simulationApplication.Data.Collection.GetOrCreate(type);
 					}, default);

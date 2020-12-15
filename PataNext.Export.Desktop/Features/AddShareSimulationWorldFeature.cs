@@ -31,7 +31,7 @@ namespace PataNext.Export.Desktop
 		private ENetTransportDriver enetDriver;
 
 		private GameWorld   gameWorld;
-		private GlobalWorld global;
+		private IApplication app;
 		
 		public AddShareSimulationWorldFeature(WorldCollection collection) : base(collection)
 		{
@@ -40,7 +40,7 @@ namespace PataNext.Export.Desktop
 			AddDisposable(enetDriver = new ENetTransportDriver(8));
 			AddDisposable(driver = new HeaderTransportDriver(enetDriver));
 			
-			DependencyResolver.Add(() => ref global);
+			DependencyResolver.Add(() => ref app);
 			DependencyResolver.Add(() => ref gameWorld);
 		}
 
@@ -49,7 +49,7 @@ namespace PataNext.Export.Desktop
 			base.OnInit();
 
 			var addr = new Address();
-			addr.Port = 5945;
+			addr.Port = 0;
 
 			if (enetDriver.Bind(addr) < 0)
 				throw new InvalidOperationException("Couldn't bind to port: " + addr.Port);
@@ -59,17 +59,20 @@ namespace PataNext.Export.Desktop
 
 			header.WriteInt((int) MessageType.SimulationData);
 			driver.Header = header;
-
-			var displayedAddr = global.Collection.Mgr.CreateEntity();
-			displayedAddr.Set(new DisplayedConnection
+			
+			app.Global.Scheduler.Schedule(() =>
 			{
-				ApplicationType = typeof(SimulationApplication), 
-				Type = "enet",
-				Name = "Client",
-				EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), enetDriver.BindingAddress.Port)
-			});
-			displayedAddr.Set(driver.TransportAddress);
-
+				var displayedAddr = app.Global.Collection.Mgr.CreateEntity();
+				displayedAddr.Set(new DisplayedConnection
+				{
+					ApplicationType = typeof(SimulationApplication),
+					Type            = "enet",
+					Name            = app.AssignedEntity.Get<ApplicationName>().Value,
+					EndPoint        = new IPEndPoint(IPAddress.Parse("127.0.0.1"), enetDriver.BindingAddress.Port)
+				});
+				displayedAddr.Set(driver.TransportAddress);
+			}, default);
+			
 			World.Mgr.CreateEntity()
 			     .Set<IFeature>(new ShareWorldStateFeature(driver));
 		}

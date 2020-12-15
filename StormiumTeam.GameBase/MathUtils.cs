@@ -54,12 +54,39 @@ namespace StormiumTeam.GameBase
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2 XY(this Vector3 vec3) => new Vector2(vec3.X, vec3.Y);
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int Sign(float value)
+		{
+			if (value.Equals(float.NaN))
+				return 0;
+
+			return Math.Sign(value);
+		}
+
+		public static Vector3 NormalizeSafe(Vector3 vector)
+		{
+			var normalized = Vector3.Normalize(vector);
+			if (normalized.Length().Equals(float.NaN))
+				return Vector3.Zero;
+			return normalized;
+		}
+
+		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float MoveTowards(float current, float target, float maxDelta)
 		{
 			if (Math.Abs(target - current) <= maxDelta)
 				return target;
-			return current + Math.Sign(target - current) * maxDelta;
+			return current + Sign(target - current) * maxDelta;
+		}
+
+		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 MoveTowards(Vector3 current, Vector3 target, float maxDelta)
+		{
+			return new(
+				MoveTowards(current.X, target.X, maxDelta),
+				MoveTowards(current.Y, target.Y, maxDelta),
+				MoveTowards(current.Z, target.Z, maxDelta)
+			);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -86,6 +113,36 @@ namespace StormiumTeam.GameBase
 		{
 			QuaternionEx.GetQuaternionBetweenNormalizedVectors(Vector3.UnitY, vector, out var quat);
 			return quat;
+		}
+
+		public static float Angle(Vector3 from, Vector3 to)
+		{
+			var denominator = (float) Math.Sqrt(from.LengthSquared() * to.LengthSquared());
+			if (denominator < 1e-15F)
+				return 0F;
+
+			var dot = Math.Clamp(Vector3.Dot(from, to) / denominator, -1F, 1F);
+			return MathHelper.ToDegrees((float) Math.Acos(dot));
+		}
+
+		public static Vector3 ClampMagnitude(Vector3 vector, float maxLength)
+		{
+			var sqrmag = vector.LengthSquared();
+			if (sqrmag > maxLength * maxLength)
+			{
+				var mag = (float) Math.Sqrt(sqrmag);
+				//these intermediate variables force the intermediate result to be
+				//of float precision. without this, the intermediate result can be of higher
+				//precision, which changes behavior.
+				var normalizedX = vector.X / mag;
+				var normalizedY = vector.Y / mag;
+				var normalizedZ = vector.Z / mag;
+				return new Vector3(normalizedX * maxLength,
+					normalizedY * maxLength,
+					normalizedZ * maxLength);
+			}
+
+			return vector;
 		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
+using Box2D.NetStandard.Collision.Shapes;
 using Collections.Pooled;
 using DefaultEcs;
 using GameHost.Core;
@@ -23,6 +24,7 @@ using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
 using StormiumTeam.GameBase.GamePlay.Projectiles;
+using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
@@ -40,11 +42,16 @@ namespace PataNext.CoreAbilities.Server
 
     public class SpearProjectileProvider : BaseProvider<(GameEntity owner, Vector3 pos, Vector3 vel, Vector3 gravity)>
     {
-        private PhysicsSystem physicsSystem;
+        private IPhysicsSystem physicsSystem;
+
+        private Entity colliderSettings;
 
         public SpearProjectileProvider(WorldCollection collection) : base(collection)
         {
             DependencyResolver.Add(() => ref physicsSystem);
+            
+            colliderSettings = World.Mgr.CreateEntity();
+            colliderSettings.Set<Shape>(new CircleShape {Radius = 0.1f});
         }
 
         public override void GetComponents(PooledList<ComponentType> entityComponents)
@@ -83,7 +90,7 @@ namespace PataNext.CoreAbilities.Server
 
             GameWorld.GetComponentData<UnitPlayState>(entity) = GameWorld.GetComponentData<UnitPlayState>(args.owner.Handle);
 
-            physicsSystem.SetColliderShape(entity, new Sphere(0.1f));
+            physicsSystem.AssignCollider(entity, colliderSettings);
         }
     }
 

@@ -22,9 +22,7 @@ namespace PataNext.Module.Simulation.GameModes
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-
-			AddComponent(CreateEntity(), new BasicTestGameMode());
-
+			
 			/*TaskRunUtility.StartUnwrap(async (ccs) =>
 			{
 				for (var frame = 0; frame < targetFrame; frame++)

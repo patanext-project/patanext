@@ -4,11 +4,11 @@ using GameHost.Simulation.TabEcs;
 
 namespace StormiumTeam.GameBase.Physics.Systems
 {
-	public class CallDisposeBoard : SingleComponentBoard
+	public class BepuPhysicsColliderComponentBoard : SingleComponentBoard
 	{
-		public readonly PhysicsSystem physicsSystem;
+		public readonly BepuPhysicsSystem physicsSystem;
 
-		public CallDisposeBoard(PhysicsSystem system, int size, int capacity) : base(size, capacity)
+		public BepuPhysicsColliderComponentBoard(BepuPhysicsSystem system, int size, int capacity) : base(size, capacity)
 		{
 			physicsSystem = system;
 		}

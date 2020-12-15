@@ -5,6 +5,7 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuUtilities;
 using BepuUtilities.Memory;
+using Box2D.NetStandard.Collision.Shapes;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
@@ -26,6 +27,8 @@ using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.GamePlay.Health.Systems;
+using StormiumTeam.GameBase.Network.Authorities;
+using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
@@ -47,7 +50,7 @@ namespace PataNext.Module.Simulation.GameModes
 		private PlayableUnitProvider    playableUnitProvider;
 		private AbilityCollectionSystem abilityCollectionSystem;
 
-		private PhysicsSystem physicsSystem;
+		private IPhysicsSystem physicsSystem;
 
 		private DefaultHealthProvider healthProvider;
 
@@ -97,10 +100,10 @@ namespace PataNext.Module.Simulation.GameModes
 			GameWorld.AddComponent(rhythmEngine, new RhythmEngineLocalState());
 			GameWorld.AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
 			GameWorld.AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(playerEntity)));
-			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>());
+			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEngineCommandProgressBuffer>());
 			GameWorld.AddComponent(rhythmEngine, GameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>());
 			GameWorld.AddComponent(rhythmEngine, new GameCommandState());
-			GameWorld.AddComponent(rhythmEngine, new IsSimulationOwned());
+			GameWorld.AddComponent(rhythmEngine, new SimulationAuthority());
 			GameCombo.AddToEntity(GameWorld, rhythmEngine);
 			RhythmSummonEnergy.AddToEntity(GameWorld, rhythmEngine);
 
@@ -173,39 +176,31 @@ namespace PataNext.Module.Simulation.GameModes
 			         .Add(new UnitWeakPoint(new Vector3(0, 1, 0)));
 			GameWorld.GetComponentData<UnitDirection>(simpleCollidable) = UnitDirection.Left;
 
-			physicsSystem.BufferPool.Take(1, out Buffer<CompoundChild> b);
-			b[0] = new CompoundChild
-			{
-				ShapeIndex = physicsSystem.Simulation.Shapes.Add(new Box(1, 1.5f, 1)),
-				LocalPose  = new RigidPose(new Vector3(0, 0.75f, 0))
-			};
+			var unitColliderSettings = World.Mgr.CreateEntity();
+			unitColliderSettings.Set<Shape>(new PolygonShape(0.5f, 0.75f, new Vector2(0, 0.75f), 0));
 
-			physicsSystem.SetColliderShape(simpleCollidable, new Compound(b));
+			physicsSystem.AssignCollider(simpleCollidable, unitColliderSettings);
 
 			GameWorld.AddBuffer<TeamEnemies>(team).Add(new TeamEnemies(Safe(enemyTeam)));
 			GameWorld.AddBuffer<TeamEnemies>(enemyTeam).Add(new TeamEnemies(Safe(team)));
-			GameWorld.AddComponent(team, new IsSimulationOwned());
-			GameWorld.AddComponent(enemyTeam, new IsSimulationOwned());
+			GameWorld.AddComponent(team, new SimulationAuthority());
+			GameWorld.AddComponent(enemyTeam, new SimulationAuthority());
 
 			var tower = GameWorld.CreateEntity();
 			GameWorld.AddComponent(tower, new Position(x: -10));
 			GameWorld.AddComponent(tower, new EnvironmentCollider());
 			GameWorld.AddComponent(tower, new Relative<TeamDescription>(Safe(enemyTeam)));
-			physicsSystem.SetColliderShape(tower, new Box(3, 10, 1));
+
+			var towerColliderSettings = World.Mgr.CreateEntity();
+			towerColliderSettings.Set<Shape>(new PolygonShape(new Vector2(-3, 0), new Vector2(3, 0), new Vector2(-2, 3), new Vector2(2, 3)));
+			physicsSystem.AssignCollider(tower, towerColliderSettings);
 
 			for (var army = 0; army < entities.Length; army++)
 			{
 				var unitArray = entities[army];
 				foreach (var unit in unitArray)
 				{
-					physicsSystem.BufferPool.Take(1, out b);
-					b[0] = new CompoundChild
-					{
-						ShapeIndex = physicsSystem.Simulation.Shapes.Add(new Box(1, 1.5f, 1)),
-						LocalPose  = new RigidPose(new Vector3(0, 0.75f, 0))
-					};
-
-					physicsSystem.SetColliderShape(unit, new Compound(b));
+					physicsSystem.AssignCollider(unit, unitColliderSettings);
 
 					AddComponent(unit, new Relative<TeamDescription>(Safe(team)));
 

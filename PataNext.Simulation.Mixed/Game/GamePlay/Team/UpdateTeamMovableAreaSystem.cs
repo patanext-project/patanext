@@ -3,6 +3,7 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.Components.GamePlay.Team;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
@@ -26,7 +27,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Team
 			{
 				typeof(TeamMovableArea),
 				typeof(TeamDescription),
-				typeof(IsSimulationOwned)
+				typeof(SimulationAuthority)
 			})))
 			{
 				movableAreaAccessor[entity] = new TeamMovableArea {Left = float.PositiveInfinity, Right = float.NegativeInfinity};

@@ -17,12 +17,12 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 		{
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
 			{
-				GameWorld.AsComponentType<RhythmEngineLocalCommandBuffer>(),
+				GameWorld.AsComponentType<RhythmEngineCommandProgressBuffer>(),
 				GameWorld.AsComponentType<RhythmEngineLocalState>(),
 				GameWorld.AsComponentType<RhythmEngineSettings>()
 			}))
 			{
-				var progressionBuffer = GameWorld.GetBuffer<RhythmEngineLocalCommandBuffer>(entity)
+				var progressionBuffer = GameWorld.GetBuffer<RhythmEngineCommandProgressBuffer>(entity)
 				                                 .Reinterpret<FlowPressure>();
 				ref readonly var state    = ref GameWorld.GetComponentData<RhythmEngineLocalState>(entity);
 				ref readonly var settings = ref GameWorld.GetComponentData<RhythmEngineSettings>(entity);
