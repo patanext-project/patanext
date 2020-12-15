@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DefaultEcs;
 using GameHost.Core;
@@ -12,6 +13,7 @@ using PataNext.Game.Inputs.Actions;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
 using PataNext.Module.Simulation.Passes;
+using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Time;
 using StormiumTeam.GameBase.Time.Components;
@@ -89,8 +91,8 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 			var playerQuery = GameWorld.QueryEntityWith(stackalloc[]
 			{
-				AsComponentType<PlayerIsLocal>(),
-				AsComponentType<GameRhythmInputComponent>()
+				AsComponentType<GameRhythmInputComponent>(),
+				AsComponentType<InputAuthority>()
 			});
 			if (!playerQuery.TryGetFirst(out var playerEntity))
 				return;
@@ -114,7 +116,10 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				action.IsSliding = (action.IsSliding && rhythmAction.UpCount > 0) || rhythmAction.ActiveTime.TotalSeconds >= InputSettings.SliderSensibility;
 
 				if (rhythmAction.DownCount > 0)
+				{
+					Console.WriteLine("press");
 					action.InterFrame.Pressed = gameTime.Frame;
+				}
 
 				if (rhythmAction.UpCount > 0)
 					action.InterFrame.Released = gameTime.Frame;

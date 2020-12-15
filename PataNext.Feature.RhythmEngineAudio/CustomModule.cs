@@ -1,4 +1,6 @@
-﻿using DefaultEcs;
+﻿using System;
+using DefaultEcs;
+using GameHost.Applications;
 using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
@@ -22,6 +24,7 @@ namespace PataNext.Feature.RhythmEngineAudio
 					if (!simulationApplication.AssignedEntity.Has<IClientSimulationApplication>())
 						continue;
 
+					Console.WriteLine("Add to " + simulationApplication.AssignedEntity.Get<ApplicationName>().Value);
 					simulationApplication.Schedule(() =>
 					{
 						simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemStart));

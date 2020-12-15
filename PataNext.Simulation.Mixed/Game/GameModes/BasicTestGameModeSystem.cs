@@ -91,6 +91,7 @@ namespace PataNext.Module.Simulation.GameModes
 			GameWorld.AddComponent(playerEntity, new PlayerDescription());
 			GameWorld.AddComponent(playerEntity, new GameRhythmInputComponent());
 			GameWorld.AddComponent(playerEntity, new PlayerIsLocal());
+			GameWorld.AddComponent(playerEntity, new InputAuthority());
 			GameWorld.AddBuffer<OwnedRelative<UnitDescription>>(playerEntity);
 
 			var rhythmEngine = GameWorld.CreateEntity();
@@ -202,6 +203,7 @@ namespace PataNext.Module.Simulation.GameModes
 				{
 					physicsSystem.AssignCollider(unit, unitColliderSettings);
 
+					AddComponent(unit, new SimulationAuthority());
 					AddComponent(unit, new Relative<TeamDescription>(Safe(team)));
 
 					abilityCollectionSystem.SpawnFor("march", unit);

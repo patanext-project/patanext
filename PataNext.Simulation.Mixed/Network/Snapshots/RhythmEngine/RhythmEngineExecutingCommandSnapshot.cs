@@ -9,6 +9,7 @@ using GameHost.Simulation.Utility.Resource;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Resources;
 using RevolutionSnapshot.Core.Buffers;
+using StormiumTeam.GameBase.Network.Authorities;
 
 namespace PataNext.Module.Simulation.Network.Snapshots
 {
@@ -20,6 +21,11 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
 				AddToBufferSettings = false;
+			}
+			
+			protected override IAuthorityArchetype? GetAuthorityArchetype()
+			{
+				return AuthoritySerializer<SimulationAuthority>.CreateAuthorityArchetype(GameWorld);
 			}
 		}
 

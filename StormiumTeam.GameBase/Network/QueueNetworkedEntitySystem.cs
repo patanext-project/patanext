@@ -5,6 +5,7 @@ using GameHost.Core.Features;
 using GameHost.Revolution.NetCode.LLAPI.Systems;
 using GameHost.Revolution.Snapshot.Systems.Components;
 using GameHost.Revolution.Snapshot.Systems.Instigators;
+using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using StormiumTeam.GameBase.SystemBase;
@@ -13,6 +14,16 @@ namespace StormiumTeam.GameBase.Network
 {
 	public struct NetworkedEntity : IComponentData
 	{
+	}
+
+	public struct OwnedNetworkedEntity : IComponentData
+	{
+		public readonly GameEntity Parent;
+
+		public OwnedNetworkedEntity(GameEntity entity)
+		{
+			Parent = entity;
+		}
 	}
 
 	[UpdateBefore(typeof(SendSnapshotSystem))]
@@ -36,8 +47,8 @@ namespace StormiumTeam.GameBase.Network
 		{
 			base.OnUpdate();
 
-			networkedEntities ??= CreateEntityQuery(new[] {typeof(NetworkedEntity)});
-			ownedEntities     ??= CreateEntityQuery(new[] {typeof(SnapshotOwnedWriteArchetype)});
+			networkedEntities   ??= CreateEntityQuery(new[] {typeof(NetworkedEntity)});
+			ownedEntities       ??= CreateEntityQuery(new[] {typeof(SnapshotOwnedWriteArchetype)});
 
 			foreach (var (entity, feature) in features)
 			{
@@ -48,6 +59,24 @@ namespace StormiumTeam.GameBase.Network
 				{
 					//Console.WriteLine($"queue {handle}");
 					broadcastInstigator.QueuedEntities[Safe(handle)] = EntitySnapshotPriority.SendAtAllCost;
+
+					if (HasComponent<OwnedNetworkedEntity>(handle))
+					{
+						var next = Safe(handle);
+						while (GameWorld.Exists(next))
+						{
+							if (TryGetComponentData(next, out OwnedNetworkedEntity ownedNetworkedEntity))
+								next = ownedNetworkedEntity.Parent;
+							else
+								break;
+						}
+
+						if (GameWorld.Exists(next) && TryGetComponentData(next, out CreateGamePlayerOnConnectionSystem.CreatedByThisSystem internalData)
+						                           && broadcastInstigator.TryGetClient(internalData.InstigatorId, out var client))
+						{
+							client.OwnedEntities.Add(new ClientOwnedEntity(Safe(handle), 0, default));
+						}
+					}
 				}
 
 				foreach (var handle in ownedEntities)

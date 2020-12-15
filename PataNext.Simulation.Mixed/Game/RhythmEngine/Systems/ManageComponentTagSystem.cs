@@ -13,6 +13,9 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 		public override void OnRhythmEngineSimulationPass()
 		{
 			base.OnUpdate();
+				
+			// TODO: Should we do that even if we have no authority?
+			// Technically it should be ok since the controller state is under authority
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[] {GameWorld.AsComponentType<RhythmEngineController>()}))
 			{
 				ref readonly var controller = ref GameWorld.GetComponentData<RhythmEngineController>(entity);

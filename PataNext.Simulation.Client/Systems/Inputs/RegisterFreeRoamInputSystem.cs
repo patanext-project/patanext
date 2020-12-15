@@ -75,6 +75,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			var inputAccessor = GetAccessor<FreeRoamInputComponent>();
 			foreach (var player in playerQuery ??= CreateEntityQuery(new[]
 			{
+				typeof(FreeRoamInputComponent),
 				typeof(InputAuthority)
 			}))
 			{

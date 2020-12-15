@@ -57,13 +57,12 @@ namespace PataNext.Export.Desktop
 				return;
 
 			driver.Update();
-
+			
 			while (driver.Accept().IsCreated)
 			{
 			}
 
 			var isFirstFrame = false;
-
 			receiveInputDataSystem.BeginFrame();
 
 			TransportEvent ev;

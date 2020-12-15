@@ -10,6 +10,7 @@ using GameHost.Simulation.Utility.Resource;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Resources;
+using StormiumTeam.GameBase.Network.Authorities;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 {
@@ -21,6 +22,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 		}
 
 		private PooledList<GameResource<RhythmCommandResource>> cmdOutput = new PooledList<GameResource<RhythmCommandResource>>();
+		private EntityQuery                                     entityQuery;
 
 		public override void OnRhythmEngineSimulationPass()
 		{
@@ -42,7 +44,7 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 			if (commandSetBuffer.GetLength() == 0)
 				return;
 
-			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
+			foreach (var entity in entityQuery ??= CreateEntityQuery(new []
 			{
 				GameWorld.AsComponentType<RhythmEngineIsPlaying>(),
 				GameWorld.AsComponentType<RhythmEngineSettings>(),
@@ -50,6 +52,8 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 				GameWorld.AsComponentType<RhythmEngineExecutingCommand>(),
 				GameWorld.AsComponentType<RhythmEngineCommandProgressBuffer>(),
 				GameWorld.AsComponentType<RhythmEnginePredictedCommandBuffer>(),
+				
+				GameWorld.AsComponentType<SimulationAuthority>(),
 			}))
 			{
 				ref readonly var state    = ref GameWorld.GetComponentData<RhythmEngineLocalState>(entity);

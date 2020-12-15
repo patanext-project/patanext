@@ -37,7 +37,8 @@ namespace StormiumTeam.GameBase.GamePlay
 			{
 				var teamHandle = GetComponentData<Relative<TeamDescription>>(child).Handle;
 				if (!teamQuery.MatchAgainst(teamHandle))
-					throw new InvalidOperationException();
+					continue;
+				
 				bufferAccessor[teamHandle].Add(new TeamEntityContainer(Safe(child)));
 			}
 		}

@@ -22,6 +22,7 @@ using StormiumTeam.GameBase.Network.MasterServer.UserService;
 using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
+using StormiumTeam.GameBase.Roles;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Roles.Interfaces;
@@ -82,6 +83,7 @@ namespace StormiumTeam.GameBase
 							simulationApplication.Data.Collection.GetOrCreate(typeof(CreateGamePlayerOnConnectionSystem)); // perhaps in Pre?
 							simulationApplication.Data.Collection.GetOrCreate(typeof(QueueNetworkedEntitySystem));         // perhaps in Pre?
 							simulationApplication.Data.Collection.GetOrCreate(typeof(SetTimeOnSubOwnedSystem));            // perhaps in Pre?
+							simulationApplication.Data.Collection.GetOrCreate(typeof(SetPlayerLocalSystem));            // perhaps in Pre?
 
 							simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));
@@ -100,6 +102,10 @@ namespace StormiumTeam.GameBase
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<PlayerDescription>(instigator, ctx));
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<TeamDescription>(instigator, ctx));
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<HealthDescription>(instigator, ctx));
+						
+						serializerCollection.Register(instigator => new Relative<PlayerDescription>.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new Relative<TeamDescription>.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new Relative<HealthDescription>.Serializer(instigator, ctx));
 
 					}, default);
 				}

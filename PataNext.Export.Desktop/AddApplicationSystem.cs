@@ -68,6 +68,9 @@ namespace PataNext.Export.Desktop
 
 				if (!(clientApp.Get<IListener>() is IApplication app))
 					throw new InvalidOperationException();
+				
+				/*var serverGameWorld = new ContextBindingStrategy(app.Data.Context, false).Resolve<GameWorld>();
+				serverGameWorld.AddComponent<BasicTestGameMode>(serverGameWorld.CreateEntity());*/
 
 				app.Data.Collection.GetOrCreate(wc => new DiscordFeature(wc));
 
@@ -109,6 +112,9 @@ namespace PataNext.Export.Desktop
 			applicationEntity.Set<IListener>(app);
 			applicationEntity.Set(new PushToListenerCollection(listener));
 			applicationEntity.Set(new ApplicationName(name));
+
+			app.AssignedEntity = applicationEntity;
+			
 			return applicationEntity;
 		}
 

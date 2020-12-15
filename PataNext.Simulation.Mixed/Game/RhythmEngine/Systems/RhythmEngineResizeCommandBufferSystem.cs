@@ -3,6 +3,7 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
+using StormiumTeam.GameBase.Network.Authorities;
 
 namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 {
@@ -19,7 +20,8 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 			{
 				GameWorld.AsComponentType<RhythmEngineCommandProgressBuffer>(),
 				GameWorld.AsComponentType<RhythmEngineLocalState>(),
-				GameWorld.AsComponentType<RhythmEngineSettings>()
+				GameWorld.AsComponentType<RhythmEngineSettings>(),
+				GameWorld.AsComponentType<SimulationAuthority>()
 			}))
 			{
 				var progressionBuffer = GameWorld.GetBuffer<RhythmEngineCommandProgressBuffer>(entity)

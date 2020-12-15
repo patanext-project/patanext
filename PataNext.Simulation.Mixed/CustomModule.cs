@@ -19,6 +19,7 @@ using PataNext.Module.Simulation.Network.Snapshots;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Interfaces;
 
 [assembly: RegisterAvailableModule("PataNext Simulation", "guerro", typeof(CustomModule))]
@@ -49,6 +50,7 @@ namespace PataNext.Module.Simulation
 
 				void input()
 				{
+					sc.Register(instigator => new GameRhythmInputSnapshot.Serializer(instigator, appCtx));
 					sc.Register(instigator => new FreeRoamInputSnapshot.Serializer(instigator, appCtx));
 				}
 
@@ -63,6 +65,14 @@ namespace PataNext.Module.Simulation
 
 					void rhythmEngine()
 					{
+						sc.Register(instigator => new GameComboStateSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new GameComboSettingsSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new GameCommandStateSnapshot.Serializer(instigator, appCtx));
+						
+						sc.Register(instigator => new RhythmEngineCommandProgressBufferSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new RhythmEnginePredictedCommandBufferSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new RhythmCommandActionBufferSnapshot.Serializer(instigator, appCtx));
+
 						sc.Register(instigator => new RhythmEngineControllerSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new RhythmEngineExecutingCommandSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new RhythmEngineLocalStateSnapshot.Serializer(instigator, appCtx));
@@ -81,6 +91,13 @@ namespace PataNext.Module.Simulation
 				sc.Register(instigator => new IEntityDescription.Serializer<MountDescription>(instigator, appCtx));
 				sc.Register(instigator => new IEntityDescription.Serializer<AbilityDescription>(instigator, appCtx));
 				sc.Register(instigator => new IEntityDescription.Serializer<ProjectileDescription>(instigator, appCtx));
+				
+				sc.Register(instigator => new Relative<RhythmEngineDescription>.Serializer(instigator, appCtx));
+				sc.Register(instigator => new Relative<UnitTargetDescription>.Serializer(instigator, appCtx));
+				sc.Register(instigator => new Relative<UnitDescription>.Serializer(instigator, appCtx));
+				sc.Register(instigator => new Relative<MountDescription>.Serializer(instigator, appCtx));
+				sc.Register(instigator => new Relative<AbilityDescription>.Serializer(instigator, appCtx));
+				sc.Register(instigator => new Relative<ProjectileDescription>.Serializer(instigator, appCtx));
 			}
 
 			void registerAuthority()

@@ -43,7 +43,7 @@ namespace PataNext.Simulation.Client.Systems
 
 			if (!playerEnumerator.TryGetFirst(out var localPlayerEntity))
 				return;
-
+			
 			foreach (var entity in gameWorld.QueryEntityWith(stackalloc[]
 			{
 				gameWorld.AsComponentType<RhythmEngineDescription>(),
