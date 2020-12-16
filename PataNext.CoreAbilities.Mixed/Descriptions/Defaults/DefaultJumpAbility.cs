@@ -38,7 +38,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 		}
 	}
 
-	public class DefaultJumpAbilityProvider : BaseRhythmAbilityProvider<DefaultJumpAbility>
+	public class DefaultJumpAbilityProvider : BaseRuntimeRhythmAbilityProvider<DefaultJumpAbility>
 	{
 		public DefaultJumpAbilityProvider(WorldCollection collection) : base(collection)
 		{
@@ -63,7 +63,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 
 		private EntityQuery abilityQuery;
 
-		public override void OnAbilityUpdate()
+		/*public override void OnAbilityUpdate()
 		{
 			var dt = (float) worldTime.Delta.TotalSeconds;
 
@@ -123,6 +123,10 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 				unitController.ControlOverVelocityX = ability.ActiveTime < 3.25f;
 				unitController.ControlOverVelocityY = ability.ActiveTime < 2.5f;
 			}
+		}*/
+		public override void OnAbilityUpdate()
+		{
+			
 		}
 	}
 }

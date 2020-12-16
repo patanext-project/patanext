@@ -8,9 +8,11 @@ using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
+using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds;
 using PataNext.Game;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
+using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Simulation.mixed.Components.GamePlay.Abilities;
 using StormiumTeam.GameBase;
 using ZLogger;
@@ -107,6 +109,31 @@ namespace PataNext.Module.Simulation.BaseSystems
 			base.SetEntityData(entity, data);
 
 			GameWorld.AssignComponent(entity, GameWorld.GetComponentReference<ExecutableAbility>(global.Handle));
+		}
+
+		private EntityQuery nonAssignedComponentQuery;
+
+		protected override void OnUpdate()
+		{
+			base.OnUpdate();
+
+			if (nonAssignedComponentQuery == null)
+			{
+				nonAssignedComponentQuery = new EntityQuery(GameWorld, stackalloc[]
+				{
+					GameWorld.AsComponentType<AbilityDescription>(),
+					GameWorld.AsComponentType<T>()
+				}, stackalloc[]
+				{
+					GameWorld.AsComponentType<ExecutableAbility>()
+				});
+			}
+
+			foreach (var entity in nonAssignedComponentQuery)
+			{
+				Console.WriteLine($"Assigned NonExisting `{typeof(T).Name} ExecutableAbility to {GameWorld.Safe(entity)}");
+				scheduler.Schedule(ent => { GameWorld.AssignComponent(ent, GameWorld.GetComponentReference<ExecutableAbility>(global.Handle)); }, entity, default);
+			}
 		}
 
 		private void LoadScript(byte[] data)
