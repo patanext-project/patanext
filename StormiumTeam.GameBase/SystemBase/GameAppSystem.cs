@@ -34,6 +34,14 @@ namespace StormiumTeam.GameBase.SystemBase
 			return GameWorld.HasComponent(entity, componentType);
 		}
 
+		public T GetComponentDataOrDefault<T>(GameEntityHandle entity, T def = default)
+			where T : struct, IComponentData
+		{
+			if (!GameWorld.Contains(entity) || !HasComponent<T>(entity))
+				return def;
+			return GetComponentData<T>(entity);
+		}
+
 		public ref T GetComponentData<T>(GameEntityHandle entity)
 			where T : struct, IComponentData
 		{

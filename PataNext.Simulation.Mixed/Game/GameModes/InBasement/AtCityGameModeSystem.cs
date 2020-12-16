@@ -12,6 +12,7 @@ using GameHost.Revolution.NetCode.Components;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Resource;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GameModes;
@@ -20,8 +21,10 @@ using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Providers;
+using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Systems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.Network;
 using StormiumTeam.GameBase.Network.Authorities;
@@ -48,12 +51,22 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 		private IManagedWorldTime worldTime;
 		
+		private ResPathGen resPathGen;
+		
+		GameResourceDb<UnitKitResource>       localKitDb;
+		GameResourceDb<UnitArchetypeResource> localArchetypeDb;
+		
 		public AtCityGameModeSystem(WorldCollection collection) : base(collection)
 		{
+			DependencyResolver.Add(() => ref resPathGen);
+			
 			DependencyResolver.Add(() => ref unitProvider);
 			DependencyResolver.Add(() => ref reportTimeSystem);
 			DependencyResolver.Add(() => ref worldTime);
 			DependencyResolver.Add(() => ref abilityCollectionSystem);
+			
+			DependencyResolver.Add(() => ref localKitDb);
+			DependencyResolver.Add(() => ref localArchetypeDb);
 		}
 
 		private EntityQuery playerQuery, playerWithoutInputQuery, playerWithInputQuery;
@@ -69,11 +82,34 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 		protected virtual void PlayLoop()
 		{
+			var reportTimeSystem = World.GetOrCreate(wc => new NetReportTimeSystem(wc));
 			foreach (var player in playerQuery)
 			{
 				ref readonly var input = ref GetComponentData<FreeRoamInputComponent>(player);
-
+				
 				var character = GetComponentData<PlayerFreeRoamCharacter>(player).Entity;
+				if (input.Down.HasBeenPressed(reportTimeSystem.Get(player, out _).Active))
+				{
+					if (HasComponent<SetRemoteAuthority<SimulationAuthority>>(character.Handle))
+					{
+						Console.WriteLine("switch to server authority");
+						GameWorld.AddRemoveMultipleComponent(
+							character.Handle,
+							new[] {AsComponentType<SimulationAuthority>()},
+							new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()}
+						);
+					}
+					else
+					{
+						Console.WriteLine("switch to client authority");
+						GameWorld.AddRemoveMultipleComponent(
+							character.Handle,
+							new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()},
+							new[] {AsComponentType<SimulationAuthority>()}
+						);
+					}
+				}
+				
 				if (GetComponentData<Position>(character).Value.X <= -5 && !HasComponent<Relative<RhythmEngineDescription>>(player))
 				{
 					// Add RhythmEngine (fully simulated by client)
@@ -99,11 +135,14 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(player)));
 
 					abilityCollectionSystem.SpawnFor("march", character.Handle);
+					abilityCollectionSystem.SpawnFor("retreat", character.Handle);
+					abilityCollectionSystem.SpawnFor("jump", character.Handle);
 
 					var unitTarget = GameWorld.CreateEntity();
 					GameWorld.AddComponent(unitTarget, new UnitTargetDescription());
 					GameWorld.AddComponent(unitTarget, new Position());
 					GameWorld.AddComponent(unitTarget, new UnitEnemySeekingState());
+					GameWorld.AddComponent(unitTarget, new NetworkedEntity());
 
 					GameWorld.GetComponentData<Position>(unitTarget).Value.X = -10;
 
@@ -170,14 +209,18 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 						}
 					}));
 
+					var archetype = resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer);
+					AddComponent(character, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResource(archetype))));
+
 					AddComponent(player, new PlayerFreeRoamCharacter {Entity = character});
 					
 					AddComponent(character, new Owner(Safe(player)));
 					AddComponent(character, new Relative<PlayerDescription>(Safe(player)));
 					AddComponent(character, new Relative<TeamDescription>(unitTeam));
-					//AddComponent(character, new SetRemoteAuthority<SimulationAuthority>());
-					AddComponent(character, new SimulationAuthority());
+					AddComponent(character, new SetRemoteAuthority<SimulationAuthority>());
+					//AddComponent(character, new SimulationAuthority());
 					AddComponent(character, new NetworkedEntity());
+					AddComponent(character, new OwnedNetworkedEntity(Safe(player)));
 
 					GameWorld.Link(character.Handle, player, true);
 				}

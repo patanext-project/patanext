@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Collections.Pooled;
 using DefaultEcs;
+using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Core.Features;
 using GameHost.Revolution.NetCode.Components;
@@ -23,6 +24,7 @@ namespace StormiumTeam.GameBase.Network
 	///	When an instigator is destroyed, that player entity will be removed (if it's attached with <see cref="CreatedByThisSystem"/> component)
 	/// When the server broadcaster is destroyed, all player entities will be removed (if it's attached with <see cref="CreatedByThisSystem"/> component)
 	/// </remarks>
+	[UpdateAfter(typeof(UpdateDriverSystem))]
 	public class CreateGamePlayerOnConnectionSystem : GameAppSystem
 	{
 		public struct CreatedByThisSystem : IComponentData

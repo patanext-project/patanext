@@ -62,10 +62,10 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 				typeof(AbilityState)
 			})))
 			{
-				ref var          ability = ref GetComponentData<DefaultJumpAbility>(entity);
-				ref readonly var state   = ref GetComponentData<AbilityState>(entity);
-				ref readonly var playState   = ref GetComponentData<UnitPlayState>(entity);
-				ref readonly var owner   = ref GetComponentData<Owner>(entity).Target;
+				ref var          ability   = ref GetComponentData<DefaultJumpAbility>(entity);
+				ref readonly var state     = ref GetComponentData<AbilityState>(entity);
+				ref readonly var owner     = ref GetComponentData<Owner>(entity).Target;
+				ref readonly var playState = ref GetComponentData<UnitPlayState>(owner);
 
 				if (state.ActivationVersion != ability.LastActiveId)
 				{

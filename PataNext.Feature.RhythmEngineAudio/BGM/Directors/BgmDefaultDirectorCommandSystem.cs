@@ -259,7 +259,8 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 		{
 			foreach (var commandEntity in GameWorld.QueryEntityWith(stackalloc[]
 			{
-				GameWorld.AsComponentType<RhythmCommandResource>()
+				GameWorld.AsComponentType<RhythmCommandResource>(),
+				GameWorld.AsComponentType<RhythmCommandIdentifier>()
 			}))
 			{
 				var cmd = GameWorld.GetComponentData<RhythmCommandIdentifier>(commandEntity).Value;

@@ -7,6 +7,7 @@ using GameHost.Revolution.Snapshot.Systems;
 using GameHost.Revolution.Snapshot.Utilities;
 using GameHost.Simulation.TabEcs.Interfaces;
 using JetBrains.Annotations;
+using StormiumTeam.GameBase.Network.Authorities;
 
 namespace StormiumTeam.GameBase.Transform.Components
 {
@@ -31,6 +32,11 @@ namespace StormiumTeam.GameBase.Transform.Components
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
 			}
+
+			protected override IAuthorityArchetype? GetAuthorityArchetype()
+			{
+				return AuthoritySerializer<SimulationAuthority>.CreateAuthorityArchetype(GameWorld);
+			}
 		}
 
 		public struct Snapshot : IReadWriteSnapshotData<Snapshot>, ISnapshotSyncWithComponent<Position>
@@ -39,7 +45,7 @@ namespace StormiumTeam.GameBase.Transform.Components
 
 			public uint X, Y, Z;
 
-			private static readonly BoundedRange RangeXz = new(-2000, 2000, 0.01f);
+			private static readonly BoundedRange RangeXz = new(-1000, 1000, 0.005f);
 			private static readonly BoundedRange RangeY  = new(-500, 500, 0.01f);
 
 			public void Serialize(in BitBuffer buffer, in Snapshot baseline, in EmptySnapshotSetup setup)

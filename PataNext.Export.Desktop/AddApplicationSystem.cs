@@ -40,9 +40,14 @@ namespace PataNext.Export.Desktop
 			addr.SetIP("127.0.0.1");
 			
 			var reliableChannel = enetServer.CreateChannel(typeof(ReliableChannel));
+
+			var bind   = enetServer.Bind(addr);
+			if (bind != 0)
+				throw new InvalidOperationException("Couldn't bind");
 			
-			Debug.Assert(enetServer.Bind(addr) == 0, "enetServer.Bind(addr) == 0");
-			Debug.Assert(enetServer.Listen() == 0, "enetServer.Listen() == 0");
+			var listen = enetServer.Listen();
+			if (listen != 0)
+				throw new InvalidOperationException("Couldn't listen");
 
 			var serverApp = AddApp("server", new SimulationApplication(globalWorld, null));
 			{
@@ -82,7 +87,9 @@ namespace PataNext.Export.Desktop
 
 				Console.WriteLine(enetServer.TransportAddress);
 
-				var clientDriver = enetServer.TransportAddress.Connect() as ENetTransportDriver;
+				if (enetServer.TransportAddress.Connect() is not ENetTransportDriver clientDriver)
+					throw new NullReferenceException(nameof(clientDriver));
+				
 				reliableChannel = clientDriver.CreateChannel(typeof(ReliableChannel));
 				
 				app.Data.World.CreateEntity()

@@ -2,15 +2,20 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GameHost.Core;
 using GameHost.Core.Ecs;
+using GameHost.Revolution.NetCode.LLAPI.Systems;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Utility;
 using Microsoft.Extensions.Logging;
+using StormiumTeam.GameBase.Network;
 using ZLogger;
 
 namespace StormiumTeam.GameBase.SystemBase
 {
+	[UpdateAfter(typeof(UpdateDriverSystem))]
+	[UpdateAfter(typeof(CreateGamePlayerOnConnectionSystem))]
 	public abstract class GameModeSystemBase<TGameMode> : GameAppSystem
 		where TGameMode : struct, IComponentData
 	{

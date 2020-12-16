@@ -1,3 +1,4 @@
+using GameHost.Core.Ecs;
 using GameHost.Core.Modules;
 using PataNext.Feature.RhythmEngineAudio;
 

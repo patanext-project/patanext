@@ -8,6 +8,7 @@ using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
@@ -43,6 +44,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 				AsComponentType<Position>(),
 				AsComponentType<Velocity>(),
 				AsComponentType<UnitPlayState>(),
+				AsComponentType<SimulationAuthority>()
 			})))
 			{
 				ref var          controllerState = ref controllerStateAccessor[entity];
@@ -57,7 +59,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 				var previousPosition = translation;
 				var target = controllerState.OverrideTargetPosition || !TryGetComponentData<Relative<UnitTargetDescription>>(entity, out var relativeTarget)
 					? controllerState.TargetPosition
-					: GetComponentData<Position>(relativeTarget.Handle).Value.X + GetComponentData<UnitTargetOffset>(entity).Idle;
+					: GetComponentDataOrDefault<Position>(relativeTarget.Handle).Value.X + GetComponentData<UnitTargetOffset>(entity).Idle;
 
 				// TODO: Livable state
 				/*if (livableHealthFromEntity.Exists(entity) && livableHealthFromEntity[entity].IsDead)

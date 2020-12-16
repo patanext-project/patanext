@@ -6,6 +6,7 @@ using GameHost.Revolution.Snapshot.Systems;
 using GameHost.Revolution.Snapshot.Utilities;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
+using StormiumTeam.GameBase.Network.Authorities;
 
 namespace StormiumTeam.GameBase.Physics.Components
 {
@@ -20,6 +21,11 @@ namespace StormiumTeam.GameBase.Physics.Components
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
+			}
+
+			protected override IAuthorityArchetype? GetAuthorityArchetype()
+			{
+				return AuthoritySerializer<SimulationAuthority>.CreateAuthorityArchetype(GameWorld);
 			}
 		}
 

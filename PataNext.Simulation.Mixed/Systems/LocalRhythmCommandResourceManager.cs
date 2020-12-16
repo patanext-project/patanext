@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using GameHost.Applications;
 using GameHost.Core.Ecs;
+using GameHost.Injection;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine.Structures;
 using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.Resources;
@@ -21,6 +24,11 @@ namespace PataNext.Module.Simulation.Systems
 		{
 			base.OnDependenciesResolved(dependencies);
 
+			var result = new ContextBindingStrategy(Context, true).Resolve<IApplication>().AssignedEntity.Get<ApplicationName>();
+			if (result.Value == "client")	// The problem is if it is a client, is that the commands will never get executed on the server,
+											// since abilities are restricted to one command entity...
+				return;
+			
 			AddComponent(DataBase.GetOrCreate(AsComponentType<MarchCommand>(), "march", new[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Pata),

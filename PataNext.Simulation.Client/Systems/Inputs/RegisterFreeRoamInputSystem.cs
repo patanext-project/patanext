@@ -8,11 +8,14 @@ using GameHost.Core.Ecs;
 using GameHost.Inputs.DefaultActions;
 using GameHost.Inputs.Layouts;
 using GameHost.Inputs.Systems;
+using GameHost.Revolution.NetCode.LLAPI.Systems;
 using GameHost.Revolution.Snapshot.Systems.Components;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.InterTick;
 using GameHost.Simulation.Utility.Time;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Time;
 
@@ -32,7 +35,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 	[UpdateAfter(typeof(SetGameTimeSystem))]
 	[UpdateAfter(typeof(ReceiveInputDataSystem))]
 	[UpdateBefore(typeof(ManageComponentTagSystem))]
-	public class RegisterFreeRoamInputSystem : RegisterInputSystemBase<FreeRoamInputDescription>
+	public class RegisterFreeRoamInputSystem : RegisterInputSystemBase<FreeRoamInputDescription>, IPreUpdateSimulationPass
 	{
 		public RegisterFreeRoamInputSystem(WorldCollection collection) : base(collection)
 		{
@@ -65,10 +68,8 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 
 		private EntityQuery playerQuery;
 
-		protected override void OnUpdate()
+		public void OnBeforeSimulationUpdate()
 		{
-			base.OnUpdate();
-
 			if (!created || !GameWorld.TryGetSingleton(out GameTime gameTime))
 				return;
 
@@ -81,11 +82,18 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			{
 				ref var input = ref inputAccessor[player];
 				input.HorizontalMovement = horizontalAction.Get<AxisAction>().Value;
-				if (jumpAction.Get<PressAction>().DownCount > 0)
-					input.Up.Pressed = gameTime.Frame;
-				if (jumpAction.Get<PressAction>().UpCount > 0)
-					input.Up.Released = gameTime.Frame;
+				
+				updateAction(jumpAction, ref input.Up, gameTime);
+				updateAction(crouchAction, ref input.Down, gameTime);
 			}
+		}
+
+		private void updateAction(Entity ent, ref InterFramePressAction ac, GameTime gt)
+		{
+			if (ent.Get<PressAction>().DownCount > 0)
+				ac.Pressed = gt.Frame;
+			if (ent.Get<PressAction>().UpCount > 0)
+				ac.Released = gt.Frame;
 		}
 	}
 }

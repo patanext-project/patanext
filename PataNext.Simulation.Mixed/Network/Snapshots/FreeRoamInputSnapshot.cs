@@ -6,6 +6,7 @@ using GameHost.Revolution.Snapshot.Utilities;
 using GameHost.Simulation.Utility.InterTick;
 using JetBrains.Annotations;
 using PataNext.Module.Simulation.Components;
+using RevolutionSnapshot.Core.Buffers;
 using StormiumTeam.GameBase.Network.Authorities;
 
 namespace PataNext.Module.Simulation.Network.Snapshots
@@ -34,13 +35,10 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 
 		public void Serialize(in BitBuffer buffer, in FreeRoamInputSnapshot baseline, in EmptySnapshotSetup setup)
 		{
-			fixed (FreeRoamInputSnapshot* t = &baseline)
+			if (UnsafeUtility.SameData(this, baseline))
 			{
-				if (Unsafe.AreSame(ref this, ref *t))
-				{
-					buffer.AddBool(false);
-					return;
-				}
+				buffer.AddBool(false);
+				return;
 			}
 
 			buffer.AddBool(true)
