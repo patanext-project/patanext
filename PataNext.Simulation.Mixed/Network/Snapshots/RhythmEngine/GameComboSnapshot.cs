@@ -12,7 +12,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 {
 	public struct GameComboStateSnapshot : IReadWriteSnapshotData<GameComboStateSnapshot>, ISnapshotSyncWithComponent<GameCombo.State>
 	{
-		public class Serializer : DeltaComponentSerializerBase<GameComboStateSnapshot, GameCombo.State>
+		public class Serializer : DeltaSnapshotSerializerBase<GameComboStateSnapshot, GameCombo.State>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
@@ -57,7 +57,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 
 	public struct GameComboSettingsSnapshot : IReadWriteSnapshotData<GameComboSettingsSnapshot>, ISnapshotSyncWithComponent<GameCombo.Settings>
 	{
-		public class Serializer : DeltaComponentSerializerBase<GameComboSettingsSnapshot, GameCombo.Settings>
+		public class Serializer : DeltaSnapshotSerializerBase<GameComboSettingsSnapshot, GameCombo.Settings>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

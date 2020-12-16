@@ -13,7 +13,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 {
 	public unsafe struct FreeRoamInputSnapshot : IReadWriteSnapshotData<FreeRoamInputSnapshot>, ISnapshotSyncWithComponent<FreeRoamInputComponent>
 	{
-		public class Serializer : DeltaComponentSerializerBase<FreeRoamInputSnapshot, FreeRoamInputComponent>
+		public class Serializer : DeltaSnapshotSerializerBase<FreeRoamInputSnapshot, FreeRoamInputComponent>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

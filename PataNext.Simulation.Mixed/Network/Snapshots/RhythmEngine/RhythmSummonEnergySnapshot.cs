@@ -10,7 +10,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 {
 	public struct RhythmSummonEnergySnapshot : IReadWriteSnapshotData<RhythmSummonEnergySnapshot>, ISnapshotSyncWithComponent<RhythmSummonEnergy>
 	{
-		public class Serializer : DeltaComponentSerializerBase<RhythmSummonEnergySnapshot, RhythmSummonEnergy>
+		public class Serializer : DeltaSnapshotSerializerBase<RhythmSummonEnergySnapshot, RhythmSummonEnergy>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
@@ -49,7 +49,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 
 	public struct RhythmSummonEnergyMaxSnapshot : IReadWriteSnapshotData<RhythmSummonEnergyMaxSnapshot>, ISnapshotSyncWithComponent<RhythmSummonEnergyMax>
 	{
-		public class Serializer : DeltaComponentSerializerBase<RhythmSummonEnergyMaxSnapshot, RhythmSummonEnergyMax>
+		public class Serializer : DeltaSnapshotSerializerBase<RhythmSummonEnergyMaxSnapshot, RhythmSummonEnergyMax>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

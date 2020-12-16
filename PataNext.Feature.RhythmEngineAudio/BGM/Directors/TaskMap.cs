@@ -40,7 +40,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				return false;
 			}
 
-			map[key] = onTask(key);
+			map[key] = Task.Run(() => onTask(key));
 
 			value = default;
 			return false;

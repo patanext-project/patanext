@@ -6,6 +6,7 @@ using GameHost.Core.Modules.Feature;
 using GameHost.Core.Threading;
 using GameHost.Injection;
 using GameHost.IO;
+using GameHost.Revolution.NetCode.LLAPI;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
@@ -29,6 +30,9 @@ namespace PataNext.CoreAbilities.Mixed
 				{
 					simulationApplication.Schedule(() =>
 					{
+						var sc     = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
+						var appCtx = simulationApplication.Data.Context;
+						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilityProvider));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilitySystem));
 
@@ -40,6 +44,7 @@ namespace PataNext.CoreAbilities.Mixed
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilityProvider));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilitySystem));
+						sc.Register(inst => new Defaults.DefaultJumpAbility.Serializer(inst, appCtx));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilityProvider));
 

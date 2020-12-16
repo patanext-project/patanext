@@ -11,7 +11,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 {
 	public struct RhythmEngineControllerSnapshot : IReadWriteSnapshotData<RhythmEngineControllerSnapshot>, ISnapshotSyncWithComponent<RhythmEngineController>
 	{
-		public class Serializer : DeltaComponentSerializerBase<RhythmEngineControllerSnapshot, RhythmEngineController>
+		public class Serializer : DeltaSnapshotSerializerBase<RhythmEngineControllerSnapshot, RhythmEngineController>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

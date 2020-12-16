@@ -9,7 +9,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 {
 	public struct UnitTargetOffsetSnapshot : IReadWriteSnapshotData<UnitTargetOffsetSnapshot>, ISnapshotSyncWithComponent<UnitTargetOffset>
 	{
-		public class Serializer : DeltaComponentSerializerBase<UnitTargetOffsetSnapshot, UnitTargetOffset>
+		public class Serializer : DeltaSnapshotSerializerBase<UnitTargetOffsetSnapshot, UnitTargetOffset>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

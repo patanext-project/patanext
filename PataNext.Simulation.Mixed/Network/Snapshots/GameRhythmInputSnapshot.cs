@@ -14,7 +14,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 {
 	public unsafe struct GameRhythmInputSnapshot : IReadWriteSnapshotData<GameRhythmInputSnapshot>, ISnapshotSyncWithComponent<GameRhythmInputComponent>
 	{
-		public class Serializer : DeltaComponentSerializerBase<GameRhythmInputSnapshot, GameRhythmInputComponent>
+		public class Serializer : DeltaSnapshotSerializerBase<GameRhythmInputSnapshot, GameRhythmInputComponent>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

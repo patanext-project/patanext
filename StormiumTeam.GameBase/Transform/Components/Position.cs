@@ -27,7 +27,7 @@ namespace StormiumTeam.GameBase.Transform.Components
 			Value.Z = z;
 		}
 
-		public class Serializer : DeltaComponentSerializerBase<Snapshot, Position>
+		public class Serializer : DeltaSnapshotSerializerBase<Snapshot, Position>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

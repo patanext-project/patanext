@@ -136,7 +136,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 					abilityCollectionSystem.SpawnFor("march", character.Handle);
 					abilityCollectionSystem.SpawnFor("retreat", character.Handle);
-					abilityCollectionSystem.SpawnFor("jump", character.Handle);
+					AddComponent(abilityCollectionSystem.SpawnFor("jump", character.Handle), new NetworkedEntity());
 
 					var unitTarget = GameWorld.CreateEntity();
 					GameWorld.AddComponent(unitTarget, new UnitTargetDescription());

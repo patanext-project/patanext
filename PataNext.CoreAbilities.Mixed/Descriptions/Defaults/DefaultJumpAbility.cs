@@ -1,10 +1,14 @@
 ﻿using System;
 using GameHost.Core.Ecs;
+using GameHost.Injection;
+using GameHost.Revolution.Snapshot.Serializers;
+using GameHost.Revolution.Snapshot.Systems;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
+using JetBrains.Annotations;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
@@ -24,6 +28,13 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 
 		public class Register : RegisterGameHostComponentData<DefaultJumpAbility>
 		{
+		}
+
+		public class Serializer : ArchetypeOnlySerializerBase<DefaultJumpAbility>
+		{
+			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
+			{
+			}
 		}
 	}
 

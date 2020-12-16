@@ -35,7 +35,7 @@ namespace StormiumTeam.GameBase.Roles.Components
 
 		}
 
-		public class Serializer : DeltaComponentSerializerBase<RelativeSnapshot<TDescription>, Relative<TDescription>, GhostSetup>
+		public class Serializer : DeltaSnapshotSerializerBase<RelativeSnapshot<TDescription>, Relative<TDescription>, GhostSetup>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

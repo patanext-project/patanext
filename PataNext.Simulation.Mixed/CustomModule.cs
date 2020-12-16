@@ -16,6 +16,7 @@ using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.FreeRoam;
 using PataNext.Module.Simulation.Game.Providers;
 using PataNext.Module.Simulation.Network.Snapshots;
+using PataNext.Module.Simulation.Network.Snapshots.Abilities;
 using PataNext.Module.Simulation.Network.Snapshots.Resources;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
@@ -71,8 +72,18 @@ namespace PataNext.Module.Simulation
 
 				void gamePlay()
 				{
+					ability();
 					unit();
 					rhythmEngine();
+
+					void ability()
+					{
+						sc.Register(instigator => new OwnerActiveAbilitySnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new AbilityStateSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new AbilityEngineSetSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new AbilityActivationSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new AbilityCommandsSnapshot.Serializer(instigator, appCtx));
+					}
 
 					void unit()
 					{
@@ -123,6 +134,8 @@ namespace PataNext.Module.Simulation
 				sc.Register(instigator => new Relative<MountDescription>.Serializer(instigator, appCtx));
 				sc.Register(instigator => new Relative<AbilityDescription>.Serializer(instigator, appCtx));
 				sc.Register(instigator => new Relative<ProjectileDescription>.Serializer(instigator, appCtx));
+				
+				sc.Register(instigator => new OwnedRelative<AbilityDescription>.Serializer(instigator, appCtx));
 			}
 
 			void registerAuthority()

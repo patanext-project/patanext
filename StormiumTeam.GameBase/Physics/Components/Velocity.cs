@@ -17,7 +17,7 @@ namespace StormiumTeam.GameBase.Physics.Components
 		public class Register : RegisterGameHostComponentData<Velocity>
 		{}
 		
-		public class Serializer : DeltaComponentSerializerBase<Snapshot, Velocity>
+		public class Serializer : DeltaSnapshotSerializerBase<Snapshot, Velocity>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

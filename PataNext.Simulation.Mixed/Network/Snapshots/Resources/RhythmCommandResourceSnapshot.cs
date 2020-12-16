@@ -15,7 +15,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots.Resources
 	public struct RhythmCommandResourceSnapshot : IReadWriteSnapshotData<RhythmCommandResourceSnapshot, GetSerializerSetup>,
 	                                              ISnapshotSyncWithComponent<RhythmCommandResource, GetSerializerSetup>
 	{
-		public class Serializer : DeltaComponentSerializerBase<RhythmCommandResourceSnapshot, RhythmCommandResource, GetSerializerSetup>
+		public class Serializer : DeltaSnapshotSerializerBase<RhythmCommandResourceSnapshot, RhythmCommandResource, GetSerializerSetup>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
@@ -74,7 +74,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots.Resources
 	public struct RhythmCommandIdentifierSnapshot : IReadWriteSnapshotData<RhythmCommandIdentifierSnapshot, GetSerializerSetup>,
 	                                                ISnapshotSyncWithComponent<RhythmCommandIdentifier, GetSerializerSetup>
 	{
-		public class Serializer : DeltaComponentSerializerBase<RhythmCommandIdentifierSnapshot, RhythmCommandIdentifier, GetSerializerSetup>
+		public class Serializer : DeltaSnapshotSerializerBase<RhythmCommandIdentifierSnapshot, RhythmCommandIdentifier, GetSerializerSetup>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

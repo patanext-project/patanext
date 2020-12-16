@@ -12,7 +12,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots.Resources
 	public struct UnitArchetypeResourceSnapshot : IReadWriteSnapshotData<UnitArchetypeResourceSnapshot>,
 	                                              ISnapshotSyncWithComponent<UnitArchetypeResource>
 	{
-		public class Serializer : DeltaComponentSerializerBase<UnitArchetypeResourceSnapshot, UnitArchetypeResource>
+		public class Serializer : DeltaSnapshotSerializerBase<UnitArchetypeResourceSnapshot, UnitArchetypeResource>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

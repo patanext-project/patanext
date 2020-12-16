@@ -23,7 +23,7 @@ namespace StormiumTeam.GameBase.Roles.Components
 		{
 		}
 
-		public class Serializer : DeltaComponentSerializerBase<Snapshot, Owner, GhostSetup>
+		public class Serializer : DeltaSnapshotSerializerBase<Snapshot, Owner, GhostSetup>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{

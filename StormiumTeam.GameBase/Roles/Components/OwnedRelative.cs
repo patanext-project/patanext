@@ -1,5 +1,9 @@
-﻿using GameHost.Simulation.TabEcs;
+﻿using GameHost.Injection;
+using GameHost.Revolution.Snapshot.Serializers;
+using GameHost.Revolution.Snapshot.Systems;
+using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
+using JetBrains.Annotations;
 using StormiumTeam.GameBase.Roles.Interfaces;
 
 namespace StormiumTeam.GameBase.Roles.Components
@@ -12,6 +16,13 @@ namespace StormiumTeam.GameBase.Roles.Components
 		public OwnedRelative(GameEntity entity)
 		{
 			Target = entity;
+		}
+
+		public class Serializer : ArchetypeOnlySerializerBase<OwnedRelative<T>>
+		{
+			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
+			{
+			}
 		}
 	}
 }

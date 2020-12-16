@@ -11,7 +11,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 {
 	public struct UnitStatisticSnapshot : IReadWriteSnapshotData<UnitStatisticSnapshot>, ISnapshotSyncWithComponent<UnitStatistics>
 	{
-		public class Serializer : DeltaComponentSerializerBase<UnitStatisticSnapshot, UnitStatistics>
+		public class Serializer : DeltaSnapshotSerializerBase<UnitStatisticSnapshot, UnitStatistics>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
@@ -134,7 +134,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 
 	public struct UnitPlayStateSnapshot : IReadWriteSnapshotData<UnitPlayStateSnapshot>, ISnapshotSyncWithComponent<UnitPlayState>
 	{
-		public class Serializer : DeltaComponentSerializerBase<UnitPlayStateSnapshot, UnitPlayState>
+		public class Serializer : DeltaSnapshotSerializerBase<UnitPlayStateSnapshot, UnitPlayState>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
