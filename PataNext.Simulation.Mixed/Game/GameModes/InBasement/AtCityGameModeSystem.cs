@@ -135,7 +135,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(player)));
 
 					abilityCollectionSystem.SpawnFor("march", character.Handle);
-					abilityCollectionSystem.SpawnFor("retreat", character.Handle);
+					AddComponent(abilityCollectionSystem.SpawnFor("retreat", character.Handle), new NetworkedEntity());
 					AddComponent(abilityCollectionSystem.SpawnFor("jump", character.Handle), new NetworkedEntity());
 
 					var unitTarget = GameWorld.CreateEntity();

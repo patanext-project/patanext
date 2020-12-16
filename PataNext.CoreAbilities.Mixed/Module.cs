@@ -40,10 +40,9 @@ namespace PataNext.CoreAbilities.Mixed
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilitySystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultRetreatAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultRetreatAbilitySystem));
+						sc.Register(inst => new Defaults.DefaultRetreatAbility.Serializer(inst, appCtx));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilitySystem));
 						sc.Register(inst => new Defaults.DefaultJumpAbility.Serializer(inst, appCtx));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilityProvider));
