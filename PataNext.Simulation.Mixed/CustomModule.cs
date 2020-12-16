@@ -91,6 +91,7 @@ namespace PataNext.Module.Simulation
 						sc.Register(instigator => new UnitPlayStateSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitArchetypeSnapshot.Serializer(instigator, appCtx));
 						
+						sc.Register(instigator => new UnitDirectionSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitTargetOffsetSnapshot.Serializer(instigator, appCtx));
 						
 						sc.Register(instigator => new UnitControllerStateSnapshot.Serializer(instigator, appCtx));
