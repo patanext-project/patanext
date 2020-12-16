@@ -1,25 +1,65 @@
 ﻿using System;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
 using PataNext.CoreAbilities.Mixed.Defaults;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Passes;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
 
 namespace PataNext.CoreAbilities.Server.Defaults.JumpCommand
 {
-	public class DefaultJump : AbilityScriptModule<DefaultJumpAbilityProvider>
+	public class DefaultJump : AbilityScriptModule<DefaultJumpAbilityProvider>, IAbilitySimulationPass
 	{
+		const float startJumpTime = 0.5f;
+		
 		private IManagedWorldTime worldTime;
 
 		public DefaultJump(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref worldTime);
 		}
+
+		#region Non Authoritative
+		private EntityQuery nonAuthoritativeQuery;
+
+		// TODO: For non authoritative workflow (which will be rare), we perhaps need to find a better solution to do this?
+		//			Like another system called PredictiveAbilitySystem<T>.OnPredict(Owner, Self, AbilityState)
+		public void OnAbilitySimulationPass()
+		{
+			var ownerAccessor     = GetAccessor<Owner>();
+			var abilityAccessor   = GetAccessor<DefaultJumpAbility>();
+			var stateAccessor     = GetAccessor<AbilityState>();
+			var engineSetAccessor = GetAccessor<AbilityEngineSet>();
+			foreach (var handle in nonAuthoritativeQuery ??= CreateEntityQuery(new[] {typeof(DefaultJumpAbility), typeof(Owner)}))
+			{
+				if (HasComponent<SimulationAuthority>(ownerAccessor[handle].Target.Handle))
+					continue;
+
+				ref var          ability   = ref abilityAccessor[handle];
+				ref readonly var engineSet = ref engineSetAccessor[handle];
+
+				var delta = engineSet.Process.Elapsed - engineSet.CommandState.StartTimeSpan;
+				if ((stateAccessor[handle].Phase & EAbilityPhase.ActiveOrChaining) != 0 && delta > TimeSpan.Zero)
+				{
+					ability.ActiveTime = (float) delta.TotalSeconds;
+					ability.IsJumping  = ability.ActiveTime <= startJumpTime;
+				}
+				else
+				{
+					ability.ActiveTime = 0.0f;
+					ability.IsJumping  = false;
+				}
+			}
+		}
+
+		#endregion
 
 		private float dt;
 
@@ -52,8 +92,6 @@ namespace PataNext.CoreAbilities.Server.Defaults.JumpCommand
 				ability.IsJumping  = false;
 				return;
 			}
-
-			const float startJumpTime = 0.5f;
 
 			var wasJumping = ability.IsJumping;
 			ability.IsJumping = ability.ActiveTime <= startJumpTime;
