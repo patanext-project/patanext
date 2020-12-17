@@ -102,6 +102,8 @@ namespace StormiumTeam.GameBase
 
 						var serializerCollection = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
 						var ctx                  = simulationApplication.Data.Context;
+						serializerCollection.Register(instigator => new IsResourceEntitySerializer(instigator, ctx));
+						
 						serializerCollection.Register(instigator => new AuthoritySerializer<InputAuthority>(instigator, ctx));
 						serializerCollection.Register(instigator => new AuthoritySerializer<SimulationAuthority>(instigator, ctx));
 						serializerCollection.Register(instigator => new Owner.Serializer(instigator, ctx));

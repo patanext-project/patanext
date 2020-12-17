@@ -53,7 +53,12 @@ namespace PataNext.Module.Simulation
 
 				void resources()
 				{
+					sc.Register(instigator => new GameGraphicResourceSnapshot.Serializer(instigator, appCtx));
+					sc.Register(instigator => new EquipmentResourceSnapshot.Serializer(instigator, appCtx));
+					
 					sc.Register(instigator => new UnitArchetypeResourceSnapshot.Serializer(instigator, appCtx));
+					sc.Register(instigator => new UnitKitResourceSnapshot.Serializer(instigator, appCtx));
+					sc.Register(instigator => new UnitAttachmentResourceSnapshot.Serializer(instigator, appCtx));
 					
 					sc.Register(instigator => new RhythmCommandResourceSnapshot.Serializer(instigator, appCtx));
 					sc.Register(instigator => new RhythmCommandIdentifierSnapshot.Serializer(instigator, appCtx));
@@ -90,7 +95,10 @@ namespace PataNext.Module.Simulation
 					{
 						sc.Register(instigator => new UnitStatisticSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitPlayStateSnapshot.Serializer(instigator, appCtx));
+						
 						sc.Register(instigator => new UnitArchetypeSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new UnitCurrentKitSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new UnitDisplayedEquipmentSnapshot.Serializer(instigator, appCtx));
 						
 						sc.Register(instigator => new UnitDirectionSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitTargetOffsetSnapshot.Serializer(instigator, appCtx));

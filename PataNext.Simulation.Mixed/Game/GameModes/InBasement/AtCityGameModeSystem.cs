@@ -56,6 +56,8 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 		
 		GameResourceDb<UnitKitResource>       localKitDb;
 		GameResourceDb<UnitArchetypeResource> localArchetypeDb;
+		GameResourceDb<UnitAttachmentResource> localAttachDb;
+		GameResourceDb<EquipmentResource> localEquipDb;
 		
 		public AtCityGameModeSystem(WorldCollection collection) : base(collection)
 		{
@@ -68,6 +70,8 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			
 			DependencyResolver.Add(() => ref localKitDb);
 			DependencyResolver.Add(() => ref localArchetypeDb);
+			DependencyResolver.Add(() => ref localAttachDb);
+			DependencyResolver.Add(() => ref localEquipDb);
 		}
 
 		private EntityQuery playerQuery, playerWithoutInputQuery, playerWithInputQuery;
@@ -153,6 +157,23 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					AddComponent(character, new UnitTargetControlTag());
 					AddComponent(character, new UnitTargetOffset());
 
+					var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(character.Handle);
+					displayedEquip.Add(new UnitDisplayedEquipment
+					{
+						Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
+						Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "taterazay"}, ResPath.EType.ClientResource))
+					});
+					displayedEquip.Add(new UnitDisplayedEquipment
+					{
+						Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "l_eq"}, ResPath.EType.MasterServer)),
+						Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "shields", "default_shield"}, ResPath.EType.ClientResource))
+					});
+					displayedEquip.Add(new UnitDisplayedEquipment
+					{
+						Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
+						Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "swords", "default_sword"}, ResPath.EType.ClientResource))
+					});
+
 					RequestWithAuthority<SimulationAuthority>(character, () =>
 					{
 						GetComponentData<Position>(character).Value.X = -10;
@@ -219,6 +240,9 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 					var archetype = resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer);
 					AddComponent(character, new UnitArchetype(localArchetypeDb.GetOrCreate(new UnitArchetypeResource(archetype))));
+					
+					var kit = "taterazay";
+					AddComponent(character, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource(kit))));
 
 					AddComponent(player, new PlayerFreeRoamCharacter {Entity = character});
 					
