@@ -19,7 +19,8 @@ namespace StormiumTeam.GameBase.Network.Authorities
 		{
 			return new SimpleAuthorityArchetype(gameWorld, 
 				gameWorld.AsComponentType<SetRemoteAuthority<TComponent>>(),
-				gameWorld.AsComponentType<TComponent>());
+				gameWorld.AsComponentType<TComponent>(),
+				gameWorld.AsComponentType<ForceTemporaryAuthority<TComponent>>());
 		}
 		
 		public AuthoritySerializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context context) : base(instigator, context)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DefaultEcs;
@@ -52,6 +53,9 @@ namespace StormiumTeam.GameBase
 
 						systemCollection.AddPass(new RegisterHealthProcessPass(), null, null);
 
+						//Console.WriteLine("Passes:");
+						//Console.WriteLine($"{string.Join("\n  ", systemCollection.Passes.Select(p => p.ToString()))}");
+
 						var physicsSystem = simulationApplication.Data.Collection.GetOrCreate(wc => new Box2DPhysicsSystem(wc));
 						simulationApplication.Data.Context.BindExisting<IPhysicsSystem>(physicsSystem);
 
@@ -60,6 +64,8 @@ namespace StormiumTeam.GameBase
 							simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(BuildTeamEntityContainerSystem));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(HealthDescription.RegisterContainer));
+							
+							simulationApplication.Data.Collection.GetOrCreate(typeof(ForceTemporaryAuthoritySystem));
 						}
 
 						// Now

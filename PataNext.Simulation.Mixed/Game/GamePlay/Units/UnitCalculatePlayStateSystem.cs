@@ -18,7 +18,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 			{
 				GameCombo.State    comboState    = default;
 				GameCombo.Settings comboSettings = default;
-				if (TryGetComponentData(entity, out Relative<RhythmEngineDescription> engineRelative))
+				if (TryGetComponentData(entity, out Relative<RhythmEngineDescription> engineRelative)
+				    && engineRelative.Target != default)
 				{
 					comboState    = GetComponentData<GameCombo.State>(engineRelative.Handle);
 					comboSettings = GetComponentData<GameCombo.Settings>(engineRelative.Handle);

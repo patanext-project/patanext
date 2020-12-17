@@ -16,8 +16,7 @@ using ZLogger;
 
 namespace StormiumTeam.GameBase.SystemBase
 {
-	[UpdateAfter(typeof(UpdateDriverSystem))]
-	[UpdateAfter(typeof(CreateGamePlayerOnConnectionSystem))]
+	[UpdateBefore(typeof(SendSnapshotSystem))]
 	public abstract class GameModeSystemBase<TGameMode> : GameAppSystem, IPostUpdateSimulationPass
 		where TGameMode : struct, IComponentData
 	{
@@ -105,34 +104,9 @@ namespace StormiumTeam.GameBase.SystemBase
 		public Task RequestWithAuthority<TAuthority>(GameEntity entity, Action ac)
 			where TAuthority : struct, IEntityComponent
 		{
-			return TaskRunUtility.StartUnwrap(async cc =>
-			{
-				var hadRemoteAuthority = GameWorld.HasComponent<SetRemoteAuthority<TAuthority>>(entity.Handle);
-
-				// Remove authority for some moments and restore it in the next frame
-				GameWorld.AddRemoveMultipleComponent(
-					entity.Handle,
-					new[] {AsComponentType<TAuthority>()},
-					new[] {AsComponentType<SetRemoteAuthority<TAuthority>>()}
-				);
-				await Task.Yield();
-
-				if (!GameWorld.Exists(entity))
-					return;
-
-				ac();
-				await Task.Yield();
-
-				if (!GameWorld.Exists(entity))
-					return;
-
-				if (hadRemoteAuthority)
-					GameWorld.AddRemoveMultipleComponent(
-						entity.Handle,
-						new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()},
-						new[] {AsComponentType<SimulationAuthority>()}
-					);
-			}, TaskScheduler, ccs.Token);
+			GameWorld.AddComponent(entity.Handle, new ForceTemporaryAuthority<TAuthority>());
+			ac();
+			return Task.CompletedTask;
 		}
 	}
 }

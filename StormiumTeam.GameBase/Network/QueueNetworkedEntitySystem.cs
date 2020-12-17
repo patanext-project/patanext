@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using DefaultEcs;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Core.Features;
@@ -30,36 +32,26 @@ namespace StormiumTeam.GameBase.Network
 	[UpdateBefore(typeof(SendSnapshotSystem))]
 	public class QueueNetworkedEntitySystem : GameAppSystem
 	{
-		private GetFeature<MultiplayerFeature> features;
-
 		public QueueNetworkedEntitySystem(WorldCollection collection) : base(collection)
 		{
-			DependencyResolver.Add(() => ref features, new FeatureDependencyStrategy<MultiplayerFeature>(collection, f => f is MultiplayerFeature));
 		}
-
-		public override bool CanUpdate()
-		{
-			return base.CanUpdate() && features.Count != 0;
-		}
-
+		
 		private EntityQuery networkedEntities,
 		                    ownedEntities,
 		                    // TODO: Should we really send resources like that? Should we restrict it to be server only?
 		                    resourceEntities;
 
-		protected override void OnUpdate()
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
-			base.OnUpdate();
+			base.OnDependenciesResolved(dependencies);
 
-			networkedEntities ??= CreateEntityQuery(new[] {typeof(NetworkedEntity)});
-			ownedEntities     ??= CreateEntityQuery(new[] {typeof(SnapshotOwnedWriteArchetype)});
-			resourceEntities  ??= CreateEntityQuery(new[] {typeof(IsResourceEntity)});
+			networkedEntities = CreateEntityQuery(new[] {typeof(NetworkedEntity)});
+			ownedEntities     = CreateEntityQuery(new[] {typeof(SnapshotOwnedWriteArchetype)});
+			resourceEntities  = CreateEntityQuery(new[] {typeof(IsResourceEntity)});
 
-			foreach (var (entity, feature) in features)
+			AddDisposable(World.Mgr.Subscribe((in SendSnapshotSystem.PreSendEvent ev) =>
 			{
-				if (!entity.TryGet(out BroadcastInstigator broadcastInstigator))
-					continue;
-
+				var broadcastInstigator = ev.Instigator;
 				foreach (var handle in networkedEntities)
 				{
 					//Console.WriteLine($"queue {handle}");
@@ -94,7 +86,7 @@ namespace StormiumTeam.GameBase.Network
 				{
 					broadcastInstigator.QueuedEntities[Safe(handle)] = EntitySnapshotPriority.Component;
 				}
-			}
+			}));
 		}
 	}
 }

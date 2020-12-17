@@ -115,10 +115,15 @@ namespace StormiumTeam.GameBase.SystemBase
 		{
 			return TryGetComponentBuffer(entity.Handle, out result);
 		}
+		
+		public ComponentDataAccessor<TCast> GetAccessor<TCast>(ComponentType componentType) where TCast : struct
+		{
+			return new ComponentDataAccessor<TCast>(GameWorld, componentType);
+		}
 
 		public ComponentDataAccessor<T> GetAccessor<T>() where T : struct, IComponentData
 		{
-			return new ComponentDataAccessor<T>(GameWorld);
+			return new ComponentDataAccessor<T>(GameWorld, AsComponentType<T>());
 		}
 
 		public ComponentBufferAccessor<T> GetBufferAccessor<T>() where T : struct, IComponentBuffer
