@@ -2,6 +2,7 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
@@ -57,14 +58,31 @@ namespace PataNext.Export.Desktop.Visual.Screens
 							Origin           = Anchor.TopCentre,
 							Anchor           = Anchor.TopCentre,
 							Size             = new Vector2(1, 60),
-							Masking          = false,
+							Padding = new MarginPadding {Horizontal = 10},
+							Position = new Vector2(0, 10),
+							Masking = false,
 							Children = new Drawable[]
 							{
-								new Box
+								new Container
 								{
 									RelativeSizeAxes = Axes.Both,
 									Size             = Vector2.One,
-									Colour           = Colour4.Black.MultiplyAlpha(0.25f)
+									Masking          = true,
+									CornerRadius = 13f,
+									EdgeEffect = new EdgeEffectParameters
+									{
+										Radius    = 25,
+										Roundness = 25
+									},
+									Children = new []
+									{
+										new Box
+										{
+											RelativeSizeAxes = Axes.Both,
+											Size             = Vector2.One,
+											Colour           = Colour4.Black.MultiplyAlpha(0.25f)
+										},
+									}
 								},
 								new SpriteText
 								{

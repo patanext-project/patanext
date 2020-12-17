@@ -1,15 +1,15 @@
 ﻿{
   "SliderSensibility": 0.43,
   "JumpKeys": [
-    "keyboard/upArrow"
+    "keyboard/w"
   ],
   "CrouchKeys": [
-    "keyboard/downArrow"
+    "keyboard/s"
   ],
   "HorizontalNegativeKeys": [
-    "keyboard/leftArrow"
+    "keyboard/a"
   ],
   "HorizontalPositiveKeys": [
-    "keyboard/rightArrow"
+    "keyboard/d"
   ]
 }

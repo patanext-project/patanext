@@ -87,13 +87,13 @@ namespace PataNext.Export.Desktop
 
 				Console.WriteLine(enetServer.TransportAddress);
 
-				if (enetServer.TransportAddress.Connect() is not ENetTransportDriver clientDriver)
+				/*if (enetServer.TransportAddress.Connect() is not ENetTransportDriver clientDriver)
 					throw new NullReferenceException(nameof(clientDriver));
 				
 				reliableChannel = clientDriver.CreateChannel(typeof(ReliableChannel));
 				
 				app.Data.World.CreateEntity()
-				   .Set<IFeature>(new GameHost.Revolution.NetCode.LLAPI.Systems.ClientFeature(clientDriver, reliableChannel));
+				   .Set<IFeature>(new GameHost.Revolution.NetCode.LLAPI.Systems.ClientFeature(clientDriver, reliableChannel));*/
 			}
 
 			AddApp("Audio", new AudioApplication(globalWorld, null));

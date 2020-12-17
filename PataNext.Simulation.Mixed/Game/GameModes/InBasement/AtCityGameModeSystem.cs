@@ -7,6 +7,7 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuUtilities.Memory;
 using Box2D.NetStandard.Collision.Shapes;
+using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Revolution.NetCode.Components;
 using GameHost.Simulation.TabEcs;
@@ -111,9 +112,15 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			AddComponent(player, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
 			AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(player)));
 
-			AddComponent(abilityCollectionSystem.SpawnFor("march", character.Handle), new NetworkedEntity());
-			AddComponent(abilityCollectionSystem.SpawnFor("retreat", character.Handle), new NetworkedEntity());
-			AddComponent(abilityCollectionSystem.SpawnFor("jump", character.Handle), new NetworkedEntity());
+			// make sure that we have a collection of entities in this frame, in case the character is instantly switched back to freeroam mode
+			using var abilities = new PooledList<GameEntityHandle>
+			{
+				abilityCollectionSystem.SpawnFor("march", character.Handle),
+				abilityCollectionSystem.SpawnFor("backward", character.Handle),
+				abilityCollectionSystem.SpawnFor("retreat", character.Handle),
+				abilityCollectionSystem.SpawnFor("jump", character.Handle)
+			};
+			abilities.ForEach(handle => AddComponent(handle, new NetworkedEntity()));
 
 			var unitTarget = GameWorld.CreateEntity();
 			GameWorld.AddComponent(unitTarget, new UnitTargetDescription());
@@ -133,7 +140,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			displayedEquip.Add(new UnitDisplayedEquipment
 			{
 				Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
-				Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "taterazay"}, ResPath.EType.ClientResource))
+				Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "yarida"}, ResPath.EType.ClientResource))
 			});
 			displayedEquip.Add(new UnitDisplayedEquipment
 			{
