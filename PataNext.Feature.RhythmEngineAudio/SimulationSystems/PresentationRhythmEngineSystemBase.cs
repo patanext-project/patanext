@@ -35,6 +35,8 @@ namespace PataNext.Simulation.Client.Systems
 
 		public void OnRhythmEngineSimulationPass()
 		{
+			LocalRhythmEngine = default;
+		
 			var playerEnumerator = gameWorld.QueryEntityWith(stackalloc[]
 			{
 				gameWorld.AsComponentType<PlayerDescription>(),
