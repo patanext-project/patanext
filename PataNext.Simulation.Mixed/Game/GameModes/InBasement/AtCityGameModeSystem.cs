@@ -13,6 +13,7 @@ using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
+using GameHost.Utility;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GameModes;
@@ -134,7 +135,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					AddComponent(player, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
 					AddComponent(rhythmEngine, new Relative<PlayerDescription>(Safe(player)));
 
-					abilityCollectionSystem.SpawnFor("march", character.Handle);
+					AddComponent(abilityCollectionSystem.SpawnFor("march", character.Handle), new NetworkedEntity());
 					AddComponent(abilityCollectionSystem.SpawnFor("retreat", character.Handle), new NetworkedEntity());
 					AddComponent(abilityCollectionSystem.SpawnFor("jump", character.Handle), new NetworkedEntity());
 
@@ -142,6 +143,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					GameWorld.AddComponent(unitTarget, new UnitTargetDescription());
 					GameWorld.AddComponent(unitTarget, new Position());
 					GameWorld.AddComponent(unitTarget, new UnitEnemySeekingState());
+					GameWorld.AddComponent(unitTarget, new Relative<PlayerDescription>(Safe(player)));
 					GameWorld.AddComponent(unitTarget, new NetworkedEntity());
 
 					GameWorld.GetComponentData<Position>(unitTarget).Value.X = -10;
@@ -150,6 +152,12 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					AddComponent(character, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
 					AddComponent(character, new UnitTargetControlTag());
 					AddComponent(character, new UnitTargetOffset());
+
+					RequestWithAuthority<SimulationAuthority>(character, () =>
+					{
+						GetComponentData<Position>(character).Value.X = -10;
+						GetComponentData<UnitDirection>(character)    = UnitDirection.Right;
+					});
 				}
 			}
 		}

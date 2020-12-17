@@ -4,6 +4,7 @@ using GameHost.Revolution.Snapshot.Systems;
 using GameHost.Revolution.Snapshot.Utilities;
 using JetBrains.Annotations;
 using PataNext.Module.Simulation.Components.Units;
+using StormiumTeam.GameBase.Network.Authorities;
 
 namespace PataNext.Module.Simulation.Network.Snapshots
 {
@@ -13,6 +14,11 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
+			}
+
+			protected override IAuthorityArchetype? GetAuthorityArchetype()
+			{
+				return AuthoritySerializer<SimulationAuthority>.CreateAuthorityArchetype(GameWorld);
 			}
 		}
 		

@@ -13,6 +13,7 @@ using PataNext.Game.Inputs.Actions;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Game.RhythmEngine.Systems;
 using PataNext.Module.Simulation.Passes;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Time;
@@ -37,7 +38,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 	[UpdateAfter(typeof(SetGameTimeSystem))]
 	[UpdateAfter(typeof(ReceiveInputDataSystem))]
 	[UpdateBefore(typeof(ManageComponentTagSystem))]
-	public class RegisterRhythmEngineInputSystem : RegisterInputSystemBase<RhythmInputDescription>, IRhythmEngineSimulationPass
+	public class RegisterRhythmEngineInputSystem : RegisterInputSystemBase<RhythmInputDescription>, IPreUpdateSimulationPass
 	{
 		public RegisterRhythmEngineInputSystem(WorldCollection collection) : base(collection)
 		{
@@ -80,7 +81,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 			playerInputComponent.Ability                   = newSelection;
 		}
 
-		public void OnRhythmEngineSimulationPass()
+		public void OnBeforeSimulationUpdate()
 		{
 			// inputs not created
 			if (rhythmActionMap == null)
@@ -106,7 +107,7 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				SetAbility(in gameTime, ref input, AbilitySelection.Top);
 			else if (ability2Action.Get<PressAction>().HasBeenPressed)
 				SetAbility(in gameTime, ref input, AbilitySelection.Bottom);
-
+			
 			foreach (var kvp in rhythmActionMap)
 			{
 				var     rhythmAction = kvp.Value.Get<RhythmInputAction>();

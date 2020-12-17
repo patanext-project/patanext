@@ -83,6 +83,7 @@ namespace PataNext.Module.Simulation
 						sc.Register(instigator => new AbilityEngineSetSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new AbilityActivationSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new AbilityCommandsSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new AbilityModifyStatsOnChainingSnapshot.Serializer(instigator, appCtx));
 					}
 
 					void unit()

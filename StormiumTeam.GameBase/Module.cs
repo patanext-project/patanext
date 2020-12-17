@@ -76,6 +76,8 @@ namespace StormiumTeam.GameBase
 							}
 
 							simulationApplication.Data.Collection.GetOrCreate(typeof(RemoveEntityWithEndTimeSystem));
+
+							simulationApplication.Data.Collection.GetOrCreate(typeof(SendSnapshotSystemAtPostUpdate));
 						}
 
 						// ???

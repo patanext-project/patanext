@@ -5,18 +5,20 @@ using System.Threading.Tasks;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Revolution.NetCode.LLAPI.Systems;
+using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Utility;
 using Microsoft.Extensions.Logging;
 using StormiumTeam.GameBase.Network;
+using StormiumTeam.GameBase.Network.Authorities;
 using ZLogger;
 
 namespace StormiumTeam.GameBase.SystemBase
 {
 	[UpdateAfter(typeof(UpdateDriverSystem))]
 	[UpdateAfter(typeof(CreateGamePlayerOnConnectionSystem))]
-	public abstract class GameModeSystemBase<TGameMode> : GameAppSystem
+	public abstract class GameModeSystemBase<TGameMode> : GameAppSystem, IPostUpdateSimulationPass
 		where TGameMode : struct, IComponentData
 	{
 		protected ILogger Logger;
@@ -48,7 +50,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		private Task                    currentTask;
 		private CancellationTokenSource ccs;
 
-		protected override void OnUpdate()
+		public void OnAfterSimulationUpdate()
 		{
 			base.OnUpdate();
 
@@ -92,5 +94,45 @@ namespace StormiumTeam.GameBase.SystemBase
 		}
 
 		public void Do(Action ac) => ac();
+
+		/// <summary>
+		/// Force an action to be done with an authority on an entity.
+		/// </summary>
+		/// <param name="entity">The entity to be authoritative on</param>
+		/// <param name="ac">The action to do when we have authority</param>
+		/// <typeparam name="TAuthority">Authority type</typeparam>
+		/// <returns>A task that can be used to track when the authority has been given back</returns>
+		public Task RequestWithAuthority<TAuthority>(GameEntity entity, Action ac)
+			where TAuthority : struct, IEntityComponent
+		{
+			return TaskRunUtility.StartUnwrap(async cc =>
+			{
+				var hadRemoteAuthority = GameWorld.HasComponent<SetRemoteAuthority<TAuthority>>(entity.Handle);
+
+				// Remove authority for some moments and restore it in the next frame
+				GameWorld.AddRemoveMultipleComponent(
+					entity.Handle,
+					new[] {AsComponentType<TAuthority>()},
+					new[] {AsComponentType<SetRemoteAuthority<TAuthority>>()}
+				);
+				await Task.Yield();
+
+				if (!GameWorld.Exists(entity))
+					return;
+
+				ac();
+				await Task.Yield();
+
+				if (!GameWorld.Exists(entity))
+					return;
+
+				if (hadRemoteAuthority)
+					GameWorld.AddRemoveMultipleComponent(
+						entity.Handle,
+						new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()},
+						new[] {AsComponentType<SimulationAuthority>()}
+					);
+			}, TaskScheduler, ccs.Token);
+		}
 	}
 }

@@ -9,6 +9,7 @@ using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
+using PataNext.Module.Simulation.Components.Units;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network;
 using StormiumTeam.GameBase.Network.Authorities;
@@ -84,6 +85,14 @@ namespace PataNext.Module.Simulation.Game.GamePlay.FreeRoam
 						Console.WriteLine($"jump!");
 						velocity.Y = 12;
 					}
+
+					if (HasComponent<UnitDirection>(entityHandle))
+					{
+						if (Math.Abs(input.HorizontalMovement) > 0.1f)
+							GetComponentData<UnitDirection>(entityHandle) = Math.Sign(input.HorizontalMovement) < 0 ? UnitDirection.Left : UnitDirection.Right;
+						else if (GetComponentData<UnitDirection>(entityHandle).Invalid)
+							GetComponentData<UnitDirection>(entityHandle) = UnitDirection.Right;
+					}
 				}
 				else
 				{
@@ -92,6 +101,11 @@ namespace PataNext.Module.Simulation.Game.GamePlay.FreeRoam
 
 					var n = SrtMovement.AerialMove(velocity, inputXYZ, d, dt);
 					velocity.X = n.X;
+					
+					/*if (HasComponent<UnitDirection>(entityHandle))
+					{
+						GetComponentData<UnitDirection>(entityHandle) = Math.Sign(input.HorizontalMovement) < 0 ? UnitDirection.Left : UnitDirection.Right;
+					}*/
 				}
 			}
 		}
