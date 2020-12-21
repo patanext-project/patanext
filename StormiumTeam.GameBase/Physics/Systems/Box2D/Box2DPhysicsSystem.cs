@@ -146,7 +146,8 @@ namespace StormiumTeam.GameBase.Physics.Systems
 			Console.WriteLine($"{output.distance}, {output.pointA} {output.pointB}");
 			return output.distance <= 0;
 		}
-		
+
+		private WorldManifold cachedWorldManifold = new();
 		public bool Distance(GameEntityHandle against, GameEntityHandle origin, float maxDistance, EntityOverrides? overrideA, EntityOverrides? overrideB, out DistanceResult distanceResult)
 		{
 			var shapeA = GetShape(against);
@@ -180,7 +181,10 @@ namespace StormiumTeam.GameBase.Physics.Systems
 			
 			contact.Evaluate(out var manifold, transformA, transformB);
 
-			var worldManifold = new WorldManifold();
+			cachedWorldManifold.normal = default;
+			cachedWorldManifold.points.AsSpan().Clear();
+			cachedWorldManifold.separations.AsSpan().Clear(); 
+			var worldManifold = cachedWorldManifold;
 			worldManifold.Initialize(manifold, transformA, shapeA.m_radius, transformB, shapeB.m_radius);
 
 			if (manifold.pointCount == 0)

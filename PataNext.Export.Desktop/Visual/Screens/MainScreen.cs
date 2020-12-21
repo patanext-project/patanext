@@ -39,11 +39,11 @@ namespace PataNext.Export.Desktop.Visual.Screens
 						},
 						new DrawSizePreservingFillContainer
 						{
-							Position         = new Vector2(0, 40f),
+							Position         = new Vector2(0, 0),
 							RelativeSizeAxes = Axes.Both,
-							Origin           = Anchor.Centre,
-							Anchor           = Anchor.Centre,
-							Size             = new Vector2(0.925f, 0.79f),
+							Origin           = Anchor.BottomCentre,
+							Anchor           = Anchor.BottomCentre,
+							Size             = new Vector2(1f, 0.875f),
 							Child            = ScreenStack = new ScreenStack()
 						},
 						notificationOverlay.With(d =>
@@ -88,16 +88,25 @@ namespace PataNext.Export.Desktop.Visual.Screens
 								{
 									Anchor   = Anchor.CentreLeft,
 									Origin   = Anchor.CentreLeft,
-									Position = new Vector2(20, -8),
+									Position = new Vector2(20, -11),
 									Text     = "PataNext",
-									Font     = FontUsage.Default.With(size: 28),
+									Font     = FontUsage.Default.With(size: 30),
 									Colour   = Colour4.White,
 								},
 								new SpriteText
 								{
 									Anchor   = Anchor.CentreLeft,
 									Origin   = Anchor.CentreLeft,
-									Position = new Vector2(20, 8),
+									Position = new Vector2(20, 18),
+									Text     = "2020.17.12.2250",
+									Font     = FontUsage.Default.With(size: 15),
+									Colour   = Colour4.White.MultiplyAlpha(0.25f),
+								},
+								new SpriteText
+								{
+									Anchor   = Anchor.CentreLeft,
+									Origin   = Anchor.CentreLeft,
+									Position = new Vector2(20, 6),
 									Text     = "GAMEHOST",
 									Font     = FontUsage.Default.With(size: 17),
 									Colour   = Colour4.White.MultiplyAlpha(0.5f),
@@ -114,6 +123,7 @@ namespace PataNext.Export.Desktop.Visual.Screens
 									Direction        = FillDirection.Horizontal,
 									RelativeSizeAxes = Axes.Y,
 									AutoSizeAxes     = Axes.X,
+									Margin = new MarginPadding {Right = 10},
 									Children = new Drawable[]
 									{
 										new ToolbarNotificationButton()

@@ -20,6 +20,7 @@ using PataNext.Module.Simulation.Network.Snapshots.Abilities;
 using PataNext.Module.Simulation.Network.Snapshots.Resources;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
+using PataNext.Module.Simulation.Systems.GhRpc;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Interfaces;
@@ -95,6 +96,7 @@ namespace PataNext.Module.Simulation
 					{
 						sc.Register(instigator => new UnitStatisticSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitPlayStateSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new UnitEnemySeekingStateSnapshot.Serializer(instigator, appCtx));
 						
 						sc.Register(instigator => new UnitArchetypeSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitCurrentKitSnapshot.Serializer(instigator, appCtx));
@@ -157,6 +159,8 @@ namespace PataNext.Module.Simulation
 		public CustomModule(Entity source, Context ctxParent, GameHostModuleDescription original) : base(source, ctxParent, original)
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
+			global.Collection.GetOrCreate(typeof(SwitchAuthorityRpc));
+			
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{
 				if (listener is SimulationApplication simulationApplication)

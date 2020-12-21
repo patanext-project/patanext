@@ -11,9 +11,9 @@ using PataNext.Simulation.Client;
 
 namespace PataNext.Module.Simulation.Systems.GhRpc
 {
-	public class ConnectToServerRpc : RpcCommandSystem
+	public class DisconnectFromServerRpc : RpcCommandSystem
 	{
-		public ConnectToServerRpc(WorldCollection collection) : base(collection)
+		public DisconnectFromServerRpc(WorldCollection collection) : base(collection)
 		{
 		}
 
@@ -23,7 +23,7 @@ namespace PataNext.Module.Simulation.Systems.GhRpc
 			public int    Port;
 		}
 
-		public override string CommandId => "connect_to_server";
+		public override string CommandId => "disconnect_from_server";
 		
 		protected override void   OnReceiveRequest(GameHostCommandResponse response)
 		{
@@ -41,24 +41,25 @@ namespace PataNext.Module.Simulation.Systems.GhRpc
 					}));
 					return;
 				}
-
-				var request = JsonConvert.DeserializeObject<Request>(response.Data.ReadString());
-
-				var driver  = new ENetTransportDriver(1);
-				var address = new Address();
-				address.SetHost(request.Host);
-				address.Port = (ushort) request.Port;
-
-				driver.Connect(address);
-				var reliableChannel = driver.CreateChannel(typeof(ReliableChannel));
-
+				
 				foreach (var entity in set.GetEntities())
 				{
 					var app = entity.Get<IListener>() as SimulationApplication;
 					app.Schedule(() =>
 					{
-						app.Data.World.CreateEntity()
-						   .Set<IFeature>(new ClientFeature(driver, reliableChannel));		
+						using var subset = app.Data.World.GetEntities()
+						                      .With<IFeature>()
+						                      .AsSet();
+
+						foreach (var featureEnt in subset.GetEntities())
+						{
+							if (featureEnt.Get<IFeature>() is ClientFeature clientFeature)
+							{
+								clientFeature.Driver.Dispose();
+								featureEnt.Dispose();
+								break;
+							}
+						}
 					}, default);
 				}
 			}

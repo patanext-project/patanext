@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using BepuPhysics;
 using BepuPhysics.Collidables;
+using BepuUtilities;
 using BepuUtilities.Memory;
 using Box2D.NetStandard.Collision.Shapes;
 using Collections.Pooled;
@@ -27,6 +29,7 @@ using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Systems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.Network;
 using StormiumTeam.GameBase.Network.Authorities;
@@ -93,7 +96,8 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			// Add RhythmEngine (fully simulated by client)
 			var rhythmEngine = GameWorld.CreateEntity();
 			AddComponent(rhythmEngine, new RhythmEngineDescription());
-			AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(1))});
+			// hack starttime
+			AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = TimeSpan.Zero});
 			AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
 			AddComponent(rhythmEngine, new RhythmEngineLocalState());
 			AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
@@ -135,6 +139,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			AddComponent(character, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
 			AddComponent(character, new UnitTargetControlTag());
 			AddComponent(character, new UnitTargetOffset());
+			AddComponent(character, new UnitEnemySeekingState());
 
 			var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(character.Handle);
 			displayedEquip.Add(new UnitDisplayedEquipment
@@ -160,6 +165,41 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			});
 		}
 
+		public void SwitchAuthority(string authorityType)
+		{
+			foreach (var player in playerQuery)
+			{
+				SwitchAuthority(player, authorityType != "server");
+			}
+		}
+
+		private void SwitchAuthority(GameEntityHandle player, bool hasAuthority)
+		{
+			// invoked from client app
+			if (!HasComponent<PlayerFreeRoamCharacter>(player))
+				return;
+			
+			var character = GetComponentData<PlayerFreeRoamCharacter>(player).Entity;
+			if (HasComponent<SetRemoteAuthority<SimulationAuthority>>(character.Handle) && !hasAuthority)
+			{
+				Console.WriteLine("switch to server authority");
+				GameWorld.AddRemoveMultipleComponent(
+					character.Handle,
+					new[] {AsComponentType<SimulationAuthority>()},
+					new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()}
+				);
+			}
+			else if (hasAuthority)
+			{
+				Console.WriteLine("switch to client authority");
+				GameWorld.AddRemoveMultipleComponent(
+					character.Handle,
+					new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()},
+					new[] {AsComponentType<SimulationAuthority>()}
+				);
+			}
+		}
+
 		protected virtual void PlayLoop()
 		{
 			foreach (var player in playerQuery)
@@ -168,26 +208,9 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 				var reportTime = reportTimeSystem.Get(player, out var fromEntity);
 				var character  = GetComponentData<PlayerFreeRoamCharacter>(player).Entity;
-				if (input.Down.HasBeenPressed(reportTime.Active))
+				if (input.Down.HasBeenPressed(reportTime.Active) && 1 == 2)
 				{
-					if (HasComponent<SetRemoteAuthority<SimulationAuthority>>(character.Handle))
-					{
-						Console.WriteLine("switch to server authority");
-						GameWorld.AddRemoveMultipleComponent(
-							character.Handle,
-							new[] {AsComponentType<SimulationAuthority>()},
-							new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()}
-						);
-					}
-					else
-					{
-						Console.WriteLine("switch to client authority");
-						GameWorld.AddRemoveMultipleComponent(
-							character.Handle,
-							new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()},
-							new[] {AsComponentType<SimulationAuthority>()}
-						);
-					}
+					SwitchAuthority(player, true);
 				}
 
 				if (!HasComponent<Relative<RhythmEngineDescription>>(player))
@@ -205,6 +228,8 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 						var rhythmEngine = GetComponentData<Relative<RhythmEngineDescription>>(character).Target;
 						var unitTarget   = GetComponentData<Relative<UnitTargetDescription>>(character).Target;
 						var abilities    = GetBuffer<OwnedRelative<AbilityDescription>>(character);
+
+						GameWorld.RemoveComponent(character.Handle, AsComponentType<UnitEnemySeekingState>());
 						
 						GameWorld.RemoveEntity(rhythmEngine.Handle);
 						{
@@ -306,6 +331,18 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					AddComponent(character, new NetworkedEntity());
 					AddComponent(character, new OwnedNetworkedEntity(Safe(player)));
 
+					GameWorld.AddComponent(player, new ServerCameraState
+					{
+						Data =
+						{
+							Mode   = CameraMode.Forced,
+							Offset = RigidTransform.Identity,
+							Target = character
+						}
+					});
+
+					SwitchAuthority(player, true);
+					
 					GameWorld.Link(character.Handle, player, true);
 				}
 

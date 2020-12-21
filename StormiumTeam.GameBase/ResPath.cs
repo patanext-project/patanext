@@ -9,6 +9,10 @@ namespace StormiumTeam.GameBase
 {
     public struct ResPath
     {
+        public string Author;
+        public string ModPack;
+        public string File;
+    
         public enum EType
         {
             /// <summary>

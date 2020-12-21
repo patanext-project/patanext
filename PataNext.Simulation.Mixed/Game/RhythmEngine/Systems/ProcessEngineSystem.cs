@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Utility.EntityQuery;
@@ -20,17 +21,26 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 			DependencyResolver.Add(() => ref worldTime);
 		}
 
+		private EntityQuery engineQuery;
+
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		{
+			base.OnDependenciesResolved(dependencies);
+
+			engineQuery = CreateEntityQuery(new[]
+			{
+				typeof(RhythmEngineController),
+				typeof(RhythmEngineLocalState),
+				typeof(RhythmEngineSettings)
+			});
+		}
+
 		public override void OnRhythmEngineSimulationPass()
 		{
 			if (!GameWorld.TryGetSingleton(out GameTime gameTime))
 				return;
 
-			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]
-			{
-				GameWorld.AsComponentType<RhythmEngineController>(),
-				GameWorld.AsComponentType<RhythmEngineLocalState>(),
-				GameWorld.AsComponentType<RhythmEngineSettings>()
-			}))
+			foreach (ref var entity in engineQuery)
 			{
 				ref readonly var controller = ref GameWorld.GetComponentData<RhythmEngineController>(entity);
 				ref readonly var settings   = ref GameWorld.GetComponentData<RhythmEngineSettings>(entity);
@@ -42,18 +52,21 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 
 				state.Elapsed = worldTime.Total - controller.StartTime;
 				if (state.Elapsed < TimeSpan.Zero && HasComponent<RhythmEngineIsPlaying>(entity))
+				{
 					GameWorld.RemoveComponent(entity, AsComponentType<RhythmEngineIsPlaying>());
+					
+					state.RecoveryActivationBeat = -1;
+					state.LastPressure           = default;
+
+					// swap back
+					entity = default;
+					continue;
+				}
 
 				var currentBeats = RhythmEngineUtility.GetActivationBeat(state, settings);
 				if (previousBeats != currentBeats)
 					state.NewBeatTick = (uint) gameTime.Frame;
 				state.CurrentBeat = currentBeats;
-
-				if (!HasComponent<RhythmEngineIsPlaying>(entity))
-				{
-					state.RecoveryActivationBeat = -1;
-					state.LastPressure           = default;
-				}
 			}
 
 			foreach (var entity in GameWorld.QueryEntityWith(stackalloc[]

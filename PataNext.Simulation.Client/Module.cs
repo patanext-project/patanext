@@ -17,6 +17,8 @@ namespace PataNext.Simulation.Client
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
 			global.Collection.GetOrCreate(typeof(ConnectToServerRpc));
+			global.Collection.GetOrCreate(typeof(DisconnectFromServerRpc));
+			global.Collection.GetOrCreate(typeof(SendServerNoticeRpc));
 			
 			foreach (var listener in global.World.Get<IListener>())
 			{

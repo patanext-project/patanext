@@ -1,7 +1,13 @@
 ﻿using BepuUtilities;
+using GameHost.Injection;
+using GameHost.Revolution.NetCode;
+using GameHost.Revolution.Snapshot.Serializers;
+using GameHost.Revolution.Snapshot.Systems;
+using GameHost.Revolution.Snapshot.Utilities;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
+using JetBrains.Annotations;
 
 namespace StormiumTeam.GameBase.Camera.Components
 {
@@ -39,15 +45,35 @@ namespace StormiumTeam.GameBase.Camera.Components
 		{}
 	}
 
-	public struct ServerCameraState : IComponentData
+	public struct ServerCameraState : IComponentData, IReadWriteComponentData<ServerCameraState, GhostSetup>
 	{
 		public CameraState Data;
 
 		public CameraMode     Mode   => Data.Mode;
 		public GameEntity     Target => Data.Target;
 		public RigidTransform Offset => Data.Offset;
-		
+
 		public class Register : RegisterGameHostComponentData<ServerCameraState>
-		{}
+		{
+		}
+
+		public class Serializer : DeltaComponentSerializerBase<ServerCameraState, GhostSetup>
+		{
+			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
+			{
+			}
+		}
+
+		public void Serialize(in BitBuffer buffer, in ServerCameraState baseline, in GhostSetup setup)
+		{
+			buffer.AddUIntD4((byte) Data.Mode);
+			buffer.AddGhostDelta(setup.ToGhost(Data.Target), default);
+		}
+
+		public void Deserialize(in BitBuffer buffer, in ServerCameraState baseline, in GhostSetup setup)
+		{
+			Data.Mode   = (CameraMode) buffer.ReadUIntD4();
+			Data.Target = setup.FromGhost(buffer.ReadGhostDelta(default));
+		}
 	}
 }

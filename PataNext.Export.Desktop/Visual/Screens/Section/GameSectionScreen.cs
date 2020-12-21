@@ -27,55 +27,78 @@ namespace PataNext.Export.Desktop.Visual.Screens.Section
 			base.LoadComplete();
 
             RelativeSizeAxes = Axes.Both;
-            
-			InternalChild = new FillFlowContainer()
-			{
-                RelativeSizeAxes = Axes.Both,
-                Spacing = new Vector2(0, 10),
-				Children = new Drawable[]
-				{
-					new KButton
-					{
-                        RelativeSizeAxes = Axes.X,
-						Text             = "Play (with latest client)",
-                        Action = () =>
-                        {
-                            var world = gameBootstrap.Global.World;
-                            foreach (var entity in world)
-                            {
-                                if (!entity.Has<ClientBootstrap>())
-                                    continue;
 
-                                Logger.Log("client");
-                                var launch = world.CreateEntity();
-                                launch.Set(new LaunchClient(entity));
-                                break;
+            InternalChild = new FillFlowContainer()
+            {
+                RelativeSizeAxes = Axes.Both,
+                Size = Vector2.One,
+                
+                Padding = new MarginPadding {Horizontal = 10},
+                Children = new Drawable[]
+                {
+                    new Container
+                    {
+                        RelativeSizeAxes = Axes.X,
+                        Size             = new Vector2(1, 100),
+                        Origin           = Anchor.BottomCentre,
+                        Anchor           = Anchor.BottomCentre,
+                        
+                        Margin = new MarginPadding {Bottom = 10},
+
+                        CornerRadius = 13f,
+                        Masking = true,
+                        Children = new Drawable[]
+                        {
+                            new Box
+                            {
+                                Origin = Anchor.Centre,
+                                Anchor = Anchor.Centre,
+                                
+                                RelativeSizeAxes = Axes.X,
+                                Size             = new Vector2(1f, 120),
+                                Colour           = Colour4.Black.MultiplyAlpha(0.25f)
+                            },
+                            new KButton
+                            {
+                                Origin = Anchor.CentreRight,
+                                Anchor = Anchor.CentreRight,
+                                
+                                Padding = new MarginPadding {Horizontal = 10},
+                                
+                                Size = new Vector2(300, 38),
+                                Position = new Vector2(0, -22),
+                                Text             = "Play",
+                                Action = () =>
+                                {
+                                    var world = gameBootstrap.Global.World;
+                                    foreach (var entity in world)
+                                    {
+                                        if (!entity.Has<ClientBootstrap>())
+                                            continue;
+
+                                        var launch = world.CreateEntity();
+                                        launch.Set(new LaunchClient(entity));
+                                        break;
+                                    }
+                                }
+                            },
+                            new UpdateButton
+                            {
+                                Origin = Anchor.CentreRight,
+                                Anchor = Anchor.CentreRight,
+                                
+                                Padding = new MarginPadding {Horizontal = 10},
+                                
+                                Size     = new Vector2(300, 38),
+                                Position = new Vector2(0, 22),
+                                Text     = "Check for Updates",
+                                Action = () => { }
                             }
                         }
-                    },
-                    new KButton
-                    {
-                        RelativeSizeAxes = Axes.X,
-                        Text             = "Map Editor (not yet available)",
-                        BackgroundColour = Colour4.DarkGoldenrod.Opacity(0.1f),
-                        Action = () =>
-                        {
-                            
-                        }
-                    },
-                    new KButton
-                    {
-                        RelativeSizeAxes = Axes.X,
-                        Text             = "BGM Editor (not yet available)",
-                        BackgroundColour = Colour4.DarkGoldenrod.Opacity(0.1f),
-                        Action = () =>
-                        {
-                            
-                        }
                     }
-				}
-			};
-		}
+                }
+            };
+        }
 
         public class KButton : Button
         {
@@ -115,7 +138,7 @@ namespace PataNext.Export.Desktop.Visual.Screens.Section
                     Anchor           = Anchor.Centre,
                     Origin           = Anchor.Centre,
                     Masking          = true,
-                    CornerRadius     = 5,
+                    CornerRadius     = 10,
                     RelativeSizeAxes = Axes.Both,
                     Children = new Drawable[]
                     {
@@ -196,7 +219,7 @@ namespace PataNext.Export.Desktop.Visual.Screens.Section
                     Depth  = -1,
                     Origin = Anchor.Centre,
                     Anchor = Anchor.Centre,
-                    Font = new FontUsage("OpenSans-Bold", size: 32)
+                    Font = new FontUsage("OpenSans-Bold", size: 30)
                 };
 
             private void enabledChanged(ValueChangedEvent<bool> e)

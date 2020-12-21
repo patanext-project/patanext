@@ -10,6 +10,7 @@ using GameHost.Revolution.NetCode.LLAPI;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
+using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.GamePlay.Health.Systems;
 using StormiumTeam.GameBase.GamePlay.Health.Systems.Pass;
@@ -109,6 +110,7 @@ namespace StormiumTeam.GameBase
 						serializerCollection.Register(instigator => new Owner.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new Position.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new Velocity.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new ServerCameraState.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<PlayerDescription>(instigator, ctx));
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<TeamDescription>(instigator, ctx));
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<HealthDescription>(instigator, ctx));

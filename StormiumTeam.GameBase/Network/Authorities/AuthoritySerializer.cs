@@ -31,6 +31,10 @@ namespace StormiumTeam.GameBase.Network.Authorities
 		{
 		}
 
+		public override void OnReset(ISnapshotInstigator instigator)
+		{
+		}
+
 		protected override ISerializerArchetype GetSerializerArchetype()
 		{
 			return null;

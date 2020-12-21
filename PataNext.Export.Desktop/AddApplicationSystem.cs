@@ -37,6 +37,7 @@ namespace PataNext.Export.Desktop
 		{
 			var enetServer = new ENetTransportDriver(32);
 			var addr       = new Address {Port = 0};
+			addr.SetIP("0.0.0.0");
 			addr.SetIP("127.0.0.1");
 			
 			var reliableChannel = enetServer.CreateChannel(typeof(ReliableChannel));
@@ -85,15 +86,18 @@ namespace PataNext.Export.Desktop
 				app.Data.Collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.Systems.SendSnapshotSystem));
 				app.Data.Collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.Systems.AddComponentsClientFeature));
 
+				Console.BackgroundColor = ConsoleColor.Red;
+				Console.ForegroundColor = ConsoleColor.White;
 				Console.WriteLine(enetServer.TransportAddress);
+				Console.ResetColor();
 
-				/*if (enetServer.TransportAddress.Connect() is not ENetTransportDriver clientDriver)
+				if (enetServer.TransportAddress.Connect() is not ENetTransportDriver clientDriver)
 					throw new NullReferenceException(nameof(clientDriver));
 				
 				reliableChannel = clientDriver.CreateChannel(typeof(ReliableChannel));
 				
 				app.Data.World.CreateEntity()
-				   .Set<IFeature>(new GameHost.Revolution.NetCode.LLAPI.Systems.ClientFeature(clientDriver, reliableChannel));*/
+				   .Set<IFeature>(new GameHost.Revolution.NetCode.LLAPI.Systems.ClientFeature(clientDriver, reliableChannel));
 			}
 
 			AddApp("Audio", new AudioApplication(globalWorld, null));
