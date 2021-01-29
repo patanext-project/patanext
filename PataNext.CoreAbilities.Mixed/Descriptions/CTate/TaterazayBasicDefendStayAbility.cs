@@ -6,9 +6,11 @@ using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.BaseSystems;
+using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Roles.Components;
 
 namespace PataNext.CoreAbilities.Mixed.CTate
@@ -23,12 +25,11 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 	public class TaterazayBasicDefendStayAbilityProvider : BaseRhythmAbilityProvider<TaterazayBasicDefendStayAbility>
 	{
 		protected override string FilePathPrefix => "tate";
+		public override    string MasterServerId => resPath.Create(new[] {"ability", "tate", "def_defstay"}, ResPath.EType.MasterServer);
 
 		public TaterazayBasicDefendStayAbilityProvider(WorldCollection collection) : base(collection)
 		{
 		}
-
-		public override string MasterServerId => "CTate.BasicDefendStay";
 
 		public override ComponentType GetChainingCommand()
 		{
@@ -58,6 +59,9 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 				AsComponentType<Owner>()
 			})))
 			{
+				if (!GetComponentData<GroundState>(GetComponentData<Owner>(entity).Target).Value)
+					continue;
+					
 				ref readonly var state = ref abilityStateAccessor[entity];
 				if (!state.IsActiveOrChaining)
 					continue;

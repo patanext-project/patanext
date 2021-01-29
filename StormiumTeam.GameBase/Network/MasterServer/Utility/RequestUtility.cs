@@ -5,6 +5,25 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 {
 	public static class RequestUtility
 	{
+		public struct DisposableArray : IDisposable
+		{
+			public readonly IDisposable?[] Disposables;
+
+			public DisposableArray(IDisposable?[] disposables)
+			{
+				Disposables = disposables;
+			}
+
+			public void Dispose()
+			{
+				foreach (var disposable in Disposables)
+					disposable?.Dispose();
+
+				Disposables.AsSpan()
+				           .Clear();
+			}
+		}
+
 		public static Entity CreateFireAndForget<T>(World world, T component)
 		{
 			var ent = world.CreateEntity();
@@ -13,7 +32,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 			return ent;
 		}
 
-		public static Entity CreateTracked<TRequest, TResponse>(World world, TRequest request, Action<Entity, TResponse> onCompletion)
+		public static (Entity requestEntity, DisposableArray disposable) CreateTracked<TRequest, TResponse>(World world, TRequest request, Action<Entity, TResponse> onCompletion)
 		{
 			var ent = world.CreateEntity();
 			ent.Set(request);
@@ -42,10 +61,10 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 				Array.Clear(disposables, 0, disposables.Length);
 			});
 
-			return ent;
+			return (ent, new DisposableArray(disposables));
 		}
 
-		public static void UpdateAndTrack<TRequest, TResponse>(Entity entity, TRequest request, Action<Entity, TResponse> onCompletion)
+		public static DisposableArray UpdateAndTrack<TRequest, TResponse>(Entity entity, TRequest request, Action<Entity, TResponse> onCompletion)
 		{
 			entity.Set(request);
 
@@ -72,6 +91,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 
 				Array.Clear(disposables, 0, disposables.Length);
 			});
+
+			return new DisposableArray(disposables);
 		}
 	}
 }

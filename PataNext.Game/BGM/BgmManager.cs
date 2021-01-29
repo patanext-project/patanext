@@ -45,7 +45,7 @@ namespace PataNext.Client.Systems
 			return base.CanUpdate() && task == null && refreshSet.Count > 0;
 		}
 
-		protected override async void OnUpdate()
+		protected override void OnUpdate()
 		{
 			base.OnUpdate();
 

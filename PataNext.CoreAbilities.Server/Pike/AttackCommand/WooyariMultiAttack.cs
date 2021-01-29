@@ -16,6 +16,7 @@ using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
+using PataNext.Module.Simulation.Game.GamePlay.Damage;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
 using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Components;
@@ -47,7 +48,7 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 			swingSettings.Set<Shape>(new CircleShape {Radius = 7});
 			
 			stabSettings  = World.Mgr.CreateEntity();
-			swingSettings.Set<Shape>(new PolygonShape(3.5f, 0.5f, new Vector2(4, 0), 0));
+			stabSettings.Set<Shape>(new PolygonShape(3.5f, 0.5f, new Vector2(4, 0), 0));
 		}
 		
 		private Dictionary<WooyariMultiAttackAbility.ECombo, (int buildUpMs, int releaseMs)> timeMap = new()
@@ -132,7 +133,7 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 					// attack code
 					AddComponent(self, new HitBox(owner, default));
 					GetComponentData<Position>(self).Value       = position + new Vector3(0, 1, 0);
-					GetComponentData<UnitPlayState>(self)        = GetComponentData<UnitPlayState>(owner);
+					GetComponentData<DamageFrameData>(self)      = new DamageFrameData(GetComponentData<UnitPlayState>(owner));
 					GetComponentData<HitBoxAgainstEnemies>(self) = new HitBoxAgainstEnemies(GetComponentData<Relative<TeamDescription>>(owner).Target);
 
 					switch (ability.Current)
@@ -298,7 +299,7 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 				AbilitySelection.Top => WooyariMultiAttackAbility.EAttackType.Uppercut,
 				AbilitySelection.Bottom => WooyariMultiAttackAbility.EAttackType.Swing,
 				_ => throw new NotImplementedException(selection.ToString())
-			};
+			};	
 		}
 	}
 }

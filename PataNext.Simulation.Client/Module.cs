@@ -19,16 +19,21 @@ namespace PataNext.Simulation.Client
 			global.Collection.GetOrCreate(typeof(ConnectToServerRpc));
 			global.Collection.GetOrCreate(typeof(DisconnectFromServerRpc));
 			global.Collection.GetOrCreate(typeof(SendServerNoticeRpc));
-			
+
 			foreach (var listener in global.World.Get<IListener>())
 			{
 				if (listener is SimulationApplication simulationApplication)
 				{
+					if (!simulationApplication.AssignedEntity.Has<IClientSimulationApplication>())
+						continue;
+
 					simulationApplication.Schedule(() =>
 					{
 						simulationApplication.Data.Collection.GetOrCreate(typeof(RegisterRhythmEngineInputSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(RegisterFreeRoamInputSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(AbilityHeroVoiceManager));
+
+						simulationApplication.Data.Collection.GetOrCreate(typeof(InterpolateForeignUnitsPosition));
 					}, default);
 				}
 			}

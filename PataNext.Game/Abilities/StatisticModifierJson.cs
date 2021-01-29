@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using GameHost.Native;
 using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Game.Abilities
@@ -47,10 +48,33 @@ public static class StatisticModifierJson
 
 		private static void Deserialize(ref StatisticModifier modifier, JsonElement element)
 		{
-			void update(ref float original, string member)
+			bool update(ref float original, string member)
 			{
 				if (element.TryGetProperty(member, out var value))
+				{
 					original = (float) value.GetDouble();
+					return true;
+				}
+
+				return false;
+			}
+
+			void update_status(ref StatusEffectModifier statusEffectModifier, JsonElement obj)
+			{
+				statusEffectModifier.Power           = 1;
+				statusEffectModifier.ReceiveImmunity = 1;
+				statusEffectModifier.ReceivePower    = 1;
+				statusEffectModifier.RegenPerSecond  = 1;
+
+				JsonElement value;
+				if (obj.TryGetProperty("power", out value))
+					statusEffectModifier.Power = (float) value.GetDouble();
+				if (obj.TryGetProperty("receive_immunity", out value))
+					statusEffectModifier.ReceiveImmunity = (float) value.GetDouble();
+				if (obj.TryGetProperty("receive_power", out value))
+					statusEffectModifier.ReceivePower = (float) value.GetDouble();
+				if (obj.TryGetProperty("regen", out value))
+					statusEffectModifier.RegenPerSecond = (float) value.GetDouble();
 			}
 
 			update(ref modifier.Attack, "attack");
@@ -66,6 +90,15 @@ public static class StatisticModifierJson
 			update(ref modifier.AttackSeekRange, "attack_seek_range");
 
 			update(ref modifier.Weight, "weight");
+			update(ref modifier.Knockback, "knockback");
+
+			if (element.TryGetProperty("status_global", out var statusObj))
+			{
+				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, StatusEffect.Critical), statusObj);
+				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, StatusEffect.KnockBack), statusObj);
+				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, StatusEffect.Stagger), statusObj);
+				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, StatusEffect.Piercing), statusObj);
+			}
 		}
 
 		/*public static StatisticModifier From(string json)

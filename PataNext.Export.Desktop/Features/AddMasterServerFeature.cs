@@ -27,11 +27,9 @@ namespace PataNext.Export.Desktop
 
 		public AddMasterServerFeature(WorldCollection collection) : base(collection)
 		{
-			GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
-
 			DependencyResolver.Add(() => ref taskScheduler);
 
-			collection.Mgr.CreateEntity().Set<IFeature>(new MasterServerFeature("localhost", 12345));
+			collection.Mgr.CreateEntity().Set<IFeature>(new MasterServerFeature("localhost:12345"));
 
 return;
 

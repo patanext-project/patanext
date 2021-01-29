@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
@@ -111,6 +112,14 @@ namespace PataNext.Module.Simulation.BaseSystems
 			GameWorld.AssignComponent(entity, GameWorld.GetComponentReference<ExecutableAbility>(global.Handle));
 		}
 
+		protected virtual void SetDefaultEntityDataOnNonAssigned(GameEntityHandle entity)
+		{
+			using var list = new PooledList<ComponentType>(ClearMode.Never);
+			GetComponents(list);
+
+			GameWorld.AssureComponents(entity, list.Span);
+		}
+
 		private EntityQuery nonAssignedComponentQuery;
 
 		protected override void OnUpdate()
@@ -119,11 +128,11 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 			if (nonAssignedComponentQuery == null)
 			{
-				nonAssignedComponentQuery = new EntityQuery(GameWorld, stackalloc[]
+				nonAssignedComponentQuery = new EntityQuery(GameWorld, new[]
 				{
 					GameWorld.AsComponentType<AbilityDescription>(),
 					GameWorld.AsComponentType<T>()
-				}, stackalloc[]
+				}, new[]
 				{
 					GameWorld.AsComponentType<ExecutableAbility>()
 				});
@@ -131,8 +140,12 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 			foreach (var entity in nonAssignedComponentQuery)
 			{
-				Console.WriteLine($"Assigned NonExisting `{typeof(T).Name} ExecutableAbility to {GameWorld.Safe(entity)}");
-				scheduler.Schedule(ent => { GameWorld.AssignComponent(ent, GameWorld.GetComponentReference<ExecutableAbility>(global.Handle)); }, entity, default);
+				//Console.WriteLine($"Assigned NonExisting `{typeof(T).Name} ExecutableAbility to {GameWorld.Safe(entity)}");
+				scheduler.Schedule(ent =>
+				{
+					GameWorld.AssignComponent(ent, GameWorld.GetComponentReference<ExecutableAbility>(global.Handle));
+					SetDefaultEntityDataOnNonAssigned(ent);
+				}, entity, default);
 			}
 		}
 

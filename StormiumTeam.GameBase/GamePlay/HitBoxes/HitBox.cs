@@ -1,4 +1,5 @@
-﻿using GameHost.Simulation.TabEcs;
+﻿using System.Numerics;
+using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 
 namespace StormiumTeam.GameBase.GamePlay.HitBoxes
@@ -24,10 +25,14 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 	public readonly struct HitBoxHistory : IComponentBuffer
 	{
 		public readonly GameEntity Victim;
+		public readonly Vector3    Position;
+		public readonly Vector3    Normal;
 
-		public HitBoxHistory(GameEntity victim)
+		public HitBoxHistory(GameEntity victim, Vector3 position, Vector3 normal)
 		{
-			Victim = victim;
+			Victim   = victim;
+			Position = position;
+			Normal   = normal;
 		}
 	}
 

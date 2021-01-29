@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Reflection;
 using GameHost.Game;
 using osu.Framework.Allocation;
+using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -37,7 +40,14 @@ namespace PataNext.Export.Desktop
 		[BackgroundDependencyLoader]
 		private void load()
 		{
-			gameBootstrap.GameEntity.Set(new VisualHWND {Value = Window.WindowInfo.Handle});
+			IntPtr handle;
+			handle = Window switch
+			{
+				SDL2DesktopWindow sdlWindow => sdlWindow.WindowHandle,
+				OsuTKWindow tkWindow => tkWindow.WindowInfo.Handle
+			};
+			
+			gameBootstrap.GameEntity.Set(new VisualHWND {Value = handle});
 			dependencies.Cache(this);
 			dependencies.Cache(gameBootstrap);
 			dependencies.Cache(notifications);
@@ -72,7 +82,7 @@ namespace PataNext.Export.Desktop
 		}
 		
 		public override void SetHost(osu.Framework.Platform.GameHost host)
-		{
+		{			
 			base.SetHost(host);
 
 			foreach (var r in Assembly.GetExecutingAssembly().GetManifestResourceNames())
@@ -82,17 +92,15 @@ namespace PataNext.Export.Desktop
 			
 			switch (host.Window)
 			{
-				// Legacy osuTK DesktopGameWindow
-				case DesktopGameWindow desktopGameWindow:
+				case SDL2DesktopWindow desktopGameWindow:
 					desktopGameWindow.SetIconFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream(GetType(), "game.ico"));
-					desktopGameWindow.Title = "PataNext";
-					desktopGameWindow.Width = 1024;
-					desktopGameWindow.Height = 512;
+					desktopGameWindow.Title  = "PataNext";
+					// desktopGameWindow.Size   = new Size(1024, 512); // how can I set the size of a sdl window?
 					break;
-
-				// SDL2 DesktopWindow
-				case DesktopWindow desktopWindow:
-					desktopWindow.Title             =  Name;
+				
+				case OsuTKWindow desktopWindow:
+					desktopWindow.Title = Name;
+					desktopWindow.Size  = new Size(1024, 512);
 					break;
 			}
 		}
@@ -123,12 +131,23 @@ namespace PataNext.Export.Desktop
 		{
 			base.Update();
 			
+			if (gameBootstrap?.GameEntity.World == null)
+				return;
+			
+			IntPtr handle;
+			handle = Window switch
+			{
+				SDL2DesktopWindow sdlWindow => sdlWindow.WindowHandle,
+				OsuTKWindow tkWindow => tkWindow.WindowInfo.Handle
+			};
+
 			gameBootstrap.GameEntity.Set(new VisualHWND
 			{
-				Value = Window.WindowInfo.Handle, Size =
+				Value = handle, 
+				Size =
 				{
-					X = Window.Width,
-					Y = Window.Height
+					X = Window.ClientSize.Width,
+					Y = Window.ClientSize.Height
 				},
 				ShowIntegratedWindows = showIntegrated && begin.AddSeconds(2) < DateTime.Now
 			});

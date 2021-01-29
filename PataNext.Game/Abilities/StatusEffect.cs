@@ -1,5 +1,51 @@
 ﻿namespace PataNext.Game.Abilities
 {
+	namespace Effects
+	{
+		public readonly struct Critical
+		{
+		}
+
+		public readonly struct KnockBack
+		{
+		}
+
+		public readonly struct Stagger
+		{
+		}
+
+		public readonly struct Burn
+		{
+		}
+
+		public readonly struct Sleep
+		{
+		}
+
+		public readonly struct Freeze
+		{
+		}
+		
+		public readonly struct Poison
+		{
+		}
+		
+		public readonly struct Tumble
+		{
+		}
+		
+		public readonly struct Wind
+		{
+		}
+		
+		public readonly struct Piercing
+		{
+		}
+		
+		public readonly struct Silence
+		{
+		}
+	}
 
 	public enum StatusEffect
 	{

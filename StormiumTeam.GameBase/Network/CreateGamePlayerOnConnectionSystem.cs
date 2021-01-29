@@ -55,7 +55,11 @@ namespace StormiumTeam.GameBase.Network
 			if (serverFeature.Count == 0)
 			{
 				using var destroyList = new PooledList<GameEntityHandle>();
-				foreach (var ent in GameWorld.QueryEntity(stackalloc[] {AsComponentType<CreatedByThisSystem>(), AsComponentType<PlayerDescription>()}, Span<ComponentType>.Empty))
+				foreach (var ent in GameWorld.QueryEntity(stackalloc[]
+				{
+					AsComponentType<CreatedByThisSystem>(), 
+					AsComponentType<PlayerDescription>()
+				}, Span<ComponentType>.Empty))
 				{
 					destroyList.Add(ent);
 				}
@@ -79,6 +83,7 @@ namespace StormiumTeam.GameBase.Network
 						AddComponent(gameEntity, new PlayerDescription());
 						AddComponent(gameEntity, new CreatedByThisSystem {InstigatorId = client.InstigatorId});
 						AddComponent(gameEntity, new NetReportTime());
+						AddComponent(gameEntity, new ForeignNetTime());
 						AddComponent(gameEntity, new NetworkedEntity());
 
 						storage.Set(gameEntity);

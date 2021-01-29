@@ -33,6 +33,9 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 		/// <returns></returns>
 		public static float GetScore(TimeSpan elapsed, TimeSpan interval)
 		{
+			if (interval == TimeSpan.Zero || elapsed == TimeSpan.Zero)
+				return 0;
+			
 			var beatTimeDelta  = elapsed.Ticks % interval.Ticks;
 			var halvedInterval = interval.Ticks * 0.5;
 			var correctedTime  = beatTimeDelta - halvedInterval;

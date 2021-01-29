@@ -15,6 +15,7 @@ namespace StormiumTeam.GameBase.Physics
 	{
 		public Vector3 Position;
 		public Vector3 Velocity;
+		public bool    StopAtFirstResult;
 	}
 
 	public struct DistanceResult

@@ -21,18 +21,23 @@ using GameHost.Worlds.Components;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GameModes;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using PataNext.Module.Simulation.Components.GamePlay.Special;
+using PataNext.Module.Simulation.Components.GamePlay.Team;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Providers;
+using PataNext.Module.Simulation.Network.Snapshots;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Systems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.GamePlay;
+using StormiumTeam.GameBase.GamePlay.Health.Systems;
 using StormiumTeam.GameBase.Network;
 using StormiumTeam.GameBase.Network.Authorities;
+using StormiumTeam.GameBase.Network.Components;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
@@ -49,8 +54,9 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			public GameEntity Entity;
 		}
 
-		private FreeRoamUnitProvider unitProvider;
-		private NetReportTimeSystem  reportTimeSystem;
+		private FreeRoamUnitProvider  unitProvider;
+		private NetReportTimeSystem   reportTimeSystem;
+		private DefaultHealthProvider healthProvider;
 		
 		private AbilityCollectionSystem abilityCollectionSystem;
 
@@ -68,6 +74,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			DependencyResolver.Add(() => ref resPathGen);
 			
 			DependencyResolver.Add(() => ref unitProvider);
+			DependencyResolver.Add(() => ref healthProvider);
 			DependencyResolver.Add(() => ref reportTimeSystem);
 			DependencyResolver.Add(() => ref worldTime);
 			DependencyResolver.Add(() => ref abilityCollectionSystem);
@@ -78,15 +85,37 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			DependencyResolver.Add(() => ref localEquipDb);
 		}
 
-		private EntityQuery playerQuery, playerWithoutInputQuery, playerWithInputQuery;
+		private EntityQuery basePlayerQuery, playerWithoutInputQuery, playerWithInputQuery;
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			playerQuery             = CreateEntityQuery(new[] {typeof(PlayerDescription)});
-			playerWithInputQuery    = QueryWith(playerQuery, new[] {typeof(FreeRoamInputComponent)});
-			playerWithoutInputQuery = QueryWithout(playerQuery, new[] {typeof(FreeRoamInputComponent)});
+			basePlayerQuery         = CreateEntityQuery(new[] {typeof(PlayerDescription)});
+			playerWithInputQuery    = QueryWith(basePlayerQuery, new[] {typeof(FreeRoamInputComponent)});
+			playerWithoutInputQuery = QueryWithout(basePlayerQuery, new[] {typeof(FreeRoamInputComponent)});
+		}
+
+		private void MakeAbilityAuth(bool yes, GameEntityHandle handle, GameEntityHandle player)
+		{
+			AddComponent(handle, new OwnedNetworkedEntity(Safe(player)));
+			
+			if (yes)
+			{
+				GameWorld.AddRemoveMultipleComponent(
+					handle,
+					new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()},
+					new[] {AsComponentType<SimulationAuthority>()}
+				);
+			}
+			else
+			{
+				GameWorld.AddRemoveMultipleComponent(
+					handle,
+					new[] {AsComponentType<SimulationAuthority>()},
+					new[] {AsComponentType<SetRemoteAuthority<SimulationAuthority>>()}
+				);
+			}
 		}
 
 		private void CreateCharacterAt(float xPos, GameEntity character, GameEntity team, UnitDirection direction)
@@ -96,8 +125,9 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			// Add RhythmEngine (fully simulated by client)
 			var rhythmEngine = GameWorld.CreateEntity();
 			AddComponent(rhythmEngine, new RhythmEngineDescription());
+			AddComponent(rhythmEngine, new AssignInstigatorTime(WantedTimeType.Default));
 			// hack starttime
-			AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = TimeSpan.Zero});
+			AddComponent(rhythmEngine, new RhythmEngineController {State      = RhythmEngineState.Playing, StartTime = TimeSpan.FromSeconds(1) + worldTime.Total});
 			AddComponent(rhythmEngine, new RhythmEngineSettings {BeatInterval = TimeSpan.FromSeconds(0.5), MaxBeat   = 4});
 			AddComponent(rhythmEngine, new RhythmEngineLocalState());
 			AddComponent(rhythmEngine, new RhythmEngineExecutingCommand());
@@ -122,21 +152,31 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 				abilityCollectionSystem.SpawnFor("march", character.Handle),
 				abilityCollectionSystem.SpawnFor("backward", character.Handle),
 				abilityCollectionSystem.SpawnFor("retreat", character.Handle),
-				abilityCollectionSystem.SpawnFor("jump", character.Handle)
+				abilityCollectionSystem.SpawnFor("jump", character.Handle),
+				abilityCollectionSystem.SpawnFor("charge", character.Handle),
+				abilityCollectionSystem.SpawnFor("party", character.Handle),
+				abilityCollectionSystem.SpawnFor(resPathGen.Create(new[] {"ability", "tate", "def_atk"}, ResPath.EType.MasterServer), character.Handle),
+				abilityCollectionSystem.SpawnFor("CTate.BasicDefendStay", character.Handle)
 			};
-			abilities.ForEach(handle => AddComponent(handle, new NetworkedEntity()));
+			abilities.ForEach(handle =>
+			{
+				AddComponent(handle, new NetworkedEntity());
+				MakeAbilityAuth(!HasComponent<SimulationAuthority>(character.Handle), handle, player);
+			});
 
 			var unitTarget = GameWorld.CreateEntity();
-			GameWorld.AddComponent(unitTarget, new UnitTargetDescription());
-			GameWorld.AddComponent(unitTarget, new Position());
-			GameWorld.AddComponent(unitTarget, new UnitEnemySeekingState());
-			GameWorld.AddComponent(unitTarget, new Relative<PlayerDescription>(Safe(player)));
-			GameWorld.AddComponent(unitTarget, new NetworkedEntity());
+			AddComponent(unitTarget, new UnitTargetDescription());
+			AddComponent(unitTarget, new Position());
+			AddComponent(unitTarget, new UnitEnemySeekingState());
+			AddComponent(unitTarget, new Relative<PlayerDescription>(Safe(player)));
+			AddComponent(unitTarget, new Relative<TeamDescription>(team));
+			AddComponent(unitTarget, new NetworkedEntity());
 
-			GameWorld.GetComponentData<Position>(unitTarget).Value.X = xPos;
+			GetComponentData<Position>(unitTarget).Value.X = xPos;
 
 			AddComponent(character, new Relative<UnitTargetDescription>(Safe(unitTarget)));
 			AddComponent(character, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
+			AddComponent(character, new Relative<TeamDescription>(team));
 			AddComponent(character, new UnitTargetControlTag());
 			AddComponent(character, new UnitTargetOffset());
 			AddComponent(character, new UnitEnemySeekingState());
@@ -155,7 +195,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 			displayedEquip.Add(new UnitDisplayedEquipment
 			{
 				Attachment = localAttachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
-				Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "swords", "default_sword"}, ResPath.EType.ClientResource))
+				Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "blades", "default_blade"}, ResPath.EType.ClientResource))
 			});
 
 			RequestWithAuthority<SimulationAuthority>(character, () =>
@@ -167,7 +207,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 		public void SwitchAuthority(string authorityType)
 		{
-			foreach (var player in playerQuery)
+			foreach (var player in playerWithInputQuery)
 			{
 				SwitchAuthority(player, authorityType != "server");
 			}
@@ -198,14 +238,62 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					new[] {AsComponentType<SimulationAuthority>()}
 				);
 			}
+
+			foreach (var ability in GetBuffer<OwnedRelative<AbilityDescription>>(character))
+			{
+				if (GameWorld.Exists(ability.Target))
+					MakeAbilityAuth(hasAuthority, ability.Target.Handle, player);
+			}
+
+			if (TryGetComponentData(player, out Relative<RhythmEngineDescription> re))
+			{
+				GetComponentData<AssignInstigatorTime>(re.Handle).RequestedTimeType = hasAuthority ? WantedTimeType.Default : WantedTimeType.Extrapolated;
+
+				RemoveCharacter(player);
+			}
+		}
+
+		private void RemoveCharacter(GameEntityHandle player)
+		{
+			var character = GetComponentData<PlayerFreeRoamCharacter>(player).Entity;
+			
+			var rhythmEngine = GetComponentData<Relative<RhythmEngineDescription>>(character).Target;
+			var unitTarget   = GetComponentData<Relative<UnitTargetDescription>>(character).Target;
+			var abilities    = GetBuffer<OwnedRelative<AbilityDescription>>(character);
+
+			GameWorld.RemoveComponent(character.Handle, AsComponentType<UnitEnemySeekingState>());
+
+			GameWorld.RemoveEntity(rhythmEngine.Handle);
+			{
+				GameWorld.RemoveComponent(character.Handle, AsComponentType<Relative<RhythmEngineDescription>>());
+				GameWorld.RemoveComponent(player, AsComponentType<Relative<RhythmEngineDescription>>());
+
+				GameWorld.RemoveComponent(player, AsComponentType<GameRhythmInputComponent>());
+			}
+			GameWorld.RemoveEntity(unitTarget.Handle);
+			{
+				GameWorld.RemoveComponent(character.Handle, AsComponentType<Relative<UnitTargetDescription>>());
+			}
+			
+			GameWorld.RemoveEntityBulk(abilities.Reinterpret<GameEntity>().Span);
+
+			/*// give us more authority for more frames, since we would have reports with the old position (and would so re-active rhythm engine mode)
+			RequestWithAuthority<SimulationAuthority>(character, () =>
+			{
+				GetComponentData<Position>(character).Value.X = 0;
+			}, 10); // ~0.1 sec of authority approx*/
+
+			GameWorld.AddComponent(character.Handle, AsComponentType<UnitFreeRoamMovement>());
+
+			GameWorld.GetBuffer<UnitDisplayedEquipment>(character.Handle).Clear();
 		}
 
 		protected virtual void PlayLoop()
-		{
-			foreach (var player in playerQuery)
+		{			
+			foreach (var player in playerWithInputQuery)
 			{
 				ref readonly var input = ref GetComponentData<FreeRoamInputComponent>(player);
-
+				
 				var reportTime = reportTimeSystem.Get(player, out var fromEntity);
 				var character  = GetComponentData<PlayerFreeRoamCharacter>(player).Entity;
 				if (input.Down.HasBeenPressed(reportTime.Active) && 1 == 2)
@@ -215,46 +303,20 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 				if (!HasComponent<Relative<RhythmEngineDescription>>(player))
 				{
-					var position = GetComponentData<Position>(character).Value.X;
-					if (position > 8)
-						CreateCharacterAt(10, character, unitTeam, UnitDirection.Left);
-					else if (position < -8)
-						CreateCharacterAt(-10, character, unitTeam, UnitDirection.Right);
+					if (input.Down.HasBeenPressed(reportTime.Active))
+					{
+						var position = GetComponentData<Position>(character).Value.X;
+						if (position > 1)
+							CreateCharacterAt(position, character, unitTeam, GetComponentData<UnitDirection>(character));
+						else if (position < -1)
+							CreateCharacterAt(position, character, unitTeam, GetComponentData<UnitDirection>(character));
+					}
 				}
 				else
 				{
 					if (input.Up.HasBeenPressed(reportTime.Active))
 					{
-						var rhythmEngine = GetComponentData<Relative<RhythmEngineDescription>>(character).Target;
-						var unitTarget   = GetComponentData<Relative<UnitTargetDescription>>(character).Target;
-						var abilities    = GetBuffer<OwnedRelative<AbilityDescription>>(character);
-
-						GameWorld.RemoveComponent(character.Handle, AsComponentType<UnitEnemySeekingState>());
-						
-						GameWorld.RemoveEntity(rhythmEngine.Handle);
-						{
-							GameWorld.RemoveComponent(character.Handle, AsComponentType<Relative<RhythmEngineDescription>>());
-							GameWorld.RemoveComponent(player, AsComponentType<Relative<RhythmEngineDescription>>());
-
-							GameWorld.RemoveComponent(player, AsComponentType<GameRhythmInputComponent>());
-						}
-						GameWorld.RemoveEntity(unitTarget.Handle);
-						{
-							GameWorld.RemoveComponent(character.Handle, AsComponentType<Relative<UnitTargetDescription>>());
-						}
-						foreach (var relative in abilities)
-						{
-							GameWorld.RemoveEntity(relative.Target.Handle);
-						}
-
-						RequestWithAuthority<SimulationAuthority>(character, () =>
-						{
-							GetComponentData<Position>(character).Value.X = 0;
-						});
-						
-						GameWorld.AddComponent(character.Handle, AsComponentType<UnitFreeRoamMovement>());
-						
-						GameWorld.GetBuffer<UnitDisplayedEquipment>(character.Handle).Clear();
+						RemoveCharacter(player);
 					}
 				}
 			}
@@ -278,20 +340,33 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 		private GameEntity environmentTeam;
 		protected override async Task GetStateMachine(CancellationToken token)
 		{
+			for (var i = 0; i < 4; i++)
+				await Task.Yield();
+			
 			environmentTeam = Safe(CreateEntity());
 			AddComponent(environmentTeam, new TeamDescription());
 			AddComponent(environmentTeam, new SimulationAuthority());
+			AddComponent(environmentTeam, new NetworkedEntity());
+			AddComponent(environmentTeam, new TeamMovableArea());
 			GameWorld.AddBuffer<TeamEntityContainer>(environmentTeam.Handle);
+			GameWorld.AddBuffer<TeamAllies>(environmentTeam.Handle);
 			
 			unitTeam = Safe(CreateEntity());
 			AddComponent(unitTeam, new TeamDescription());
 			AddComponent(unitTeam, new SimulationAuthority());
+			AddComponent(unitTeam, new NetworkedEntity());
+			AddComponent(unitTeam, new TeamMovableArea());
 			GameWorld.AddBuffer<TeamEntityContainer>(unitTeam.Handle);
+			GameWorld.AddBuffer<TeamAllies>(unitTeam.Handle);
 			
 			GameWorld.AddBuffer<TeamEnemies>(unitTeam.Handle).Add(new TeamEnemies(environmentTeam));
 			GameWorld.AddBuffer<TeamEnemies>(environmentTeam.Handle).Add(new TeamEnemies(unitTeam));
 			
-			CreateBox(new Vector3(15, 0, 0));
+			CreateBox(new Vector3(30, 0, 0));
+			CreateBox(new Vector3(-30, 0, 0));
+
+			var enemyPlayer = GameWorld.CreateEntity();
+			GameWorld.AddComponent(enemyPlayer, new PlayerDescription());
 
 			while (!token.IsCancellationRequested)
 			{
@@ -306,12 +381,16 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 						Direction = UnitDirection.Right,
 						Statistics = new UnitStatistics
 						{
+							Attack              = 17,
+							Health              = 300,
 							BaseWalkSpeed       = 2,
 							FeverWalkSpeed      = 2.2f,
-							MovementAttackSpeed = 2.2f,
-							Weight              = 8.5f,
-							AttackSpeed         = 2f,
+							MovementAttackSpeed = 3.0f,
+							Weight              = 7f,
+							AttackSpeed         = 1.2f,
 							AttackSeekRange     = 16f,
+
+							AttackMeleeRange = 4f
 						}
 					}));
 
@@ -320,6 +399,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					
 					var kit = "taterazay";
 					AddComponent(character, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource(kit))));
+					AddComponent(character, new UberHeroCollider());
 
 					AddComponent(player, new PlayerFreeRoamCharacter {Entity = character});
 					
@@ -327,6 +407,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					AddComponent(character, new Relative<PlayerDescription>(Safe(player)));
 					AddComponent(character, new Relative<TeamDescription>(unitTeam));
 					AddComponent(character, new SetRemoteAuthority<SimulationAuthority>());
+					AddComponent(character, new MovableAreaAuthority()); // this shouldn't be set on the client
 					//AddComponent(character, new SimulationAuthority());
 					AddComponent(character, new NetworkedEntity());
 					AddComponent(character, new OwnedNetworkedEntity(Safe(player)));
@@ -340,13 +421,27 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 							Target = character
 						}
 					});
+					
+					healthProvider.SpawnEntityWithArguments(new DefaultHealthProvider.Create
+					{
+						value = 300,
+						max   = 300,
+						owner = character
+					});
 
 					SwitchAuthority(player, true);
 					
 					GameWorld.Link(character.Handle, player, true);
+					
+					if (player == enemyPlayer)
+						CreateCharacterAt(10, character, environmentTeam, UnitDirection.Left);
+					
+					// can't swapback here
+					break;
 				}
 
 				PlayLoop();
+				
 				await Task.Yield();
 			}
 

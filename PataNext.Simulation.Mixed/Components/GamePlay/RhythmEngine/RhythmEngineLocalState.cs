@@ -10,6 +10,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.RhythmEngine
 		public FlowPressure LastPressure           { get; set; }
 		public int          RecoveryActivationBeat { get; set; }
 		public TimeSpan     Elapsed                { get; set; }
+		public TimeSpan     PreviousStartTime;
 
 		public int  CurrentBeat;
 		public uint NewBeatTick;

@@ -54,7 +54,7 @@ namespace StormiumTeam.GameBase.Network
 				ref readonly var snapshotEntity = ref snapshotEntityAccessor[entityHandle];
 				Debug.Assert(snapshotEntity.Storage.IsAlive, "snapshotEntity.Storage.IsAlive");
 				
-				if (!snapshotEntity.Storage.TryGet(out GameEntity gameEntity))
+				if (!snapshotEntity.Storage.TryGet(out GameEntity gameEntity) || !HasComponent<NetReportTime>(gameEntity.Handle))
 					continue;
 				
 				scheduler.Schedule(assignDelegate, (entityHandle, gameEntity.Handle), default);

@@ -63,7 +63,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 						var enmEntCount       = enemyEntityBuffer.Count;
 						for (var enmEnt = 0; enmEnt < enmEntCount; enmEnt++)
 						{
-							if (!HasComponent<LivableHealth>(enemyEntityBuffer[enmEnt].Handle))
+							if (HasComponent<LivableIsDead>(enemyEntityBuffer[enmEnt].Handle)
+							    || HasComponent<UnitTargetDescription>(enemyEntityBuffer[enmEnt].Handle))
 								continue;
 
 							var enemyPos = positionAccessor[enemyEntityBuffer[enmEnt].Handle].Value.X;

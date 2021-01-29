@@ -6,9 +6,11 @@ using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
+using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.Units;
+using PataNext.Simulation.Mixed.Components.GamePlay.Abilities;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
@@ -20,6 +22,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 	public struct AbilityControlVelocity : IComponentData
 	{
 		public bool IsActive;
+		public bool ActiveInAir;
 
 		public Boolean3 Keep;
 		public Boolean3 Control;
@@ -107,10 +110,19 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			{
 				ref var target = ref targetAccessor[entity];
 				if (!target.IsActive)
+				{
 					continue;
-				target.IsActive = false;
+				}
+
+				target.IsActive    = false;
 
 				var owner = ownerAccessor[entity].Target.Handle;
+				if (GetComponentDataOrDefault(owner, new GroundState {Value = true}).Value == false && !target.ActiveInAir)
+				{
+					continue;
+				}
+
+				target.ActiveInAir = false;
 
 				ref var position   = ref positionAccessor[owner].Value;
 				ref var playState  = ref playStateAccessor[owner];
@@ -141,6 +153,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 						targetPosition.X += offset.Idle * target.OffsetFactor;
 					}
 
+					var prev = velocity.X;
 					velocity.X = AbilityUtility.GetTargetVelocityX(new AbilityUtility.GetTargetVelocityParameters
 					{
 						TargetPosition   = targetPosition,
@@ -149,7 +162,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 						PlayState        = playState,
 						Acceleration     = target.Acceleration,
 						Delta            = dt
-					}, 0, 0.5f);
+					}, 0.1f, 0.25f);
 				}
 
 				controller.ControlOverVelocityX = true;

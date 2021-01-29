@@ -14,11 +14,8 @@ namespace PataNext.Module.Simulation.Game.Providers
 {
 	public class FreeRoamUnitProvider : PlayableUnitProvider
 	{
-		private IPhysicsSystem physicsSystem;
-
 		public FreeRoamUnitProvider(WorldCollection collection) : base(collection)
 		{
-			DependencyResolver.Add(() => ref physicsSystem);
 		}
 
 		public override void GetComponents(PooledList<ComponentType> entityComponents)
@@ -29,15 +26,6 @@ namespace PataNext.Module.Simulation.Game.Providers
 			{
 				GameWorld.AsComponentType<UnitFreeRoamMovement>()
 			});
-		}
-
-		public override void SetEntityData(GameEntityHandle entity, Create data)
-		{
-			base.SetEntityData(entity, data);
-
-			var unitColliderSettings = World.Mgr.CreateEntity();
-			unitColliderSettings.Set<Shape>(new PolygonShape(0.5f, 0.75f, new Vector2(0, 0.75f), 0));
-			physicsSystem.AssignCollider(entity, unitColliderSettings);
 		}
 	}
 }

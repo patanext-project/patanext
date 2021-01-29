@@ -7,7 +7,7 @@ using GameHost.Simulation.Utility.EntityQuery;
 
 namespace StormiumTeam.GameBase.SystemBase
 {
-	public class GameAppSystem : AppSystem
+	public partial class GameAppSystem : AppSystem
 	{
 		private GameWorld gameWorld;
 
@@ -22,7 +22,26 @@ namespace StormiumTeam.GameBase.SystemBase
 		public GameEntityHandle CreateEntity()                => GameWorld.CreateEntity();
 		public TemporaryEntity  CreateTemporary()             => new(gameWorld);
 
+		public bool RemoveEntity(GameEntity entity)
+		{
+			if (!GameWorld.Exists(entity))
+				return false;
+
+			GameWorld.RemoveEntity(entity.Handle);
+			return true;
+		}
+
 		public ComponentType AsComponentType<T>() where T : struct, IEntityComponent => GameWorld.AsComponentType<T>();
+		
+		public bool HasComponent<T>(GameEntity entity) where T : struct, IEntityComponent
+		{
+			return GameWorld.HasComponent<T>(entity.Handle);
+		}
+		
+		public bool HasComponent(GameEntity entity, ComponentType componentType)
+		{
+			return GameWorld.HasComponent(entity.Handle, componentType);
+		}
 
 		public bool HasComponent<T>(GameEntityHandle entity) where T : struct, IEntityComponent
 		{
@@ -40,6 +59,12 @@ namespace StormiumTeam.GameBase.SystemBase
 			if (!GameWorld.Contains(entity) || !HasComponent<T>(entity))
 				return def;
 			return GetComponentData<T>(entity);
+		}
+		
+		public T GetComponentDataOrDefault<T>(GameEntity entity, T def = default)
+			where T : struct, IComponentData
+		{
+			return GetComponentDataOrDefault(entity.Handle, def);
 		}
 
 		public ref T GetComponentData<T>(GameEntityHandle entity)

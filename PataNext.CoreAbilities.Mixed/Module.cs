@@ -46,8 +46,10 @@ namespace PataNext.CoreAbilities.Mixed
 						sc.Register(inst => new Defaults.DefaultJumpAbility.Serializer(inst, appCtx));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilityProvider));
+						sc.Register(inst => new Defaults.DefaultPartyAbility.Serializer(inst, appCtx));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultChargeAbilityProvider));
+						sc.Register(inst => new Defaults.DefaultChargeAbility.Serializer(inst, appCtx));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilityProvider));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilitySystem));
@@ -61,15 +63,24 @@ namespace PataNext.CoreAbilities.Mixed
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilitySystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicAttackAbilityProvider));
+						sc.Register(inst => new CTate.TaterazayBasicAttackAbility.Serializer(inst, appCtx));
+						sc.Register(inst => new CTate.TaterazayBasicAttackAbility.State.Serializer(inst, appCtx));
 						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CGuard.GuardiraBasicDefendAbilityProvider));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CGuard.GuardiraMegaShieldAbilityProvider));
 						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaBasicAttackAbilityProvider));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaLeapAttackAbilityProvider));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaFearSpearAbilityProvider));
 						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CPike.WooyariMultiAttackAbilityProvider));
 						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CYumi.YumiyachaBasicAttackAbilityProvider));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(CYumi.YumiyachaSnipeAttackAbilityProvider));
+
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicSonicAttackAbilityProvider));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicWordAttackAbilityProvider));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicMagicAttackAbilityProvider));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));						
 					}, default);

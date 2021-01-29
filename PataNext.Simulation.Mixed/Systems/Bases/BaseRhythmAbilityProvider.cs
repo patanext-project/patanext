@@ -235,14 +235,14 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 		public override void GetComponents(PooledList<ComponentType> entityComponents)
 		{
-			entityComponents.AddRange(stackalloc ComponentType[]
+			entityComponents.AddRange(new ComponentType[]
 			{
 				GameWorld.AsComponentType<AbilityDescription>(),
 				GameWorld.AsComponentType<TAbility>(),
 				GameWorld.AsComponentType<Owner>()
 			});
 
-			entityComponents.AddRange(stackalloc ComponentType[]
+			entityComponents.AddRange(new ComponentType[]
 			{
 				GameWorld.AsComponentType<AbilityState>(),
 				GameWorld.AsComponentType<AbilityEngineSet>(),
@@ -251,14 +251,14 @@ namespace PataNext.Module.Simulation.BaseSystems
 			});
 
 			if (UseStatsModification)
-				entityComponents.AddRange(stackalloc ComponentType[]
+				entityComponents.AddRange(new ComponentType[]
 				{
 					GameWorld.AsComponentType<AbilityModifyStatsOnChaining>(),
 					GameWorld.AsComponentType<AbilityControlVelocity>()
 				});
 
 			if (MasterServerId != null)
-				entityComponents.AddRange(stackalloc ComponentType[]
+				entityComponents.AddRange(new ComponentType[]
 				{
 					GameWorld.AsComponentType<NamedAbilityId>()
 				});

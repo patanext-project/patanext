@@ -92,7 +92,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			var comboSettings = GameWorld.GetComponentData<GameCombo.Settings>(LocalEngine);
 			var comboState    = GameWorld.GetComponentData<GameCombo.State>(LocalEngine);
 
-			if (state.CurrentBeat < 0)
+			if (state.CurrentBeat < 0 || HasComponent<RhythmEngineIsPlaying>(LocalEngine) == false)
 			{
 				AudioPlayerUtility.Stop(audioPlayer);
 				return;

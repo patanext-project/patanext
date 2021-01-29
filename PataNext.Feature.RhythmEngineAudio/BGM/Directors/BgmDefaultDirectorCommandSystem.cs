@@ -224,7 +224,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 						Director.HeroModeCombo.Value++;
 					}
 					else if (output.Map.TryGetValue(key, out var resourceMap)
-					         && resourceMap.TryGetValue(Director.GetNextCycle(LocalInformation.NextCommandStr, key), out var resource))
+					         && resourceMap.TryGetValue(Director.GetNextCycle(LocalInformation.NextCommandStr, key, comboState.Count), out var resource))
 					{
 						resourceHandle = resource;
 

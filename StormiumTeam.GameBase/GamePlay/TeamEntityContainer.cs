@@ -1,5 +1,11 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using GameHost.Core.Ecs;
+using GameHost.Injection;
+using GameHost.Revolution.NetCode;
+using GameHost.Revolution.Snapshot.Serializers;
+using GameHost.Revolution.Snapshot.Systems;
+using GameHost.Revolution.Snapshot.Utilities;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
@@ -17,6 +23,39 @@ namespace StormiumTeam.GameBase.GamePlay
 		public GameEntity Value;
 
 		public TeamEntityContainer(GameEntity entity) => Value = entity;
+		
+		public struct Snapshot : IReadWriteSnapshotData<Snapshot, GhostSetup>, ISnapshotSyncWithComponent<TeamEntityContainer, GhostSetup>
+		{
+			public uint Tick { get; set; }
+
+			public Ghost Ghost;
+			public void Serialize(in     BitBuffer           buffer,    in Snapshot   baseline, in GhostSetup setup)
+			{
+				buffer.AddGhostDelta(Ghost, baseline.Ghost);
+			}
+
+			public void Deserialize(in   BitBuffer           buffer,    in Snapshot   baseline, in GhostSetup setup)
+			{
+				Ghost = buffer.ReadGhostDelta(baseline.Ghost);
+			}
+
+			public void FromComponent(in TeamEntityContainer component, in GhostSetup setup)
+			{
+				Ghost = setup.ToGhost(component.Value);
+			}
+
+			public void ToComponent(ref  TeamEntityContainer component, in GhostSetup setup)
+			{
+				component.Value = setup.FromGhost(Ghost);
+			}
+		}
+
+		public class Serializer : DeltaBufferSerializerBase<Snapshot, TeamEntityContainer, GhostSetup>
+		{
+			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
+			{
+			}
+		}
 	}
 
 	public class BuildTeamEntityContainerSystem : GameAppSystem, IPreUpdateSimulationPass

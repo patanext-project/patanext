@@ -19,6 +19,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots.Resources
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
+				CheckEqualsWholeSnapshotSettings = EqualsWholeSnapshot.CheckWithComponentDifference;
 			}
 		}
 
@@ -28,24 +29,11 @@ namespace PataNext.Module.Simulation.Network.Snapshots.Resources
 
 		public void Serialize(in BitBuffer buffer, in RhythmCommandResourceSnapshot baseline, in GetSerializerSetup setup)
 		{
-			if (UnsafeUtility.SameData(this, baseline))
-			{
-				buffer.AddBool(false);
-				return;
-			}
-
-			buffer.AddBool(true)
-			      .AddString(Identifier.ToString());
+			buffer.AddString(Identifier.ToString());
 		}
 
 		public void Deserialize(in BitBuffer buffer, in RhythmCommandResourceSnapshot baseline, in GetSerializerSetup setup)
 		{
-			if (!buffer.ReadBool())
-			{
-				this = baseline;
-				return;
-			}
-
 			Identifier = CharBufferUtility.Create<CharBuffer128>(buffer.ReadString());
 		}
 
@@ -78,6 +66,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots.Resources
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
+				CheckEqualsWholeSnapshotSettings = EqualsWholeSnapshot.CheckWithComponentDifference;
 			}
 		}
 
@@ -87,24 +76,11 @@ namespace PataNext.Module.Simulation.Network.Snapshots.Resources
 
 		public void Serialize(in BitBuffer buffer, in RhythmCommandIdentifierSnapshot baseline, in GetSerializerSetup setup)
 		{
-			if (UnsafeUtility.SameData(this, baseline))
-			{
-				buffer.AddBool(false);
-				return;
-			}
-
-			buffer.AddBool(true)
-			      .AddString(Identifier.ToString());
+			buffer.AddString(Identifier.ToString());
 		}
 
 		public void Deserialize(in BitBuffer buffer, in RhythmCommandIdentifierSnapshot baseline, in GetSerializerSetup setup)
 		{
-			if (!buffer.ReadBool())
-			{
-				this = baseline;
-				return;
-			}
-
 			Identifier = CharBufferUtility.Create<CharBuffer64>(buffer.ReadString());
 		}
 

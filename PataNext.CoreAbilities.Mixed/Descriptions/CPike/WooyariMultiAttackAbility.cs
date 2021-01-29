@@ -4,6 +4,7 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using PataNext.Module.Simulation.BaseSystems;
+using PataNext.Module.Simulation.Game.GamePlay.Damage;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
@@ -175,6 +176,7 @@ namespace PataNext.CoreAbilities.Mixed.CPike
 				GameWorld.AsComponentType<Position>(),
 				GameWorld.AsComponentType<HitBoxAgainstEnemies>(),
 				GameWorld.AsComponentType<HitBoxHistory>(),
+				GameWorld.AsComponentType<DamageFrameData>(),
 			});
 		}
 	}

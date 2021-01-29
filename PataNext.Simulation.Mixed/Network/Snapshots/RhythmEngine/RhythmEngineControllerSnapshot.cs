@@ -15,7 +15,8 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
-				AddToBufferSettings = false;
+				AddToBufferSettings              = false;
+				CheckEqualsWholeSnapshotSettings = EqualsWholeSnapshot.CheckWithComponentDifference;
 			}
 		}
 

@@ -1,0 +1,16 @@
+{
+  "resources": {
+    "HeroModeActivationSound": "[module,PataNext.Game.Client.Resources]/Abilities/yari/YariFearSpear.ogg"
+  },
+  "modifiers": {
+    "active": {
+      "attack": 1.1,
+      "weight": 1.5,
+      "movement_attack_speed": 1.1,
+      "receive_damage": 0.9
+    },
+    "charge": {
+      "attack": 1.2
+    }
+  }
+}

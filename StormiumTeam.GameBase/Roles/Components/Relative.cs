@@ -39,7 +39,9 @@ namespace StormiumTeam.GameBase.Roles.Components
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
 			{
-				AddToBufferSettings = false;
+				CheckDifferenceSettings          = false;
+				CheckEqualsWholeSnapshotSettings = EqualsWholeSnapshot.CheckWithComponentDifference;
+				AddToBufferSettings              = false;
 			}
 		}
 	}

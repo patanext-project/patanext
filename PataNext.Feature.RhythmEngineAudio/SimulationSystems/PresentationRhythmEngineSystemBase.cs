@@ -72,6 +72,8 @@ namespace PataNext.Simulation.Client.Systems
 						localInfo.NextCommand = executingCommand.CommandTarget;
 
 						var key = gameWorld.GetComponentData<RhythmCommandIdentifier>(localInfo.NextCommand.Entity.Handle).Value;
+						if (key.Equals("backward"))
+							key = CharBufferUtility.Create<CharBuffer64>("march");
 						localInfo.NextCommandStr = key;
 					}
 
@@ -123,6 +125,9 @@ namespace PataNext.Simulation.Client.Systems
 
 		public void OnAfterSimulationUpdate()
 		{
+			if (!GameWorld.Contains(LocalEngine) || !HasComponent<RhythmEngineDescription>(LocalEngine))
+				return;
+			
 			OnUpdatePass();
 		}
 

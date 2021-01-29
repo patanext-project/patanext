@@ -7,16 +7,13 @@ using GameHost.Simulation.TabEcs;
 
 namespace StormiumTeam.GameBase.SystemBase
 {
-	public abstract class BaseProvider<TCreateData> : AppSystem
+	public abstract class BaseProvider<TCreateData> : GameAppSystem
 		where TCreateData : struct
 	{
-		protected GameWorld GameWorld;
-
 		private PooledList<ComponentType> componentTypes;
 
 		public BaseProvider(WorldCollection collection) : base(collection)
 		{
-			DependencyResolver.Add(() => ref GameWorld);
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)

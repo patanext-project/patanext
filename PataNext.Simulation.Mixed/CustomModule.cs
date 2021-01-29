@@ -12,16 +12,22 @@ using Microsoft.Extensions.Logging;
 using PataNext.Module.Simulation;
 using PataNext.Module.Simulation.Components.GamePlay;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using PataNext.Module.Simulation.Components.GamePlay.Special;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.FreeRoam;
 using PataNext.Module.Simulation.Game.Providers;
+using PataNext.Module.Simulation.Network.NetCodeRpc;
 using PataNext.Module.Simulation.Network.Snapshots;
 using PataNext.Module.Simulation.Network.Snapshots.Abilities;
+using PataNext.Module.Simulation.Network.Snapshots.Collision;
 using PataNext.Module.Simulation.Network.Snapshots.Resources;
+using PataNext.Module.Simulation.Network.Snapshots.Team;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Systems.GhRpc;
+using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Interfaces;
 
@@ -31,6 +37,20 @@ namespace PataNext.Module.Simulation
 {
 	public class CustomModule : GameHostModule
 	{
+		private void InjectProviders(SimulationApplication app)
+		{
+			app.Data.Collection.GetOrCreate(typeof(Systems.UnitStatusEffectComponentProvider));
+			app.Data.Collection.GetOrCreate(typeof(Game.Providers.PlayableUnitProvider));
+			app.Data.Collection.GetOrCreate(typeof(Game.Providers.PlayerTeamProvider));
+			app.Data.Collection.GetOrCreate(typeof(Game.Providers.RhythmEngineProvider));
+			app.Data.Collection.GetOrCreate(typeof(Game.Providers.TeamEndFlagProvider));
+			app.Data.Collection.GetOrCreate(typeof(Game.Providers.SimpleDestroyableStructureProvider));
+			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionPlayerTeamProvider));
+			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionPlayableUnitProvider));
+			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionUnitTargetProvider));
+			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionRhythmEngineProvider));
+		}
+
 		private void InjectFreeRoamSystems(SimulationApplication app)
 		{
 			app.Data.Collection.GetOrCreate(typeof(FreeRoamUnitProvider));
@@ -41,18 +61,25 @@ namespace PataNext.Module.Simulation
 		{
 			var appCtx = app.Data.Context;
 
-			registerSnapshots();
-			registerDescription();
-			registerAuthority();
+			RegisterSnapshots();
+			RegisterDescription();
+			RegisterAuthority();
 
-			void registerSnapshots()
+			void RegisterSnapshots()
 			{
-				resources();
-				input();
-				gameMode();
-				gamePlay();
+				Rpc();
+				
+				Resources();
+				Input();
+				GameMode();
+				GamePlay();
 
-				void resources()
+				void Rpc()
+				{
+					sc.Register(instigator => new DamageRequestRpc.Serializer(appCtx));
+				}
+				
+				void Resources()
 				{
 					sc.Register(instigator => new GameGraphicResourceSnapshot.Serializer(instigator, appCtx));
 					sc.Register(instigator => new EquipmentResourceSnapshot.Serializer(instigator, appCtx));
@@ -65,58 +92,66 @@ namespace PataNext.Module.Simulation
 					sc.Register(instigator => new RhythmCommandIdentifierSnapshot.Serializer(instigator, appCtx));
 				}
 
-				void input()
+				void Input()
 				{
 					sc.Register(instigator => new GameRhythmInputSnapshot.Serializer(instigator, appCtx));
 					sc.Register(instigator => new FreeRoamInputSnapshot.Serializer(instigator, appCtx));
 				}
 
-				void gameMode()
+				void GameMode()
 				{
 
 				}
 
-				void gamePlay()
+				void GamePlay()
 				{
-					ability();
-					unit();
-					rhythmEngine();
+					Ability();
+					Unit();
+					Collision();
+					RhythmEngine();
+					Team();
 
-					void ability()
+					void Ability()
 					{
 						sc.Register(instigator => new OwnerActiveAbilitySnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new AbilityStateSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new AbilityEngineSetSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new AbilityControlVelocitySnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new AbilityActivationSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new AbilityCommandsSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new AbilityModifyStatsOnChainingSnapshot.Serializer(instigator, appCtx));
 					}
 
-					void unit()
+					void Unit()
 					{
 						sc.Register(instigator => new UnitStatisticSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitPlayStateSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitEnemySeekingStateSnapshot.Serializer(instigator, appCtx));
-						
+
 						sc.Register(instigator => new UnitArchetypeSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitCurrentKitSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitDisplayedEquipmentSnapshot.Serializer(instigator, appCtx));
-						
+
 						sc.Register(instigator => new UnitDirectionSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitTargetOffsetSnapshot.Serializer(instigator, appCtx));
-						
+
 						sc.Register(instigator => new UnitControllerStateSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new UnitFreeRoamMovementSnapshot.Serializer(instigator, appCtx));
-						
+
 						sc.Register(instigator => new GroundStateSnapshot.Serializer(instigator, appCtx));
 					}
-					
-					void rhythmEngine()
+
+					void Collision()
+					{
+						sc.Register(instigator => new UberHeroColliderSnapshot.Serializer(instigator, appCtx));
+					}
+
+					void RhythmEngine()
 					{
 						sc.Register(instigator => new GameComboStateSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new GameComboSettingsSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new GameCommandStateSnapshot.Serializer(instigator, appCtx));
-						
+
 						sc.Register(instigator => new RhythmEngineCommandProgressBufferSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new RhythmEnginePredictedCommandBufferSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new RhythmCommandActionBufferSnapshot.Serializer(instigator, appCtx));
@@ -127,11 +162,20 @@ namespace PataNext.Module.Simulation
 						sc.Register(instigator => new RhythmEngineSettingsSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new RhythmSummonEnergySnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new RhythmSummonEnergyMaxSnapshot.Serializer(instigator, appCtx));
+						
+						// Commands
+						sc.Register(instigator => new ChargeCommand.Serializer(instigator, appCtx));
+					}
+
+					void Team()
+					{
+						sc.Register(instigator => new TeamMovableAreaSnapshot.Serializer(instigator, appCtx));
+						sc.Register(instigator => new ContributeToTeamMovableAreaSnapshot.Serializer(instigator, appCtx));
 					}
 				}
 			}
 
-			void registerDescription()
+			void RegisterDescription()
 			{
 				sc.Register(instigator => new IEntityDescription.Serializer<RhythmEngineDescription>(instigator, appCtx));
 				sc.Register(instigator => new IEntityDescription.Serializer<UnitTargetDescription>(instigator, appCtx));
@@ -150,9 +194,9 @@ namespace PataNext.Module.Simulation
 				sc.Register(instigator => new OwnedRelative<AbilityDescription>.Serializer(instigator, appCtx));
 			}
 
-			void registerAuthority()
+			void RegisterAuthority()
 			{
-				
+				sc.Register(instigator => new AuthoritySerializer<MovableAreaAuthority>(instigator, appCtx));
 			}
 		}
 
@@ -174,7 +218,7 @@ namespace PataNext.Module.Simulation
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitArchetypeResource>.Defaults>.Create(simulationApplication.Data.World, new()));
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitAttachmentResource>.Defaults>.Create(simulationApplication.Data.World, new()));
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitKitResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-
+						
 						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IRhythmEngineSimulationPass.RegisterPass(),
 							new[] {typeof(IUpdateSimulationPass.RegisterPass)},
 							new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
@@ -186,19 +230,25 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilitySimulationPass.RegisterPass(),
 							new[] {typeof(IUpdateSimulationPass.RegisterPass), typeof(IAbilityPreSimulationPass.RegisterPass)},
 							new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
+						
+						InjectProviders(simulationApplication);
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.DontSerializeAbilityEngineSet));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.LocalRhythmCommandResourceManager));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Providers.PlayableUnitProvider));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.UnitDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.MountDescription.RegisterContainer));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmyFormationDescription.RegisterContainer));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmySquadDescription.RegisterContainer));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmyUnitDescription.RegisterContainer));
 
 						InjectFreeRoamSystems(simulationApplication);
 
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitUpdateStatusEffectSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculatePlayStateSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.UpdateActiveAbilitySystem));
@@ -213,6 +263,8 @@ namespace PataNext.Module.Simulation
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCollisionSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsAfterBlockUpdateSystem));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Collision.UberHeroColliderSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));
@@ -224,13 +276,20 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.BasicTestGameModeSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.InBasement.AtCityGameModeSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.StartYaridaTrainingGameMode));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.CoopMissionSystem));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.EndFlagUpdateSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.CreateGameSaveRequest.Process));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.ListGameSaveRequest.Process));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.GenerateDamageRequestSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyDefensiveBonusesSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyStatusSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyKnockbackSystem));
 
 
-						// TEMPORARY SYSTEMS, THEY'LL NEED TO GET CONVERTED INTO REAL SYSTEMS.
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.TemporaryWayToGenerateDamageSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Scenar.TestScenarProvider));
 
 						var serializerCollection = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
 						InjectSerializers(simulationApplication, serializerCollection);

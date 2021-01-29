@@ -8,6 +8,7 @@ using GameHost.Revolution.NetCode.LLAPI.Systems;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
+using GameHost.Simulation.Utility.Time;
 using GameHost.Utility;
 using Microsoft.Extensions.Logging;
 using StormiumTeam.GameBase.Network;
@@ -101,10 +102,16 @@ namespace StormiumTeam.GameBase.SystemBase
 		/// <param name="ac">The action to do when we have authority</param>
 		/// <typeparam name="TAuthority">Authority type</typeparam>
 		/// <returns>A task that can be used to track when the authority has been given back</returns>
-		public Task RequestWithAuthority<TAuthority>(GameEntity entity, Action ac)
+		public Task RequestWithAuthority<TAuthority>(GameEntity entity, Action ac, uint additionalFrames = 0)
 			where TAuthority : struct, IEntityComponent
 		{
 			GameWorld.AddComponent(entity.Handle, new ForceTemporaryAuthority<TAuthority>());
+			if (additionalFrames > 0 && GameWorld.TryGetSingleton(out GameTime gameTime))
+			{
+				GetComponentData<ForceTemporaryAuthority<TAuthority>>(entity)
+					.SetFrame = (int) (gameTime.Frame + 1 + additionalFrames);
+			}
+			
 			ac();
 			return Task.CompletedTask;
 		}

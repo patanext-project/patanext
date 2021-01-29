@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using System.Threading;
+using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Revolution.NetCode.Components;
 using GameHost.Revolution.Snapshot.Systems.Components;
@@ -10,6 +11,7 @@ using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Game.GamePlay.Units;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network;
 using StormiumTeam.GameBase.Network.Authorities;
@@ -20,7 +22,9 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.Game.GamePlay.FreeRoam
 {
-	public class FreeRoamCharacterMovementSystem : GameAppSystem, IUpdateSimulationPass
+	[UpdateAfter(typeof(UnitPhysicsSystem))]
+	[UpdateBefore(typeof(UnitCollisionSystem))]
+	public class FreeRoamCharacterMovementSystem : GameAppSystem, IPostUpdateSimulationPass
 	{
 		private IManagedWorldTime   worldTime;
 		private NetReportTimeSystem reportTimeSystem;
@@ -33,7 +37,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.FreeRoam
 
 		private EntityQuery characterQuery;
 
-		public void OnSimulationUpdate()
+		public void OnAfterSimulationUpdate()
 		{
 			var dt = (float) worldTime.Delta.TotalSeconds;
 
@@ -62,6 +66,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.FreeRoam
 				ref readonly var input        = ref inputAccessor[playerHandle];
 
 				controller.ControlOverVelocityX = true;
+				controller.PassThroughEnemies   = true;
 
 				var inputXY   = new Vector2(input.HorizontalMovement, 0);
 				var inputXYZ  = new Vector3(inputXY, 0);

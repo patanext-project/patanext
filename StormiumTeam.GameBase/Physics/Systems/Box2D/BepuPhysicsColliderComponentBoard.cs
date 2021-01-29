@@ -9,16 +9,17 @@ namespace StormiumTeam.GameBase.Physics.Systems
 	{
 		public readonly Box2DPhysicsSystem physicsSystem;
 
-		private (Shape?[] shape, byte _) column;
+		// pain to put the ? here in my IDE
+		private (ArraySegment<Shape>[] shape, byte _) column;
 		
 		public Box2DPhysicsColliderComponentBoard(Box2DPhysicsSystem system, int size, int capacity) : base(size, capacity)
 		{
 			physicsSystem = system;
 
-			column.shape = Array.Empty<Shape>();
+			column.shape = Array.Empty<ArraySegment<Shape>>();
 		}
 
-		public ref Shape? GetShape(uint row)
+		public ref ArraySegment<Shape> GetShape(uint row)
 		{
 			return ref column.shape[row];
 		}
@@ -33,7 +34,11 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		protected override void OnResize()
 		{
 			base.OnResize();
+
+			var prevLength = column.shape.Length;
 			Array.Resize(ref column.shape, (int) board.MaxId + 1);
+			for (var i = prevLength; i < column.shape.Length; i++)
+				column.shape[i] = ArraySegment<Shape>.Empty;
 		}
 
 		public override bool DeleteRow(uint row)

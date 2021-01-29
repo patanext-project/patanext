@@ -18,6 +18,7 @@ using PataNext.Module.Simulation.Components.GamePlay;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Game.GamePlay.Damage;
 using PataNext.Module.Simulation.Game.Visuals;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay;
@@ -69,7 +70,7 @@ namespace PataNext.CoreAbilities.Server
                 GameWorld.AsComponentType<HitBoxAgainstEnemies>(),
                 GameWorld.AsComponentType<HitBoxHistory>(),
 
-                GameWorld.AsComponentType<UnitPlayState>(),
+                GameWorld.AsComponentType<DamageFrameData>(),
             });
         }
 
@@ -88,7 +89,7 @@ namespace PataNext.CoreAbilities.Server
                 GameWorld.AddComponent(entity, new HitBoxAgainstEnemies(team.Target));
             }
 
-            GameWorld.GetComponentData<UnitPlayState>(entity) = GameWorld.GetComponentData<UnitPlayState>(args.owner.Handle);
+            GameWorld.GetComponentData<DamageFrameData>(entity) = new DamageFrameData(GameWorld.GetComponentData<UnitPlayState>(args.owner.Handle));
 
             physicsSystem.AssignCollider(entity, colliderSettings);
         }

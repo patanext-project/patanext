@@ -9,6 +9,7 @@ using PataNext.Module.Simulation.Components.Units;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.GamePlay.Health;
+using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
@@ -41,7 +42,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 					typeof(UnitDirection),
 					typeof(Position),
 					typeof(ContributeToTeamMovableArea),
-					typeof(Relative<TeamDescription>)
+					typeof(Relative<TeamDescription>),
+					typeof(SimulationAuthority)
 				}))
 				{
 					ref readonly var controllerState = ref controllerStateAccessor[entity];
@@ -64,7 +66,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 							if (position.Value.X + size > enemyArea.Left && unitDirection.IsRight) position.Value.X = enemyArea.Left - size;
 
 							if (position.Value.X - size < enemyArea.Right && unitDirection.IsLeft) position.Value.X = enemyArea.Right + size;
-
+							
 							// if it's inside...
 							if (position.Value.X + size > enemyArea.Left && position.Value.X - size < enemyArea.Right)
 							{
@@ -79,7 +81,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 					position.Value.Y = previousTranslation.Y;
 					position.Value.Z = previousTranslation.Z;
 
-					if (HasComponent<TeamMovableArea>(relativeTeam.Handle))
+					if (HasComponent<TeamMovableArea>(relativeTeam.Handle) 
+					    && HasComponent<SimulationAuthority>(relativeTeam.Handle))
 					{
 						ref var teamArea = ref GetComponentData<TeamMovableArea>(relativeTeam.Handle);
 

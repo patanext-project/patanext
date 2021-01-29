@@ -6,6 +6,7 @@ using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
+using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Physics.Systems;
@@ -42,7 +43,7 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 			
 			var dt = (float) worldTime.Delta.TotalSeconds;
 
-			colliderMask ??= CreateEntityQuery(new[] {typeof(PhysicsCollider), typeof(Position)});
+			colliderMask ??= CreateEntityQuery(new[] {typeof(PhysicsCollider), typeof(Position)}, new [] {typeof(LivableIsDead)});
 			colliderMask.CheckForNewArchetypes();
 
 			var velocityComponentType = AsComponentType<Velocity>();
@@ -66,7 +67,7 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 				if (TryGetComponentBuffer<HitBoxHistory>(entity, out var historyBuffer)
 				    && hitBox.MaxHits > 0 && historyBuffer.Count >= hitBox.MaxHits)
 					continue;
-				
+
 				var thisPosition = positionAccessor[entity].Value;
 
 				Vector3 thisVelocity = default;
@@ -85,9 +86,17 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 						if (!colliderMask.MatchAgainst(enemy.Value.Handle))
 							continue;
 
-						if (historyBuffer.Reinterpret<GameEntity>().Contains(enemy.Value))
-							continue;
+						var flag = false;
+						foreach (var history in historyBuffer)
+							if (history.Victim == enemy.Value)
+							{
+								flag = true;
+								continue;
+							}
 						
+						if (flag)
+							continue;
+
 						if (!physicsSystem.Distance(enemy.Value.Handle, entity, 0, default, new EntityOverrides {Position = thisPosition, Velocity = thisVelocity}, out var result))
 							continue;
 
@@ -102,10 +111,11 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 							ContactPosition = result.Position,
 							ContactNormal   = result.Normal
 						});
+						
 						AddComponent(ev, new SystemEvent());
 
 						if (historyBuffer.IsCreated)
-							historyBuffer.Add(new HitBoxHistory(enemy.Value));
+							historyBuffer.Add(new HitBoxHistory(enemy.Value, result.Position, result.Normal));
 					}
 				}
 			}

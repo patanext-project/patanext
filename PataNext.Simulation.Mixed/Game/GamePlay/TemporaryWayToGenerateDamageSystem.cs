@@ -15,7 +15,7 @@ using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Module.Simulation.Game.GamePlay
 {
-	[UpdateAfter(typeof(HitBoxAgainstEnemiesSystem))]
+	/*[UpdateAfter(typeof(HitBoxAgainstEnemiesSystem))]
 	public class TemporaryWayToGenerateDamageSystem : GameAppSystem, IUpdateSimulationPass
 	{
 		private struct SystemEvent : IComponentData {}
@@ -58,5 +58,5 @@ namespace PataNext.Module.Simulation.Game.GamePlay
 				AddComponent(t, new SystemEvent());
 			}
 		}
-	}
+	}*/
 }

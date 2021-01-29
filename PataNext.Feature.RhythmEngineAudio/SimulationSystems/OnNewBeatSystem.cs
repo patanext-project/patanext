@@ -42,7 +42,7 @@ namespace PataNext.Simulation.Client.Systems
 
 		public override bool CanUpdate()
 		{
-			return LocalEngine != default && base.CanUpdate();
+			return LocalEngine != default && HasComponent<RhythmEngineIsPlaying>(LocalEngine) && base.CanUpdate();
 		}
 
 		protected override void OnUpdatePass()
@@ -51,7 +51,7 @@ namespace PataNext.Simulation.Client.Systems
 				return;
 
 			var state = gameWorld.GetComponentData<RhythmEngineLocalState>(LocalEngine);
-			if (state.CurrentBeat > 0 && state.NewBeatTick == gameTime.Frame) AudioPlayerUtility.Play(audioPlayer);
+			if (state.CurrentBeat >= 0 && state.NewBeatTick == gameTime.Frame) AudioPlayerUtility.Play(audioPlayer);
 		}
 	}
 }

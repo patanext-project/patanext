@@ -12,6 +12,12 @@ namespace StormiumTeam.GameBase
 		{
 			return a + Math.Clamp(t, 0, 1) * (b - a);
 		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static double LerpNormalized(double a, double b, float t)
+		{
+			return a + Math.Clamp(t, 0, 1) * (b - a);
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float RcpSafe(float a)
@@ -94,6 +100,9 @@ namespace StormiumTeam.GameBase
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float UnlerpNormalized(float a, float b, float t) => a.Equals(b) ? 0.0f : Math.Clamp((t - a) / (b - a), 0, 1);
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Unlerp(float a, float b, float t) => a.Equals(b) ? 0.0f : (t - a) / (b - a);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector3 ToAngles(Quaternion quaternion)

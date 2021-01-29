@@ -21,11 +21,11 @@ namespace StormiumTeam.GameBase.SystemBase
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			ownerQuery = CreateEntityQuery(stackalloc[]
+			ownerQuery = CreateEntityQuery(new[]
 			{
 				GameWorld.AsComponentType<OwnedRelative<TDescription>>()
 			});
-			childQuery = CreateEntityQuery(stackalloc[]
+			childQuery = CreateEntityQuery(new[]
 			{
 				GameWorld.AsComponentType<TDescription>(),
 				GameWorld.AsComponentType<Owner>()

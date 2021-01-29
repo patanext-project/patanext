@@ -31,7 +31,7 @@ namespace PataNext.Module.Simulation.Game.Providers
 
 		public override void GetComponents(PooledList<ComponentType> entityComponents)
 		{
-			entityComponents.AddRange(stackalloc[]
+			entityComponents.AddRange(new[]
 			{
 				GameWorld.AsComponentType<UnitDescription>(),
 
@@ -64,7 +64,7 @@ namespace PataNext.Module.Simulation.Game.Providers
 			GameWorld.GetComponentData<UnitStatistics>(entity) = data.Statistics.Value;
 			GameWorld.GetComponentData<UnitDirection>(entity)  = data.Direction;
 
-			GameWorld.GetComponentData<ContributeToTeamMovableArea>(entity) = new ContributeToTeamMovableArea(0, 1);
+			GameWorld.GetComponentData<ContributeToTeamMovableArea>(entity) = new ContributeToTeamMovableArea(0, 0.75f);
 		}
 	}
 }

@@ -78,6 +78,9 @@ namespace StormiumTeam.GameBase.Network
 
 				foreach (var handle in resourceEntities)
 				{
+					if (HasComponent<SnapshotEntity>(handle) && !HasComponent<SnapshotEntity.CreatedByThisWorld>(handle))
+						continue;
+					
 					//Console.WriteLine($"queue {handle.Id}");
 					broadcastInstigator.QueuedEntities[Safe(handle)] = EntitySnapshotPriority.SendAtAllCost;
 				}

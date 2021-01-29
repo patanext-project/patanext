@@ -8,6 +8,10 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.GameModes
 {
+	public struct GameModeRequestLoadMap : IComponentData
+	{
+	}
+	
 	public struct GameModeRequestEndRound : IComponentData
 	{
 	}
@@ -31,6 +35,7 @@ namespace PataNext.Module.Simulation.GameModes
 		protected override async Task GetStateMachine(CancellationToken token)
 		{
 			await GameModeInitialisation();
+			//await GameModeLoadMap(token);
 
 			while (!token.IsCancellationRequested)
 			{
@@ -50,6 +55,19 @@ namespace PataNext.Module.Simulation.GameModes
 			}
 
 			await GameModeCleanUp();
+		}
+
+		protected virtual async Task GameModeLoadMap(CancellationToken token)
+		{
+			token.ThrowIfCancellationRequested();
+			
+			var request = GameWorld.CreateEntity();
+			GameWorld.AddComponent(request, default(GameModeRequestLoadMap));
+
+			while (!token.IsCancellationRequested && HasComponent<GameModeRequestLoadMap>(request))
+				await Task.Yield();
+
+			await Task.Yield();
 		}
 
 		public void RequestEndRound()

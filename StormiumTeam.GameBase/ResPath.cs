@@ -12,7 +12,24 @@ namespace StormiumTeam.GameBase
         public string Author;
         public string ModPack;
         public string File;
-    
+
+        public ResPath(string author, string modpack, string file)
+        {
+            Author  = author;
+            ModPack = modpack;
+            File    = file;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ResPath resPath && Equals(resPath);
+        }
+
+        public readonly bool Equals(in ResPath other)
+        {
+            return Author == other.Author && ModPack == other.ModPack && File == other.File;
+        }
+
         public enum EType
         {
             /// <summary>

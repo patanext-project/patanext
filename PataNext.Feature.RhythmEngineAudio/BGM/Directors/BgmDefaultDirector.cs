@@ -25,7 +25,7 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 			commandCycle = new Dictionary<int, int>();
 		}
 
-		public int GetNextCycle(CharBuffer64 commandId, string state)
+		public int GetNextCycle(CharBuffer64 commandId, string state, int? wantedCycle)
 		{
 			if (!(Loader.GetCommand(commandId) is BgmDefaultSamplesLoader.ComboBasedCommand command))
 				return 0;
@@ -35,8 +35,12 @@ namespace PataNext.Feature.RhythmEngineAudio.BGM.Directors
 				commandCycle.Add(hash, -1);
 
 			var cycle = commandCycle[hash] + 1;
-			if (cycle >= command.mappedFile[state].Count)
-				cycle = 0;
+			if (wantedCycle != null)
+				cycle = wantedCycle.Value;
+			
+			/*if (cycle >= command.mappedFile[state].Count)
+				cycle = 0;*/
+			cycle %= command.mappedFile[state].Count;
 
 			commandCycle[hash] = cycle;
 			return cycle;

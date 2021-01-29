@@ -23,6 +23,7 @@ namespace PataNext.Export.Desktop
 	}
 
 	[RestrictToApplication(typeof(SimulationApplication))]
+	[DontInjectSystemToWorld]
 	public class AddShareSimulationWorldFeature : AppSystem
 	{
 		private DataBufferWriter header;

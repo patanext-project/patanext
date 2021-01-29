@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
+using GameHost.Simulation.TabEcs;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
@@ -36,14 +38,20 @@ namespace PataNext.Module.Simulation.Game.GamePlay
 			return (float) (original + (originalF - original));
 		}
 
-		public static UnitPlayState CompileStat(AbilityEngineSet engineSet, UnitPlayState playState, in StatisticModifier defaultModifier, in StatisticModifier feverModifier, in StatisticModifier perfectModifier)
+		public static UnitPlayState CompileStat<TList>(AbilityEngineSet engineSet, UnitPlayState playState,
+		                                        in StatisticModifier defaultModifier, 
+		                                        in StatisticModifier feverModifier, 
+		                                        in StatisticModifier perfectModifier,
+		                                        TList list = default,
+		                                        GameWorld gameWorld = null)
+			where TList : IList<ComponentReference>
 		{
-			defaultModifier.Multiply(ref playState);
+			defaultModifier.Multiply(ref playState, list, gameWorld);
 			if (engineSet.ComboSettings.CanEnterFever(engineSet.ComboState))
 			{
-				feverModifier.Multiply(ref playState);
+				feverModifier.Multiply(ref playState, list, gameWorld);
 				if (engineSet.CurrentCommand.IsPerfect)
-					perfectModifier.Multiply(ref playState);
+					perfectModifier.Multiply(ref playState, list, gameWorld);
 			}
 
 			return playState;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DefaultEcs;
+﻿using DefaultEcs;
 using GameHost.Core.Ecs.Passes;
 using GameHost.Core.Modules;
 using GameHost.Injection;
@@ -12,11 +8,14 @@ using GameHost.Threading;
 using GameHost.Worlds;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.GamePlay;
+using StormiumTeam.GameBase.GamePlay.Events;
+using StormiumTeam.GameBase.GamePlay.Health.Providers;
 using StormiumTeam.GameBase.GamePlay.Health.Systems;
 using StormiumTeam.GameBase.GamePlay.Health.Systems.Pass;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
 using StormiumTeam.GameBase.Network;
 using StormiumTeam.GameBase.Network.Authorities;
+using StormiumTeam.GameBase.Network.Components;
 using StormiumTeam.GameBase.Network.MasterServer;
 using StormiumTeam.GameBase.Network.MasterServer.StandardAuthService;
 using StormiumTeam.GameBase.Network.MasterServer.User;
@@ -29,7 +28,6 @@ using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Roles.Interfaces;
 using StormiumTeam.GameBase.Time;
-using StormiumTeam.GameBase.Time.Components;
 using StormiumTeam.GameBase.Transform.Components;
 
 [assembly: RegisterAvailableModule("GameBase", "StormiumTeam", typeof(StormiumTeam.GameBase.Module))]
@@ -51,6 +49,8 @@ namespace StormiumTeam.GameBase
 						systemCollection.AddPass(new IPreUpdateSimulationPass.RegisterPass(), new[] {typeof(UpdatePassRegister)}, null);
 						systemCollection.AddPass(new IUpdateSimulationPass.RegisterPass(), new[] {typeof(IPreUpdateSimulationPass.RegisterPass)}, null);
 						systemCollection.AddPass(new IPostUpdateSimulationPass.RegisterPass(), new[] {typeof(IUpdateSimulationPass.RegisterPass)}, null);
+						systemCollection.AddPass(new IAfterSnapshotDataPass.RegisterPass(), null, null);
+						systemCollection.AddPass(new IGameEventPass.RegisterPass(), null, null);
 
 						systemCollection.AddPass(new RegisterHealthProcessPass(), null, null);
 
@@ -60,12 +60,15 @@ namespace StormiumTeam.GameBase
 						var physicsSystem = simulationApplication.Data.Collection.GetOrCreate(wc => new Box2DPhysicsSystem(wc));
 						simulationApplication.Data.Context.BindExisting<IPhysicsSystem>(physicsSystem);
 
+						{
+							simulationApplication.Data.Collection.GetOrCreate(typeof(IAfterSnapshotDataPass.AddPass));
+						}
 						// Pre
 						{
 							simulationApplication.Data.Collection.GetOrCreate(typeof(SetGameTimeSystem));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(BuildTeamEntityContainerSystem));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(HealthDescription.RegisterContainer));
-							
+
 							simulationApplication.Data.Collection.GetOrCreate(typeof(ForceTemporaryAuthoritySystem));
 						}
 
@@ -76,6 +79,7 @@ namespace StormiumTeam.GameBase
 
 						// Post
 						{
+							simulationApplication.Data.Collection.GetOrCreate(typeof(ModifyHealthEventProvider));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(HealthSystem));
 							{
 								simulationApplication.Data.Collection.GetOrCreate(typeof(DefaultHealthProcess));
@@ -92,7 +96,10 @@ namespace StormiumTeam.GameBase
 							simulationApplication.Data.Collection.GetOrCreate(typeof(CreateGamePlayerOnConnectionSystem)); // perhaps in Pre?
 							simulationApplication.Data.Collection.GetOrCreate(typeof(QueueNetworkedEntitySystem));         // perhaps in Pre?
 							simulationApplication.Data.Collection.GetOrCreate(typeof(SetTimeOnSubOwnedSystem));            // perhaps in Pre?
-							simulationApplication.Data.Collection.GetOrCreate(typeof(SetPlayerLocalSystem));            // perhaps in Pre?
+							simulationApplication.Data.Collection.GetOrCreate(typeof(TimeFromForeignSystem));              // perhaps in Pre?
+							simulationApplication.Data.Collection.GetOrCreate(typeof(ReportToForeignTimeSystem));          // perhaps in Pre?
+							simulationApplication.Data.Collection.GetOrCreate(typeof(SetPlayerLocalSystem));               // perhaps in Pre?
+							simulationApplication.Data.Collection.GetOrCreate(typeof(InstigatorTimeSystem));               // perhaps in Pre?
 
 							simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));
@@ -104,20 +111,32 @@ namespace StormiumTeam.GameBase
 						var serializerCollection = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
 						var ctx                  = simulationApplication.Data.Context;
 						serializerCollection.Register(instigator => new IsResourceEntitySerializer(instigator, ctx));
-						
+						serializerCollection.Register(instigator => new NetForeignTimeSerializer(instigator, ctx));
+
 						serializerCollection.Register(instigator => new AuthoritySerializer<InputAuthority>(instigator, ctx));
 						serializerCollection.Register(instigator => new AuthoritySerializer<SimulationAuthority>(instigator, ctx));
 						serializerCollection.Register(instigator => new Owner.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new Position.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new Velocity.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new ServerCameraState.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new AssignInstigatorTime.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new ClubInformation.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<PlayerDescription>(instigator, ctx));
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<TeamDescription>(instigator, ctx));
+						serializerCollection.Register(instigator => new IEntityDescription.Serializer<ClubDescription>(instigator, ctx));
 						serializerCollection.Register(instigator => new IEntityDescription.Serializer<HealthDescription>(instigator, ctx));
-						
+
 						serializerCollection.Register(instigator => new Relative<PlayerDescription>.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new Relative<TeamDescription>.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new Relative<ClubDescription>.Serializer(instigator, ctx));
 						serializerCollection.Register(instigator => new Relative<HealthDescription>.Serializer(instigator, ctx));
+
+						serializerCollection.Register(instigator => new OwnedRelative<HealthDescription>.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new TeamEntityContainer.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new TeamEnemies.Serializer(instigator, ctx));
+						serializerCollection.Register(instigator => new TeamAllies.Serializer(instigator, ctx));
+
+						serializerCollection.Register(instigator => new TargetDamageEvent.Serializer(instigator, ctx));
 
 					}, default);
 				}

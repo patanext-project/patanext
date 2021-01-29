@@ -1,4 +1,5 @@
-﻿using Collections.Pooled;
+﻿using System;
+using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using StormiumTeam.GameBase.SystemBase;

@@ -1,11 +1,14 @@
-﻿using ENet;
+﻿using System.Net;
+using ENet;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
+using GameHost.Core.IO;
 using GameHost.Core.RPC;
 using GameHost.Revolution.NetCode.LLAPI.Systems;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Transports;
+using GameHost.Transports.Transports.Ruffles;
 using Newtonsoft.Json;
 using PataNext.Simulation.Client;
 
@@ -44,19 +47,25 @@ namespace PataNext.Module.Simulation.Systems.GhRpc
 
 				var request = JsonConvert.DeserializeObject<Request>(response.Data.ReadString());
 
-				var driver  = new ENetTransportDriver(1);
+				/*var driver  = new ENetTransportDriver(1);
 				var address = new Address();
 				address.SetHost(request.Host);
 				address.Port = (ushort) request.Port;
 
 				driver.Connect(address);
-				var reliableChannel = driver.CreateChannel(typeof(ReliableChannel));
+				var reliableChannel = driver.CreateChannel(typeof(ReliableChannel));*/
 
 				foreach (var entity in set.GetEntities())
 				{
 					var app = entity.Get<IListener>() as SimulationApplication;
 					app.Schedule(() =>
 					{
+						var driver  = new RuffleTransportDriver();
+						var address = new IPEndPoint(IPAddress.Parse(request.Host), request.Port);
+						driver.Connect(address);
+				
+						var reliableChannel = default(TransportChannel);
+						
 						app.Data.World.CreateEntity()
 						   .Set<IFeature>(new ClientFeature(driver, reliableChannel));		
 					}, default);

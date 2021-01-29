@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using GameHost.Core.Ecs;
+using GameHost.Core.Threading;
 using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
@@ -18,10 +19,14 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 {
 	public class UnitPhysicsSystem : GameAppSystem, IPostUpdateSimulationPass
 	{
+		public readonly IScheduler Scheduler;
+		
 		private IManagedWorldTime worldTime;
 
 		public UnitPhysicsSystem(WorldCollection collection) : base(collection)
 		{
+			Scheduler = new Scheduler();
+			
 			DependencyResolver.Add(() => ref worldTime);
 		}
 
@@ -29,6 +34,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 
 		public void OnAfterSimulationUpdate()
 		{
+			Scheduler.Run();
+			
 			var dt      = (float) worldTime.Delta.TotalSeconds;
 			var gravity = new Vector3(0, -26f, 0);
 

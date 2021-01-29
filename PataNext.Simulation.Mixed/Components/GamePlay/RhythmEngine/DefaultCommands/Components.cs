@@ -1,5 +1,9 @@
-﻿using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
+﻿using GameHost.Injection;
+using GameHost.Revolution.Snapshot.Serializers;
+using GameHost.Revolution.Snapshot.Systems;
+using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
+using JetBrains.Annotations;
 
 namespace PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands
 {
@@ -21,6 +25,13 @@ namespace PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultComm
 	{
 		public class Register : RegisterGameHostComponentData<ChargeCommand>
 		{
+		}
+		
+		public class Serializer : ArchetypeOnlySerializerBase<ChargeCommand>
+		{
+			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)
+			{
+			}
 		}
 	}
 	

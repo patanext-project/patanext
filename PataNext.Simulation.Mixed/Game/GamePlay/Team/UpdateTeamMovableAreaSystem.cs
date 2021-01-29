@@ -3,6 +3,7 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Module.Simulation.Components.GamePlay.Team;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
@@ -40,12 +41,14 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Team
 			{
 				typeof(ContributeToTeamMovableArea),
 				typeof(Position),
-				typeof(Relative<TeamDescription>),
-				//typeof(IsSimulationOwned)
+				typeof(Relative<TeamDescription>)
+			}, new []
+			{
+				typeof(LivableIsDead)
 			})))
 			{
 				ref readonly var teamRelative = ref teamRelativeAccessor[entity];
-				if (!HasComponent<TeamMovableArea>(teamRelative.Handle))
+				if (!HasComponent<TeamMovableArea>(teamRelative.Handle) || !HasComponent<SimulationAuthority>(teamRelative.Handle))
 					continue;
 
 				ref var area = ref movableAreaAccessor[teamRelative.Handle];

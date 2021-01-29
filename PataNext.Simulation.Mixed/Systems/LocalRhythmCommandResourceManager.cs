@@ -24,10 +24,10 @@ namespace PataNext.Module.Simulation.Systems
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			var result = new ContextBindingStrategy(Context, true).Resolve<IApplication>().AssignedEntity.Get<ApplicationName>();
-			if (result.Value == "client")	// The problem is if it is a client, is that the commands will never get executed on the server,
+			/*var result = new ContextBindingStrategy(Context, true).Resolve<IApplication>().AssignedEntity.Get<ApplicationName>();
+			if (result.Value != "server")	// The problem is if it is a client, is that the commands will never get executed on the server,
 											// since abilities are restricted to one command entity...
-				return;
+				return;*/
 			
 			AddComponent(DataBase.GetOrCreate(AsComponentType<MarchCommand>(), "march", new[]
 			{

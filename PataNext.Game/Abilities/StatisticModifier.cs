@@ -1,16 +1,16 @@
 ﻿using System;
 using GameHost.Native;
 using GameHost.Native.Fixed;
+using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Game.Abilities
 {
 	public struct StatisticModifier
 	{
 		// The buffer should be equal to
-		
-		public FixedBuffer128<StatusEffectModifier> OffensiveEffects;
-		public FixedBuffer128<StatusEffectModifier> DefensiveEffects;
-		
+
+		public FixedBuffer256<StatusEffectModifier> StatusEffects;
+
 		public float Attack;
 		public float Defense;
 
@@ -24,6 +24,7 @@ namespace PataNext.Game.Abilities
 		public float AttackSeekRange;
 
 		public float Weight;
+		public float Knockback;
 
 		public static readonly StatisticModifier Default = new StatisticModifier
 		{
@@ -39,9 +40,10 @@ namespace PataNext.Game.Abilities
 
 			AttackSeekRange = 1,
 
-			Weight = 1,
+			Weight    = 1,
+			Knockback = 1,
 		};
-		
+
 		private static int FindIndex(Span<StatusEffectModifier> list, StatusEffect type)
 		{
 			var length = list.Length;
@@ -53,13 +55,13 @@ namespace PataNext.Game.Abilities
 
 			return -1;
 		}
-		
+
 		public static bool TryGetEffect(ref Span<StatusEffectModifier> fixedBuffer, StatusEffect type, out StatusEffectModifier modifier)
 		{
 			var index = FindIndex(fixedBuffer, type);
 			if (index < 0)
 			{
-				modifier = new StatusEffectModifier {Type = type, Multiplier = 1};
+				modifier = default;
 				return false;
 			}
 
@@ -67,25 +69,30 @@ namespace PataNext.Game.Abilities
 			return true;
 		}
 
-		public static void SetEffect<TBuffer>(ref TBuffer fixedBuffer, StatusEffect type, float multiplier)
+		public static ref StatusEffectModifier SetEffectRef<TBuffer>(ref TBuffer fixedBuffer, StatusEffect type)
 			where TBuffer : struct, IFixedBuffer<StatusEffectModifier>
 		{
 			var index = FindIndex(fixedBuffer.Span, type);
-			if (index < 0)
-				fixedBuffer.Add(new StatusEffectModifier {Type = type, Multiplier = multiplier});
-			else
-				fixedBuffer.Span[index] = new StatusEffectModifier {Type = type, Multiplier = multiplier};
+			if (index >= 0) 
+				return ref fixedBuffer.Span[index];
+			
+			var length = fixedBuffer.Length;
+			fixedBuffer.Add(new StatusEffectModifier {Type = type});
+			return ref fixedBuffer.Span[length];
 		}
 	}
-	
+
 	public struct StatusEffectModifier : IEquatable<StatusEffectModifier>
 	{
 		public StatusEffect Type;
-		public float        Multiplier;
+		public float        Power;
+		public float        RegenPerSecond;
+		public float        ReceiveImmunity;
+		public float        ReceivePower;
 
 		public bool Equals(StatusEffectModifier other)
 		{
-			return Type.Equals(other.Type) && Multiplier.Equals(other.Multiplier);
+			return UnsafeUtility.SameData(ref this, ref other);
 		}
 
 		public override bool Equals(object obj)
@@ -95,7 +102,7 @@ namespace PataNext.Game.Abilities
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Type, Multiplier);
+			return HashCode.Combine(Type, Power, RegenPerSecond, ReceiveImmunity);
 		}
 
 		public static bool operator ==(StatusEffectModifier left, StatusEffectModifier right)

@@ -1,0 +1,26 @@
+{
+  "modifiers": {
+    "active": {
+      "weight": 1.5,
+      
+      "attack": 1.1,
+      "movement_attack_speed": 1.5,
+      "resist_status_effect_global": 0.9
+    },
+    "fever": {
+      "attack": 1.25,
+      "movement_attack_speed": 1.75,
+      "resist_status_effect_global": 0.9
+    },
+    "perfect": {
+      "attack": 1.25,
+      "movement_attack_speed": 1.3,
+      "resist_status_effect_global": 0.9
+    },
+    "charge": {
+      "attack": 2.0,
+      "movement_attack_speed": 1.5,
+      "resist_status_effect_global": 0.8
+    }
+  }
+}

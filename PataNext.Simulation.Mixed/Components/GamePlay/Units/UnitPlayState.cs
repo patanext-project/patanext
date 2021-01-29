@@ -20,6 +20,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 		public float AttackSeekRange;
 
 		public float Weight;
+		public float KnockbackPower;
 
 		public readonly float GetAcceleration()
 		{

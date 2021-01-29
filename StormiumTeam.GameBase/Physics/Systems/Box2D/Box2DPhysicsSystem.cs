@@ -37,21 +37,43 @@ namespace StormiumTeam.GameBase.Physics.Systems
 			componentType  = GameWorld.RegisterComponent("Box2D.Shape", componentBoard, typeof(Shape));
 		}
 
-		public Shape? GetShape(GameEntityHandle entity)
+		public ArraySegment<Shape> GetShape(GameEntityHandle entity)
 		{
 			var metadata = GameWorld.GetComponentMetadata(entity, componentType);
 			if (metadata.Null)
-				return null;
+				return ArraySegment<Shape>.Empty;
+
+			return componentBoard.GetShape(metadata.Id);
+		}
+
+		public void AssignCollider(GameEntityHandle entity, Span<Shape> shapes)
+		{
+			GameWorld.AssureComponents(entity, stackalloc [] { componentType, AsComponentType<PhysicsCollider>() });
 			
-			return componentBoard.GetShape(metadata.Id)!;
+			var     metadata = GameWorld.GetComponentMetadata(entity, componentType);
+			ref var segment  = ref componentBoard.GetShape(metadata.Id);
+			if (segment.Count < shapes.Length)
+			{
+				segment = new ArraySegment<Shape>(new Shape[shapes.Length]);
+			}
+
+			shapes.CopyTo(segment.AsSpan());
+			segment = segment.Slice(0, shapes.Length);
 		}
 
 		public void AssignCollider(GameEntityHandle entity, Shape shape)
 		{
-			var reference = GameWorld.AddComponent(entity, componentType);
-			componentBoard.GetShape(reference.Id) = shape;
+			GameWorld.AssureComponents(entity, stackalloc [] { componentType, AsComponentType<PhysicsCollider>() });
+			
+			var     metadata = GameWorld.GetComponentMetadata(entity, componentType);
+			ref var segment  = ref componentBoard.GetShape(metadata.Id);
+			if (segment.Count == 0)
+			{
+				segment = new ArraySegment<Shape>(new Shape[1]);
+			}
 
-			AddComponent(entity, new PhysicsCollider());
+			segment[0] = shape;
+			segment    = segment.Slice(0, 1);
 		}
 
 		public void AssignCollider(GameEntityHandle entity, Entity settings)
@@ -74,132 +96,113 @@ namespace StormiumTeam.GameBase.Physics.Systems
 
 		public bool Overlap(GameEntityHandle left, GameEntityHandle right)
 		{
-			var shapeA = GetShape(left);
-			var shapeB = GetShape(right);
+			var shapesA = GetShape(left);
+			var shapesB = GetShape(right);
 
-			if (shapeA is null || shapeB is null)
+			if (shapesA.Count == 0 || shapesB.Count == 0)
 				return false;
 
-			var proxyA = new DistanceProxy();
-			var proxyB = new DistanceProxy();
-			proxyA.Set(shapeA, 0);
-			proxyB.Set(shapeB, 1);
-
-			var transformA = new Box2D.NetStandard.Common.Transform();
-			var transformB = new Box2D.NetStandard.Common.Transform();
-			if (TryGetComponentData(left, out Position posA))
-				transformA.Set(posA.Value.XY(), 0);
-			if (TryGetComponentData(right, out Position posB))
-				transformB.Set(posB.Value.XY(), 0);
-
-			var cache = new SimplexCache();
-			Contact.Distance(out var output, cache, new DistanceInput
+			foreach (var shapeA in shapesA)
 			{
-				proxyA     = proxyA, proxyB         = proxyB,
-				transformA = transformA, transformB = transformB,
-				useRadii   = true
-			});
+				var proxyA = new DistanceProxy();
+				proxyA.Set(shapeA, 0);
 
-			return output.distance <= 0;
-		}
+				var transformA = new Box2D.NetStandard.Common.Transform();
+				if (TryGetComponentData(left, out Position posA))
+					transformA.Set(posA.Value.XY(), 0);
 
-		public bool DistanceV1(GameEntityHandle against, GameEntityHandle origin, float maxDistance, EntityOverrides? overrideA, EntityOverrides? overrideB, out DistanceResult distanceResult)
-		{
-			var shapeA = GetShape(against);
-			var shapeB = GetShape(origin);
+				foreach (var shapeB in shapesB)
+				{
+					var proxyB = new DistanceProxy();
+					proxyB.Set(shapeB, 1);
 
-			if (shapeA is null || shapeB is null)
-			{
-				distanceResult = default;
-				return false;
+					var transformB = new Box2D.NetStandard.Common.Transform();
+					if (TryGetComponentData(right, out Position posB))
+						transformB.Set(posB.Value.XY(), 0);
+
+					var cache = new SimplexCache();
+					Contact.Distance(out var output, cache, new DistanceInput
+					{
+						proxyA     = proxyA, proxyB         = proxyB,
+						transformA = transformA, transformB = transformB,
+						useRadii   = true
+					});
+
+					if (output.distance <= 0)
+						return true;
+				}
 			}
 
-			var proxyA = new DistanceProxy();
-			var proxyB = new DistanceProxy();
-			proxyA.Set(shapeA, 0);
-			proxyB.Set(shapeB, 1);
-
-			var transformA = new Box2D.NetStandard.Common.Transform();
-			var transformB = new Box2D.NetStandard.Common.Transform();
-			if (overrideA != null)
-				transformA.Set(overrideA.Value.Position.XY(), 0);
-			else if (TryGetComponentData(against, out Position posA))
-				transformA.Set(posA.Value.XY(), 0);
-
-			if (overrideB != null)
-				transformB.Set(overrideB.Value.Position.XY(), 0);
-			else if (TryGetComponentData(origin, out Position posB))
-				transformB.Set(posB.Value.XY(), 0);
-			
-			var cache = new SimplexCache();
-			Contact.Distance(out var output, cache, new DistanceInput
-			{
-				proxyA     = proxyA, proxyB         = proxyB,
-				transformA = transformA, transformB = transformB,
-				useRadii   = true
-			});
-
-			distanceResult.Distance = output.distance;
-			distanceResult.Normal   = new Vector3(output.pointB - output.pointA, 0);
-			distanceResult.Position = new Vector3(output.pointA, 0);
-
-			Console.WriteLine($"{output.distance}, {output.pointA} {output.pointB}");
-			return output.distance <= 0;
+			return false;
 		}
 
 		private WorldManifold cachedWorldManifold = new();
+
 		public bool Distance(GameEntityHandle against, GameEntityHandle origin, float maxDistance, EntityOverrides? overrideA, EntityOverrides? overrideB, out DistanceResult distanceResult)
-		{
-			var shapeA = GetShape(against);
-			var shapeB = GetShape(origin);
-			
-			if (shapeA is null || shapeB is null)
-			{
-				distanceResult = default;
-				return false;
-			}
-			
-			var fixtureA = new Fixture();
-			var fixtureB = new Fixture();
-			fixtureA.Create(shapeA);
-			fixtureB.Create(shapeB);
+		{			
+			var shapesA = GetShape(against);
+			var shapesB = GetShape(origin);
 
-			var transformA = new Box2D.NetStandard.Common.Transform();
-			var transformB = new Box2D.NetStandard.Common.Transform();
-			if (overrideA != null)
-				transformA.Set(overrideA.Value.Position.XY(), 0);
-			else if (TryGetComponentData(against, out Position posA))
-				transformA.Set(posA.Value.XY(), 0);
-
-			if (overrideB != null)
-				transformB.Set(overrideB.Value.Position.XY(), 0);
-			else if (TryGetComponentData(origin, out Position posB))
-				transformB.Set(posB.Value.XY(), 0);
-
-			var contact = Contact.Create(fixtureA, 0, fixtureB, 1);
-			Debug.Assert(contact != null, "contact != null");
-			
-			contact.Evaluate(out var manifold, transformA, transformB);
-
-			cachedWorldManifold.normal = default;
-			cachedWorldManifold.points.AsSpan().Clear();
-			cachedWorldManifold.separations.AsSpan().Clear(); 
-			var worldManifold = cachedWorldManifold;
-			worldManifold.Initialize(manifold, transformA, shapeA.m_radius, transformB, shapeB.m_radius);
-
-			if (manifold.pointCount == 0)
+			if (shapesA.Count == 0 || shapesB.Count == 0)
 			{
 				distanceResult = default;
 				return false;
 			}
 
-			distanceResult.Distance = worldManifold.separations.Average();
-			distanceResult.Normal   = new Vector3(worldManifold.normal, 0);
-			distanceResult.Position = new Vector3(worldManifold.points[0], 0);
-			for (var i = 1; i < worldManifold.points.Length; i++)
-				distanceResult.Position = Vector3.Lerp(distanceResult.Position, new Vector3(worldManifold.points[i], 0), 0.5f);
+			distanceResult = default;
+			foreach (var shapeA in shapesA)
+			{
+				var fixtureA = new Fixture();
+				fixtureA.Create(shapeA);
 
-			return true;
+				var transformA = new Box2D.NetStandard.Common.Transform();
+				if (overrideA != null)
+					transformA.Set(overrideA.Value.Position.XY(), 0);
+				else if (TryGetComponentData(against, out Position posA))
+					transformA.Set(posA.Value.XY(), 0);
+
+				foreach (var shapeB in shapesB)
+				{
+					var fixtureB = new Fixture();
+					fixtureB.Create(shapeB);
+
+
+					var transformB = new Box2D.NetStandard.Common.Transform();
+					if (overrideB != null)
+						transformB.Set(overrideB.Value.Position.XY(), 0);
+					else if (TryGetComponentData(origin, out Position posB))
+						transformB.Set(posB.Value.XY(), 0);
+
+					var contact = Contact.Create(fixtureA, 0, fixtureB, 1);
+					Debug.Assert(contact != null, "contact != null");
+
+					contact.Evaluate(out var manifold, transformA, transformB);
+
+					cachedWorldManifold.normal = default;
+					cachedWorldManifold.points.AsSpan().Clear();
+					cachedWorldManifold.separations.AsSpan().Clear();
+					var worldManifold = cachedWorldManifold;
+					worldManifold.Initialize(manifold, transformA, shapeA.m_radius, transformB, shapeB.m_radius);
+
+					if (manifold.pointCount == 0)
+						continue;
+
+					distanceResult.Distance = new ArraySegment<float>(worldManifold.separations).Average();
+					distanceResult.Normal   = new Vector3(worldManifold.normal, 0);
+					distanceResult.Position = new Vector3(worldManifold.points[0], 0);
+
+					for (var i = 1; i < manifold.pointCount; i++)
+						distanceResult.Position = Vector3.Lerp(distanceResult.Position, new Vector3(worldManifold.points[i], 0), 0.5f);
+
+					if (distanceResult.Normal != Vector3.Zero && overrideB is {StopAtFirstResult: true})
+						return true;
+				}
+
+				if (distanceResult.Normal != Vector3.Zero && overrideA is {StopAtFirstResult: true})
+					return true;
+			}
+
+			return distanceResult.Normal != Vector3.Zero;
 		}
 	}
 }

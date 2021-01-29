@@ -1,4 +1,5 @@
-﻿using BepuUtilities;
+﻿using System;
+using BepuUtilities;
 using GameHost.Injection;
 using GameHost.Revolution.NetCode;
 using GameHost.Revolution.Snapshot.Serializers;

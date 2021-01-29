@@ -36,13 +36,13 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-			abilityQuery = CreateEntityQuery(stackalloc[]
+			abilityQuery = CreateEntityQuery(new[]
 			{
 				GameWorld.AsComponentType<Relative<RhythmEngineDescription>>(),
 				GameWorld.AsComponentType<OwnerActiveAbility>(),
 				GameWorld.AsComponentType<OwnedRelative<AbilityDescription>>(),
 			});
-			validAbilityMask = CreateEntityQuery(stackalloc[]
+			validAbilityMask = CreateEntityQuery(new[]
 			{
 				GameWorld.AsComponentType<AbilityActivation>(),
 				GameWorld.AsComponentType<AbilityState>(),
