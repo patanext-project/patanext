@@ -94,10 +94,11 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 					var abilityBuffer = GameWorld.AddBuffer<UnitDefinedAbilities>(unit);
 					abilityBuffer.Add(new UnitDefinedAbilities("march", AbilitySelection.Horizontal));
 					abilityBuffer.Add(new UnitDefinedAbilities("backward", AbilitySelection.Horizontal));
+					abilityBuffer.Add(new UnitDefinedAbilities("party", AbilitySelection.Horizontal));
 					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "yari", "def_atk"}, ResPath.EType.MasterServer), AbilitySelection.Horizontal));
 					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "yari", "fear_spear"}, ResPath.EType.MasterServer), AbilitySelection.Horizontal));
 					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "yari", "leap_atk"}, ResPath.EType.MasterServer), AbilitySelection.Top));
-					
+
 					var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
 					displayedEquip.Add(new UnitDisplayedEquipment
 					{
