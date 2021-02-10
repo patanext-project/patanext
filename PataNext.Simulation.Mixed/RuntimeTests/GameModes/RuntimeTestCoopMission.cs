@@ -1,17 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
+using GameHost.Injection.Dependency;
 using GameHost.Simulation.Utility.Resource;
+using GameHost.Utility;
 using JetBrains.Annotations;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Game.Hideout;
 using PataNext.Module.Simulation.GameModes;
+using PataNext.Module.Simulation.Network.MasterServer.Services;
 using PataNext.Module.Simulation.Resources;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.Authorities;
+using StormiumTeam.GameBase.Network.MasterServer.User;
+using StormiumTeam.GameBase.Network.MasterServer.Utility;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
@@ -27,8 +37,11 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 		GameResourceDb<EquipmentResource> equipDb;
 		GameResourceDb<UnitAttachmentResource> attachDb;
 		
-		private ResPathGen resPathGen;
-		private IScheduler scheduler;
+		private ResPathGen    resPathGen;
+		private IScheduler    scheduler;
+		private TaskScheduler taskScheduler;
+
+		private CurrentUserSystem currentUserSystem;
 
 		public RuntimeTestCoopMission([NotNull] WorldCollection collection) : base(collection)
 		{
@@ -39,14 +52,63 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 			
 			DependencyResolver.Add(() => ref resPathGen);
 			DependencyResolver.Add(() => ref scheduler);
+			DependencyResolver.Add(() => ref taskScheduler);
+			
+			DependencyResolver.Add(() => ref currentUserSystem);
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			var uberArchResource = localArchetypeDb.GetOrCreate(new UnitArchetypeResource(resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer)));
-			var kitResource = localKitDb.GetOrCreate(new UnitKitResource("yarida"));
+			DependencyResolver.AddDependency(new TaskDependency(currentUserSystem.AsTask));
+			DependencyResolver.OnComplete(_ =>
+			{
+				TestWithMasterServer();
+			});
+		}
+
+		private void TestWithMasterServer()
+		{
+			RequestUtility.CreateTracked(World.Mgr, new GetFavoriteGameSaveRequest(), (Entity _, GetFavoriteGameSaveRequest.Response response) =>
+			{
+				var player = CreateEntity();
+				AddComponent(Safe(player),
+					new PlayerDescription(),
+					new GameRhythmInputComponent(),
+					new PlayerIsLocal(),
+					new InputAuthority()
+				);
+
+				AddComponent(player, new PlayerAttachedGameSave(response.SaveId));
+
+				var formation = CreateEntity();
+				AddComponent(formation, new LocalArmyFormation());
+
+				taskScheduler.StartUnwrap(async () =>
+				{
+					while (false == HasComponent<ArmyFormationDescription>(formation))
+					{
+						Console.WriteLine("???");
+						await Task.Yield();
+					}
+
+					await Task.Delay(TimeSpan.FromSeconds(2));
+					Console.WriteLine("start gamemode!");
+
+					scheduler.Schedule(() =>
+					{
+						var gameMode = GameWorld.CreateEntity();
+						GameWorld.AddComponent(gameMode, new CoopMission());
+					}, default);
+				});
+			});
+		}
+
+		private void TestInstant()
+		{
+						var uberArchResource = localArchetypeDb.GetOrCreate(new UnitArchetypeResource(resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer)));
+			var kitResource = localKitDb.GetOrCreate(new UnitKitResource("wondabarappa"));
 
 			var player = CreateEntity();
 			AddComponent(Safe(player),
@@ -95,20 +157,20 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 					abilityBuffer.Add(new UnitDefinedAbilities("march", AbilitySelection.Horizontal));
 					abilityBuffer.Add(new UnitDefinedAbilities("backward", AbilitySelection.Horizontal));
 					abilityBuffer.Add(new UnitDefinedAbilities("party", AbilitySelection.Horizontal));
-					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "yari", "def_atk"}, ResPath.EType.MasterServer), AbilitySelection.Horizontal));
-					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "yari", "fear_spear"}, ResPath.EType.MasterServer), AbilitySelection.Horizontal));
-					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "yari", "leap_atk"}, ResPath.EType.MasterServer), AbilitySelection.Top));
+					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "mega", "sonic_atk_def"}, ResPath.EType.MasterServer), AbilitySelection.Horizontal));
+					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "mega", "magic_atk_def"}, ResPath.EType.MasterServer), AbilitySelection.Bottom));
+					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "mega", "word_atk_def"}, ResPath.EType.MasterServer), AbilitySelection.Top));
 
 					var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
 					displayedEquip.Add(new UnitDisplayedEquipment
 					{
 						Attachment = attachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
-						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "yarida"}, ResPath.EType.ClientResource))
+						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "guardira"}, ResPath.EType.ClientResource))
 					});
 					displayedEquip.Add(new UnitDisplayedEquipment
 					{
 						Attachment = attachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
-						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "spears", "default_spear"}, ResPath.EType.ClientResource))
+						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "horns", "default_horn"}, ResPath.EType.ClientResource))
 					});
 				}
 			}

@@ -61,7 +61,7 @@ namespace PataNext.Export.Desktop
 				return;
 
 			var server     = startGameHostListener.Server.Value;
-			var visualHwnd = World.Mgr.Get<VisualHWND>().FirstOrDefault().Value;
+			var visualHwnd = World.Mgr.Get<VisualHWND>().First().Value.Value;
 			foreach (var ent in launchSet.GetEntities())
 			{
 				var launchBootstrapEntity = ent.Get<LaunchClient>().entity;

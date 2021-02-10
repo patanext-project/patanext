@@ -1,0 +1,4 @@
+[Information, 02/07/2021 11:20:59, GameHost.Core.Client.StartGameHostListener] RPC Server started on port: 9000
+[Information, 02/07/2021 11:20:59, GameHost.Core.Modules.Feature.GatherAvailableModuleSystem] Discovered Module PataNext.CoreAbilities.Server.dll (fullPath=C:\Users\guerr\Documents\Projets\PublishedOnGithub\patanext\PataNext.Export.Desktop\bin\Debug\netcoreapp3.1\Modules\PataNext.CoreAbilities.Server.dll)
+[Information, 02/07/2021 11:38:59, GameHost.Core.Client.StartGameHostListener] RPC Server started on port: 9000
+[Information, 02/07/2021 11:38:59, GameHost.Core.Modules.Feature.GatherAvailableModuleSystem] Discovered Module PataNext.CoreAbilities.Server.dll (fullPath=C:\Users\guerr\Documents\Projets\PublishedOnGithub\patanext\PataNext.Export.Desktop\bin\Debug\netcoreapp3.1\Modules\PataNext.CoreAbilities.Server.dll)

@@ -399,7 +399,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					
 					var kit = "taterazay";
 					AddComponent(character, new UnitCurrentKit(localKitDb.GetOrCreate(new UnitKitResource(kit))));
-					AddComponent(character, new UberHeroCollider());
+					AddComponent(character, new UnitBodyCollider());
 
 					AddComponent(player, new PlayerFreeRoamCharacter {Entity = character});
 					

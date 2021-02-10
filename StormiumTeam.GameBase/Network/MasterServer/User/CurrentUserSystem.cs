@@ -1,4 +1,5 @@
-﻿using DefaultEcs;
+﻿using System.Threading.Tasks;
+using DefaultEcs;
 using GameHost.Core.Ecs;
 using Microsoft.Extensions.Logging;
 using STMasterServer.Shared.Services;
@@ -21,6 +22,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer.User
 		private ILogger logger;
 		private Entity  singletonEntity;
 
+		private TaskCompletionSource<UserToken> taskCompletionSource;
+		
 		public CurrentUserSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref logger);
@@ -28,9 +31,12 @@ namespace StormiumTeam.GameBase.Network.MasterServer.User
 
 			collection.Mgr.SetMaxCapacity<CurrentUser>(1);
 			singletonEntity.Set(new CurrentUser());
+
+			taskCompletionSource = new TaskCompletionSource<UserToken>();
 		}
 
-		public UserToken User { get; private set; }
+		public UserToken       User   { get; private set; }
+		public Task<UserToken> AsTask => taskCompletionSource.Task;
 
 		public void Set(UserToken userToken)
 		{
@@ -38,6 +44,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer.User
 
 			User = userToken;
 			singletonEntity.Set(new CurrentUser(userToken));
+
+			taskCompletionSource.SetResult(userToken);
 		}
 	}
 }

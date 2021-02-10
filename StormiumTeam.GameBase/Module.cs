@@ -2,6 +2,7 @@
 using GameHost.Core.Ecs.Passes;
 using GameHost.Core.Modules;
 using GameHost.Injection;
+using GameHost.Inputs.Systems;
 using GameHost.Revolution.NetCode.LLAPI;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
@@ -17,6 +18,7 @@ using StormiumTeam.GameBase.Network;
 using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Network.Components;
 using StormiumTeam.GameBase.Network.MasterServer;
+using StormiumTeam.GameBase.Network.MasterServer.AssetService;
 using StormiumTeam.GameBase.Network.MasterServer.StandardAuthService;
 using StormiumTeam.GameBase.Network.MasterServer.User;
 using StormiumTeam.GameBase.Network.MasterServer.UserService;
@@ -46,7 +48,8 @@ namespace StormiumTeam.GameBase
 					simulationApplication.Schedule(() =>
 					{
 						var systemCollection = simulationApplication.Data.Collection.DefaultSystemCollection;
-						systemCollection.AddPass(new IPreUpdateSimulationPass.RegisterPass(), new[] {typeof(UpdatePassRegister)}, null);
+						systemCollection.AddPass(new UpdateInputPassRegister(), new[] {typeof(UpdatePassRegister)}, null);
+						systemCollection.AddPass(new IPreUpdateSimulationPass.RegisterPass(), new[] {typeof(UpdatePassRegister), typeof(UpdateInputPassRegister)}, null);
 						systemCollection.AddPass(new IUpdateSimulationPass.RegisterPass(), new[] {typeof(IPreUpdateSimulationPass.RegisterPass)}, null);
 						systemCollection.AddPass(new IPostUpdateSimulationPass.RegisterPass(), new[] {typeof(IUpdateSimulationPass.RegisterPass)}, null);
 						systemCollection.AddPass(new IAfterSnapshotDataPass.RegisterPass(), null, null);
@@ -106,6 +109,9 @@ namespace StormiumTeam.GameBase
 							simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
 
 							simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));
+							
+							
+							simulationApplication.Data.Collection.GetOrCreate(typeof(GetAssetPointerRequest.Process));
 						}
 
 						var serializerCollection = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));

@@ -10,7 +10,10 @@
       "receive_damage": 0.9
     },
     "charge": {
-      "attack": 1.2
+      "attack": 1.2,
+      "movement_attack_speed": 1.2,
+      "movement_return_speed": 1.2,
+      "receive_damage": 0.9
     }
   }
 }

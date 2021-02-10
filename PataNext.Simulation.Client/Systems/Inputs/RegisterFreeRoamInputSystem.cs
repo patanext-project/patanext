@@ -33,7 +33,6 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 	}
 
 	[UpdateAfter(typeof(SetGameTimeSystem))]
-	[UpdateAfter(typeof(ReceiveInputDataSystem))]
 	[UpdateBefore(typeof(ManageComponentTagSystem))]
 	public class RegisterFreeRoamInputSystem : RegisterInputSystemBase<FreeRoamInputDescription>, IPreUpdateSimulationPass
 	{

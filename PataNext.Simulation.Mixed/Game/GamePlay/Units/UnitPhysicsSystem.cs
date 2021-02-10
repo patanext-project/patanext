@@ -95,7 +95,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 					}
 					else
 					{
-						var acceleration = Math.Clamp(MathUtils.RcpSafe(unitPlayState.Weight), 0, 1) * 10;
+						var acceleration = Math.Clamp(MathUtils.RcpSafe(unitPlayState.Weight), 0, 1) * 5;
 						acceleration = Math.Min(acceleration * dt, 1) * 0.75f;
 
 						velocity.X = MathUtils.LerpNormalized(velocity.X, 0, acceleration);

@@ -1,19 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
-using BepuPhysics;
 using GameHost.Core.Ecs;
+using GameHost.Core.Threading;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
+using NetFabric.Hyperlinq;
 using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Components;
-using StormiumTeam.GameBase.Physics.Systems;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
-using StormiumTeam.GameBase.Time.Components;
 using StormiumTeam.GameBase.Transform.Components;
+using StormiumTeam.GameBase.Utility.Misc.EntitySystem;
 
 namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 {
@@ -23,13 +24,19 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 		{
 		}
 
-		private IPhysicsSystem     physicsSystem;
+		private IPhysicsSystem    physicsSystem;
 		private IManagedWorldTime worldTime;
+		private IBatchRunner      batchRunner;
+
+		private readonly IScheduler structuralScheduler;
 
 		public HitBoxAgainstEnemiesSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref physicsSystem);
 			DependencyResolver.Add(() => ref worldTime);
+			DependencyResolver.Add(() => ref batchRunner);
+
+			structuralScheduler = new Scheduler();
 		}
 
 		private EntityQuery eventQuery;
@@ -37,14 +44,29 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 		private EntityQuery hitboxQuery;
 		private EntityQuery colliderMask;
 
-		public void OnSimulationUpdate()
-		{
-			(eventQuery ??= CreateEntityQuery(new [] {typeof(SystemEvent)})).RemoveAllEntities();
-			
-			var dt = (float) worldTime.Delta.TotalSeconds;
+		private ArchetypeSystem<WorldTime> foreachSystem;
 
-			colliderMask ??= CreateEntityQuery(new[] {typeof(PhysicsCollider), typeof(Position)}, new [] {typeof(LivableIsDead)});
-			colliderMask.CheckForNewArchetypes();
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		{
+			base.OnDependenciesResolved(dependencies);
+
+			eventQuery   = CreateEntityQuery(new[] {typeof(SystemEvent)});
+			colliderMask = CreateEntityQuery(new[] {typeof(PhysicsCollider), typeof(Position)}, new[] {typeof(LivableIsDead)});
+
+			hitboxQuery = CreateEntityQuery(new[]
+			{
+				typeof(HitBox),
+				typeof(HitBoxAgainstEnemies),
+				typeof(Position),
+				typeof(PhysicsCollider)
+			});
+
+			foreachSystem = new ArchetypeSystem<WorldTime>(OnForeachHitBoxes, hitboxQuery);
+		}
+
+		private void OnForeachHitBoxes(in ReadOnlySpan<GameEntityHandle> entities, in SystemState<WorldTime> systemState)
+		{
+			var dt = (float) systemState.Data.Delta.TotalSeconds;
 
 			var velocityComponentType = AsComponentType<Velocity>();
 
@@ -52,13 +74,8 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 			var hitBoxAgainstEnemiesAccessor = GetAccessor<HitBoxAgainstEnemies>();
 			var positionAccessor             = GetAccessor<Position>();
 			var velocityAccessor             = GetAccessor<Velocity>();
-			foreach (var entity in hitboxQuery ??= CreateEntityQuery(new[]
-			{
-				typeof(HitBox),
-				typeof(HitBoxAgainstEnemies),
-				typeof(Position),
-				typeof(PhysicsCollider)
-			}))
+
+			foreach (ref readonly var entity in entities)
 			{
 				if (!TryGetComponentBuffer<TeamEnemies>(hitBoxAgainstEnemiesAccessor[entity].EnemyBufferSource.Handle, out var enemyBuffer))
 					continue;
@@ -85,40 +102,53 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 					{
 						if (!colliderMask.MatchAgainst(enemy.Value.Handle))
 							continue;
-
-						var flag = false;
-						foreach (var history in historyBuffer)
-							if (history.Victim == enemy.Value)
-							{
-								flag = true;
-								continue;
-							}
 						
-						if (flag)
+						if (historyBuffer.Contains((ref HitBoxHistory history) => ref history.Victim, enemy.Value))
 							continue;
 
 						if (!physicsSystem.Distance(enemy.Value.Handle, entity, 0, default, new EntityOverrides {Position = thisPosition, Velocity = thisVelocity}, out var result))
 							continue;
 
-						var ev = CreateEntity();
-						TryGetComponentData(entity, out Owner instigator);
-						AddComponent(ev, new HitBoxEvent
+						structuralScheduler.Schedule(args =>
 						{
-							HitBox     = Safe(entity),
-							Instigator = instigator.Target,
-							Victim     = enemy.Value,
+							var (entity, enemy, result) = args;
 
-							ContactPosition = result.Position,
-							ContactNormal   = result.Normal
-						});
-						
-						AddComponent(ev, new SystemEvent());
+							var ev = CreateEntity();
+							TryGetComponentData(entity, out Owner instigator);
+							AddComponent(ev, new HitBoxEvent
+							{
+								HitBox     = Safe(entity),
+								Instigator = instigator.Target,
+								Victim     = enemy.Value,
+
+								ContactPosition = result.Position,
+								ContactNormal   = result.Normal
+							});
+
+							AddComponent(ev, new SystemEvent());
+						}, (entity, enemy, result), default);
 
 						if (historyBuffer.IsCreated)
 							historyBuffer.Add(new HitBoxHistory(enemy.Value, result.Position, result.Normal));
 					}
 				}
 			}
+		}
+
+		public void OnSimulationUpdate()
+		{
+			colliderMask.CheckForNewArchetypes();
+
+			foreachSystem.PrepareData(worldTime.ToStruct());
+
+			var request = batchRunner.Queue(foreachSystem);
+			{
+				// Operations that can execute while the parallel system is active
+				eventQuery.RemoveAllEntities();
+			}
+			batchRunner.WaitForCompletion(request);
+
+			structuralScheduler.Run();
 		}
 	}
 }

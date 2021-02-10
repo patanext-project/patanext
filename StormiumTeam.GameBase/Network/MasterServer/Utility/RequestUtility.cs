@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using DefaultEcs;
 
 namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 {
-	public static class RequestUtility
+	public static partial class RequestUtility
 	{
 		public struct DisposableArray : IDisposable
 		{
@@ -32,39 +33,56 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 			return ent;
 		}
 
-		public static (Entity requestEntity, DisposableArray disposable) CreateTracked<TRequest, TResponse>(World world, TRequest request, Action<Entity, TResponse> onCompletion)
+		public static (Entity requestEntity, DisposableArray disposable) CreateTracked<TRequest, TData, TResponse>(World world, TRequest request, Action<Entity, TData, TResponse> onCompletion,
+		                                                                                                           TData data,
+		                                                                                                           bool  disposeOnCompletion = true)
 		{
 			var ent = world.CreateEntity();
 			ent.Set(request);
-
+			
 			var disposables = new IDisposable[2];
 			disposables[0] = world.SubscribeComponentAdded((in Entity e, in TResponse response) =>
 			{
 				if (e != ent)
 					return;
 
-				onCompletion(e, response);
+				onCompletion(e, data, response);
 				foreach (var disposable in disposables)
 					disposable.Dispose();
 
 				Array.Clear(disposables, 0, disposables.Length);
+				if (disposeOnCompletion)
+					ent.Set(new UntrackedRequest()); // can't dispose in an event
 			});
 			disposables[1] = world.SubscribeComponentChanged((in Entity e, in TResponse _, in TResponse response) =>
 			{
 				if (e != ent)
 					return;
 
-				onCompletion(e, response);
+				onCompletion(e, data, response);
 				foreach (var disposable in disposables)
 					disposable.Dispose();
 
 				Array.Clear(disposables, 0, disposables.Length);
+				if (disposeOnCompletion)
+					ent.Set(new UntrackedRequest());
 			});
 
 			return (ent, new DisposableArray(disposables));
 		}
 
-		public static DisposableArray UpdateAndTrack<TRequest, TResponse>(Entity entity, TRequest request, Action<Entity, TResponse> onCompletion)
+		private static partial class WithResponse<T>
+		{
+			public static readonly Action<Entity, Action<Entity, T>, T> CreateTrackedNoDataCached = (ent, ac, response) => ac(ent, response);
+		}
+
+		public static (Entity requestEntity, DisposableArray disposable) CreateTracked<TRequest, TResponse>(World world, TRequest request, Action<Entity, TResponse> onCompletion,
+		                                                                                                    bool  disposeOnCompletion = true)
+		{
+			return CreateTracked(world, request, WithResponse<TResponse>.CreateTrackedNoDataCached, onCompletion, disposeOnCompletion);
+		}
+
+		public static DisposableArray UpdateAndTrack<TRequest, TData, TResponse>(Entity entity, TRequest request, Action<Entity, TData, TResponse> onCompletion, TData data)
 		{
 			entity.Set(request);
 
@@ -74,7 +92,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 				if (e != entity)
 					return;
 
-				onCompletion(e, response);
+				onCompletion(e, data, response);
 				foreach (var disposable in disposables)
 					disposable.Dispose();
 
@@ -85,7 +103,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 				if (e != entity)
 					return;
 
-				onCompletion(e, response);
+				onCompletion(e, data, response);
 				foreach (var disposable in disposables)
 					disposable.Dispose();
 

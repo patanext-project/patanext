@@ -9,15 +9,48 @@ namespace StormiumTeam.GameBase
 {
     public struct ResPath
     {
-        public string Author;
-        public string ModPack;
-        public string File;
+        public readonly EType  Type;
+        public readonly string Author;
+        public readonly string ModPack;
+        public readonly string Resource;
 
-        public ResPath(string author, string modpack, string file)
+        private string? computedFullString;
+
+        public string FullString => computedFullString ??= Create(Author, ModPack, Resource, Type);
+
+        public ResPath(EType type, string author, string modPack, string resource)
         {
-            Author  = author;
-            ModPack = modpack;
-            File    = file;
+            Type     = type;
+            Author   = author;
+            ModPack  = modPack;
+            Resource = resource;
+
+            computedFullString = null;
+        }
+
+        public ResPath(EType type, string author, string modPack, string[] resourceDeepness)
+            : this(type, author, modPack, string.Join("/", resourceDeepness))
+        {
+        }
+
+        public ResPath(string fullPath)
+        {
+            if (string.IsNullOrEmpty(fullPath))
+            {
+                this = default;
+
+                Author = ModPack = Resource = string.Empty;
+                
+                return;
+            }
+
+            computedFullString = fullPath;
+
+            var inspection = Inspect(fullPath);
+            Type     = inspection.Type;
+            Author   = inspection.Author;
+            ModPack  = inspection.ModPack;
+            Resource = inspection.ResourcePath;
         }
 
         public override bool Equals(object? obj)
@@ -27,7 +60,12 @@ namespace StormiumTeam.GameBase
 
         public readonly bool Equals(in ResPath other)
         {
-            return Author == other.Author && ModPack == other.ModPack && File == other.File;
+            return Author == other.Author && ModPack == other.ModPack && Resource == other.Resource;
+        }
+        
+        public readonly bool EqualsWithType(in ResPath other)
+        {
+            return Type == other.Type && Author == other.Author && ModPack == other.ModPack && Resource == other.Resource;
         }
 
         public enum EType

@@ -45,7 +45,7 @@ namespace PataNext.Module.Simulation.GameModes.DataCoopMission
 				AsComponentType<Relative<RhythmEngineDescription>>(),
 
 				AsComponentType<UnitEnemySeekingState>(),
-				AsComponentType<UberHeroCollider>()
+				AsComponentType<UnitBodyCollider>()
 			});
 		}
 
@@ -64,6 +64,8 @@ namespace PataNext.Module.Simulation.GameModes.DataCoopMission
 			GetComponentData<Relative<PlayerDescription>>(entity)       = new Relative<PlayerDescription>(data.Player);
 			GetComponentData<Relative<UnitTargetDescription>>(entity)   = new Relative<UnitTargetDescription>(data.UnitTarget);
 			GetComponentData<Relative<RhythmEngineDescription>>(entity) = new Relative<RhythmEngineDescription>(data.RhythmEngine);
+
+			GetComponentData<UnitBodyCollider>(entity) = new UnitBodyCollider(1, 1.5f);
 		}
 	}
 }

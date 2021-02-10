@@ -28,7 +28,7 @@ namespace PataNext.Module.Simulation.Game.Scenar
 		{
 		}
 
-		public override ResPath ScenarPath => new("guerro", "test", "scenar");
+		public override ResPath ScenarPath => new(ResPath.EType.ClientResource, "guerro", "test", "scenar");
 
 		public override IScenar Provide()
 		{

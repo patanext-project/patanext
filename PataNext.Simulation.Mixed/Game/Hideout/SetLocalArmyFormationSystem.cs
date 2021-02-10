@@ -1,0 +1,272 @@
+﻿using System;
+using System.Collections.Generic;
+using DefaultEcs;
+using GameHost.Core.Ecs;
+using GameHost.Core.Threading;
+using GameHost.Native.Char;
+using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.Interfaces;
+using GameHost.Simulation.Utility.EntityQuery;
+using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
+using PataNext.MasterServerShared.Services;
+using PataNext.Module.Simulation.Components.Army;
+using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Components.Network;
+using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Network.MasterServer.Services;
+using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Network.MasterServer.Utility;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Roles.Descriptions;
+using StormiumTeam.GameBase.SystemBase;
+using ZLogger;
+
+namespace PataNext.Module.Simulation.Game.Hideout
+{
+	public class SetLocalArmyFormationSystem : GameAppSystem
+	{
+		private ILogger logger;
+
+		public SetLocalArmyFormationSystem([NotNull] WorldCollection collection) : base(collection)
+		{
+			DependencyResolver.Add(() => ref logger);
+		}
+
+		private EntityQuery localPlayerQuery;
+		private EntityQuery uninitializedArmyQuery;
+		private EntityQuery armyQuery;
+
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		{
+			base.OnDependenciesResolved(dependencies);
+
+			localPlayerQuery = CreateEntityQuery(new[]
+			{
+				typeof(PlayerDescription),
+				typeof(PlayerAttachedGameSave),
+				typeof(PlayerIsLocal)
+			});
+
+			uninitializedArmyQuery = CreateEntityQuery(new[]
+			{
+				AsComponentType<LocalArmyFormation>()
+			}, new[]
+			{
+				AsComponentType<LocalArmyContinuousRequest>(),
+				AsComponentType<ArmyFormationDescription>()
+			});
+
+			armyQuery = CreateEntityQuery(new[]
+			{
+				AsComponentType<LocalArmyFormation>(),
+				AsComponentType<LocalArmyContinuousRequest>(),
+				AsComponentType<ArmyFormationDescription>()
+			});
+		}
+
+		private IScheduler initScheduler = new Scheduler();
+
+		public override bool CanUpdate()
+		{
+			return localPlayerQuery.Any() && base.CanUpdate();
+		}
+
+		protected override void OnUpdate()
+		{
+			base.OnUpdate();
+
+			var player = localPlayerQuery.GetEnumerator().First;
+
+			// We check if the query isn't empty, so that we don't allocate at each frame in the foreach loop
+			if (uninitializedArmyQuery.Any())
+			{
+				uninitializedArmyQuery.ForEachDeferred((ent, player) =>
+				{
+					var saveGuid = GetComponentData<PlayerAttachedGameSave>(player).Guid;
+
+					var request = World.Mgr.CreateEntity();
+					request.Set(new GetFormationRequest {SaveId = saveGuid.ToString()});
+
+					AddComponent(ent, new LocalArmyContinuousRequest {Source = request});
+					AddComponent(ent, new ArmyFormationDescription());
+					AddComponent(ent, new Relative<PlayerDescription>(Safe(player)));
+					AddComponent(ent, new Owner(Safe(player)));
+					GameWorld.AddBuffer<OwnedRelative<ArmySquadDescription>>(ent);
+
+					GameWorld.AssureComponents(player, new[]
+					{
+						AsComponentType<OwnedRelative<ArmySquadDescription>>(),
+						AsComponentType<OwnedRelative<ArmyUnitDescription>>()
+					});
+				}, player, initScheduler);
+			}
+
+			initScheduler.Run();
+
+			foreach (var formationHandle in armyQuery)
+			{
+				ref readonly var continuousRequest = ref GetComponentData<LocalArmyContinuousRequest>(formationHandle);
+				if (continuousRequest.Source == default)
+				{
+					logger.ZLogWarning($"Invalid continuous request on {formationHandle}");
+					continue;
+				}
+
+				if (continuousRequest.Source.TryGet(out GetFormationRequest.Response response))
+				{
+					logger.ZLogInformation("received response!");
+
+					const int additionalSquad = 2; // UberHero and Hatapon squad
+
+					var resultSquads     = response.Result.Squads;
+					var ownedSquadBuffer = GetBuffer<OwnedRelative<ArmySquadDescription>>(formationHandle);
+
+					var squadCount = response.Result.Squads.Length + additionalSquad;
+					for (var squadIdx = 0; squadIdx < Math.Max(ownedSquadBuffer.Count, squadCount); squadIdx++)
+					{
+						if (ownedSquadBuffer.Count <= squadIdx)
+						{
+							// Create squad
+							var squadEntity = CreateEntity();
+							AddComponent(Safe(squadEntity),
+								new ArmySquadDescription(),
+								new Owner(Safe(formationHandle)),
+								new Relative<ArmyFormationDescription>(Safe(formationHandle)),
+								GetComponentData<Relative<PlayerDescription>>(formationHandle),
+
+								new LocalSquadType((ELocalSquadType) squadIdx)
+							);
+
+							GameWorld.AddComponent(squadEntity, AsComponentType<OwnedRelative<ArmyUnitDescription>>());
+
+							if ((ELocalSquadType) squadIdx >= ELocalSquadType.SquadTate)
+							{
+								GameWorld.AddComponent(squadEntity, new SquadTargetOffset()
+								{
+									Value = (ELocalSquadType) squadIdx switch
+									{
+										ELocalSquadType.SquadTate => +3,
+										ELocalSquadType.SquadYari => 0,
+										ELocalSquadType.SquadYumi => -3,
+										_ => throw new ArgumentOutOfRangeException(nameof(squadIdx))
+									}
+								});
+							}
+
+							ownedSquadBuffer.Add(new(Safe(squadEntity)));
+
+							Console.WriteLine($"Created Squad {(ELocalSquadType) squadIdx}");
+						}
+						else if (ownedSquadBuffer.Count > squadIdx && ownedSquadBuffer.Count > squadCount && squadIdx >= squadCount)
+						{
+							// Destroy squad
+							RemoveEntity(ownedSquadBuffer[squadIdx].Target);
+							ownedSquadBuffer.RemoveAt(squadIdx--);
+
+							Console.WriteLine($"Destroyed Squad {squadIdx}");
+							continue;
+						}
+
+						var squadFocus = Focus(ownedSquadBuffer[squadIdx].Target);
+						squadFocus.ThrowIfNotExists();
+
+						var squadData = squadIdx > 1
+							? resultSquads[squadIdx - 2]
+							: new()
+							{
+								Leader = (ELocalSquadType) squadIdx switch
+								{
+									ELocalSquadType.Hatapon => response.Result.FlagBearer,
+									ELocalSquadType.UberHero => response.Result.UberHero,
+									_ => throw new("nothing found for " + (ELocalSquadType) squadIdx)
+								},
+								Soldiers = Array.Empty<string>()
+							};
+
+						var unitBuffer = squadFocus.GetBuffer<OwnedRelative<ArmyUnitDescription>>()
+						                           .Reinterpret<GameEntity>();
+
+
+						// - UberHero and Hatapon squad = 1 unit max
+						// - Other squads are based on their length + Leader
+						var unitCount = squadData.Soldiers.Length + 1;
+						for (var unitIdx = 0; unitIdx < unitCount; unitIdx++)
+						{
+							if (unitBuffer.Count <= unitIdx)
+							{
+								// Create unit
+								var unitEntity = CreateEntity();
+								AddComponent(Safe(unitEntity),
+									new Relative<ArmySquadDescription>(squadFocus.Entity),
+									new Relative<ArmyFormationDescription>(Safe(formationHandle)),
+									new Relative<PlayerDescription>(Safe(player)),
+									new ArmyUnitDescription(),
+									new Owner(squadFocus.Entity)
+								);
+
+								if ((ELocalSquadType) squadIdx == ELocalSquadType.Hatapon)
+									AddComponent(unitEntity, new UnitTargetControlTag());
+
+								GameWorld.AddComponent(unitEntity, AsComponentType<UnitDefinedAbilities>());
+								GameWorld.AddComponent(unitEntity, AsComponentType<UnitDisplayedEquipment>());
+
+								GameWorld.AddComponent(unitEntity, AsComponentType<UnitArchetype>());
+								GameWorld.AddComponent(unitEntity, AsComponentType<UnitCurrentKit>());
+								GameWorld.AddComponent(unitEntity, AsComponentType<UnitStatistics>());
+
+								unitBuffer.Add(Safe(unitEntity));
+
+								Console.WriteLine($"Created Unit {unitIdx} of squad {(ELocalSquadType) squadIdx} {unitEntity}");
+							}
+							else if (unitBuffer.Count > unitIdx && unitBuffer.Count > unitCount && unitIdx >= unitCount)
+							{
+								// Destroy unit
+								RemoveEntity(unitBuffer[squadIdx]);
+								unitBuffer.RemoveAt(squadIdx--);
+
+								Console.WriteLine($"Destroyed Unit {unitIdx}");
+								continue;
+							}
+
+							GameWorld.AddComponent(unitBuffer[unitIdx].Handle, new MasterServerControlledUnitData(unitIdx == 0 ? squadData.Leader : squadData.Soldiers[unitIdx - 1]));
+						}
+					}
+
+					continuousRequest.Source.Disable<GetFormationRequest>();
+					continuousRequest.Source.Remove<GetFormationRequest.Response>();
+				}
+			}
+		}
+	}
+
+	public struct LocalArmyFormation : IComponentData
+	{
+
+	}
+
+	public struct LocalArmyContinuousRequest : IComponentData
+	{
+		public Entity Source;
+	}
+
+	public enum ELocalSquadType
+	{
+		Hatapon   = 0,
+		UberHero  = 1,
+		SquadTate = 2,
+		SquadYari = 3,
+		SquadYumi = 4,
+	}
+
+	public struct LocalSquadType : IComponentData
+	{
+		public ELocalSquadType Value;
+
+		public bool IsHatapon     => Value == ELocalSquadType.Hatapon;
+		public bool IsUberHero    => Value == ELocalSquadType.UberHero;
+		public bool IsLeaderSquad => Value >= ELocalSquadType.SquadTate && Value <= ELocalSquadType.SquadYumi;
+
+		public LocalSquadType(ELocalSquadType value) => Value = value;
+	}
+}

@@ -64,7 +64,7 @@ namespace PataNext.Export.Desktop
 			gameBootstrap.GameEntity.Set(new GameName("PataNext"));
 			gameBootstrap.GameEntity.Set(new GameUserStorage(new LocalStorage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/PataNext")));
 
-			gameBootstrap.GameEntity.Set(typeof(GameHost.Inputs.Systems.SendPushedInputLayoutsToBackend));
+			gameBootstrap.GameEntity.Set(typeof(GameHost.Inputs.Systems.SharpDxInputSystem));
 			gameBootstrap.GameEntity.Set(typeof(GameHost.Audio.UpdateSoLoudBackendDriverSystem));
 			gameBootstrap.GameEntity.Set(typeof(StormiumTeam.GameBase.Module));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Module.Simulation.CustomModule));

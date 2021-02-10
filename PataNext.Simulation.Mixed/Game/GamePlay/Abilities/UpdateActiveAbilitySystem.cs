@@ -1,11 +1,12 @@
 ﻿
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using GameHost.Core.Ecs;
 using GameHost.Native;
 using GameHost.Native.Fixed;
 using GameHost.Simulation.TabEcs;
-using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
 using PataNext.Module.Simulation.Components;
@@ -20,21 +21,19 @@ using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
 using StormiumTeam.GameBase.Utility.Misc.EntitySystem;
-using Array = NetFabric.Hyperlinq.Array;
 
 namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 {
 	public class UpdateActiveAbilitySystem : GameAppSystem, IAbilityPreSimulationPass
 	{
 		private IBatchRunner runner;
-		
+
 		public UpdateActiveAbilitySystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref runner);
 		}
 
 		private EntityQuery abilityQuery;
-		private EntityQuery validRhythmEngineMask;
 		private EntityQuery validAbilityMask;
 
 		private ArchetypeSystem<byte> foreachSystem;
@@ -56,22 +55,22 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 				GameWorld.AsComponentType<AbilityCommands>(),
 			});
 
-			foreachSystem = new ArchetypeSystem<byte>((in EntityArchetype _, in ReadOnlySpan<GameEntityHandle> entities, in SystemState<byte> _) =>
+			foreachSystem = new ArchetypeSystem<byte>((in ReadOnlySpan<GameEntityHandle> entities, in SystemState<byte> _) =>
 			{
-				var relativeEngineAccessor    = new ComponentDataAccessor<Relative<RhythmEngineDescription>>(GameWorld);
-				var engineStateAccessor       = new ComponentDataAccessor<RhythmEngineLocalState>(GameWorld);
-				var engineSettingsAccessor    = new ComponentDataAccessor<RhythmEngineSettings>(GameWorld);
-				var executingCommandAccessor  = new ComponentDataAccessor<RhythmEngineExecutingCommand>(GameWorld);
-				var gameComboStateAccessor    = new ComponentDataAccessor<GameCombo.State>(GameWorld);
-				var gameComboSettingsAccessor = new ComponentDataAccessor<GameCombo.Settings>(GameWorld);
-				var gameCommandStateAccessor  = new ComponentDataAccessor<GameCommandState>(GameWorld);
+				var relativeEngineAccessor    = GetAccessor<Relative<RhythmEngineDescription>>();
+				var engineStateAccessor       = GetAccessor<RhythmEngineLocalState>();
+				var engineSettingsAccessor    = GetAccessor<RhythmEngineSettings>();
+				var executingCommandAccessor  = GetAccessor<RhythmEngineExecutingCommand>();
+				var gameComboStateAccessor    = GetAccessor<GameCombo.State>();
+				var gameComboSettingsAccessor = GetAccessor<GameCombo.Settings>();
+				var gameCommandStateAccessor  = GetAccessor<GameCommandState>();
 
 				var abilityStateComponent      = AsComponentType<AbilityState>();
-				var ownerActiveAbilityAccessor = new ComponentDataAccessor<OwnerActiveAbility>(GameWorld);
-				var abilityStateAccessor       = new ComponentDataAccessor<AbilityState>(GameWorld);
-				var abilityActivationAccessor  = new ComponentDataAccessor<AbilityActivation>(GameWorld);
-				var abilityCommands            = new ComponentDataAccessor<AbilityCommands>(GameWorld);
-				var engineSetAccessor          = new ComponentDataAccessor<AbilityEngineSet>(GameWorld);
+				var ownerActiveAbilityAccessor = GetAccessor<OwnerActiveAbility>();
+				var abilityStateAccessor       = GetAccessor<AbilityState>();
+				var abilityActivationAccessor  = GetAccessor<AbilityActivation>();
+				var abilityCommands            = GetAccessor<AbilityCommands>();
+				var engineSetAccessor          = GetAccessor<AbilityEngineSet>();
 				foreach (ref readonly var entity in entities)
 				{
 					// Indicate whether or not we own the entity simulation.
@@ -112,7 +111,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 						// Set as inactive if we can't chain it with the next command.
 						if (executingCommand.CommandTarget != activeAbilityCommands.Chaining)
 						{
-							if (!Array.Contains(activeAbilityCommands.HeroModeAllowedCommands.Span, executingCommand.CommandTarget))
+							if (false == activeAbilityCommands.HeroModeAllowedCommands.Span.Contains(executingCommand.CommandTarget))
 								isHeroModeActive = false;
 							else if (isNewIncomingCommand)
 								abilityState.HeroModeImperfectCountWhileActive++;
@@ -146,10 +145,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 							offset++;
 
 						var cmdIdx = activeSelf.CurrentCombo.GetLength() - 1 - offset;
-						if (cmdIdx > 0 && activeSelf.CurrentCombo.GetLength() >= cmdIdx + 1)
+						if (cmdIdx >= 0 && activeSelf.CurrentCombo.GetLength() >= cmdIdx + 1)
 							previousCommand = activeSelf.CurrentCombo.Span[cmdIdx];
 
-						abilityToUpdateCooldown.Clear();
+						abilityToUpdateCooldown.Value.Clear();
 						foreach (var ownedAbility in abilityBuffer)
 						{
 							var abilityEntity = ownedAbility.Target.Handle;
@@ -189,7 +188,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 
 							if (!canActivate)
 							{
-								abilityToUpdateCooldown.Add(abilityEntity);
+								abilityToUpdateCooldown.Value.Add(abilityEntity);
 								continue;
 							}
 
@@ -259,7 +258,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 					{
 						activeSelf.LastActivationTime = engineElapsedMs;
 
-						foreach (var abilityEntity in abilityToUpdateCooldown)
+						foreach (var abilityEntity in abilityToUpdateCooldown.Value)
 						{
 							ref var cooldown = ref abilityStateAccessor[abilityEntity].CommandCooldown;
 							cooldown = Math.Max(0, cooldown - 1);
@@ -323,17 +322,13 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			}, abilityQuery);
 		}
 
-		private List<GameEntityHandle> abilityToUpdateCooldown = new();
-		
+		private ThreadLocal<List<GameEntityHandle>> abilityToUpdateCooldown = new(() => new());
+
 		public void OnAbilityPreSimulationPass()
 		{
 			validAbilityMask.CheckForNewArchetypes();
 
-			foreachSystem.PrepareBatch(0);
-			var req = runner.Queue(foreachSystem);
-			while (!runner.IsCompleted(req))
-			{
-			}
+			runner.WaitForCompletion(runner.Queue(foreachSystem));
 		}
 
 		private static bool updateAndCheckNewIncomingCommand(in  GameCombo.State    gameCombo, in GameCommandState commandState, in RhythmEngineExecutingCommand executingCommand,

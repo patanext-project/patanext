@@ -24,7 +24,10 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 
 		public static float CenterComputeV1(int i, int size, float space)
 		{
-			return (i - size / 2) * space + space / 2f;
+			if (size == 1 && i == 0)
+				return 0;
+			
+			return (i - (size - 1) / 2) * space + space / 2f;
 		}
 	}
 

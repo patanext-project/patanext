@@ -54,7 +54,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Special.Collision
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			var @base = CreateEntityQuery(new[] {typeof(Position), typeof(UberHeroCollider)});
+			var @base = CreateEntityQuery(new[] {typeof(Position), typeof(UnitBodyCollider)});
 			withoutColliderQuery = QueryWithout(@base, new[] {typeof(PhysicsCollider)});
 			query                = QueryWith(@base, new[] {typeof(PhysicsCollider)});
 		}
@@ -67,9 +67,12 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Special.Collision
 				entity = default; // swapback
 			}
 
+			var bodyAccessor = GetAccessor<UnitBodyCollider>();
 			foreach (var entity in query)
 			{
 				pooledShapes.Clear();
+
+				ref readonly var bodyData = ref GetComponentData<UnitBodyCollider>(entity);
 
 				TryGetComponentData(entity, out var direction, UnitDirection.Right);
 
@@ -77,8 +80,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Special.Collision
 					ref var bodyShape = ref GameWorld.Boards.Entity.GetColumn(entity.Id, ref bodyShapes);
 					bodyShape ??= bodyShapeSettings.Clone();
 
-					var halfWidth  = 0.5f;
-					var halfHeight = 0.75f;
+					var halfWidth  = bodyData.Width * 0.5f * bodyData.Scale;
+					var halfHeight = bodyData.Height * 0.5f * bodyData.Scale;
 					
 					if (TryGetComponentData(entity, out OwnerActiveAbility ownerActiveAbility)
 					    && GetComponentDataOrDefault<AbilityActivation>(ownerActiveAbility.Active).Type.HasFlag(EAbilityActivationType.HeroMode))

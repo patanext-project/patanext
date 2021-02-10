@@ -52,7 +52,7 @@ namespace StormiumTeam.GameBase.Arena
 				provider.RequestLoad();
 			}
 
-			recorder.Execute(World.Mgr);
+			recorder.Execute();
 		}
 
 		public void Register(IArenaProvider provider)

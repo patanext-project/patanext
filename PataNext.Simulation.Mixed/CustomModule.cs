@@ -8,7 +8,9 @@ using GameHost.Simulation.Utility.Resource;
 using GameHost.Threading;
 using GameHost.Utility;
 using GameHost.Worlds;
+using MagicOnion;
 using Microsoft.Extensions.Logging;
+using PataNext.MasterServerShared.Services;
 using PataNext.Module.Simulation;
 using PataNext.Module.Simulation.Components.GamePlay;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
@@ -16,6 +18,7 @@ using PataNext.Module.Simulation.Components.GamePlay.Special;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.FreeRoam;
 using PataNext.Module.Simulation.Game.Providers;
+using PataNext.Module.Simulation.Network.MasterServer;
 using PataNext.Module.Simulation.Network.NetCodeRpc;
 using PataNext.Module.Simulation.Network.Snapshots;
 using PataNext.Module.Simulation.Network.Snapshots.Abilities;
@@ -28,6 +31,7 @@ using PataNext.Module.Simulation.Systems.GhRpc;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.Authorities;
+using StormiumTeam.GameBase.Network.MasterServer.Utility;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Interfaces;
 
@@ -51,6 +55,45 @@ namespace PataNext.Module.Simulation
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionRhythmEngineProvider));
 		}
 
+		private void InjectMasterServerHubs(ApplicationData app)
+		{
+			void inject<THub, TReceiverInterface, TReceiverObj>()
+				where THub : IStreamingHub<THub, TReceiverInterface>
+				where TReceiverObj : TReceiverInterface, new()
+			{
+				app.Collection.GetOrCreate(typeof(HubClientConnectionCache<THub, TReceiverInterface>));
+				app.Context.BindExisting<TReceiverInterface>(new TReceiverObj());
+			}
+
+			inject<IFormationHub, IFormationReceiver, HubFormationReceiver>();
+			inject<IUnitHub, IUnitHubReceiver, UnitHubReceiver>();
+			inject<IUnitPresetHub, IUnitPresetHubReceiver, UnitPresetHubReceiver>();
+			inject<IItemHub, IItemHubReceiver, ItemHubReceiver>();
+		}
+
+		private void InjectMasterServerProcessSystems(ApplicationData app)
+		{
+			void inject<TSystem>() where TSystem : IWorldSystem
+			{
+				app.Collection.GetOrCreate(typeof(TSystem));
+			}
+
+			inject<Network.MasterServer.Services.CreateGameSaveRequest.Process>();
+			inject<Network.MasterServer.Services.ListGameSaveRequest.Process>();
+			inject<Network.MasterServer.Services.GetFavoriteGameSaveRequest.Process>();
+			inject<Network.MasterServer.Services.SetFavoriteGameSaveRequest.Process>();
+
+			inject<Network.MasterServer.Services.GetFormationRequest.Process>();
+
+			inject<Network.MasterServer.Services.GetUnitDetailsRequest.Process>();
+
+			inject<Network.MasterServer.Services.GetUnitPresetDetailsRequest.Process>();
+			inject<Network.MasterServer.Services.GetUnitPresetEquipmentsRequest.Process>();
+			inject<Network.MasterServer.Services.GetUnitPresetAbilitiesRequest.Process>();
+
+			inject<Network.MasterServer.Services.GetItemAssetPointerRequest.Process>();
+		}
+
 		private void InjectFreeRoamSystems(SimulationApplication app)
 		{
 			app.Data.Collection.GetOrCreate(typeof(FreeRoamUnitProvider));
@@ -68,7 +111,7 @@ namespace PataNext.Module.Simulation
 			void RegisterSnapshots()
 			{
 				Rpc();
-				
+
 				Resources();
 				Input();
 				GameMode();
@@ -78,16 +121,16 @@ namespace PataNext.Module.Simulation
 				{
 					sc.Register(instigator => new DamageRequestRpc.Serializer(appCtx));
 				}
-				
+
 				void Resources()
 				{
 					sc.Register(instigator => new GameGraphicResourceSnapshot.Serializer(instigator, appCtx));
 					sc.Register(instigator => new EquipmentResourceSnapshot.Serializer(instigator, appCtx));
-					
+
 					sc.Register(instigator => new UnitArchetypeResourceSnapshot.Serializer(instigator, appCtx));
 					sc.Register(instigator => new UnitKitResourceSnapshot.Serializer(instigator, appCtx));
 					sc.Register(instigator => new UnitAttachmentResourceSnapshot.Serializer(instigator, appCtx));
-					
+
 					sc.Register(instigator => new RhythmCommandResourceSnapshot.Serializer(instigator, appCtx));
 					sc.Register(instigator => new RhythmCommandIdentifierSnapshot.Serializer(instigator, appCtx));
 				}
@@ -162,7 +205,7 @@ namespace PataNext.Module.Simulation
 						sc.Register(instigator => new RhythmEngineSettingsSnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new RhythmSummonEnergySnapshot.Serializer(instigator, appCtx));
 						sc.Register(instigator => new RhythmSummonEnergyMaxSnapshot.Serializer(instigator, appCtx));
-						
+
 						// Commands
 						sc.Register(instigator => new ChargeCommand.Serializer(instigator, appCtx));
 					}
@@ -183,14 +226,14 @@ namespace PataNext.Module.Simulation
 				sc.Register(instigator => new IEntityDescription.Serializer<MountDescription>(instigator, appCtx));
 				sc.Register(instigator => new IEntityDescription.Serializer<AbilityDescription>(instigator, appCtx));
 				sc.Register(instigator => new IEntityDescription.Serializer<ProjectileDescription>(instigator, appCtx));
-				
+
 				sc.Register(instigator => new Relative<RhythmEngineDescription>.Serializer(instigator, appCtx));
 				sc.Register(instigator => new Relative<UnitTargetDescription>.Serializer(instigator, appCtx));
 				sc.Register(instigator => new Relative<UnitDescription>.Serializer(instigator, appCtx));
 				sc.Register(instigator => new Relative<MountDescription>.Serializer(instigator, appCtx));
 				sc.Register(instigator => new Relative<AbilityDescription>.Serializer(instigator, appCtx));
 				sc.Register(instigator => new Relative<ProjectileDescription>.Serializer(instigator, appCtx));
-				
+
 				sc.Register(instigator => new OwnedRelative<AbilityDescription>.Serializer(instigator, appCtx));
 			}
 
@@ -204,7 +247,7 @@ namespace PataNext.Module.Simulation
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
 			global.Collection.GetOrCreate(typeof(SwitchAuthorityRpc));
-			
+
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{
 				if (listener is SimulationApplication simulationApplication)
@@ -218,7 +261,7 @@ namespace PataNext.Module.Simulation
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitArchetypeResource>.Defaults>.Create(simulationApplication.Data.World, new()));
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitAttachmentResource>.Defaults>.Create(simulationApplication.Data.World, new()));
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitKitResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-						
+
 						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IRhythmEngineSimulationPass.RegisterPass(),
 							new[] {typeof(IUpdateSimulationPass.RegisterPass)},
 							new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
@@ -230,8 +273,10 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilitySimulationPass.RegisterPass(),
 							new[] {typeof(IUpdateSimulationPass.RegisterPass), typeof(IAbilityPreSimulationPass.RegisterPass)},
 							new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
-						
+
 						InjectProviders(simulationApplication);
+						InjectMasterServerHubs(simulationApplication.Data);
+						InjectMasterServerProcessSystems(simulationApplication.Data);
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.DontSerializeAbilityEngineSet));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.LocalRhythmCommandResourceManager));
@@ -241,7 +286,7 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.UnitDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.MountDescription.RegisterContainer));
-						
+
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmyFormationDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmySquadDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmyUnitDescription.RegisterContainer));
@@ -263,7 +308,7 @@ namespace PataNext.Module.Simulation
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCollisionSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsAfterBlockUpdateSystem));
-						
+
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Collision.UberHeroColliderSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
@@ -277,12 +322,12 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.InBasement.AtCityGameModeSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.StartYaridaTrainingGameMode));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.CoopMissionSystem));
-						
+
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.EndFlagUpdateSystem));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.CreateGameSaveRequest.Process));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Services.ListGameSaveRequest.Process));
-						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.SetLocalArmyFormationSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateMasterServerUnitSystem));
+
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.GenerateDamageRequestSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyDefensiveBonusesSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyStatusSystem));

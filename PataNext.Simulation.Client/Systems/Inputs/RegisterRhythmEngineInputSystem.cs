@@ -36,7 +36,6 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 	}
 
 	[UpdateAfter(typeof(SetGameTimeSystem))]
-	[UpdateAfter(typeof(ReceiveInputDataSystem))]
 	[UpdateBefore(typeof(ManageComponentTagSystem))]
 	public class RegisterRhythmEngineInputSystem : RegisterInputSystemBase<RhythmInputDescription>, IPreUpdateSimulationPass
 	{
@@ -116,6 +115,8 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 				action.IsActive  = rhythmAction.Active;
 				action.IsSliding = (action.IsSliding && rhythmAction.UpCount > 0) || rhythmAction.ActiveTime.TotalSeconds >= InputSettings.SliderSensibility;
 
+				//Console.WriteLine($"{action.IsActive}");
+				
 				if (rhythmAction.DownCount > 0)
 				{
 					action.InterFrame.Pressed = gameTime.Frame;

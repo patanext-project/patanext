@@ -19,7 +19,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 		{
 			Channel = GrpcChannel.ForAddress(address, new GrpcChannelOptions
 			{
-				Credentials = ChannelCredentials.Insecure,
+				Credentials = ChannelCredentials.Insecure, 
 				LoggerFactory = LoggerFactory.Create(builder => builder.AddConsole())
 			});
 		}

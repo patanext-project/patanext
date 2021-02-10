@@ -16,6 +16,7 @@ using GameHost.Worlds.Components;
 using PataNext.Game.Scenar;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
+using PataNext.Module.Simulation.Components.GamePlay.Special;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
@@ -87,7 +88,7 @@ namespace PataNext.Module.Simulation.GameModes
 		{
 			// Load Scenar
 			var scenarRequest = World.Mgr.CreateEntity();
-			scenarRequest.Set(new ScenarLoadRequest(new ResPath("guerro", "test", "scenar")));
+			scenarRequest.Set(new ScenarLoadRequest(new (ResPath.EType.ClientResource, "guerro", "test", "scenar")));
 
 			scenarEntity = new ResourceHandle<ScenarResource>(scenarRequest);
 
@@ -136,27 +137,32 @@ namespace PataNext.Module.Simulation.GameModes
 				var squadBuffer = GetBuffer<OwnedRelative<ArmySquadDescription>>(formationHandle);
 				foreach (var ownedSquad in squadBuffer)
 				{
+					var armyPosition = 0f;
+					if (TryGetComponentData(ownedSquad.Target, out SquadTargetOffset squadTargetOffset))
+						armyPosition = squadTargetOffset.Value;
+					
 					var unitBuffer = GetBuffer<OwnedRelative<ArmyUnitDescription>>(ownedSquad.Target);
-					foreach (var ownedUnit in unitBuffer)
+					for (var unitIdx = 0; unitIdx < unitBuffer.Count; unitIdx++)
 					{
+						var ownedUnit    = unitBuffer[unitIdx];
 						var player       = GetComponentData<Relative<PlayerDescription>>(ownedUnit.Target).Target;
 						var target       = GetComponentData<Relative<UnitTargetDescription>>(player).Target;
 						var rhythmEngine = GetComponentData<Relative<RhythmEngineDescription>>(player).Target;
-						
+
 						var runtimeUnit = unitProvider.SpawnEntityWithArguments(new CoopMissionPlayableUnitProvider.Create
 						{
 							Base = new PlayableUnitProvider.Create
 							{
-								Direction  = UnitDirection.Right,
+								Direction = UnitDirection.Right,
 								Statistics = new UnitStatistics
 								{
 									MovementAttackSpeed = 2,
 									BaseWalkSpeed       = 2,
 									FeverWalkSpeed      = 2.5f,
-									AttackSeekRange = 20f,
-									AttackSpeed = 1.44f,
-									AttackMeleeRange = 2f,
-									Attack = 25
+									AttackSeekRange     = 20f,
+									AttackSpeed         = 0.8f,
+									AttackMeleeRange    = 2f,
+									Attack              = 15
 								}
 							},
 							Team         = playerTeam,
@@ -167,14 +173,16 @@ namespace PataNext.Module.Simulation.GameModes
 
 						var ownedUnitFocus   = Focus(ownedUnit.Target);
 						var runtimeUnitFocus = Focus(Safe(runtimeUnit));
-						
+
+						runtimeUnitFocus.GetData<UnitBodyCollider>().Scale = 1f;
+
 						runtimeUnitFocus.AddData<SimulationAuthority>();
 						runtimeUnitFocus.AddData<MovableAreaAuthority>();
 
 						if (ownedUnitFocus.Has<UnitTargetControlTag>())
 						{
 							runtimeUnitFocus.AddData<UnitTargetControlTag>();
-							
+
 							AddComponent(player, new ServerCameraState
 							{
 								Data =
@@ -186,10 +194,23 @@ namespace PataNext.Module.Simulation.GameModes
 							});
 						}
 
+						if (!ownedUnitFocus.Has<UnitTargetOffset>())
+						{
+							runtimeUnitFocus.AddData(new UnitTargetOffset
+							{
+								Idle   = armyPosition + UnitTargetOffset.CenterComputeV1(unitIdx, unitBuffer.Count, 0.5f),
+								Attack = UnitTargetOffset.CenterComputeV1(unitIdx, unitBuffer.Count, 0.5f)
+							});
+
+							Console.WriteLine($"{armyPosition + UnitTargetOffset.CenterComputeV1(unitIdx, unitBuffer.Count, 0.5f)}");
+						}
+						else
+							runtimeUnitFocus.AddData(ownedUnitFocus.GetData<UnitTargetOffset>());
+
 						if (ownedUnitFocus.Has<UnitDisplayedEquipment>())
 							GameWorld.Copy(ownedUnit.Target.Handle, runtimeUnit, AsComponentType<UnitDisplayedEquipment>());
 
-						if (TryGetComponentData(ownedUnit.Target, out UnitArchetype archetype)) 
+						if (TryGetComponentData(ownedUnit.Target, out UnitArchetype archetype))
 							AddComponent(runtimeUnit, archetype);
 						if (TryGetComponentData(ownedUnit.Target, out UnitCurrentKit kit))
 							AddComponent(runtimeUnit, kit);

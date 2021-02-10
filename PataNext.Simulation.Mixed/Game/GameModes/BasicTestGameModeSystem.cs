@@ -580,7 +580,7 @@ namespace PataNext.Module.Simulation.GameModes
 						new UnitEnemySeekingState(),
 						new SimulationAuthority(),
 						new MovableAreaAuthority(),
-						new UberHeroCollider());
+						new UnitBodyCollider());
 
 					if (player != default)
 					{

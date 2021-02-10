@@ -64,12 +64,13 @@ namespace PataNext.Client.Systems
 			foreach (var bgmFile in fileList.Select(f => new BgmFile(f)))
 			{
 				await bgmFile.ComputeDescription();
+
 				void setOrCreateEntity()
 				{
-					var ent = bgmSet.GetEntities()
-					                .Where(e => e.Get<BgmFile>().Description.Id == bgmFile.Description.Id)
-					                .FirstOrDefault();
-					if (ent == default)
+					var (some, ent) = bgmSet.GetEntities()
+					                        .Where(e => e.Get<BgmFile>().Description.Id == bgmFile.Description.Id)
+					                        .First();
+					if (some == false)
 						ent = World.Mgr.CreateEntity();
 
 					ent.Set(bgmFile);

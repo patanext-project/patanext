@@ -9,6 +9,7 @@ using PataNext.CoreAbilities.Mixed.Subset;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using StormiumTeam.GameBase;
 
 namespace PataNext.CoreAbilities.Mixed.Defaults
 {
@@ -26,7 +27,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 
 	public class DefaultMarchAbilityProvider : BaseRhythmAbilityProvider<DefaultMarchAbility>
 	{
-		public override string MasterServerId => "march";
+		public override string MasterServerId => resPath.Create(new [] { "ability", "default", "march" }, ResPath.EType.MasterServer);
 
 		public DefaultMarchAbilityProvider(WorldCollection collection) : base(collection)
 		{
