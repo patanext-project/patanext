@@ -21,9 +21,12 @@ namespace StormiumTeam.GameBase.Network.MasterServer.UserService
 			{
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			private readonly Action<Entity> none = _ => { };
+
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				await Service.Disconnect(entity.Get<DisconnectUserRequest>().Token);
+				return none;
 			}
 		}
 	}

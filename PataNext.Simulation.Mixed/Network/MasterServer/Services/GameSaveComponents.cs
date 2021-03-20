@@ -33,10 +33,10 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 				DependencyResolver.Add(() => ref currentUserSystem);
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				var representation = await Service.CreateSave(currentUserSystem.User, entity.Get<CreateGameSaveRequest>().Name);
-				entity.Set(new Response {SaveId = representation});
+				return e => e.Set(new Response {SaveId = representation});
 			}
 		}
 	}
@@ -57,10 +57,10 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 				DependencyResolver.Add(() => ref currentUserSystem);
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				var saveIds = await Service.ListSaves(currentUserSystem.User.Representation);
-				entity.Set(new Response {Results = saveIds});
+				return e => e.Set(new Response {Results = saveIds});
 			}
 		}
 	}
@@ -89,23 +89,16 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 				DependencyResolver.Add(() => ref currentUserSystem);
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				var userGuid       = entity.Get<GetFavoriteGameSaveRequest>().UserGuid ?? currentUserSystem.User.Representation ?? string.Empty;
 				var representation = await Service.GetFavoriteSave(userGuid);
 
-				try
+				return e => e.Set(new Response
 				{
-					entity.Set(new Response
-					{
-						SaveId   = representation,
-						UserGuid = userGuid
-					});
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(ex);
-				}
+					SaveId   = representation,
+					UserGuid = userGuid
+				});
 			}
 		}
 	}
@@ -132,10 +125,10 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 				DependencyResolver.Add(() => ref currentUserSystem);
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				var isEmptySave = await Service.SetFavoriteSave(currentUserSystem.User, entity.Get<SetFavoriteGameSaveRequest>().SaveId);
-				entity.Set(new Response
+				return e => e.Set(new Response
 				{
 				});
 			}

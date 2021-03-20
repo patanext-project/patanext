@@ -30,15 +30,14 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 			{
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				Console.WriteLine($"asking for {entity.Get<GetItemAssetPointerRequest>().ItemGuid}");
 				var result = await Service.GetAssetPointer(entity.Get<GetItemAssetPointerRequest>().ItemGuid);
-				entity.Set(new Response
+				return e => e.Set(new Response
 				{
 					ResPath = new(ResPath.EType.MasterServer, result.Author, result.Mod, result.Id)
 				});
-				Console.WriteLine("received response!");
 			}
 		}
 	}

@@ -53,6 +53,7 @@ namespace PataNext.Module.Simulation
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionPlayableUnitProvider));
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionUnitTargetProvider));
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionRhythmEngineProvider));
+			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionSquadProvider));
 		}
 
 		private void InjectMasterServerHubs(ApplicationData app)
@@ -246,7 +247,7 @@ namespace PataNext.Module.Simulation
 		public CustomModule(Entity source, Context ctxParent, GameHostModuleDescription original) : base(source, ctxParent, original)
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-			global.Collection.GetOrCreate(typeof(SwitchAuthorityRpc));
+			global.Collection.GetOrCreate(typeof(SwitchAuthorityRpc.System));
 
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{
@@ -282,6 +283,9 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.LocalRhythmCommandResourceManager));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.KitCollectionSystem));
+						
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.RegisterDefaultKits));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.UnitDescription.RegisterContainer));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));

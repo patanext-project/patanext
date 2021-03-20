@@ -13,7 +13,8 @@ using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Export.Desktop
 {
-	[RestrictToApplication(typeof(ExecutiveEntryApplication))]
+	// TODO: Remake it?
+	/*[RestrictToApplication(typeof(ExecutiveEntryApplication))]
 	public class AddConsoleAsRpcClient : AppSystem
 	{
 		private Thread                thread;
@@ -127,5 +128,5 @@ namespace PataNext.Export.Desktop
 			if (netManager != null && netManager.IsRunning)
 				netManager.DisconnectAll();
 		}
-	}
+	}*/
 }

@@ -1,50 +1,37 @@
-﻿using ENet;
+﻿using System.Diagnostics;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.RPC;
 using GameHost.Revolution.NetCode.LLAPI.Systems;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
-using GameHost.Transports;
-using Newtonsoft.Json;
 using PataNext.Simulation.Client;
 
 namespace PataNext.Module.Simulation.Systems.GhRpc
 {
-	public class DisconnectFromServerRpc : RpcCommandSystem
+	public struct DisconnectFromServerRpc : IGameHostRpcPacket
 	{
-		public DisconnectFromServerRpc(WorldCollection collection) : base(collection)
-		{
-		}
 
-		private struct Request
+		public class System : RpcPacketSystem<DisconnectFromServerRpc>
 		{
-			public string Host;
-			public int    Port;
-		}
-
-		public override string CommandId => "disconnect_from_server";
-		
-		protected override void   OnReceiveRequest(GameHostCommandResponse response)
-		{
-			using (var set = World.Mgr.GetEntities()
-			                      .With<IListener>()
-			                      .With<IClientSimulationApplication>()
-			                      .AsSet())
+			public System(WorldCollection collection) : base(collection)
 			{
-				if (set.Count == 0)
-				{
-					GetReplyWriter().WriteStaticString(JsonConvert.SerializeObject(new
-					{
-						IsError = 0,
-						Message = "Couldn't find a client application"
-					}));
-					return;
-				}
-				
+			}
+
+			public override string MethodName => "PataNext.Tests.LeaveServer";
+
+			protected override void OnNotification(DisconnectFromServerRpc notification)
+			{
+				using var set = World.Mgr.GetEntities()
+				                     .With<IListener>()
+				                     .With<IClientSimulationApplication>()
+				                     .AsSet();
+
 				foreach (var entity in set.GetEntities())
 				{
 					var app = entity.Get<IListener>() as SimulationApplication;
+					Debug.Assert(app != null, nameof(app) + " != null");
+
 					app.Schedule(() =>
 					{
 						using var subset = app.Data.World.GetEntities()
@@ -53,21 +40,16 @@ namespace PataNext.Module.Simulation.Systems.GhRpc
 
 						foreach (var featureEnt in subset.GetEntities())
 						{
-							if (featureEnt.Get<IFeature>() is ClientFeature clientFeature)
-							{
-								clientFeature.Driver.Dispose();
-								featureEnt.Dispose();
-								break;
-							}
+							if (featureEnt.Get<IFeature>() is not ClientFeature clientFeature) 
+								continue;
+							
+							clientFeature.Driver.Dispose();
+							featureEnt.Dispose();
+							break;
 						}
 					}, default);
 				}
 			}
-		}
-
-		protected override void   OnReceiveReply(GameHostCommandResponse   response)
-		{
-			
 		}
 	}
 }

@@ -39,7 +39,7 @@ using ZLogger;
 
 namespace PataNext.Module.Simulation.GameModes
 {
-	public class CoopMissionSystem : MissionGameModeBase<CoopMission>
+	public partial class CoopMissionSystem : MissionGameModeBase<CoopMission>
 	{
 		private IManagedWorldTime worldTime;
 		
@@ -47,6 +47,7 @@ namespace PataNext.Module.Simulation.GameModes
 		private CoopMissionUnitTargetProvider   targetProvider;
 		private CoopMissionRhythmEngineProvider rhythmEngineProvider;
 		private CoopMissionPlayableUnitProvider unitProvider;
+		private CoopMissionSquadProvider        squadProvider;
 		private AbilityCollectionSystem         abilityCollection;
 
 		public CoopMissionSystem(WorldCollection collection) : base(collection)
@@ -57,6 +58,7 @@ namespace PataNext.Module.Simulation.GameModes
 			DependencyResolver.Add(() => ref targetProvider);
 			DependencyResolver.Add(() => ref rhythmEngineProvider);
 			DependencyResolver.Add(() => ref unitProvider);
+			DependencyResolver.Add(() => ref squadProvider);
 			DependencyResolver.Add(() => ref abilityCollection);
 		}
 
@@ -95,8 +97,6 @@ namespace PataNext.Module.Simulation.GameModes
 			while (!scenarEntity.IsLoaded)
 				await Task.Yield();
 
-			await scenarEntity.Result.Interface.StartAsync();
-
 			var postComponentScheduler = new Scheduler();
 
 			// Set Teams of players
@@ -112,6 +112,9 @@ namespace PataNext.Module.Simulation.GameModes
 					Player    = Safe(playerHandle),
 					Team      = playerTeam
 				});
+
+				GetComponentData<Position>(target).Value.X -= 10;
+				
 				var rhythmEngine = rhythmEngineProvider.SpawnEntityWithArguments(new CoopMissionRhythmEngineProvider.Create
 				{
 					Base =
@@ -129,108 +132,8 @@ namespace PataNext.Module.Simulation.GameModes
 			}, postComponentScheduler);
 
 			postComponentScheduler.Run();
-
-			// Create Units
-			using var formationQuery = CreateEntityQuery(new[] {typeof(ArmyFormationDescription)});
-			foreach (var formationHandle in formationQuery)
-			{
-				var squadBuffer = GetBuffer<OwnedRelative<ArmySquadDescription>>(formationHandle);
-				foreach (var ownedSquad in squadBuffer)
-				{
-					var armyPosition = 0f;
-					if (TryGetComponentData(ownedSquad.Target, out SquadTargetOffset squadTargetOffset))
-						armyPosition = squadTargetOffset.Value;
-					
-					var unitBuffer = GetBuffer<OwnedRelative<ArmyUnitDescription>>(ownedSquad.Target);
-					for (var unitIdx = 0; unitIdx < unitBuffer.Count; unitIdx++)
-					{
-						var ownedUnit    = unitBuffer[unitIdx];
-						var player       = GetComponentData<Relative<PlayerDescription>>(ownedUnit.Target).Target;
-						var target       = GetComponentData<Relative<UnitTargetDescription>>(player).Target;
-						var rhythmEngine = GetComponentData<Relative<RhythmEngineDescription>>(player).Target;
-
-						var runtimeUnit = unitProvider.SpawnEntityWithArguments(new CoopMissionPlayableUnitProvider.Create
-						{
-							Base = new PlayableUnitProvider.Create
-							{
-								Direction = UnitDirection.Right,
-								Statistics = new UnitStatistics
-								{
-									MovementAttackSpeed = 2,
-									BaseWalkSpeed       = 2,
-									FeverWalkSpeed      = 2.5f,
-									AttackSeekRange     = 20f,
-									AttackSpeed         = 0.8f,
-									AttackMeleeRange    = 2f,
-									Attack              = 15
-								}
-							},
-							Team         = playerTeam,
-							Player       = player,
-							UnitTarget   = target,
-							RhythmEngine = rhythmEngine
-						});
-
-						var ownedUnitFocus   = Focus(ownedUnit.Target);
-						var runtimeUnitFocus = Focus(Safe(runtimeUnit));
-
-						runtimeUnitFocus.GetData<UnitBodyCollider>().Scale = 1f;
-
-						runtimeUnitFocus.AddData<SimulationAuthority>();
-						runtimeUnitFocus.AddData<MovableAreaAuthority>();
-
-						if (ownedUnitFocus.Has<UnitTargetControlTag>())
-						{
-							runtimeUnitFocus.AddData<UnitTargetControlTag>();
-
-							AddComponent(player, new ServerCameraState
-							{
-								Data =
-								{
-									Mode   = CameraMode.Forced,
-									Offset = RigidTransform.Identity,
-									Target = runtimeUnitFocus.Entity
-								}
-							});
-						}
-
-						if (!ownedUnitFocus.Has<UnitTargetOffset>())
-						{
-							runtimeUnitFocus.AddData(new UnitTargetOffset
-							{
-								Idle   = armyPosition + UnitTargetOffset.CenterComputeV1(unitIdx, unitBuffer.Count, 0.5f),
-								Attack = UnitTargetOffset.CenterComputeV1(unitIdx, unitBuffer.Count, 0.5f)
-							});
-
-							Console.WriteLine($"{armyPosition + UnitTargetOffset.CenterComputeV1(unitIdx, unitBuffer.Count, 0.5f)}");
-						}
-						else
-							runtimeUnitFocus.AddData(ownedUnitFocus.GetData<UnitTargetOffset>());
-
-						if (ownedUnitFocus.Has<UnitDisplayedEquipment>())
-							GameWorld.Copy(ownedUnit.Target.Handle, runtimeUnit, AsComponentType<UnitDisplayedEquipment>());
-
-						if (TryGetComponentData(ownedUnit.Target, out UnitArchetype archetype))
-							AddComponent(runtimeUnit, archetype);
-						if (TryGetComponentData(ownedUnit.Target, out UnitCurrentKit kit))
-							AddComponent(runtimeUnit, kit);
-						if (TryGetComponentData(ownedUnit.Target, out EntityVisual entityVisual))
-							AddComponent(runtimeUnit, entityVisual);
-
-						if (TryGetComponentBuffer<UnitDefinedAbilities>(ownedUnit.Target, out var definedAbilityBuffer))
-						{
-							foreach (var definedAbility in definedAbilityBuffer)
-							{
-								var runtimeAbility = abilityCollection.SpawnFor(definedAbility.Id.ToString(), runtimeUnit, definedAbility.Selection);
-								AddComponent(runtimeAbility, new SimulationAuthority());
-							}
-						}
-
-						runtimeUnitFocus.GetData<Position>().Value.X -= 5;
-						GetComponentData<Position>(target).Value.X   -= 5;
-					}
-				}
-			}
+			
+			SpawnArmy();
 			
 			foreach (var player in playerQuery)
 			{
@@ -242,6 +145,8 @@ namespace PataNext.Module.Simulation.GameModes
 					StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(3))
 				};
 			}
+			
+			await scenarEntity.Result.Interface.StartAsync();
 		}
 
 		private EntityQuery damageEventQuery, livableQuery;

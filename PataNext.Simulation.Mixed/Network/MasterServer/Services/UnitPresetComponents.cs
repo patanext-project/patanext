@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using DefaultEcs;
@@ -27,12 +28,12 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 			{
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				Debug.Assert(Service != null, "Service != null");
 
 				var result = await Service.GetDetails(entity.Get<GetUnitPresetDetailsRequest>().PresetId);
-				entity.Set(new Response {Result = result});
+				return e => e.Set(new Response {Result = result});
 			}
 		}
 	}
@@ -61,12 +62,12 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 			{
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				Debug.Assert(Service != null, "Service != null");
 
 				var result = await Service.GetEquipments(entity.Get<GetUnitPresetEquipmentsRequest>().PresetId);
-				entity.Set(new Response {Result = result});
+				return e => e.Set(new Response {Result = result});
 			}
 		}
 	}
@@ -95,12 +96,12 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 			{
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				Debug.Assert(Service != null, "Service != null");
 
 				var result = await Service.GetAbilities(entity.Get<GetUnitPresetAbilitiesRequest>().PresetId);
-				entity.Set(new Response {Result = result});
+				return e => e.Set(new Response {Result = result});
 			}
 		}
 	}

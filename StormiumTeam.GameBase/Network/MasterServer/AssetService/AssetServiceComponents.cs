@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using JetBrains.Annotations;
@@ -30,10 +31,11 @@ namespace StormiumTeam.GameBase.Network.MasterServer.AssetService
 			{
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				var result = await Service.GetPointer(entity.Get<GetAssetPointerRequest>().AssetGuid);
-				entity.Set(new Response
+				
+				return e => e.Set(new Response
 				{
 					ResPath = new(ResPath.EType.MasterServer, result.Author, result.Mod, result.Id)
 				});

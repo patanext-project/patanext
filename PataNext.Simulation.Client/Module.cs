@@ -16,9 +16,9 @@ namespace PataNext.Simulation.Client
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-			global.Collection.GetOrCreate(typeof(ConnectToServerRpc));
-			global.Collection.GetOrCreate(typeof(DisconnectFromServerRpc));
-			global.Collection.GetOrCreate(typeof(SendServerNoticeRpc));
+			global.Collection.GetOrCreate(typeof(ConnectToServerRpc.System));
+			global.Collection.GetOrCreate(typeof(DisconnectFromServerRpc.System));
+			global.Collection.GetOrCreate(typeof(SendServerNoticeRpc.System));
 
 			foreach (var listener in global.World.Get<IListener>())
 			{

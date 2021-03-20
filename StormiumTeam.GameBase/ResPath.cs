@@ -150,6 +150,11 @@ namespace StormiumTeam.GameBase
     {
         public string Author;
         public string ModPack;
+
+        public readonly ResPath With(string[] resourceDeepness, ResPath.EType type)
+        {
+            return new (type, Author, ModPack, resourceDeepness);
+        }
     }
 
     public class ResPathGen : AppObject

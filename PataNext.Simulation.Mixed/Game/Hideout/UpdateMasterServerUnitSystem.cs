@@ -27,16 +27,16 @@ namespace PataNext.Module.Simulation.Game.Hideout
 	{
 		private IScheduler initScheduler;
 
-		private GameResourceDb<UnitKitResource> kitDb;
-		private GameResourceDb<UnitArchetypeResource> archDb;
+		private KitCollectionSystem                    kitCollectionSystem;
+		private GameResourceDb<UnitArchetypeResource>  archDb;
 		private GameResourceDb<UnitAttachmentResource> attachDb;
-		private GameResourceDb<EquipmentResource> equipDb;
+		private GameResourceDb<EquipmentResource>      equipDb;
 		
 		public UpdateMasterServerUnitSystem([NotNull] WorldCollection collection) : base(collection)
 		{
 			initScheduler = new Scheduler();
 			
-			DependencyResolver.Add(() => ref kitDb);
+			DependencyResolver.Add(() => ref kitCollectionSystem);
 			DependencyResolver.Add(() => ref archDb);
 			DependencyResolver.Add(() => ref attachDb);
 			DependencyResolver.Add(() => ref equipDb);
@@ -132,7 +132,11 @@ namespace PataNext.Module.Simulation.Game.Hideout
 						Console.WriteLine("received archetype of " + response.ResPath.FullString);
 						GetComponentData<UnitArchetype>(unitHandle) = new(archDb.GetOrCreate(new(response.ResPath.FullString)));
 					});
-					RequestUtility.CreateTracked(World.Mgr, new GetAssetPointerRequest(getPresetDetailsResponse.Result.KitId), (Entity       _, GetAssetPointerRequest.Response response) => { GetComponentData<UnitCurrentKit>(unitHandle) = new(kitDb.GetOrCreate(new(response.ResPath.FullString))); });
+					RequestUtility.CreateTracked(World.Mgr, new GetAssetPointerRequest(getPresetDetailsResponse.Result.KitId), (Entity _, GetAssetPointerRequest.Response response) =>
+					{
+						var kitResource = kitCollectionSystem.GetKit(response.ResPath);
+						GetComponentData<UnitCurrentKit>(unitHandle) = new(kitResource);
+					});
 
 					presetRequest.Remove<GetUnitPresetDetailsRequest.Response>();
 				}

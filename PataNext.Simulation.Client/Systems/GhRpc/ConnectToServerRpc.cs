@@ -1,5 +1,5 @@
-﻿using System.Net;
-using ENet;
+﻿using System.Diagnostics;
+using System.Net;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.IO;
@@ -7,75 +7,48 @@ using GameHost.Core.RPC;
 using GameHost.Revolution.NetCode.LLAPI.Systems;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
-using GameHost.Transports;
 using GameHost.Transports.Transports.Ruffles;
-using Newtonsoft.Json;
 using PataNext.Simulation.Client;
 
 namespace PataNext.Module.Simulation.Systems.GhRpc
 {
-	public class ConnectToServerRpc : RpcCommandSystem
+	public struct ConnectToServerRpc : IGameHostRpcPacket
 	{
-		public ConnectToServerRpc(WorldCollection collection) : base(collection)
-		{
-		}
+		public string Host { get; set; }
+		public int    Port { get; set; }
 
-		private struct Request
+		public class System : RpcPacketSystem<ConnectToServerRpc>
 		{
-			public string Host;
-			public int    Port;
-		}
-
-		public override string CommandId => "connect_to_server";
-		
-		protected override void   OnReceiveRequest(GameHostCommandResponse response)
-		{
-			using (var set = World.Mgr.GetEntities()
-			                      .With<IListener>()
-			                      .With<IClientSimulationApplication>()
-			                      .AsSet())
+			public System(WorldCollection collection) : base(collection)
 			{
-				if (set.Count == 0)
-				{
-					GetReplyWriter().WriteStaticString(JsonConvert.SerializeObject(new
-					{
-						IsError = 0,
-						Message = "Couldn't find a client application"
-					}));
-					return;
-				}
+			}
 
-				var request = JsonConvert.DeserializeObject<Request>(response.Data.ReadString());
+			public override string MethodName => "PataNext.Tests.JoinServer";
 
-				/*var driver  = new ENetTransportDriver(1);
-				var address = new Address();
-				address.SetHost(request.Host);
-				address.Port = (ushort) request.Port;
-
-				driver.Connect(address);
-				var reliableChannel = driver.CreateChannel(typeof(ReliableChannel));*/
-
+			protected override void OnNotification(ConnectToServerRpc notification)
+			{
+				using var set = World.Mgr.GetEntities()
+				                     .With<IListener>()
+				                     .With<IClientSimulationApplication>()
+				                     .AsSet();
 				foreach (var entity in set.GetEntities())
 				{
 					var app = entity.Get<IListener>() as SimulationApplication;
+					Debug.Assert(app != null, nameof(app) + " != null");
+
 					app.Schedule(() =>
 					{
 						var driver  = new RuffleTransportDriver();
-						var address = new IPEndPoint(IPAddress.Parse(request.Host), request.Port);
+						var address = new IPEndPoint(IPAddress.Parse(notification.Host), notification.Port);
 						driver.Connect(address);
-				
+
 						var reliableChannel = default(TransportChannel);
-						
+
 						app.Data.World.CreateEntity()
-						   .Set<IFeature>(new ClientFeature(driver, reliableChannel));		
+						   .Set<IFeature>(new ClientFeature(driver, reliableChannel));
 					}, default);
 				}
 			}
-		}
-
-		protected override void   OnReceiveReply(GameHostCommandResponse   response)
-		{
-			
 		}
 	}
 }

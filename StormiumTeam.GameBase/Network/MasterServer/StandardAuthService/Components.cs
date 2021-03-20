@@ -49,34 +49,30 @@ namespace StormiumTeam.GameBase.Network.MasterServer.StandardAuthService
 				DependencyResolver.Add(() => ref logger);
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			private readonly Action<Entity> none = _ => { };
+			
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				Console.WriteLine("yo0");
 				var component = entity.Get<ConnectUserRequest>();
 
-				ConnectResult result;
-				switch (component.Type)
+				ConnectResult result = component.Type switch
 				{
-					case EType.Login:
-						result = await Service.ConnectViaLogin(component.Data, component.HashedPassword);
-						break;
-					case EType.Guid:
-						result = await Service.ConnectViaGuid(component.Data, component.HashedPassword);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
-
+					EType.Login => await Service.ConnectViaLogin(component.Data, component.HashedPassword),
+					EType.Guid => await Service.ConnectViaGuid(component.Data, component.HashedPassword),
+					_ => throw new ArgumentOutOfRangeException()
+				};
+				
 				Console.WriteLine("yo1");
 
 				if (result.Token == null)
 				{
 					logger.ZLogCritical("Couldn't connect as '{0}' user (via {1} method)", component.Data, component.Type);
-					return;
+					return none;
 				}
 
 				Console.WriteLine("yo3");
-				currentUserSystem.Set(new UserToken(result.Guid, result.Token));
+				return e => { currentUserSystem.Set(new (result.Guid, result.Token)); };
 			}
 		}
 	}

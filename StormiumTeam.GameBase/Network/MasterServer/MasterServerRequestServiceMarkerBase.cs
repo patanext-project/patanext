@@ -25,7 +25,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 
 		protected virtual bool ManageCallerStatus => false;
 
-		protected abstract Task OnUnprocessedRequest(TEntity entity, RequestCallerStatus callerStatus);
+		protected abstract Task<Action<TEntity>> OnUnprocessedRequest(TEntity entity, RequestCallerStatus callerStatus);
 	}
 
 	public abstract class MasterServerRequestServiceMarkerDefaultEcs<TService, TRequestComponent> : MasterServerRequestServiceMarkerBase<TService, Entity, TRequestComponent>
@@ -57,7 +57,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			{
 				TaskScheduler.StartUnwrap(() => ProcessRequest(entity));
 			}
-			
+
 			unprocessedEntitySet.Set<InProcess<TRequestComponent>>();
 		}
 
@@ -67,13 +67,38 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			    .Without<InProcess<TRequestComponent>>();
 		}
 
+		private struct PreviousTask
+		{
+			public int Generation;
+			public int Completed;
+		}
+
 		private async Task ProcessRequest(Entity entity)
 		{
+			if (false == entity.Has<PreviousTask>())
+				entity.Set<PreviousTask>();
+
+			var previousTask = entity.Get<PreviousTask>();
+			var next         = new PreviousTask {Generation = previousTask.Generation + 1, Completed = previousTask.Completed};
+			entity.Set(next);
+
 			var type = RequestCallerStatus.DestroyCaller;
 			if (!entity.Has<UntrackedRequest>())
 				type = RequestCallerStatus.KeepCaller;
 
-			await OnUnprocessedRequest(entity, type);
+			var task   = OnUnprocessedRequest(entity, type);
+			var action = await task;
+			if (!entity.IsAlive)
+				return;
+			
+			if (next.Generation > entity.Get<PreviousTask>().Completed)
+			{
+				var current = entity.Get<PreviousTask>();
+				entity.Set(new PreviousTask {Generation = current.Generation, Completed = next.Generation});
+
+				action(entity);
+			}
+
 			if (false == ManageCallerStatus && type == RequestCallerStatus.DestroyCaller)
 				entity.Dispose();
 			else

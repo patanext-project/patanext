@@ -6,34 +6,35 @@ using PataNext.Module.Simulation.GameModes.InBasement;
 
 namespace PataNext.Module.Simulation.Systems.GhRpc
 {
-	public class SwitchAuthorityRpc : RpcCommandSystem
+	public struct SwitchAuthorityRpc : IGameHostRpcPacket
 	{
-		public SwitchAuthorityRpc(WorldCollection collection) : base(collection)
-		{
-		}
+		public string AuthorityType { get; set; }
 
-		public override string CommandId => "authority";
-		protected override void   OnReceiveRequest(GameHostCommandResponse response)
+		public class System : RpcPacketSystem<SwitchAuthorityRpc>
 		{
-			var request = response.Data.Length > 0 ? response.Data.ReadString() : "client";
-			foreach (var listener in World.Mgr.Get<IListener>())
+			public System(WorldCollection collection) : base(collection)
 			{
-				if (listener is SimulationApplication simulationApplication)
+			}
+
+			public override string MethodName => "PataNext.Simulation.Tests.SwitchAuthority";
+
+			protected override void OnNotification(SwitchAuthorityRpc notification)
+			{
+				var request = string.IsNullOrEmpty(notification.AuthorityType) ? notification.AuthorityType : "client";
+				foreach (var listener in World.Mgr.Get<IListener>())
 				{
-					simulationApplication.Schedule(() =>
-					{						
-						if (simulationApplication.Data.Collection.TryGet(out AtCityGameModeSystem gameModeSystem))
+					if (listener is SimulationApplication simulationApplication)
+					{
+						simulationApplication.Schedule(() =>
 						{
-							gameModeSystem.SwitchAuthority(request);
-						}
-					}, default);
+							if (simulationApplication.Data.Collection.TryGet(out AtCityGameModeSystem gameModeSystem))
+							{
+								gameModeSystem.SwitchAuthority(request);
+							}
+						}, default);
+					}
 				}
 			}
-		}
-
-		protected override void   OnReceiveReply(GameHostCommandResponse   response)
-		{
-			
 		}
 	}
 }

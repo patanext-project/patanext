@@ -23,8 +23,18 @@ namespace PataNext.Export.Desktop
 	{
 		private static int currentVal;
 		
+		
+		[DllImport("kernel32.dll")]
+		static extern bool AttachConsole(int dwProcessId);
+		
 		static async Task Main(string[] args)
 		{
+			if (args.Contains("rider"))
+			{
+				// For some weird reasons, nothing is getting written to the console if we don't put that line?
+				AttachConsole(-1);
+			}
+
 			CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
 			var enableVisuals    = true;

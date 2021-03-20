@@ -125,6 +125,8 @@ namespace PataNext.Module.Simulation.Game.Hideout
 					var squadCount = response.Result.Squads.Length + additionalSquad;
 					for (var squadIdx = 0; squadIdx < Math.Max(ownedSquadBuffer.Count, squadCount); squadIdx++)
 					{
+						#region Squad creation/destruction
+
 						if (ownedSquadBuffer.Count <= squadIdx)
 						{
 							// Create squad
@@ -140,18 +142,16 @@ namespace PataNext.Module.Simulation.Game.Hideout
 
 							GameWorld.AddComponent(squadEntity, AsComponentType<OwnedRelative<ArmyUnitDescription>>());
 
-							if ((ELocalSquadType) squadIdx >= ELocalSquadType.SquadTate)
+							if ((ELocalSquadType) squadIdx != ELocalSquadType.UberHero)
 							{
-								GameWorld.AddComponent(squadEntity, new SquadTargetOffset()
+								GameWorld.AddComponent(squadEntity, new InGameSquadIndexFromCenter((ELocalSquadType) squadIdx switch
 								{
-									Value = (ELocalSquadType) squadIdx switch
-									{
-										ELocalSquadType.SquadTate => +3,
-										ELocalSquadType.SquadYari => 0,
-										ELocalSquadType.SquadYumi => -3,
-										_ => throw new ArgumentOutOfRangeException(nameof(squadIdx))
-									}
-								});
+									ELocalSquadType.SquadTate => 2,
+									ELocalSquadType.SquadYari => 1,
+									ELocalSquadType.SquadYumi => -1,
+									ELocalSquadType.Hatapon => 0,
+									_ => throw new ArgumentOutOfRangeException(nameof(squadIdx))
+								}));
 							}
 
 							ownedSquadBuffer.Add(new(Safe(squadEntity)));
@@ -184,6 +184,10 @@ namespace PataNext.Module.Simulation.Game.Hideout
 								Soldiers = Array.Empty<string>()
 							};
 
+						#endregion
+
+						#region Unit Management in Squad
+
 						var unitBuffer = squadFocus.GetBuffer<OwnedRelative<ArmyUnitDescription>>()
 						                           .Reinterpret<GameEntity>();
 
@@ -214,6 +218,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitArchetype>());
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitCurrentKit>());
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitStatistics>());
+								GameWorld.AddComponent(unitEntity, AsComponentType<UnitIndexInSquad>());
 
 								unitBuffer.Add(Safe(unitEntity));
 
@@ -229,8 +234,14 @@ namespace PataNext.Module.Simulation.Game.Hideout
 								continue;
 							}
 
-							GameWorld.AddComponent(unitBuffer[unitIdx].Handle, new MasterServerControlledUnitData(unitIdx == 0 ? squadData.Leader : squadData.Soldiers[unitIdx - 1]));
+							var unitFocus = Focus(unitBuffer[unitIdx]);
+							unitFocus.AddData(new MasterServerControlledUnitData(unitIdx == 0 ? squadData.Leader : squadData.Soldiers[unitIdx - 1]))
+							         // Make sure that UberHero and Hatapon is the first in their squad.
+							         // The Uberhero will share the same squad that correspond to the other 
+							         .AddData(new UnitIndexInSquad((ELocalSquadType) squadIdx < ELocalSquadType.SquadTate ? 0 : unitIdx + 1));
 						}
+
+						#endregion
 					}
 
 					continuousRequest.Source.Disable<GetFormationRequest>();
@@ -239,6 +250,8 @@ namespace PataNext.Module.Simulation.Game.Hideout
 			}
 		}
 	}
+
+	#region Components
 
 	public struct LocalArmyFormation : IComponentData
 	{
@@ -269,4 +282,6 @@ namespace PataNext.Module.Simulation.Game.Hideout
 
 		public LocalSquadType(ELocalSquadType value) => Value = value;
 	}
+
+	#endregion
 }

@@ -24,12 +24,12 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 			{
 			}
 
-			protected override async Task OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				Debug.Assert(Service != null, "Service != null");
-				
+
 				var result = await Service.GetFormation(entity.Get<GetFormationRequest>().SaveId);
-				entity.Set(new Response {Result = result});
+				return e => e.Set(new Response {Result = result});
 			}
 		}
 	}
