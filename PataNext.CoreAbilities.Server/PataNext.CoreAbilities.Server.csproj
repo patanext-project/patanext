@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>9</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
+      <ProjectReference Include="..\PataNext.CoreAbilities.Mixed\PataNext.CoreAbilities.Mixed.csproj" />
+      <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
+      <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <!-- When building, they should share the same OutDir! -->
+        <Exec Command="copy &quot;$(OutDir)PataNext.CoreAbilities.Server.dll&quot; &quot;$(SolutionDir)PataNext.Export.Desktop\$(OutDir)Modules\PataNext.CoreAbilities.Server.dll&quot;" />
+    </Target>
+
+</Project>

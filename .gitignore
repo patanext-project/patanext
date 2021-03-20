@@ -29,7 +29,6 @@ ExportedObj/
 .idea/
 idea/
 .consulo/
-*.csproj
 *.unityproj
 *.sln
 *.suo

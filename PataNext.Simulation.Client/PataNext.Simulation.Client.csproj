@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AssemblyName>PataNext.Simulation.Client</AssemblyName>
+        <RootNamespace>PataNext.Simulation.Client</RootNamespace>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\GameHost\GameHost.Audio\GameHost.Audio.csproj" />
+      <ProjectReference Include="..\..\..\GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
+      <ProjectReference Include="..\..\..\GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
+      <ProjectReference Include="..\..\..\GameHost\GameHost.Transports\GameHost.Transports.csproj" />
+      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
+      <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
+      <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Inputs\**\*" />
+    </ItemGroup>
+
+</Project>

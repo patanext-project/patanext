@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
+      <ProjectReference Include="..\PataNext.CoreAbilities.Mixed\PataNext.CoreAbilities.Mixed.csproj" />
+      <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
+      <ProjectReference Include="..\PataNext.Simulation.Client\PataNext.Simulation.Client.csproj" />
+      <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
+    </ItemGroup>
+
+</Project>

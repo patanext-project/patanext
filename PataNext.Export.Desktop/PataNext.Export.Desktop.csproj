@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <PackageVersion>2020.816.1709</PackageVersion>
+    <Title>PataNext</Title>
+    <Title>PataNext</Title>
+    <Authors>guerro</Authors>
+    <Description>Patapon-Like game.</Description>
+    <ApplicationIcon>game.ico</ApplicationIcon>
+    <ApplicationIcon>game.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyVersion>2020.816.1709</AssemblyVersion>
+    <AssemblyName>PataNext</AssemblyName>
+    <Product>PataNext</Product>
+    <PackageIconUrl>https://github.com/guerro323/patanext/blob/master/PataNext.Export.Desktop/game.ico</PackageIconUrl>
+    <LangVersion>9</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
+    <ProjectReference Include="..\..\..\GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
+    <ProjectReference Include="..\..\..\GameHost\GameHost.Transports\GameHost.Transports.csproj" />
+    <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
+    <ProjectReference Include="..\PataNext.CoreAbilities.Mixed\PataNext.CoreAbilities.Mixed.csproj" />
+    <ProjectReference Include="..\PataNext.CoreAbilities.Server\PataNext.CoreAbilities.Server.csproj" />
+    <ProjectReference Include="..\PataNext.Feature.RhythmEngineAudio\PataNext.Feature.RhythmEngineAudio.csproj" />
+    <ProjectReference Include="..\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
+    <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
+    <ProjectReference Include="..\PataNext.Simulation.Client.Abilities\PataNext.Simulation.Client.Abilities.csproj" />
+    <ProjectReference Include="..\PataNext.Simulation.Client\PataNext.Simulation.Client.csproj" />
+    <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
+  </ItemGroup>
+  <ItemGroup Label="Resources">
+    <EmbeddedResource Include="game.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DiscordRichPresence" Version="1.0.169" />
+    <PackageReference Include="Mono.Options" Version="6.6.0.161" />
+    <PackageReference Include="ppy.osu.Framework" Version="2020.1229.0" />
+    <PackageReference Include="ppy.squirrel.windows" Version="1.9.0.4" />
+    <PackageReference Include="SharpCompress" Version="0.22.0" />
+    <PackageReference Include="System.IO.Packaging" Version="5.0.0-preview.7.20364.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Discord\x86\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Discord\x86_64\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
