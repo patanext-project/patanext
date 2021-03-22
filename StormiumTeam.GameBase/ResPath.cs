@@ -68,6 +68,11 @@ namespace StormiumTeam.GameBase
             return Type == other.Type && Author == other.Author && ModPack == other.ModPack && Resource == other.Resource;
         }
 
+        public override string ToString()
+        {
+            return FullString;
+        }
+
         public enum EType
         {
             /// <summary>

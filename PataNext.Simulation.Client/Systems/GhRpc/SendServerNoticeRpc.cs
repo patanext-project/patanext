@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.RPC;
@@ -25,7 +26,7 @@ namespace PataNext.Module.Simulation.Systems.GhRpc
 
 			public override string MethodName => "PataNext.Tests.Notice";
 
-			protected override Response GetResponse(in SendServerNoticeRpc request)
+			protected override ValueTask<Response> GetResponse(SendServerNoticeRpc request)
 			{
 				using var set = World.Mgr.GetEntities()
 				                     .With<IListener>()
@@ -45,7 +46,7 @@ namespace PataNext.Module.Simulation.Systems.GhRpc
 					}
 				}
 
-				return new() {IsConnected = isConnected};
+				return WithResult(new() {IsConnected = isConnected});
 			}
 		}
 	}

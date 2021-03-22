@@ -42,4 +42,41 @@ namespace StormiumTeam.GameBase.Network.MasterServer.AssetService
 			}
 		}
 	}
+	
+	public struct GetAssetDetailsRequest
+	{
+		public string AssetGuid;
+
+		public GetAssetDetailsRequest(string assetGuid)
+		{
+			AssetGuid = assetGuid;
+		}
+
+		public struct Response
+		{
+			public ResPath ResPath;
+			public string  Name, Description;
+			public string  Type;
+		}
+
+		public class Process : MasterServerRequestService<IViewableAssetService, GetAssetPointerRequest>
+		{
+			public Process([NotNull] WorldCollection collection) : base(collection)
+			{
+			}
+
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			{
+				var result = await Service.GetDetails(entity.Get<GetAssetPointerRequest>().AssetGuid);
+
+				return e => e.Set(new Response
+				{
+					ResPath     = new(ResPath.EType.MasterServer, result.Pointer.Author, result.Pointer.Mod, result.Pointer.Author),
+					Name        = result.Name,
+					Description = result.Description,
+					Type        = result.Type
+				});
+			}
+		}
+	}
 }

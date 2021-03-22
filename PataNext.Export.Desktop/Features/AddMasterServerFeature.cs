@@ -39,8 +39,29 @@ namespace PataNext.Export.Desktop
 			{
 				if (string.IsNullOrEmpty(curr.Value.Token))
 					return;
-				
-				RequestUtility.CreateTracked(World.Mgr, new ListGameSaveRequest(), (Entity _, ListGameSaveRequest.Response response) =>
+
+
+				taskScheduler.StartUnwrap(async () =>
+				{
+					for (var i = 0; i < 1; i++)
+					{
+						var request  = RequestUtility.New(World.Mgr, new GetInventoryRequest(new[] {"equipment"}));
+						var response = await request.GetAsync<GetInventoryRequest.Response>();
+
+						var str = "ITEMS:";
+						foreach (var id in response.ItemIds)
+						{
+							var itemDetailsRequest = RequestUtility.New(World.Mgr, new GetItemDetailsRequest(id));
+							var detailsResponse    = await itemDetailsRequest.GetAsync<GetItemDetailsRequest.Response>();
+							
+							str += $"\n\t{id} ({detailsResponse.ResPath}, {detailsResponse.Type}) --> {detailsResponse.Name}";
+						}
+
+						Console.WriteLine(str);
+					}
+				});
+
+				/*RequestUtility.CreateTracked(World.Mgr, new ListGameSaveRequest(), (Entity _, ListGameSaveRequest.Response response) =>
 				{
 					foreach (var saveId in response.Results)
 					{
@@ -104,7 +125,7 @@ namespace PataNext.Export.Desktop
 							});
 						});
 					});
-				});
+				});*/
 			});
 		}
 	}

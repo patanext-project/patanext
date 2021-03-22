@@ -93,6 +93,8 @@ namespace PataNext.Module.Simulation
 			inject<Network.MasterServer.Services.GetUnitPresetAbilitiesRequest.Process>();
 
 			inject<Network.MasterServer.Services.GetItemAssetPointerRequest.Process>();
+			inject<Network.MasterServer.Services.GetItemDetailsRequest.Process>();
+			inject<Network.MasterServer.Services.GetInventoryRequest.Process>();
 		}
 
 		private void InjectFreeRoamSystems(SimulationApplication app)
