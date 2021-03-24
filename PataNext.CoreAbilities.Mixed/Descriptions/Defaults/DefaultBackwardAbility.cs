@@ -9,6 +9,7 @@ using PataNext.CoreAbilities.Mixed.Subset;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using StormiumTeam.GameBase;
 
 namespace PataNext.CoreAbilities.Mixed.Defaults
 {
@@ -26,7 +27,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 
 	public class DefaultBackwardAbilityProvider : BaseRuntimeRhythmAbilityProvider<DefaultBackwardAbility>
 	{
-		public override string MasterServerId => "backward";
+		public override string MasterServerId => resPath.Create(new [] { "ability", "default", "backward" }, ResPath.EType.MasterServer);
 
 		public DefaultBackwardAbilityProvider(WorldCollection collection) : base(collection)
 		{

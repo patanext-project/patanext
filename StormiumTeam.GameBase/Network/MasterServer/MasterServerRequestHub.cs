@@ -10,9 +10,11 @@ using StormiumTeam.GameBase.Network.MasterServer.Utility;
 
 namespace StormiumTeam.GameBase.Network.MasterServer
 {
-	public abstract class MasterServerRequestHub<THub, TReceiver, TRequestComponent> : MasterServerRequestServiceMarkerDefaultEcs<THub, TRequestComponent>
+	public abstract class MasterServerRequestHub<THub, TReceiver, TRequestComponent> : MasterServerRequestServiceMarkerDefaultEcs<TRequestComponent>
 		where THub : class, IStreamingHub<THub, TReceiver>
 	{
+		public THub? Service { get; protected set; }
+		
 		private HubClientConnectionCache<THub, TReceiver> client;
 
 		protected MasterServerRequestHub([NotNull] WorldCollection collection) : base(collection)
@@ -35,6 +37,11 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			base.OnFeatureRemoved(entity, obj);
 
 			Service = null!;
+		}
+
+		public override bool CanUpdate()
+		{
+			return base.CanUpdate() && Service is not null;
 		}
 	}
 }

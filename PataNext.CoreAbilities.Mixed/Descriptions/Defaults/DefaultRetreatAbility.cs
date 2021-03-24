@@ -8,6 +8,7 @@ using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using StormiumTeam.GameBase;
 
 namespace PataNext.CoreAbilities.Mixed.Defaults
 {
@@ -42,7 +43,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 		{
 		}
 
-		public override string MasterServerId => "retreat";
+		public override string MasterServerId => resPath.Create(new [] { "ability", "default", "retreat" }, ResPath.EType.MasterServer);
 
 		public override ComponentType GetChainingCommand()
 		{

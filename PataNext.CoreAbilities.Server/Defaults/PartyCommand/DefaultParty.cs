@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
@@ -19,11 +20,11 @@ namespace PataNext.CoreAbilities.Server.PartyCommand
 		private IManagedWorldTime          worldTime;
 		private ExecuteActiveAbilitySystem executeActiveAbility;
 
-		private PooledList<ComponentReference> statusStateRefs;
+		private readonly ThreadLocal<PooledList<ComponentReference>> statusStateRefs;
 
 		public DefaultParty(WorldCollection collection) : base(collection)
 		{
-			AddDisposable(statusStateRefs = new());
+			AddDisposable(statusStateRefs = new(() => new ()));
 			
 			DependencyResolver.Add(() => ref worldTime);
 			DependencyResolver.Add(() => ref executeActiveAbility);
@@ -65,10 +66,12 @@ namespace PataNext.CoreAbilities.Server.PartyCommand
 			}
 			else
 				ability.TickProgression = default;
+
+			var refs = statusStateRefs.Value;
 			
-			statusStateRefs.Clear();
-			GameWorld.GetComponentOf(owner.Handle, AsComponentType<StatusEffectStateBase>(), statusStateRefs);
-			foreach (var componentReference in statusStateRefs)
+			refs.Clear();
+			GameWorld.GetComponentOf(owner.Handle, AsComponentType<StatusEffectStateBase>(), refs);
+			foreach (var componentReference in refs)
 			{
 				ref var statusState = ref GameWorld.GetComponentData<StatusEffectStateBase>(componentReference);
 

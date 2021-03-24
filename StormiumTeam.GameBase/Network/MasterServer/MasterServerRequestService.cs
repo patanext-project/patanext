@@ -33,9 +33,11 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 
 	}
 
-	public abstract class MasterServerRequestService<TService, TRequestComponent> : MasterServerRequestServiceMarkerDefaultEcs<TService, TRequestComponent>
+	public abstract class MasterServerRequestService<TService, TRequestComponent> : MasterServerRequestServiceMarkerDefaultEcs<TRequestComponent>
 		where TService : class, IService<TService>
 	{
+		public TService? Service { get; protected set; }
+		
 		public MasterServerRequestService(WorldCollection collection) : base(collection)
 		{
 		}
@@ -48,6 +50,11 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 		protected override void OnFeatureRemoved(Entity entity, MasterServerFeature obj)
 		{
 			Service = null!;
+		}
+
+		public override bool CanUpdate()
+		{
+			return base.CanUpdate() && Service is not null;
 		}
 	}
 }

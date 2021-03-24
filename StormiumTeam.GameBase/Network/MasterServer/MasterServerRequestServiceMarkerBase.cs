@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DefaultEcs;
@@ -8,28 +9,28 @@ using GameHost.Core.Features.Systems;
 using GameHost.Utility;
 using MagicOnion;
 using MagicOnion.Client;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace StormiumTeam.GameBase.Network.MasterServer
 {
-	public abstract class MasterServerRequestServiceMarkerBase<TService, TEntity, TRequestComponent> : AppSystemWithFeature<MasterServerFeature>
-		where TService : class, IServiceMarker
+	public abstract class MasterServerRequestServiceMarkerBase<TEntity, TRequestComponent> : AppSystemWithFeature<MasterServerFeature>
 	{
 		protected TaskScheduler TaskScheduler = null!;
+		protected ILogger       Logger;
 
 		public MasterServerRequestServiceMarkerBase(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref TaskScheduler);
+			DependencyResolver.Add(() => ref Logger);
 		}
-
-		public TService? Service { get; protected set; }
-
+		
 		protected virtual bool ManageCallerStatus => false;
 
 		protected abstract Task<Action<TEntity>> OnUnprocessedRequest(TEntity entity, RequestCallerStatus callerStatus);
 	}
 
-	public abstract class MasterServerRequestServiceMarkerDefaultEcs<TService, TRequestComponent> : MasterServerRequestServiceMarkerBase<TService, Entity, TRequestComponent>
-		where TService : class, IServiceMarker
+	public abstract class MasterServerRequestServiceMarkerDefaultEcs<TRequestComponent> : MasterServerRequestServiceMarkerBase<Entity, TRequestComponent>
 	{
 		private EntitySet unprocessedEntitySet = null!;
 
@@ -47,16 +48,21 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			unprocessedEntitySet = ruleBuilder.AsSet();
 		}
 
+		private List<SameThreadTaskScheduler> schedulers = new();
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
-			if (Service is null)
-				return;
 
 			foreach (var entity in unprocessedEntitySet.GetEntities())
 			{
-				TaskScheduler.StartUnwrap(() => ProcessRequest(entity));
+				var e = entity;
+				SameThreadTaskScheduler s;
+				schedulers.Add(s = new());
+				TaskScheduler.StartUnwrap(() => ProcessRequest(e));
 			}
+			
+			foreach (var s in schedulers)
+				s.Execute();
 
 			unprocessedEntitySet.Set<InProcess<TRequestComponent>>();
 		}
@@ -86,8 +92,20 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			if (!entity.Has<UntrackedRequest>())
 				type = RequestCallerStatus.KeepCaller;
 
-			var task   = OnUnprocessedRequest(entity, type);
-			var action = await task;
+			Action<Entity> action;
+			try
+			{
+				var task = OnUnprocessedRequest(entity, type);
+				action = await task;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("allo");
+				
+				Logger.ZLogCritical(ex, "On " + entity);
+				return;
+			}
+
 			if (!entity.IsAlive)
 				return;
 			

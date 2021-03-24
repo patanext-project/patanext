@@ -8,6 +8,7 @@ using GameHost.Simulation.TabEcs.Interfaces;
 using JetBrains.Annotations;
 using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using StormiumTeam.GameBase;
 
 namespace PataNext.CoreAbilities.Mixed.Defaults
 {
@@ -31,7 +32,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 		{
 		}
 
-		public override string MasterServerId => "charge";
+		public override string MasterServerId => resPath.Create(new [] { "ability", "default", "charge" }, ResPath.EType.MasterServer);
 
 		public override ComponentType GetChainingCommand()
 		{

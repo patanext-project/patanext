@@ -13,6 +13,7 @@ using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Network.MasterServer.Services;
+using PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Systems;
 using StormiumTeam.GameBase;
@@ -105,9 +106,12 @@ namespace PataNext.Module.Simulation.Game.Hideout
 					var sourceGuid = getUnitDetailsResponse.Result.HardPresetId;
 
 					presetRequest = World.Mgr.CreateEntity();
-					presetRequest.Set(new GetUnitPresetDetailsRequest(sourceGuid));
+					presetRequest.Set(new GetAndSetFullUnitsPresetDetailsRequest {GameEntity = focus, SourceGuid = sourceGuid});
+					/*presetRequest.Set(new GetUnitPresetDetailsRequest(sourceGuid));
 					presetRequest.Set(new GetUnitPresetEquipmentsRequest(sourceGuid));
-					presetRequest.Set(new GetUnitPresetAbilitiesRequest(sourceGuid));
+					presetRequest.Set(new GetUnitPresetAbilitiesRequest(sourceGuid));*/
+
+					Console.WriteLine($"Sending request {presetRequest} for {focus.Entity}");
 
 					unitRequest.Remove<GetUnitDetailsRequest.Response>();
 
@@ -123,7 +127,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 				else
 					continue;
 
-				if (presetRequest.TryGet(out GetUnitPresetDetailsRequest.Response getPresetDetailsResponse))
+				/*if (presetRequest.TryGet(out GetUnitPresetDetailsRequest.Response getPresetDetailsResponse))
 				{
 					Console.WriteLine("received getPresetDetailsResponse");
 					
@@ -139,9 +143,9 @@ namespace PataNext.Module.Simulation.Game.Hideout
 					});
 
 					presetRequest.Remove<GetUnitPresetDetailsRequest.Response>();
-				}
+				}*/
 
-				if (presetRequest.TryGet(out GetUnitPresetEquipmentsRequest.Response getPresetEquipmentsResponse))
+				/*if (presetRequest.TryGet(out GetUnitPresetEquipmentsRequest.Response getPresetEquipmentsResponse))
 				{
 					var equipBuffer = GetBuffer<UnitDisplayedEquipment>(unitHandle);
 					equipBuffer.Clear();
@@ -164,9 +168,9 @@ namespace PataNext.Module.Simulation.Game.Hideout
 					}
 
 					presetRequest.Remove<GetUnitPresetEquipmentsRequest.Response>();
-				}
+				}*/
 				
-				if (presetRequest.TryGet(out GetUnitPresetAbilitiesRequest.Response getPresetAbilitiesResponse))
+				/*if (presetRequest.TryGet(out GetUnitPresetAbilitiesRequest.Response getPresetAbilitiesResponse))
 				{
 					var abilityBuffer = GetBuffer<UnitDefinedAbilities>(unitHandle);
 					abilityBuffer.Clear();
@@ -196,7 +200,9 @@ namespace PataNext.Module.Simulation.Game.Hideout
 					}
 
 					presetRequest.Remove<GetUnitPresetAbilitiesRequest.Response>();
-				}
+				}*/
+				
+				
 			}
 
 			initScheduler.Run();

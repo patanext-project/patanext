@@ -95,6 +95,9 @@ namespace PataNext.Module.Simulation
 			inject<Network.MasterServer.Services.GetItemAssetPointerRequest.Process>();
 			inject<Network.MasterServer.Services.GetItemDetailsRequest.Process>();
 			inject<Network.MasterServer.Services.GetInventoryRequest.Process>();
+			
+			// Full Fledged systems
+			inject<Network.MasterServer.Services.FullFledged.GetAndSetFullUnitsPresetDetailsRequest.Process>();
 		}
 
 		private void InjectFreeRoamSystems(SimulationApplication app)

@@ -14,6 +14,7 @@ using PataNext.Module.Simulation.BaseSystems;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Roles.Components;
 
 namespace PataNext.CoreAbilities.Mixed.Defaults
@@ -78,7 +79,7 @@ namespace PataNext.CoreAbilities.Mixed.Defaults
 		{
 		}
 
-		public override string MasterServerId => "party";
+		public override string MasterServerId => resPath.Create(new [] { "ability", "default", "party" }, ResPath.EType.MasterServer);
 
 		public override ComponentType GetChainingCommand()
 		{
