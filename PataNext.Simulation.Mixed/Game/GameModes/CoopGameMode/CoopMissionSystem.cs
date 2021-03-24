@@ -142,7 +142,7 @@ namespace PataNext.Module.Simulation.GameModes
 				GetComponentData<RhythmEngineController>(rhythmEntity) = new RhythmEngineController
 				{
 					State     = RhythmEngineState.Playing,
-					StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(3))
+					StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(1))
 				};
 			}
 			

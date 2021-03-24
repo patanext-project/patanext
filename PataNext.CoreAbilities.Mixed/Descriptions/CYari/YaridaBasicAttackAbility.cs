@@ -42,7 +42,7 @@ namespace PataNext.CoreAbilities.Mixed.CYari
         }
 
         protected override string FilePathPrefix => "yari";
-        public override    string MasterServerId => resPath.GetAbility("yari", "def_atk");
+        public override    string MasterServerId => resPath.GetAbility("yarida", "default_attack");
 
         public override void GetComponents(PooledList<ComponentType> entityComponents)
         {

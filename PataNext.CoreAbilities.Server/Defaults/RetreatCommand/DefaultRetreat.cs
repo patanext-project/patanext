@@ -114,8 +114,11 @@ namespace PataNext.CoreAbilities.Server.Defaults.RetreatCommand
 
 			// there is a little stop when the character is stopping retreating
 			if (ability.ActiveTime >= DefaultRetreatAbility.StopTime && ability.ActiveTime <= walkbackTime)
+			{
 				// if he weight more, he will stop faster
 				velocity.X = MathUtils.LerpNormalized(velocity.X, 0, playState.Weight * 0.25f * dt);
+				Console.WriteLine("STOOOOP " + playState.Weight);
+			}
 
 			if (!ability.IsRetreating && ability.ActiveTime > walkbackTime)
 			{

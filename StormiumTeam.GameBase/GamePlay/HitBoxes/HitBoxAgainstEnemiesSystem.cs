@@ -128,6 +128,7 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 							AddComponent(ev, new SystemEvent());
 						}, (entity, enemy, result), default);
 
+						Console.WriteLine("add " + enemy.Value);
 						if (historyBuffer.IsCreated)
 							historyBuffer.Add(new HitBoxHistory(enemy.Value, result.Position, result.Normal));
 					}

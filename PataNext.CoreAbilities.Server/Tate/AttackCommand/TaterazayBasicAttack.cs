@@ -45,9 +45,13 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
             ref readonly var position   = ref GetComponentData<Position>(owner).Value;
             ref readonly var statistics = ref GetComponentData<UnitStatistics>(owner);
             ref readonly var playState  = ref GetComponentData<UnitPlayState>(owner);
-
-            GameWorld.RemoveComponent(self.Handle, AsComponentType<HitBox>());
+            
             GetBuffer<HitBoxHistory>(self).Clear();
+
+            if (HasComponent<HitBox>(self))
+            {
+                execute.Post.Schedule(handle => GameWorld.RemoveComponent(handle, AsComponentType<HitBox>()), self.Handle, default);
+            }
 
             if (!state.IsActiveOrChaining)
             {
@@ -65,18 +69,25 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
 
                 if (abilityState.CanAttackThisFrame(abilitySettings, worldTime.Total, TimeSpan.FromSeconds(playState.AttackSpeed)))
                 {
-                    using var entitySettings = World.Mgr.CreateEntity();
-                    entitySettings.Set<Shape>(new PolygonShape(meleeRange + 0.2f, meleeRange * 0.5f));
+                    Console.WriteLine("start!");
+                    execute.Post.Schedule(() =>
+                    {
+                        Console.WriteLine("slash!");
+                        
+                        using var entitySettings = World.Mgr.CreateEntity();
+                        entitySettings.Set<Shape>(new PolygonShape(meleeRange + 0.2f, meleeRange * 0.5f));
 
-                    physicsSystem.AssignCollider(self.Handle, entitySettings);
+                        physicsSystem.AssignCollider(self.Handle, entitySettings);
 
-                    // attack code
-                    AddComponent(self, new HitBox(owner, default));
+                        // attack code
+                        AddComponent(self, new HitBox(owner, default));
+
+                        setStatusHelper.Set(owner.Handle, self.Handle);                        
+                    }, default);
+                    
                     GetComponentData<Position>(self).Value       = position + new Vector3(0, meleeRange * 0.5f, 0);
                     GetComponentData<DamageFrameData>(self)      = new DamageFrameData(playState);
                     GetComponentData<HitBoxAgainstEnemies>(self) = new HitBoxAgainstEnemies(GetComponentData<Relative<TeamDescription>>(owner).Target);
-
-                    setStatusHelper.Set(owner.Handle, self.Handle);
                 }
             }
             else if (state.IsChaining)

@@ -12,6 +12,7 @@ using GameHost.Utility;
 using GameHost.Worlds;
 using PataNext.Game.Abilities;
 using PataNext.Game.BGM;
+using PataNext.Game.GameItems;
 using StormiumTeam.GameBase;
 using Module = PataNext.Game.Module;
 
@@ -28,6 +29,19 @@ namespace PataNext.Game
 			AppSystemResolver.ResolveFor<SimulationApplication>(GetType().Assembly, systems);
 
 			global.Context.BindExisting(DefaultEntity<ResPathDefaults>.Create(global.World, new() {Author = "st", ModPack = "pn"}));
+
+			Storage.Subscribe((_, exteriorStorage) =>
+			{
+				var storage = exteriorStorage switch
+				{
+					{ } => new StorageCollection {exteriorStorage, DllStorage},
+					null => new StorageCollection {DllStorage}
+				};
+
+				var itemStorage = storage.GetOrCreateDirectoryAsync("items").Result;
+				
+				global.Context.BindExisting(new EquipmentItemMetadataStorage(itemStorage.GetOrCreateDirectoryAsync("equipments").Result));
+			}, true);
 
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{

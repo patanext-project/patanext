@@ -60,21 +60,12 @@ namespace PataNext.Module.Simulation.GameModes
 						var target       = GetComponentData<Relative<UnitTargetDescription>>(player).Target;
 						var rhythmEngine = GetComponentData<Relative<RhythmEngineDescription>>(player).Target;
 
-						var runtimeUnit = unitProvider.SpawnEntityWithArguments(new CoopMissionPlayableUnitProvider.Create
+						var runtimeUnit = unitProvider.SpawnEntityWithArguments(new()
 						{
-							Base = new PlayableUnitProvider.Create
+							Base = new()
 							{
 								Direction = UnitDirection.Right,
-								Statistics = new UnitStatistics
-								{
-									MovementAttackSpeed = 2,
-									BaseWalkSpeed       = 2,
-									FeverWalkSpeed      = 2.5f,
-									AttackSeekRange     = 20f,
-									AttackSpeed         = 0.8f,
-									AttackMeleeRange    = 2f,
-									Attack              = 15
-								}
+								Statistics = GetComponentData<UnitStatistics>(ownedUnit.Target)
 							},
 							Team         = playerTeam,
 							Player       = player,

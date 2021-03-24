@@ -127,7 +127,7 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 		}
 
 		protected override string FilePathPrefix => "tate";
-		public override    string MasterServerId => resPath.Create(new[] {"ability", "tate", "def_atk"}, ResPath.EType.MasterServer);
+		public override    string MasterServerId => resPath.Create(new[] {"ability", "taterazay", "default_attack"}, ResPath.EType.MasterServer);
 
 		public override ComponentType GetChainingCommand()
 		{

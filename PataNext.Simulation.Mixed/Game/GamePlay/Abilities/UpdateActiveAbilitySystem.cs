@@ -195,6 +195,11 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 							var commandPriority     = commands.Combos.GetLength();
 							var commandPriorityType = (int) activation.Type;
 
+							// Accept this ability if:
+							// - The request chaining command is the command we're currently executing on the Rhythm Engine
+							// - The required combo (eg: Pon-Chaka) was done previously
+							// - No ability was previously selected or the selected one has a lower priority than the one we are suggesting
+							// - The selection match the ability selection or no ability was previously selected and we for now use an ability that is bind to the Middle/Horizontal selection
 							if (commands.Chaining == executingCommand.CommandTarget
 							    && isComboIdentical(commands.Combos, activeSelf.CurrentCombo)
 							    && (activeSelf.Incoming == default || activeSelf.Incoming != default && ((priority < commandPriority && priorityType == commandPriorityType) || priorityType < commandPriorityType))

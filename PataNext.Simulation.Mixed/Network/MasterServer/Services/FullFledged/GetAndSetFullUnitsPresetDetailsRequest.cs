@@ -131,6 +131,11 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 					displayedEquipments.Clear();
 					displayedEquipments.AddRange(equipmentFinal);
 
+					var definedEquipments = target.GetBuffer<UnitDefinedEquipments>();
+					definedEquipments.Clear();
+					definedEquipments.Reinterpret<UnitDisplayedEquipment>()
+					                 .AddRange(equipmentFinal);
+
 					var definedAbilities = target.GetBuffer<UnitDefinedAbilities>();
 					definedAbilities.Clear();
 					definedAbilities.AddRange(CollectionsMarshal.AsSpan(abilityList));

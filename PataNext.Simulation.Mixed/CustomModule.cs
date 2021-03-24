@@ -336,6 +336,7 @@ namespace PataNext.Module.Simulation
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.SetLocalArmyFormationSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateMasterServerUnitSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateArmyUnitStatisticsSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.GenerateDamageRequestSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyDefensiveBonusesSystem));

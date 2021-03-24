@@ -13,6 +13,12 @@ namespace PataNext.Module.Simulation.Components.Units
 		public GameResource<UnitAttachmentResource> Attachment;
 		public GameResource<EquipmentResource>      Resource;
 
+		public UnitDisplayedEquipment(GameResource<UnitAttachmentResource> attachment, GameResource<EquipmentResource> resource)
+		{
+			Attachment = attachment;
+			Resource   = resource;
+		}
+		
 		public class Register : RegisterGameHostComponentBuffer<UnitDisplayedEquipment>
 		{
 		}
@@ -49,6 +55,19 @@ namespace PataNext.Module.Simulation.Components.Units
 						keep[idx] = true;
 				}
 			}
+		}
+	}
+
+	// it's like DisplayedEquipment, but with stats modification
+	public struct UnitDefinedEquipments : IComponentBuffer
+	{
+		public GameResource<UnitAttachmentResource> Attachment;
+		public GameResource<EquipmentResource>      Resource;
+		
+		public UnitDefinedEquipments(GameResource<UnitAttachmentResource> attachment, GameResource<EquipmentResource> resource)
+		{
+			Attachment = attachment;
+			Resource   = resource;
 		}
 	}
 }
