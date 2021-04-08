@@ -7,7 +7,7 @@ using GameHost.Utility;
 
 namespace StormiumTeam.GameBase
 {
-    public struct ResPath
+    public struct ResPath : IEquatable<ResPath>
     {
         public readonly EType  Type;
         public readonly string Author;
@@ -58,7 +58,7 @@ namespace StormiumTeam.GameBase
             return obj is ResPath resPath && Equals(resPath);
         }
 
-        public readonly bool Equals(in ResPath other)
+        public readonly bool Equals(ResPath other)
         {
             return Author == other.Author && ModPack == other.ModPack && Resource == other.Resource;
         }
@@ -148,6 +148,11 @@ namespace StormiumTeam.GameBase
         public static string Create(string author, string modPack, string[] resourceDeepness, EType type)
         {
             return Create(author, modPack, string.Join('/', resourceDeepness), type);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Author, ModPack, Resource);
         }
     }
 

@@ -22,11 +22,14 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 
 		private EntityQuery teamQuery;
 		private EntityQuery seekerMask;
+		private EntityQuery targetMask;
 
 		public void OnSimulationUpdate()
 		{
 			seekerMask ??= CreateEntityQuery(new[] {typeof(Position), typeof(UnitEnemySeekingState)});
+			targetMask ??= CreateEntityQuery(new[] {typeof(Position), typeof(LivableHealth)}); // anything that has health and a position is target
 			seekerMask.CheckForNewArchetypes();
+			targetMask.CheckForNewArchetypes();
 
 			var positionAccessor     = GetAccessor<Position>();
 			var seekingStateAccessor = GetAccessor<UnitEnemySeekingState>();
@@ -63,6 +66,9 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 						var enmEntCount       = enemyEntityBuffer.Count;
 						for (var enmEnt = 0; enmEnt < enmEntCount; enmEnt++)
 						{
+							if (!targetMask.MatchAgainst(enemyEntityBuffer[enmEnt].Handle))
+								continue;
+							
 							if (HasComponent<LivableIsDead>(enemyEntityBuffer[enmEnt].Handle)
 							    || HasComponent<UnitTargetDescription>(enemyEntityBuffer[enmEnt].Handle))
 								continue;

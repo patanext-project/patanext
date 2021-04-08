@@ -79,8 +79,13 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 	public struct GetInventoryRequest
 	{
 		public string[] AssetTypes;
+		public string   SaveId;
 
-		public GetInventoryRequest(string[] assetTypes) => AssetTypes = assetTypes;
+		public GetInventoryRequest(string saveId, string[] assetTypes)
+		{
+			SaveId     = saveId;
+			AssetTypes = assetTypes;
+		}
 
 		public struct Response
 		{
@@ -95,7 +100,8 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 
 			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
-				var result = await Service.GetInventory(entity.Get<GetInventoryRequest>().AssetTypes);
+				var req    = entity.Get<GetInventoryRequest>();
+				var result = await Service.GetInventory(req.SaveId, req.AssetTypes);
 				return e => e.Set(new Response
 				{
 					ItemIds = result

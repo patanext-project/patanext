@@ -32,6 +32,7 @@ using StormiumTeam.GameBase.GamePlay.Events;
 using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.GamePlay.Health.Providers;
 using StormiumTeam.GameBase.Network.Authorities;
+using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.Transform.Components;
@@ -187,9 +188,25 @@ namespace PataNext.Module.Simulation.GameModes
 			
 			foreach (var handle in livableQuery ??= CreateEntityQuery(new [] {typeof(LivableHealth)}, none: new [] {typeof(LivableIsDead)}))
 			{
-				var health = GetComponentData<LivableHealth>(handle); 
+				var health = GetComponentData<LivableHealth>(handle);
 				if (health.Value == 0 && health.Max > 0)
+				{
 					addList.Add(handle);
+
+					if (TryGetComponentData(handle, out Velocity velocity) && TryGetComponentData(handle, out UnitDirection direction))
+					{
+						if (velocity.Value.X > direction.Value)
+							velocity.Value.X = direction.Value;
+						
+						velocity.Value.X -= direction.Value * 7f;
+
+						if (velocity.Value.Y < 0)
+							velocity.Value.Y = 0;
+						velocity.Value.Y += 5.5f;
+
+						GetComponentData<Velocity>(handle) = velocity;
+					}
+				}
 			}
 
 			while (addList.Count > 0)

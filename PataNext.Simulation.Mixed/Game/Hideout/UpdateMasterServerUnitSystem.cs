@@ -81,8 +81,6 @@ namespace PataNext.Module.Simulation.Game.Hideout
 				AddComponent(ent, new UnitRequestManager {Source   = unitRequest});
 				AddComponent(ent, new Initialized());
 
-				Console.WriteLine("poggers");
-
 				GameWorld.AssureComponents(ent, new[]
 				{
 					AsComponentType<UnitDisplayedEquipment>(),
@@ -110,9 +108,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 					/*presetRequest.Set(new GetUnitPresetDetailsRequest(sourceGuid));
 					presetRequest.Set(new GetUnitPresetEquipmentsRequest(sourceGuid));
 					presetRequest.Set(new GetUnitPresetAbilitiesRequest(sourceGuid));*/
-
-					Console.WriteLine($"Sending request {presetRequest} for {focus.Entity}");
-
+					
 					unitRequest.Remove<GetUnitDetailsRequest.Response>();
 
 					initScheduler.Schedule(

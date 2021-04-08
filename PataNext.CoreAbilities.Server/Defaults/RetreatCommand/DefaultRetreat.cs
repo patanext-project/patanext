@@ -66,7 +66,7 @@ namespace PataNext.CoreAbilities.Server.Defaults.RetreatCommand
 
 		private float dt;
 
-		protected override void OnSetup(GameEntity self)
+		protected override void OnSetup(Span<GameEntityHandle> abilities)
 		{
 			dt = (float) worldTime.Delta.TotalSeconds;
 		}

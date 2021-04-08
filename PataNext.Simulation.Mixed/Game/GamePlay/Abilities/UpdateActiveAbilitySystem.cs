@@ -17,6 +17,7 @@ using PataNext.Module.Simulation.Game.RhythmEngine;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine;
+using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.SystemBase;
@@ -97,6 +98,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 					                   && gameCommandState.StartTimeSpan <= engineState.Elapsed;
 
 					var isOnMount = false;
+					var isAlive   = !HasComponent<LivableIsDead>(entity);
 
 					#region Check For Active Hero Mode
 
@@ -176,9 +178,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 
 							// The conditions must indicate a flag, and then a negative statement (if we are flag A, check why we can't activate it)
 							var canActivate = !(
-								activation.Type.HasFlag(EAbilityActivationType.HeroMode) && !(gameComboSettings.CanEnterFever(gameComboState) && executingCommand.IsPerfect)
-								|| activation.Type.HasFlag(EAbilityActivationType.Mount) && !isOnMount
-								|| activation.Type.HasFlag(EAbilityActivationType.Unmounted) && isOnMount
+								(activation.Type & EAbilityActivationType.Alive) != 0 && !isAlive
+								|| (activation.Type & EAbilityActivationType.HeroMode) != 0 && !(gameComboSettings.CanEnterFever(gameComboState) && executingCommand.IsPerfect)
+								|| (activation.Type & EAbilityActivationType.Mount) != 0 && !isOnMount
+								|| (activation.Type & EAbilityActivationType.Unmounted) != 0 && isOnMount
 							);
 
 							if (abilityState.CommandCooldown > 0 && (activeSelf.Active != Safe(abilityEntity) || abilityState.Combo > 0))

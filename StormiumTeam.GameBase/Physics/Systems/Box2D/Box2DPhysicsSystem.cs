@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using BepuPhysics.Collidables;
 using Box2D.NetStandard.Collision;
 using Box2D.NetStandard.Collision.Shapes;
@@ -35,6 +36,8 @@ namespace StormiumTeam.GameBase.Physics.Systems
 
 			componentBoard = new Box2DPhysicsColliderComponentBoard(this, sizeof(byte), 0);
 			componentType  = GameWorld.RegisterComponent("Box2D.Shape", componentBoard, typeof(Shape));
+			
+			AddDisposable(cachedWorldManifold);
 		}
 
 		public ArraySegment<Shape> GetShape(GameEntityHandle entity)
@@ -136,7 +139,8 @@ namespace StormiumTeam.GameBase.Physics.Systems
 			return false;
 		}
 
-		private WorldManifold cachedWorldManifold = new();
+		// Functions that access to the cache should be thread safe
+		private ThreadLocal<WorldManifold> cachedWorldManifold = new(() => new());
 
 		public bool Distance(GameEntityHandle against, GameEntityHandle origin, float maxDistance, EntityOverrides? overrideA, EntityOverrides? overrideB, out DistanceResult distanceResult)
 		{			
@@ -177,14 +181,15 @@ namespace StormiumTeam.GameBase.Physics.Systems
 					Debug.Assert(contact != null, "contact != null");
 
 					contact.Evaluate(out var manifold, transformA, transformB);
-
-					cachedWorldManifold.normal = default;
-					cachedWorldManifold.points.AsSpan().Clear();
-					cachedWorldManifold.separations.AsSpan().Clear();
-					var worldManifold = cachedWorldManifold;
+					
+					var worldManifold = cachedWorldManifold.Value!; // we are sure that the value has been created
+					worldManifold.normal = default;
+					worldManifold.points.AsSpan().Clear();
+					worldManifold.separations.AsSpan().Clear();
 					worldManifold.Initialize(manifold, transformA, shapeA.m_radius, transformB, shapeB.m_radius);
 
-					if (manifold.pointCount == 0)
+					// don't modify the result if either no points were touched, or the normal is zero.
+					if (manifold.pointCount == 0 || worldManifold.normal == Vector2.Zero)
 						continue;
 
 					distanceResult.Distance = new ArraySegment<float>(worldManifold.separations).Average();

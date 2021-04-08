@@ -36,13 +36,13 @@ namespace PataNext.CoreAbilities.Mixed.CYumi
             {
                 DelayBeforeAttack = TimeSpan.FromSeconds(0.25),
                 PauseAfterAttack = TimeSpan.FromSeconds(0.2f),
-                ThrowVelocity    = new Vector2(8f, 15),
-                Gravity          = new Vector2(0, -18f)
+                ThrowVelocity    = new Vector2(8.5f, 19f),
+                Gravity          = new Vector2(0, -28f)
             };
         }
 
         protected override string FilePathPrefix => "yumi";
-        public override    string MasterServerId => resPath.Create(new[] {"ability", "yumi", "def_atk"}, ResPath.EType.MasterServer);
+        public override    string MasterServerId => resPath.Create(new[] {"ability", "yumiyacha", "default_attack"}, ResPath.EType.MasterServer);
 
         public override ComponentType GetChainingCommand()
         {

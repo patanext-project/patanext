@@ -20,8 +20,8 @@ namespace PataNext.Game.GameItems
 			{
 				Additive = new()
 				{
-					Health = 50,
-					Weight = 1
+					Health = 60,
+					Weight = 2
 				}
 			});
 			
@@ -33,12 +33,53 @@ namespace PataNext.Game.GameItems
 			{
 				Additive = new()
 				{
-					Attack = 10,
+					Attack = 12,
 					Weight = 3
 				}
 			});
 			
 			Register(swordEnt, new(ResPath.EType.MasterServer, "st", "pn", "equipment/sword/default_sword"));
+			
+			var shieldEnt = collection.Mgr.CreateEntity();
+			shieldEnt.Set(new GameItemDescription("shield", "shield_desc"));
+			shieldEnt.Set(new EquipmentItemDescription
+			{
+				Additive = new()
+				{
+					Health = 25,
+					Defense = 1,
+					Weight = 1.5f
+				}
+			});
+			
+			Register(shieldEnt, new(ResPath.EType.MasterServer, "st", "pn", "equipment/shield/default_shield"));
+			
+			
+			var spearEnt = collection.Mgr.CreateEntity();
+			spearEnt.Set(new GameItemDescription("sword", "sword_desc"));
+			spearEnt.Set(new EquipmentItemDescription
+			{
+				Additive = new()
+				{
+					Attack = 8,
+					Weight = 3
+				}
+			});
+			
+			Register(spearEnt, new(ResPath.EType.MasterServer, "st", "pn", "equipment/spear/default_spear"));
+			
+			var bowEnt = collection.Mgr.CreateEntity();
+			bowEnt.Set(new GameItemDescription("sword", "sword_desc"));
+			bowEnt.Set(new EquipmentItemDescription
+			{
+				Additive = new()
+				{
+					Attack = 5,
+					Weight = 1,
+				}
+			});
+			
+			Register(bowEnt, new(ResPath.EType.MasterServer, "st", "pn", "equipment/bow/default_bow"));
 		}
 
 		public void Register(Entity entity, ResPath resPath)

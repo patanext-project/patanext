@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GameHost.Core.Ecs;
 using GameHost.Injection;
@@ -36,7 +37,15 @@ namespace PataNext.Module.Simulation.BaseSystems
 		{
 			if (DependencyResolver.Dependencies.Count > 0)
 				return;
-			OnSetup(self);
+			
+			// No this is not an error.
+			// We take ExecutableAbility and not SetupExecutableAbility.
+			// If we did, this mean the "child" entities need to also have a reference to SetupExecutableAbility.
+			// But this would mean the setup would be executed multiple time.
+			// It could be possible to fix that to force the Setup to only be executed by the owner of the component.
+			//
+			// We also start the span from index 1 to ignore the global entity.
+			OnSetup(GameWorld.GetReferencedEntities(GameWorld.GetComponentReference<ExecutableAbility>(self.Handle))[1..]);
 		}
 
 		private void Execute(GameEntity owner, GameEntity self, ref AbilityState state)
@@ -46,8 +55,8 @@ namespace PataNext.Module.Simulation.BaseSystems
 			OnExecute(owner, self, ref state);
 		}
 
-		protected abstract void OnSetup(GameEntity   self);
-		protected abstract void OnExecute(GameEntity owner, GameEntity self, ref AbilityState state);
+		protected abstract void OnSetup(Span<GameEntityHandle> abilities);
+		protected abstract void OnExecute(GameEntity           owner, GameEntity self, ref AbilityState state);
 
 		public override void Dispose()
 		{

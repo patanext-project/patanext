@@ -45,7 +45,7 @@ namespace PataNext.CoreAbilities.Mixed.CGuard
 		{
 			base.SetEntityData(entity, data);
 
-			GameWorld.GetComponentData<AbilityActivation>(entity).Type = EAbilityActivationType.HeroMode;
+			GameWorld.GetComponentData<AbilityActivation>(entity).Type = EAbilityActivationType.HeroMode | EAbilityActivationType.Alive;
 			GameWorld.GetComponentData<DefaultSubsetMarch>(entity) = new DefaultSubsetMarch
 			{
 				Target             = DefaultSubsetMarch.ETarget.Cursor,

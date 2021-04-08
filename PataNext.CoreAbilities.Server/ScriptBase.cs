@@ -128,7 +128,7 @@ namespace PataNext.CoreAbilities.Server
 			if (enemy != default)
 			{
 				RoutineGetNearOfEnemyResult result;
-
+				
 				var position       = GetComponentData<Position>(entity).Value;
 				var targetPosition = GetComponentData<Position>(enemy).Value;
 

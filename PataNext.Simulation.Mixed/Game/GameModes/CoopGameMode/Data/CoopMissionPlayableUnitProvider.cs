@@ -6,6 +6,8 @@ using PataNext.Module.Simulation.Components.GamePlay.Special;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.Providers;
+using StormiumTeam.GameBase.GamePlay.Health;
+using StormiumTeam.GameBase.GamePlay.Health.Systems;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
@@ -24,11 +26,13 @@ namespace PataNext.Module.Simulation.GameModes.DataCoopMission
 			                  RhythmEngine;
 		}
 
-		private PlayableUnitProvider parent;
+		private PlayableUnitProvider  parent;
+		private DefaultHealthProvider healthProvider;
 
 		public CoopMissionPlayableUnitProvider(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref parent);
+			DependencyResolver.Add(() => ref healthProvider);
 		}
 
 		public override void GetComponents(PooledList<ComponentType> entityComponents)
@@ -45,7 +49,7 @@ namespace PataNext.Module.Simulation.GameModes.DataCoopMission
 				AsComponentType<Relative<RhythmEngineDescription>>(),
 
 				AsComponentType<UnitEnemySeekingState>(),
-				AsComponentType<UnitBodyCollider>()
+				AsComponentType<UnitBodyCollider>(),
 			});
 		}
 
@@ -66,6 +70,19 @@ namespace PataNext.Module.Simulation.GameModes.DataCoopMission
 			GetComponentData<Relative<RhythmEngineDescription>>(entity) = new Relative<RhythmEngineDescription>(data.RhythmEngine);
 
 			GetComponentData<UnitBodyCollider>(entity) = new UnitBodyCollider(1, 1.5f);
+
+			healthProvider.SpawnEntityWithArguments(new()
+			{
+				value = data.Base.Statistics.Value.Health,
+				max   = data.Base.Statistics.Value.Health,
+				owner = Safe(entity)
+			});
+
+			GetComponentData<LivableHealth>(entity) = new()
+			{
+				Value = data.Base.Statistics.Value.Health,
+				Max   = data.Base.Statistics.Value.Health
+			};
 		}
 	}
 }

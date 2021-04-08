@@ -111,24 +111,21 @@ namespace StormiumTeam.GameBase.GamePlay.HitBoxes
 
 						structuralScheduler.Schedule(args =>
 						{
-							var (entity, enemy, result) = args;
-
 							var ev = CreateEntity();
-							TryGetComponentData(entity, out Owner instigator);
+							TryGetComponentData(args.entity, out Owner instigator);
 							AddComponent(ev, new HitBoxEvent
 							{
-								HitBox     = Safe(entity),
+								HitBox     = Safe(args.entity),
 								Instigator = instigator.Target,
-								Victim     = enemy.Value,
+								Victim     = args.enemy.Value,
 
-								ContactPosition = result.Position,
-								ContactNormal   = result.Normal
+								ContactPosition = args.result.Position,
+								ContactNormal   = args.result.Normal
 							});
 
 							AddComponent(ev, new SystemEvent());
 						}, (entity, enemy, result), default);
-
-						Console.WriteLine("add " + enemy.Value);
+						
 						if (historyBuffer.IsCreated)
 							historyBuffer.Add(new HitBoxHistory(enemy.Value, result.Position, result.Normal));
 					}

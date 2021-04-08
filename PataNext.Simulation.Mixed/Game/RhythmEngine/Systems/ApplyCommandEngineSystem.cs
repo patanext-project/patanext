@@ -148,8 +148,6 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					{
 						GetComponentData<RhythmSummonEnergy>(entity).Value += 20;
 					}
-
-					Console.WriteLine($"Score={comboState.Score}, Power={executing.Power}");
 				}
 			}
 		}

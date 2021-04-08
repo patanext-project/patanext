@@ -149,8 +149,7 @@ namespace PataNext.Simulation.Client.Systems
 						resourceHandle = audioOnPressureSlider[i + 1][score];
 					else
 						resourceHandle = audioOnPressureDrum[i + 1][score];
-
-					Console.WriteLine(isHeroModeIncoming);
+					
 					AudioPlayerUtility.SetResource(commandAudioPlayer, resourceHandle);
 					AudioPlayerUtility.Play(commandAudioPlayer);
 

@@ -22,6 +22,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 		public float Weight;
 
 		public float KnockbackPower;
+		public float Precision;
 
 		public float AttackMeleeRange;
 		public float AttackSeekRange;

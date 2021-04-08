@@ -107,7 +107,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
 
         private Random random = new Random(Environment.TickCount);
 
-        protected override void OnSetup(GameEntity self)
+        protected override void OnSetup(Span<GameEntityHandle> abilities)
         {
             random.Next();
         }

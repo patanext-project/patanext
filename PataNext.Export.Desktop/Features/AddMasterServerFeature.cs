@@ -41,7 +41,7 @@ namespace PataNext.Export.Desktop
 					return;
 
 
-				taskScheduler.StartUnwrap(async () =>
+				/*taskScheduler.StartUnwrap(async () =>
 				{
 					for (var i = 0; i < 1; i++)
 					{
@@ -59,7 +59,7 @@ namespace PataNext.Export.Desktop
 
 						Console.WriteLine(str);
 					}
-				});
+				});*/
 
 				/*RequestUtility.CreateTracked(World.Mgr, new ListGameSaveRequest(), (Entity _, ListGameSaveRequest.Response response) =>
 				{

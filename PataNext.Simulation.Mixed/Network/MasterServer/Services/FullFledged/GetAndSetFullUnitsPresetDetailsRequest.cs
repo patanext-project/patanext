@@ -109,13 +109,10 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 					{
 						await viewableAssetService.GetPointer(songAsset);
 
-						Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " Top " + entity);
 						if (!string.IsNullOrEmpty(view.Top))
 							abilityList.Add(new((await viewableAssetService.GetPointer(view.Top)).ToResPath().FullString, AbilitySelection.Top));
-						Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " Mid " + entity);
 						if (!string.IsNullOrEmpty(view.Mid))
 							abilityList.Add(new((await viewableAssetService.GetPointer(view.Mid)).ToResPath().FullString, AbilitySelection.Horizontal));
-						Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " Bot " + entity);
 						if (!string.IsNullOrEmpty(view.Bot))
 							abilityList.Add(new((await viewableAssetService.GetPointer(view.Bot)).ToResPath().FullString, AbilitySelection.Bottom));
 					}

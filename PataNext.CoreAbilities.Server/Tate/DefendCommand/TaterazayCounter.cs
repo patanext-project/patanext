@@ -45,7 +45,7 @@ namespace PataNext.CoreAbilities.Server.Tate.DefendCommand
 			dmgEventQuery = CreateEntityQuery(new[] {typeof(TargetDamageEvent)}, new [] {typeof(ProcessedCounterHit)});
 		}
 
-		protected override void OnSetup(GameEntity self)
+		protected override void OnSetup(Span<GameEntityHandle> abilities)
 		{
 		}
 

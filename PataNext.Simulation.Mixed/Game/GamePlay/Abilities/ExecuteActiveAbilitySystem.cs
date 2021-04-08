@@ -71,12 +71,6 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 
 		public void OnAbilitySimulationPass()
 		{
-			(abilityMaskQuery ??= CreateEntityQuery(new[]
-			{
-				typeof(AbilityState),
-				typeof(ExecutableAbility)
-			})).CheckForNewArchetypes();
-
 			var setupAccessor = GetAccessor<SetupExecutableAbility>();
 			foreach (var entity in setupQuery ??= CreateEntityQuery(new[]
 			{
@@ -85,6 +79,15 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			{
 				setupAccessor[entity].Function(Safe(entity));
 			}
+			
+			// Make sure that this mask is being updated after setups are called.
+			// It's possible that an ability may change its archetype, and this could throw exceptions in EntityQuery.MatchAgainst
+			// if it this section was put on the top.
+			(abilityMaskQuery ??= CreateEntityQuery(new[]
+			{
+				typeof(AbilityState),
+				typeof(ExecutableAbility)
+			})).CheckForNewArchetypes();
 
 			runner.WaitForCompletion(runner.Queue(foreachSystem));
 

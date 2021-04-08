@@ -275,6 +275,8 @@ namespace PataNext.Module.Simulation.BaseSystems
 			};
 			GameWorld.GetComponentData<AbilityActivation>(entity) = new AbilityActivation
 			{
+				// Alive is the default constraint (even if NoConstraints is the first value)
+				Type                                     = EAbilityActivationType.Alive,
 				Selection                                = data.Selection,
 				HeroModeMaxCombo                         = -1,
 				HeroModeImperfectLimitBeforeDeactivation = 2

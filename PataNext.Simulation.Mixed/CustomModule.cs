@@ -88,14 +88,16 @@ namespace PataNext.Module.Simulation
 
 			inject<Network.MasterServer.Services.GetUnitDetailsRequest.Process>();
 
+			inject<Network.MasterServer.Services.GetSaveUnitPresetsRequest.Process>();
 			inject<Network.MasterServer.Services.GetUnitPresetDetailsRequest.Process>();
 			inject<Network.MasterServer.Services.GetUnitPresetEquipmentsRequest.Process>();
 			inject<Network.MasterServer.Services.GetUnitPresetAbilitiesRequest.Process>();
+			inject<Network.MasterServer.Services.CopyPresetToTargetUnitRequest.Process>();
 
 			inject<Network.MasterServer.Services.GetItemAssetPointerRequest.Process>();
 			inject<Network.MasterServer.Services.GetItemDetailsRequest.Process>();
 			inject<Network.MasterServer.Services.GetInventoryRequest.Process>();
-			
+
 			// Full Fledged systems
 			inject<Network.MasterServer.Services.FullFledged.GetAndSetFullUnitsPresetDetailsRequest.Process>();
 		}

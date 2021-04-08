@@ -52,15 +52,16 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
             var throwOffset = new Vector2(direction.Value, 1.25f);
             if (state.IsActive)
             {
-                var deltaPosition = PredictTrajectory.Simple(throwOffset - Vector2.UnitX * offset.Attack, abilitySettings.ThrowVelocity * direction.FactorX, abilitySettings.Gravity);
+                var deltaPosition = PredictTrajectory.Simple(throwOffset - direction.UnitX * offset.Attack, abilitySettings.ThrowVelocity * direction.FactorX, abilitySettings.Gravity);
                 var result        = RoutineGetNearOfEnemy(owner, deltaPosition, attackNearDistance: float.MaxValue, selfDistance: 4);
+
                 if (result.Enemy != default)
                 {
                     if (result.CanTriggerAttack)
                         abilityState.TriggerAttack(worldTime.ToStruct());
 
                     if (abilityState.AttackStart == default)
-                        controlVelocity.SetAbsolutePositionX(result.Target.X, 50);
+                        controlVelocity.SetAbsolutePositionX(result.Target.X, 20);
 
                     controlVelocity.OffsetFactor = 0;
                 }
@@ -70,7 +71,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
             if (abilityState.IsAttackingAndUpdate(abilitySettings, worldTime.Total))
             {
                 // When we attack, we should stay at our current position, and add a very small deceleration 
-                controlVelocity.StayAtCurrentPositionX(1);
+                controlVelocity.StayAtCurrentPositionX(5);
 
                 if (abilityState.CanAttackThisFrame(abilitySettings, worldTime.Total, TimeSpan.FromSeconds(playState.AttackSpeed)))
                 {
@@ -80,7 +81,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
                     execute.Post.Schedule(projectileProvider.SpawnAndForget,
                         (owner,
                             position + throwOffsetXYZ,
-                            new Vector3 {X = abilitySettings.ThrowVelocity.X, Y = abilitySettings.ThrowVelocity.Y + accuracy * (float) random.NextDouble()},
+                            new Vector3 {X = abilitySettings.ThrowVelocity.X * direction.Value, Y = abilitySettings.ThrowVelocity.Y + accuracy * (float) random.NextDouble()},
                             new Vector3(abilitySettings.Gravity, 0)
                         ), default);
                 }
@@ -92,7 +93,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
 
         private Random random = new Random(Environment.TickCount);
 
-        protected override void OnSetup(GameEntity self)
+        protected override void OnSetup(Span<GameEntityHandle> abilities)
         {
             random.Next();
         }

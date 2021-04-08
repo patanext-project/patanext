@@ -1,4 +1,5 @@
-﻿using GameHost.Core.Ecs;
+﻿using System;
+using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using PataNext.CoreAbilities.Mixed.CGuard;
 using PataNext.Module.Simulation.Components;
@@ -13,7 +14,7 @@ namespace PataNext.CoreAbilities.Server.Guard.DefendCommand
 		{
 		}
 
-		protected override void OnSetup(GameEntity   self)
+		protected override void OnSetup(Span<GameEntityHandle> abilities)
 		{
 		}
 

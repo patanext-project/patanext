@@ -10,7 +10,7 @@
         "attack": 1.2,
         "movement_attack_speed": 1.5,
         "movement_return_speed": 1.4,
-        "attack_speed": 0.75
+        "attack_speed": 0.6
       },
       "charge": {
         "id": "charge",

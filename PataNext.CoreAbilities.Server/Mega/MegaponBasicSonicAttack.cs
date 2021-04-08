@@ -30,7 +30,7 @@ namespace PataNext.CoreAbilities.Server.Mega
 		private float  dt;
 		private Random random = new Random(Environment.TickCount);
 
-		protected override void OnSetup(GameEntity self)
+		protected override void OnSetup(Span<GameEntityHandle> abilities)
 		{
 			dt = (float) worldTime.Delta.TotalSeconds;
 			random.Next();

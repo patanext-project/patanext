@@ -11,6 +11,7 @@ using PataNext.Module.Simulation.Components.GamePlay.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Game.GamePlay.Abilities;
 using PataNext.Module.Simulation.Game.GamePlay.Damage;
+using PataNext.Simulation.mixed.Components.GamePlay.Abilities;
 using StormiumTeam.GameBase.GamePlay.HitBoxes;
 using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Roles.Components;
@@ -47,12 +48,7 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
             ref readonly var playState  = ref GetComponentData<UnitPlayState>(owner);
             
             GetBuffer<HitBoxHistory>(self).Clear();
-
-            if (HasComponent<HitBox>(self))
-            {
-                execute.Post.Schedule(handle => GameWorld.RemoveComponent(handle, AsComponentType<HitBox>()), self.Handle, default);
-            }
-
+            
             if (!state.IsActiveOrChaining)
             {
                 abilityState.StopAttack();
@@ -69,11 +65,8 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
 
                 if (abilityState.CanAttackThisFrame(abilitySettings, worldTime.Total, TimeSpan.FromSeconds(playState.AttackSpeed)))
                 {
-                    Console.WriteLine("start!");
                     execute.Post.Schedule(() =>
                     {
-                        Console.WriteLine("slash!");
-                        
                         using var entitySettings = World.Mgr.CreateEntity();
                         entitySettings.Set<Shape>(new PolygonShape(meleeRange + 0.2f, meleeRange * 0.5f));
 
@@ -82,7 +75,9 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
                         // attack code
                         AddComponent(self, new HitBox(owner, default));
 
-                        setStatusHelper.Set(owner.Handle, self.Handle);                        
+                        setStatusHelper.Set(owner.Handle, self.Handle);
+
+                        Console.WriteLine("Slash!!!");
                     }, default);
                     
                     GetComponentData<Position>(self).Value       = position + new Vector3(0, meleeRange * 0.5f, 0);
@@ -111,8 +106,18 @@ namespace PataNext.CoreAbilities.Server.Tate.AttackCommand
             }
         }
 
-        protected override void OnSetup(GameEntity self)
+        protected override void OnSetup(Span<GameEntityHandle> abilities)
         {
+            foreach (var handle in abilities)
+            {
+                if (GameWorld.RemoveComponent(handle, AsComponentType<HitBox>()))
+                {
+                    if (GameWorld.GetBuffer<HitBoxHistory>(handle).Count > 0)
+                        Console.WriteLine("Has slashed something!!!");
+                    else
+                        Console.WriteLine("Didn't slashed anything :(");
+                }
+            }
         }
     }
 }

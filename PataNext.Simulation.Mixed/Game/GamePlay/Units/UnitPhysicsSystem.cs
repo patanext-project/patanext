@@ -9,6 +9,7 @@ using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
@@ -67,14 +68,13 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 				var target = controllerState.OverrideTargetPosition || !TryGetComponentData<Relative<UnitTargetDescription>>(entity, out var relativeTarget)
 					? controllerState.TargetPosition
 					: GetComponentDataOrDefault<Position>(relativeTarget.Handle).Value.X + GetComponentData<UnitTargetOffset>(entity).Idle;
-
-				// TODO: Livable state
-				/*if (livableHealthFromEntity.Exists(entity) && livableHealthFromEntity[entity].IsDead)
+				
+				if (HasComponent<LivableIsDead>(entity))
 				{
-					controllerState.ControlOverVelocity.x = true;
-					if (groundState.Value)
-						velocity.Value.x = math.lerp(velocity.Value.x, 0, 2.5f * dt);
-				}*/
+					controllerState.ControlOverVelocityX = true;
+					if (groundState)
+						velocity.X = MathUtils.LerpNormalized(velocity.X, 0, 2.5f * dt);
+				}
 
 				if (!controllerState.ControlOverVelocityX)
 				{

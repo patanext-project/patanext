@@ -223,7 +223,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 
 								unitBuffer.Add(Safe(unitEntity));
 
-								Console.WriteLine($"Created Unit {unitIdx} of squad {(ELocalSquadType) squadIdx} {unitEntity}");
+								Console.WriteLine($"Created Unit {unitIdx} of squad {(ELocalSquadType) squadIdx} {unitEntity} (MID {squadData.Leader})");
 							}
 							else if (unitBuffer.Count > unitIdx && unitBuffer.Count > unitCount && unitIdx >= unitCount)
 							{

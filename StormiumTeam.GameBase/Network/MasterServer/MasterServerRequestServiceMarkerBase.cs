@@ -47,8 +47,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 
 			unprocessedEntitySet = ruleBuilder.AsSet();
 		}
-
-		private List<SameThreadTaskScheduler> schedulers = new();
+		
 		protected override void OnUpdate()
 		{
 			base.OnUpdate();
@@ -56,13 +55,8 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			foreach (var entity in unprocessedEntitySet.GetEntities())
 			{
 				var e = entity;
-				SameThreadTaskScheduler s;
-				schedulers.Add(s = new());
 				TaskScheduler.StartUnwrap(() => ProcessRequest(e));
 			}
-			
-			foreach (var s in schedulers)
-				s.Execute();
 
 			unprocessedEntitySet.Set<InProcess<TRequestComponent>>();
 		}

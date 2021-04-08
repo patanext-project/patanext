@@ -72,7 +72,7 @@ namespace PataNext.CoreAbilities.Server.Pike.AttackCommand
 		private WorldTime worldTime;
 		private GameTime  gameTime;
 
-		protected override void OnSetup(GameEntity self)
+		protected override void OnSetup(Span<GameEntityHandle> abilities)
 		{
 			worldTime = worldTimeManaged.ToStruct();
 			

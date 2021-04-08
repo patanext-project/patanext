@@ -13,6 +13,7 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.Game.Hideout
 {
+	// TODO: Should this be reactive? (perhaps adding a component like `DirtyStatistics`)
 	public class UpdateArmyUnitStatisticsSystem : GameAppSystem
 	{
 		private GameItemsManager gameItemsManager;
@@ -56,7 +57,9 @@ namespace PataNext.Module.Simulation.Game.Hideout
 					MovementAttackSpeed = 2.2f,
 					Weight              = 4f,
 					AttackSpeed         = 2.0f,
-					AttackSeekRange     = 16f
+					AttackSeekRange     = 16f,
+
+					AttackMeleeRange = 2f
 				};
 
 				var equipmentBuffer = definedEquipmentsAccessor[entity];

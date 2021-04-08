@@ -11,6 +11,11 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Abilities
 		/// This is a normal ability
 		/// </summary>
 		NoConstraints = 0b000_0000,
+		
+		/// <summary>
+		/// Require the owner to be alive
+		/// </summary>
+		Alive = 0b000_0001,
 
 		/// <summary>
 		/// This is a Hero Mode ability, which require fever and perfect conditions
