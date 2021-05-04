@@ -9,18 +9,18 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
+using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Input;
-using PataNext.Export.Desktop.Updater;
 using PataNext.Export.Desktop.Visual;
 using PataNext.Export.Desktop.Visual.Overlays;
 using PataNext.Export.Desktop.Visual.Screens;
 
 namespace PataNext.Export.Desktop
 {
-	public class VisualGame : osu.Framework.Game
+	public class VisualGame : VisualGameBase
 	{
 		private readonly NotificationOverlay notifications = new NotificationOverlay();
 		
@@ -46,31 +46,11 @@ namespace PataNext.Export.Desktop
 				SDL2DesktopWindow sdlWindow => sdlWindow.WindowHandle,
 				OsuTKWindow tkWindow => tkWindow.WindowInfo.Handle
 			};
-			
+
 			gameBootstrap.GameEntity.Set(new VisualHWND {Value = handle});
 			dependencies.Cache(this);
 			dependencies.Cache(gameBootstrap);
 			dependencies.Cache(notifications);
-
-			Child = new DrawSizePreservingFillContainer
-			{
-				Anchor = Anchor.Centre,
-				Origin = Anchor.Centre,
-				Children = new Drawable[]
-				{
-					new Box
-					{
-						Anchor               = Anchor.Centre,
-						Origin               = Anchor.Centre,
-						RelativePositionAxes = Axes.Both,
-						RelativeSizeAxes     = Axes.Both,
-						Colour               = Colour4.Black,
-						Size                 = new Vector2(1),
-					},
-					new GameHostApplicationRunner(),
-					//new OsuInputBackend(),
-				}
-			};
 		}
 
 		private DateTime begin;
@@ -117,9 +97,28 @@ namespace PataNext.Export.Desktop
 		{
 			base.LoadComplete();
 			
-			LoadComponentAsync(new SquirrelUpdater(), Add);
+			//LoadComponentAsync(new SquirrelUpdater(), Add);
 			begin = DateTime.Now;
 			
+			Child = new DrawSizePreservingFillContainer
+			{
+				Anchor = Anchor.Centre,
+				Origin = Anchor.Centre,
+				Children = new Drawable[]
+				{
+					new Box
+					{
+						Anchor               = Anchor.Centre,
+						Origin               = Anchor.Centre,
+						RelativePositionAxes = Axes.Both,
+						RelativeSizeAxes     = Axes.Both,
+						Colour               = Colour4.Black,
+						Size                 = new Vector2(1),
+					},
+					new GameHostApplicationRunner(),
+					//new OsuInputBackend(),
+				}
+			};
 			Add(ScreenStack = new ScreenStack());
 			
 			ScreenStack.Push(new MainScreen());

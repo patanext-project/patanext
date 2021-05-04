@@ -13,6 +13,12 @@
     <ItemGroup>
         <EmbeddedResource Include="Bgm\**\*" />
         <EmbeddedResource Include="Abilities\**\*" />
+        <EmbeddedResource Include="Fonts\**\*" />
+        <EmbeddedResource Include="Textures\**\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Fonts" />
     </ItemGroup>
 
 </Project>

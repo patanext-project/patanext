@@ -34,19 +34,19 @@ namespace PataNext.Export.Desktop.Visual.Screens.Toolbar
 
         public string Text
         {
-            get => DrawableText.Text;
+            get => DrawableText.Text.ToString();
             set => DrawableText.Text = value;
         }
 
         public string TooltipMain
         {
-            get => tooltip1.Text;
+            get => tooltip1.Text.ToString();
             set => tooltip1.Text = value;
         }
 
         public string TooltipSub
         {
-            get => tooltip2.Text;
+            get => tooltip2.Text.ToString();
             set => tooltip2.Text = value;
         }
 

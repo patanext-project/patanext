@@ -9,7 +9,6 @@ using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
 using GameHost.Utility;
 using Microsoft.Extensions.Logging;
-using NetFabric.Hyperlinq;
 using osu.Framework.Threading;
 using PataNext.Export.Desktop.Visual;
 using SharpInputSystem;
@@ -61,7 +60,7 @@ namespace PataNext.Export.Desktop
 				return;
 
 			var server     = startGameHostListener.Server.Value;
-			var visualHwnd = World.Mgr.Get<VisualHWND>().First().Value.Value;
+			var visualHwnd = World.Mgr.Get<VisualHWND>()[0].Value;
 			foreach (var ent in launchSet.GetEntities())
 			{
 				var launchBootstrapEntity = ent.Get<LaunchClient>().entity;

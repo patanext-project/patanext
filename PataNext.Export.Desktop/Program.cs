@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -13,7 +14,6 @@ using GameHost.Game;
 using GameHost.IO;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
-using NetFabric.Hyperlinq;
 using osu.Framework.Threading;
 using ZLogger;
 

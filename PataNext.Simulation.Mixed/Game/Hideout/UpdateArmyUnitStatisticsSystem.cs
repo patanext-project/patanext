@@ -57,7 +57,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 					MovementAttackSpeed = 2.2f,
 					Weight              = 4f,
 					AttackSpeed         = 2.0f,
-					AttackSeekRange     = 16f,
+					AttackSeekRange     = 18f,
 
 					AttackMeleeRange = 2f
 				};

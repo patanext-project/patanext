@@ -94,7 +94,7 @@ namespace PataNext.Module.Simulation.Game.Scenar
 				var args = new SimpleDestroyableStructureProvider.Create
 				{
 					Position           = new Vector3(3, 0, 0),
-					Health             = 100,
+					Health             = 300,
 					Visual             = graphicDb.GetOrCreate(resPathGen.Create(new[] {"Models", "GameModes", "Structures", "CobblestoneBarricade", "Prefab"}, ResPath.EType.ClientResource)),
 					ColliderDefinition = colliderEntity,
 					Area               = new ContributeToTeamMovableArea(0, 2)
@@ -109,7 +109,7 @@ namespace PataNext.Module.Simulation.Game.Scenar
 				args.Position.X += 3;
 				for (var i = 0; i < 4; i++)
 				{
-					args.Health += 50 + i * i * 5;
+					args.Health += 100 + i * i * 5;
 					GameWorld.Link(destroyableProvider.SpawnEntityWithArguments(args), enemyTeam.Handle, true);
 				}
 			}

@@ -104,7 +104,7 @@ namespace PataNext.Export.Desktop.Visual.Screens.Section
         {
             public string Text
             {
-                get => SpriteText?.Text;
+                get => SpriteText?.Text.ToString();
                 set
                 {
                     if (SpriteText != null)

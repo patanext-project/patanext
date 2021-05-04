@@ -132,7 +132,7 @@ namespace PataNext.Export.Desktop.Visual.Overlays
 
             public string Text
             {
-                get => text.Text;
+                get => text.Text.ToString();
                 set => text.Text = value.ToUpperInvariant();
             }
 
