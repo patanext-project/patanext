@@ -1,20 +1,24 @@
-﻿using osu.Framework.Graphics;
+﻿using System.Collections.Generic;
+using osu.Framework.Allocation;
+using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
+using PataNext.Export.Desktop.Visual.Dependencies;
 
 namespace PataNext.Export.Desktop.Visual
 {
 	public class HomeChangelogScreen : Screen
 	{
 		public readonly HomeChangelogControl Control;
-		
+
 		public HomeChangelogScreen()
 		{
 			Masking      = true;
 			CornerRadius = 8;
-			
+
 			AddRangeInternal(new Drawable[]
 			{
 				new Box {Size = new(1), RelativeSizeAxes     = Axes.Both, Colour = Colour4.Black.Opacity(0.5f)},
@@ -51,12 +55,12 @@ namespace PataNext.Export.Desktop.Visual
 						},
 						new Container
 						{
-							Margin  = new() {Horizontal = 40, Top = 11},
+							Padding  = new() {Horizontal = 40, Top = 11},
 							Masking = true,
 
 							Size             = new(1, 1),
 							RelativeSizeAxes = Axes.Both,
-							
+
 							Child = Control = new()
 							{
 								Size             = new(1, 1),
@@ -66,6 +70,36 @@ namespace PataNext.Export.Desktop.Visual
 					}
 				}
 			});
+		}
+
+		private ICurrentVersion    currentVersion;
+		private IChangelogProvider changelogProvider;
+
+		private void onChangelogChange(ValueChangedEvent<Dictionary<string, string[]>> ev)
+		{
+			if (ev.NewValue == null)
+			{
+				Control.Set(currentVersion.Current.Value, new());
+				return;
+			}
+
+			Control.Set(currentVersion.Current.Value, ev.NewValue);
+		}
+
+		[BackgroundDependencyLoader]
+		private void load(ICurrentVersion currentVersion, IChangelogProvider changelogProvider)
+		{
+			this.currentVersion    = currentVersion;
+			this.changelogProvider = changelogProvider;
+			
+			changelogProvider.Current.BindValueChanged(onChangelogChange, true);
+		}
+
+		protected override void Dispose(bool isDisposing)
+		{
+			changelogProvider.Current.ValueChanged -= onChangelogChange;
+			
+			base.Dispose(isDisposing);
 		}
 	}
 }

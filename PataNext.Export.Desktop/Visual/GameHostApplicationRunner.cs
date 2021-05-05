@@ -15,9 +15,10 @@ namespace PataNext.Export.Desktop.Visual
 {
 	public struct VisualHWND
 	{
-		public IntPtr Value;
+		public IntPtr   Value;
 		public Vector2I Size;
-		public bool ShowIntegratedWindows;
+		public bool     ShowIntegratedWindows;
+		public bool     RequireSwap { get; set; }
 	}
 	
 	public class GameHostApplicationRunner : Drawable

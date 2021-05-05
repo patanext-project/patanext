@@ -1,4 +1,10 @@
-# 2021.05.04.1640
+# 2021.505.2105
+This version is an official release
+
+## Client
++ Fixed embedding/integration of the client in the game window.
+
+# 2021.504.1640
 ## Launcher
 + Launcher Visual overhaul (work in progress)
 + Added Settings pages

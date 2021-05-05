@@ -67,7 +67,7 @@ namespace PataNext.Export.Desktop.Visual
 					if (line.StartsWith("##")) // header
 					{
 						logs.AddText("\n", text => text.Font = new FontUsage("ar_cena", 5));
-						logs.AddParagraph("  " + line[1..], text =>
+						logs.AddParagraph("  " + line[2..], text =>
 						{
 							text.Font         = new("ar_cena", 30f);
 							text.Shadow       = true;

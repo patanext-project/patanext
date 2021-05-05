@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <PackageVersion>2020.816.1709</PackageVersion>
+    <PackageVersion>2021.505.1700</PackageVersion>
     <Title>PataNext</Title>
     <Title>PataNext</Title>
     <Authors>guerro</Authors>
@@ -9,7 +9,7 @@
     <ApplicationIcon>game.ico</ApplicationIcon>
     <ApplicationIcon>game.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyVersion>2020.816.1709</AssemblyVersion>
+    <AssemblyVersion>2021.505.1700</AssemblyVersion>
     <AssemblyName>PataNext</AssemblyName>
     <Product>PataNext</Product>
     <PackageIconUrl>https://github.com/guerro323/patanext/blob/master/PataNext.Export.Desktop/game.ico</PackageIconUrl>
@@ -36,8 +36,10 @@
   <ItemGroup>
     <PackageReference Include="DiscordRichPresence" Version="1.143.0" />
     <PackageReference Include="Mono.Options" Version="6.6.0.161" />
-    <PackageReference Include="ppy.osu.Framework" Version="2021.424.1" />
+    <PackageReference Include="ppy.osu.Framework" Version="2021.427.0" />
+    <PackageReference Include="ppy.squirrel.windows" Version="1.9.0.5" />
     <PackageReference Include="SharpCompress" Version="0.22.0" />
+    <PackageReference Include="System.IO.Packaging" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Discord\x86\*">

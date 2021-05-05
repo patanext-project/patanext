@@ -58,7 +58,7 @@ namespace PataNext.Export.Desktop
 			base.OnUpdate();
 			if (startGameHostListener.Server.Value == null)
 				return;
-
+			
 			var server     = startGameHostListener.Server.Value;
 			var visualHwnd = World.Mgr.Get<VisualHWND>()[0].Value;
 			foreach (var ent in launchSet.GetEntities())
@@ -101,7 +101,7 @@ namespace PataNext.Export.Desktop
 				var gameClient = new GameClient
 				{
 					ProcessId        = process.Id,
-					IsHwndIntegrated = false // 
+					IsHwndIntegrated = true // 
 				};
 				var clientEntity = World.Mgr.CreateEntity();
 				clientEntity.Set(gameClient);
@@ -153,13 +153,13 @@ namespace PataNext.Export.Desktop
 		{
 			public bool KeyPressed(KeyEventArgs  e)
 			{
-				Console.WriteLine($"{e.Key} ({e.Text}) pressed!");
+				//Console.WriteLine($"{e.Key} ({e.Text}) pressed!");
 				return true;
 			}
 
 			public bool KeyReleased(KeyEventArgs e)
 			{
-				Console.WriteLine($"{e.Key} ({e.Text}) released!");
+				//Console.WriteLine($"{e.Key} ({e.Text}) released!");
 				return true;
 			}
 		}

@@ -16,8 +16,8 @@ namespace PataNext.Export.Desktop.Visual
 		{
 		}
 
-		private const float Shearing = 0.35f;
-		private const float ShearingPos = Shearing * 60;
+		public const float Shearing = 0.35f;
+		public const float ShearingPos = Shearing * 60;
 
 		private bool flip;
 		public bool Flip

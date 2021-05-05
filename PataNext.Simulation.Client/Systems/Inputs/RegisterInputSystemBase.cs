@@ -18,6 +18,8 @@ namespace PataNext.Simulation.Client.Systems.Inputs
 {
 	public abstract class RegisterInputSystemBase<TInputSettings> : GameAppSystem
 	{
+		public TInputSettings InputSettingsReadOnly => InputSettings;
+		
 		protected bool InputsAreCreated { get; private set; }
 
 		protected InputDatabase InputDatabase;

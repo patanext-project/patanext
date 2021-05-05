@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
+using GameHost.Core.Ecs;
 using GameHost.Game;
+using GameHost.Inputs.Systems;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics;
@@ -10,13 +13,21 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.IO.Stores;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Input;
+using PataNext.Export.Desktop.Providers;
+using PataNext.Export.Desktop.Updater;
 using PataNext.Export.Desktop.Visual;
+using PataNext.Export.Desktop.Visual.Configuration;
+using PataNext.Export.Desktop.Visual.Dependencies;
 using PataNext.Export.Desktop.Visual.Overlays;
 using PataNext.Export.Desktop.Visual.Screens;
+using SharpInputSystem;
+using SharpInputSystem.DirectX;
+using Keyboard = SharpInputSystem.Keyboard;
 
 namespace PataNext.Export.Desktop
 {
@@ -31,14 +42,11 @@ namespace PataNext.Export.Desktop
 		{
 			this.gameBootstrap = gameBootstrap;
 		}
-		
-		private DependencyContainer dependencies;
-		
-		protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent) =>
-			dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
+
+		private Keyboard kb;
 
 		[BackgroundDependencyLoader]
-		private void load()
+		private void load(FrameworkConfigManager configManager, Storage storage)
 		{
 			IntPtr handle;
 			handle = Window switch
@@ -48,9 +56,41 @@ namespace PataNext.Export.Desktop
 			};
 
 			gameBootstrap.GameEntity.Set(new VisualHWND {Value = handle});
+			
 			dependencies.Cache(this);
 			dependencies.Cache(gameBootstrap);
 			dependencies.Cache(notifications);
+
+			var notificationsProvider = new NotificationsProvider();
+			var accountProvider       = new StandardAccountProvider(notificationsProvider);
+			gameBootstrap.Global.Context.BindExisting<IAccountProvider>(accountProvider);
+
+			var version = Assembly.GetAssembly(typeof(VisualGame)).GetName().Version.ToString();
+			if (version.EndsWith(".0"))
+				version = version[..^2];
+			
+			dependencies.CacheAs<ICurrentVersion>(new CurrentVersion()
+			{
+				Current = {Value =version}
+			});
+			dependencies.CacheAs<IPatchProvider>(new PatchProvider(Scheduler, this)
+			{
+
+			});
+			dependencies.CacheAs<INotificationsProvider>(notificationsProvider);
+			dependencies.CacheAs<IChangelogProvider>(new WebChangelogProvider(new("https://raw.githubusercontent.com/guerro323/patanext/master/CHANGELOG.md"), Scheduler));
+			dependencies.Cache(new LauncherConfigurationManager(storage));
+			dependencies.CacheAs<IAccountProvider>(accountProvider);
+			
+			var inputManager = InputManager.CreateInputSystem(typeof(DirectXInputManagerFactory), new ParameterList
+			{
+				new("WINDOW", Process.GetCurrentProcess().MainWindowHandle)
+			});
+			dependencies.CacheAs(inputManager);
+			
+			(kb = inputManager.CreateInputObject<Keyboard>(true, "")).EventListener = new SharpDxInputSystem.KeyboardListenerSimple();
+
+			configManager.GetBindable<FrameSync>(FrameworkSetting.FrameSync).Value = FrameSync.VSync;
 		}
 
 		private DateTime begin;
@@ -97,7 +137,7 @@ namespace PataNext.Export.Desktop
 		{
 			base.LoadComplete();
 			
-			//LoadComponentAsync(new SquirrelUpdater(), Add);
+			LoadComponentAsync(new SquirrelUpdater(), Add);
 			begin = DateTime.Now;
 			
 			Child = new DrawSizePreservingFillContainer
@@ -121,7 +161,7 @@ namespace PataNext.Export.Desktop
 			};
 			Add(ScreenStack = new ScreenStack());
 			
-			ScreenStack.Push(new MainScreen());
+			ScreenStack.Push(new LauncherMainScene());
 		}
 
 		private bool showIntegrated = true;
@@ -140,9 +180,18 @@ namespace PataNext.Export.Desktop
 				OsuTKWindow tkWindow => tkWindow.WindowInfo.Handle
 			};
 
+			if (gameBootstrap.GameEntity.TryGet(out VisualHWND prev))
+			{
+				if (prev.RequireSwap)
+				{
+					//(Window as SDL2DesktopWindow).Visible = false;
+					(Window as SDL2DesktopWindow).Visible = true;
+				}
+			}
+
 			gameBootstrap.GameEntity.Set(new VisualHWND
 			{
-				Value = handle, 
+				Value = Process.GetCurrentProcess().MainWindowHandle, 
 				Size =
 				{
 					X = Window.ClientSize.Width,
@@ -150,15 +199,21 @@ namespace PataNext.Export.Desktop
 				},
 				ShowIntegratedWindows = showIntegrated && begin.AddSeconds(2) < DateTime.Now
 			});
-		}
 
-		protected override bool OnKeyDown(KeyDownEvent e)
-		{
-			if (e.Key == Key.G && e.ControlPressed)
+			kb.Capture();
+
+			var listener = kb.EventListener as SharpDxInputSystem.KeyboardListenerSimple;
+			if (listener.ControlMap[KeyCode.Key_G].IsPressed && kb.IsShiftState(Keyboard.ShiftState.Ctrl))
 			{
 				showIntegrated = !showIntegrated;
 			}
 
+			foreach (var c in listener.ControlMap)
+				c.Value.IsPressed = false;
+		}
+
+		protected override bool OnKeyDown(KeyDownEvent e)
+		{
 			return base.OnKeyDown(e);
 		}
 

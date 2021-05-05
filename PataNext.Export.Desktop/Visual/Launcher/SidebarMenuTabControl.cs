@@ -134,8 +134,6 @@ namespace PataNext.Export.Desktop.Visual
 			backgroundBox.FadeTo(0.8f);
 			iconSprite.FadeTo(1, 100f);
 			outlineBox.FadeTo(1, 100f);
-
-			Console.WriteLine("active!");
 		}
 
 		protected override void OnDeactivated()

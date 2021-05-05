@@ -114,7 +114,7 @@ namespace PataNext.Module.Simulation.Game.Scenar
 				}
 			}
 
-			/*using (var colliderEntity = World.Mgr.CreateEntity())
+			using (var colliderEntity = World.Mgr.CreateEntity())
 			{
 				var target = Focus(Safe(CreateEntity()));
 				target.AddData(new UnitTargetDescription())
@@ -129,8 +129,8 @@ namespace PataNext.Module.Simulation.Game.Scenar
 					Direction = UnitDirection.Left,
 					Statistics = new UnitStatistics()
 					{
-						Health              = 100,
-						Attack              = 10,
+						Health              = 400,
+						Attack              = 12,
 						AttackSpeed         = 2,
 						BaseWalkSpeed       = 1,
 						FeverWalkSpeed      = 1,
@@ -181,7 +181,7 @@ namespace PataNext.Module.Simulation.Game.Scenar
 				Console.WriteLine($"{target.Entity}; {unitFocus.Entity}");
 
 				GameWorld.Link(unitFocus.Handle, enemyTeam.Handle, true);
-			}*/
+			}
 
 			foreach (var child in GameWorld.Boards.Entity.GetLinkedEntities(enemyTeam.Id))
 				AddComponent(child, new Relative<TeamDescription>(enemyTeam));

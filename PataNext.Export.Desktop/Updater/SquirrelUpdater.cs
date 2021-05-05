@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -8,12 +8,16 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using osuTK;
 using osuTK.Graphics;
-using PataNext.Export.Desktop.Visual.Overlays;
+using PataNext.Export.Desktop.Visual;
+using PataNext.Export.Desktop.Visual.Configuration;
 using PataNext.Game.Updater;
 using Squirrel;
 
 namespace PataNext.Export.Desktop.Updater
 {
+	public class UpdateNotification : Notification {}
+	public class InstallingNotification : Notification {}
+	
 	public class SquirrelUpdater : GameUpdater
 	{
 		private UpdateManager updateManager;
@@ -21,11 +25,56 @@ namespace PataNext.Export.Desktop.Updater
 		private static readonly Logger logger = Logger.GetLogger("updater");
 
 		public override async Task CheckForUpdate() => await checkForUpdate(true);
-
-		private UpdateProgressNotification notification;
 		
 		public Task PrepareUpdateAsync() => UpdateManager.RestartAppWhenExited();
 
+		private async Task startUpdate(UpdateInfo info)
+		{
+			try
+			{
+				Schedule(() => Notifications.Clear(typeof(InstallingNotification)));
+				
+				Schedule(() => Patch.Progress.Value  = 0);
+
+				logger.Add("Update Found!");
+				await updateManager.DownloadReleases(info.ReleasesToApply, p => Schedule(() => Patch.Progress.Value = p / 100f));
+
+				Schedule(() => Patch.Progress.Value = 0);
+
+				Schedule(() => Notifications.Push(new InstallingNotification()
+				{
+					Title = "Installing Update",
+					Text  = "Update is being installed, don't restart the game..."
+				}));
+				
+
+				await updateManager.ApplyReleases(info, p => Schedule(() => Patch.Progress.Value = p / 100f));
+				
+				Schedule(() => Notifications.Clear(typeof(InstallingNotification)));
+				Schedule(() => Patch.IsUpdating.Value = false);
+				Schedule(() => Patch.RequireRestart.Value = true);
+				logger.Add("Finished");
+			}
+			catch (Exception ex)
+			{
+				if (info.FutureReleaseEntry.IsDelta)
+				{
+					await checkForUpdate(false);
+					return;
+				}
+
+				Schedule(() =>
+				{
+					Notifications.Push(new()
+					{
+						Title = "Error",
+						Text = "Update failed, reinstalling the game may help to fix this issue."
+					});
+				});
+				Logger.Error(ex, "Update failed!");
+			}
+		}
+		
 		private async Task checkForUpdate(bool deltaPatching = true)
 		{
 			var rescheduleRecheck = true;
@@ -44,24 +93,24 @@ namespace PataNext.Export.Desktop.Updater
 						return;
 					}
 
-					if (notification == null)
+					Schedule(() =>
 					{
-						notification = new UpdateProgressNotification(this) {State = ProgressNotificationState.Active};
-						Schedule(() => Notifications.Post(notification));
-					}
-
-					notification.Progress = 0;
-					notification.Text     = @"Downloading update...";
-
-					logger.Add("Update Found!");
-					await updateManager.DownloadReleases(info.ReleasesToApply, p => notification.Progress = p / 100f);
-
-					notification.Progress = 0;
-					notification.Text     = @"Installing update...";
-
-					await updateManager.ApplyReleases(info, p => notification.Progress = p / 100f);
-					notification.State = ProgressNotificationState.Completed;
-					logger.Add("Finished");
+						Notifications.Clear(typeof(UpdateNotification));
+						Notifications.Push(new UpdateNotification()
+						{
+							Title  = "Information",
+							Text   = $"Update to '{info.FutureReleaseEntry.Version}' is available!",
+							Action = () =>
+							{
+								Patch.Version.Value    = info.FutureReleaseEntry.Version.ToString();
+								Patch.IsUpdating.Value = true;
+								
+								Notifications.Clear(typeof(UpdateNotification));
+								
+								Task.Run(async () => await startUpdate(info));
+							}
+						});
+					});
 				}
 				catch (Exception ex)
 				{
@@ -74,8 +123,6 @@ namespace PataNext.Export.Desktop.Updater
 					}
 					else
 					{
-						notification.State = ProgressNotificationState.Cancelled;
-						notification.Text  = "Update failed :(\nRe-Downloading the full setup is recommended.";
 						Logger.Error(ex, "Update failed!");
 					}
 				}
@@ -101,10 +148,11 @@ namespace PataNext.Export.Desktop.Updater
 
 		private async Task<UpdateManager> getUpdateManager()
 		{
-			return await UpdateManager.GitHubUpdateManager(@"https://github.com/guerro323/patanext", "PataNext");
+			var isPreRelease = Configuration.Get<UpdateChannel>(LauncherSetting.UpdateChannel) == UpdateChannel.Beta;
+			return await UpdateManager.GitHubUpdateManager(@"https://github.com/guerro323/patanext", "PataNext", prerelease: isPreRelease);
 		}
 		
-		private class UpdateProgressNotification : ProgressNotification
+		/*private class UpdateProgressNotification : ProgressNotification
 		{
 			private readonly SquirrelUpdater updateManager;
 			private          VisualGame         game;
@@ -150,6 +198,6 @@ namespace PataNext.Export.Desktop.Updater
 					}
 				});
 			}
-		}
+		}*/
 	}
-}*/
+}

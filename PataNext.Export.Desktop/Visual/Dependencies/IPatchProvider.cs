@@ -2,7 +2,7 @@
 
 namespace PataNext.Export.Desktop.Visual.Dependencies
 {
-	public interface IUpdatePatchDownload
+	public interface IPatchProvider
 	{
 		Bindable<string> Version { get; }
 

@@ -106,6 +106,7 @@ namespace StormiumTeam.GameBase
 
 							simulationApplication.Data.Collection.GetOrCreate(typeof(MasterServerManageSystem));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(CurrentUserSystem));
+							simulationApplication.Data.Collection.GetOrCreate(typeof(GetUserLoginRequest.Process));
 							simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
 
 							simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));

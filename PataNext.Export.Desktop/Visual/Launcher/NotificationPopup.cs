@@ -18,7 +18,7 @@ namespace PataNext.Export.Desktop.Visual
 		private SpriteText title = new()
 		{
 			Origin = Anchor.TopLeft,
-			Font   = new("ar_cena", size: 34f),
+			Font   = new("ar_cena", size: 21.5f),
 
 			Text   = "Information",
 			Colour = Colour4.FromRGBA(0xd53535ff)
@@ -27,7 +27,7 @@ namespace PataNext.Export.Desktop.Visual
 		private SpriteText text = new()
 		{
 			Origin = Anchor.TopLeft,
-			Font   = new("ar_cena", size: 34f),
+			Font   = new("ar_cena", size: 21.5f),
 
 			Text   = "Update \"2021.04.15b\" is available!",
 			Colour = Colour4.FromRGBA(0x25110aff)
@@ -167,6 +167,10 @@ namespace PataNext.Export.Desktop.Visual
 			Expire();
 
 			return base.OnClick(e);
+		}
+
+		public NotificationPopup(Notification notification) : base(notification)
+		{
 		}
 	}
 }

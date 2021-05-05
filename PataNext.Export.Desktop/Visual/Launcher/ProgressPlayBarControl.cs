@@ -58,6 +58,11 @@ namespace PataNext.Export.Desktop.Visual
 					Anchor = Anchor.CentreRight,
 				}
 			};
+			
+			CurrentVersion.BindValueChanged(ev =>
+			{
+				playButton.CurrentVersion.Value = ev.NewValue;
+			});
 
 			IsUpdating.BindValueChanged(ev =>
 			{
@@ -163,6 +168,8 @@ namespace PataNext.Export.Desktop.Visual
 		{
 			public Bindable<string> CurrentVersion = new();
 
+			private SpriteText versionText;
+			
 			private SpriteText[] texts   = new SpriteText[3];
 			private SpriteText[] effects = new SpriteText[2];
 			private Container    effectContainer;
@@ -201,6 +208,22 @@ namespace PataNext.Export.Desktop.Visual
 						Colour = Colour4.FromHex("b81c31"),
 
 						Position = new(0, 0)
+					},
+					
+					versionText = new SpriteText
+					{
+						Size = new(1),
+						RelativeSizeAxes = Axes.Both,
+						
+						Origin = Anchor.BottomRight,
+						Anchor = Anchor.BottomRight,
+
+						Font = new("ar_cena", size: 18f),
+						Text = "2021.05.04.1659",
+
+						Colour = Colour4.White.Opacity(0.4f),
+						
+						Position = new Vector2(5)
 					},
 
 					effectContainer = new()
@@ -267,6 +290,11 @@ namespace PataNext.Export.Desktop.Visual
 						t.Current.Value = ev.NewValue.ToString();
 					}
 				});
+				
+				CurrentVersion.BindValueChanged(ev =>
+				{
+					versionText.Text = string.IsNullOrEmpty(ev.NewValue) ? "?" : ev.NewValue;
+				}, true);
 			}
 
 			protected override bool OnHover(HoverEvent e)

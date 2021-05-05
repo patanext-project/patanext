@@ -84,7 +84,8 @@ namespace PataNext.Export.Desktop
 			gameBootstrap.GameEntity.Set(typeof(Feature.RhythmEngineAudio.CustomModule));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Module));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Client.Resources.Module));
-			
+
+			Console.WriteLine("getting clients at " + clientDirectory.FullName);
 			foreach (var clientData in clientDirectory.GetFiles("*.json", SearchOption.TopDirectoryOnly))
 			{
 				var client     = JsonSerializer.Deserialize<ClientBootstrap>(File.ReadAllText(clientData.FullName));
@@ -95,7 +96,8 @@ namespace PataNext.Export.Desktop
 
 				var clientBootstrap = gameBootstrap.Global.World.CreateEntity();
 				clientBootstrap.Set(client);
-				
+
+				Console.WriteLine($"found {client.ExecutablePath} ({clientData.Name})");
 				if (launchClientJson != string.Empty && clientData.FullName == new FileInfo(launchClientJson).FullName)
 				{
 					gameBootstrap.Global.World.CreateEntity().Set(new LaunchClient(clientBootstrap));
