@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <PackageVersion>2021.505.1700</PackageVersion>
+    <PackageVersion>2021.505.2237</PackageVersion>
     <Title>PataNext</Title>
     <Title>PataNext</Title>
     <Authors>guerro</Authors>
@@ -9,7 +9,7 @@
     <ApplicationIcon>game.ico</ApplicationIcon>
     <ApplicationIcon>game.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyVersion>2021.505.1700</AssemblyVersion>
+    <AssemblyVersion>2021.505.2237</AssemblyVersion>
     <AssemblyName>PataNext</AssemblyName>
     <Product>PataNext</Product>
     <PackageIconUrl>https://github.com/guerro323/patanext/blob/master/PataNext.Export.Desktop/game.ico</PackageIconUrl>
@@ -40,6 +40,7 @@
     <PackageReference Include="ppy.squirrel.windows" Version="1.9.0.5" />
     <PackageReference Include="SharpCompress" Version="0.22.0" />
     <PackageReference Include="System.IO.Packaging" Version="5.0.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="6.0.0-preview.3.21201.4" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Discord\x86\*">

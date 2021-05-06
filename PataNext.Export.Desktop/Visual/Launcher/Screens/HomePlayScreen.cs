@@ -63,6 +63,12 @@ namespace PataNext.Export.Desktop.Visual
 					Console.WriteLine("launch game");
 
 					var world = gameBootstrap.Global.World;
+					if (world.Get<GameClient>().Length > 0)
+					{
+						world.Get<VisualHWND>()[0].RequireSwap = true;
+						return;
+					}
+					
 					foreach (var entity in world)
 					{
 						if (!entity.Has<ClientBootstrap>())

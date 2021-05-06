@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
+using GameHost.Core.Client;
 using GameHost.Core.Ecs;
 using GameHost.Game;
 using GameHost.Inputs.Systems;
@@ -88,9 +89,36 @@ namespace PataNext.Export.Desktop
 			});
 			dependencies.CacheAs(inputManager);
 			
+			// create a second input manager that will be used to listen to CTRL+G
+			inputManager = InputManager.CreateInputSystem(typeof(DirectXInputManagerFactory), new ParameterList
+			{
+				new("WINDOW", Process.GetCurrentProcess().MainWindowHandle)
+			});
 			(kb = inputManager.CreateInputObject<Keyboard>(true, "")).EventListener = new SharpDxInputSystem.KeyboardListenerSimple();
 
 			configManager.GetBindable<FrameSync>(FrameworkSetting.FrameSync).Value = FrameSync.VSync;
+			
+			Window.ExitRequested += () =>
+			{
+				// make all client instances of the game shutdown
+				// if we don't do that, the main thread will be frozen if the client is in front
+				foreach (var client in gameBootstrap.Global.World.Get<GameClient>())
+				{
+					if (client.Process is { } process)
+					{
+						process.CloseMainWindow();
+					}
+				}
+				
+				// make sure that our main window is re-enabled and shown.
+				gameBootstrap.Global.Collection.GetOrCreate(wc => new BringIntegratedClientInFrontSystem(wc))
+				             .ForceEnableMainWindow();
+				
+				// now exit normally
+				GracefullyExit();
+				
+				return false;
+			};
 		}
 
 		private DateTime begin;
@@ -182,10 +210,12 @@ namespace PataNext.Export.Desktop
 
 			if (gameBootstrap.GameEntity.TryGet(out VisualHWND prev))
 			{
+				//(Window as SDL2DesktopWindow).Visible = false;
+				(Window as SDL2DesktopWindow).Visible = true;
+				
 				if (prev.RequireSwap)
 				{
-					//(Window as SDL2DesktopWindow).Visible = false;
-					(Window as SDL2DesktopWindow).Visible = true;
+					showIntegrated = !showIntegrated;
 				}
 			}
 
@@ -219,8 +249,17 @@ namespace PataNext.Export.Desktop
 
 		protected override bool OnExiting()
 		{
+			Console.WriteLine("EXIT THE GAME");
+			
 			gameBootstrap.Dispose();
 			return false;
+		}
+
+		protected override void Dispose(bool isDisposing)
+		{
+			Console.WriteLine("DISPOSE  THE GAME");
+			
+			base.Dispose(isDisposing);
 		}
 	}
 }

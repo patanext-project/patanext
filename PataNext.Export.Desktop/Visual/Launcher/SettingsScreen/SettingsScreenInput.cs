@@ -99,12 +99,14 @@ namespace PataNext.Export.Desktop.Visual.SettingsScreen
 				// We need to create one
 				if (writableFile == null && readableFile != null)
 				{
-					var writableStorage = (inputStorage as StorageCollection)!.AllStorage.Last() as LocalStorage;
+					var writableStorage = ((inputStorage as ChildStorage).parent as StorageCollection)!.AllStorage.Last() as LocalStorage;
 					if (writableStorage == null)
 						throw new InvalidOperationException("the last storage should be a localstorage");
 
 					using var file = File.Create($"{writableStorage.CurrentPath}/{typeof(T).Name}.json");
 					file.Write(readableFile.GetContentAsync().Result);
+
+					writableFile = new LocalFile(new ($"{writableStorage.CurrentPath}/{typeof(T).Name}.json"));
 				}
 
 				if (writableFile == null && readableFile == null)
@@ -205,7 +207,13 @@ namespace PataNext.Export.Desktop.Visual.SettingsScreen
 			
 			Bindable.BindValueChanged(ev =>
 			{
+				if (GetProperty is null)
+					throw new NullReferenceException(nameof(GetProperty));
+				
 				var v = Bindable.Value;
+				if (v is null)
+					throw new NullReferenceException(nameof(v));
+				
 				foreach (var p in GetProperty(ref v))
 				{
 					Text = p;

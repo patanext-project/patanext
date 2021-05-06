@@ -75,9 +75,6 @@ namespace PataNext.Export.Desktop
 						SendMessage(visualHwnd.Value, WM_ACTIVATE, WA_ACTIVE, 0);
 
 						Console.WriteLine("disable!");
-
-						visualHwnd.RequireSwap         = true;
-						World.Mgr.Get<VisualHWND>()[0] = visualHwnd;
 					}
 				}
 
@@ -121,6 +118,15 @@ namespace PataNext.Export.Desktop
 		private void DeactivateClientWindow(IntPtr hwnd)
 		{
 			SendMessage(hwnd, WM_ACTIVATE, WA_INACTIVE, 0);
+		}
+
+		public void ForceEnableMainWindow()
+		{
+			if (visualHwnd.Value == IntPtr.Zero)
+				throw new NullReferenceException(nameof(visualHwnd));
+			
+			ShowWindow(visualHwnd.Value, 0);
+			EnableWindow(visualHwnd.Value, true);
 		}
 
 		private const    int    WM_ACTIVATE = 0x0006;
