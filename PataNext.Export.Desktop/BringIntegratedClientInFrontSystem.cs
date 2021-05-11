@@ -123,7 +123,7 @@ namespace PataNext.Export.Desktop
 		public void ForceEnableMainWindow()
 		{
 			if (visualHwnd.Value == IntPtr.Zero)
-				throw new NullReferenceException(nameof(visualHwnd));
+				return;
 			
 			ShowWindow(visualHwnd.Value, 0);
 			EnableWindow(visualHwnd.Value, true);

@@ -6,6 +6,7 @@ using System.Reflection;
 using GameHost.Core.Client;
 using GameHost.Core.Ecs;
 using GameHost.Game;
+using GameHost.Injection;
 using GameHost.Inputs.Systems;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
@@ -63,7 +64,9 @@ namespace PataNext.Export.Desktop
 			dependencies.Cache(notifications);
 
 			var notificationsProvider = new NotificationsProvider();
-			var accountProvider       = new StandardAccountProvider(notificationsProvider);
+			var accountProvider = new StandardAccountProvider(
+				notificationsProvider
+			);
 			gameBootstrap.Global.Context.BindExisting<IAccountProvider>(accountProvider);
 
 			var version = Assembly.GetAssembly(typeof(VisualGame)).GetName().Version.ToString();
@@ -232,14 +235,18 @@ namespace PataNext.Export.Desktop
 
 			kb.Capture();
 
-			var listener = kb.EventListener as SharpDxInputSystem.KeyboardListenerSimple;
+			// TODO: fix issues with swapping
+			// - Sometimes the keyboard is stuck on one window
+			// - Sometimes it doesn't even want to swap (even though SWAP is being printed)
+			/*var listener = kb.EventListener as SharpDxInputSystem.KeyboardListenerSimple;
 			if (listener.ControlMap[KeyCode.Key_G].IsPressed && kb.IsShiftState(Keyboard.ShiftState.Ctrl))
 			{
 				showIntegrated = !showIntegrated;
+				Console.WriteLine("SWAP");
 			}
 
 			foreach (var c in listener.ControlMap)
-				c.Value.IsPressed = false;
+				c.Value.IsPressed = false;*/
 		}
 
 		protected override bool OnKeyDown(KeyDownEvent e)

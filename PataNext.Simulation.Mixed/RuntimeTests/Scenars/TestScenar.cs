@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using Box2D.NetStandard.Collision.Shapes;
@@ -75,6 +76,21 @@ namespace PataNext.Module.Simulation.Game.Scenar
 			DependencyResolver.Add(() => ref graphicDb);
 		}
 
+		private EntityQuery livableQuery;
+
+		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
+		{
+			base.OnDependenciesResolved(dependencies);
+
+			livableQuery = CreateEntityQuery(new[]
+			{
+				typeof(LivableHealth),
+				typeof(Relative<TeamDescription>)
+			}, none: new[] {typeof(LivableIsDead)});
+		}
+
+		private GameEntity unitentity;
+		
 		protected override Task OnStart()
 		{
 			if (!GameWorld.TryGetSingleton<ProtagonistTeamTag>(out GameEntityHandle protagonistTeamHandle))
@@ -180,6 +196,8 @@ namespace PataNext.Module.Simulation.Game.Scenar
 
 				Console.WriteLine($"{target.Entity}; {unitFocus.Entity}");
 
+				unitentity = unitFocus.Entity;
+
 				GameWorld.Link(unitFocus.Handle, enemyTeam.Handle, true);
 			}
 
@@ -209,6 +227,26 @@ namespace PataNext.Module.Simulation.Game.Scenar
 
 				AddComponent(CreateEntity(), new GameModeRequestEndRound());
 			}
+
+			if (HasComponent<LivableIsDead>(unitentity))
+			{
+				GetComponentData<OwnerActiveAbility>(unitentity).Active = default;
+			}
+
+			if (!GameWorld.TryGetSingleton<ProtagonistTeamTag>(out GameEntityHandle protagonistTeamHandle))
+				return;
+
+			var livingProtagonistCount = 0;
+			foreach (var entity in livableQuery)
+			{
+				if (GetComponentData<Relative<TeamDescription>>(entity).Target.Handle != protagonistTeamHandle)
+					continue;
+					
+				livingProtagonistCount++;
+			}
+
+			if (livingProtagonistCount <= 1)
+				AddComponent(CreateEntity(), new GameModeRequestEndRound());
 		}
 
 		protected override Task OnCleanup(bool reuse)

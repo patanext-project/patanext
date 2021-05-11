@@ -166,7 +166,7 @@ namespace PataNext.Export.Desktop.Visual
 				{
 					container = new()
 					{
-						Size = new Vector2(1, 200),
+						Size = new Vector2(1, 240),
 						RelativeSizeAxes = Axes.X,
 						
 						Anchor = Anchor.BottomLeft,
@@ -223,6 +223,18 @@ namespace PataNext.Export.Desktop.Visual
 										Text = "Connect",
 										
 										Action = connect
+									},
+									new Sprite {Height = 10},
+									new BasicButton()
+									{
+										Size             = new Vector2(1, 30),
+										RelativeSizeAxes = Axes.X,
+										
+										BackgroundColour = Colour4.FromHex("7289DA"),
+										
+										Text = "Connect With Discord",
+										
+										Action = connectDiscord
 									}
 								}
 							},
@@ -267,6 +279,15 @@ namespace PataNext.Export.Desktop.Visual
 				Active.Value = false;
 			}
 
+			private void connectDiscord()
+			{
+				if (accountProvider is IHasDiscordAccountSupport discordAccountSupport)
+				{
+					discordAccountSupport.ConnectDiscord();
+					Active.Value = false;
+				}
+			}
+
 			private void disconnect()
 			{
 				accountProvider.Disconnect();
@@ -300,7 +321,7 @@ namespace PataNext.Export.Desktop.Visual
 						connectContainer.Alpha    = 1;
 						disconnectContainer.Alpha = 0;
 
-						container.Height = 200;
+						container.Height = 240;
 					}
 				}, true);
 			}

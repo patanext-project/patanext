@@ -20,7 +20,9 @@ namespace PataNext.Export.Desktop
 		{
 			DependencyResolver.Add(() => ref logger);
 		}
-		
+
+		public DiscordRpcClient Client => client;
+
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);

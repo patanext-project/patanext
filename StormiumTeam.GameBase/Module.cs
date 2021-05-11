@@ -110,6 +110,7 @@ namespace StormiumTeam.GameBase
 							simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
 
 							simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));
+							simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserWithDiscordRequest.Process));
 							
 							
 							simulationApplication.Data.Collection.GetOrCreate(typeof(GetAssetPointerRequest.Process));

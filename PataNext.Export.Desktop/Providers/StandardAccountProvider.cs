@@ -1,5 +1,7 @@
 ﻿using System;
 using DefaultEcs;
+using DiscordRPC;
+using DiscordRPC.Message;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
 using GameHost.Injection;
@@ -18,10 +20,10 @@ namespace PataNext.Export.Desktop.Providers
 	public class StandardAccountProvider : IAccountProvider, IHasDiscordAccountSupport
 	{
 		private readonly INotificationsProvider notifications;
-		
+
 		public StandardAccountProvider(INotificationsProvider notifications)
 		{
-			this.notifications = notifications;
+			this.notifications  = notifications;
 		}
 		
 		public Bindable<LauncherAccount> Current { get; } = new();
@@ -30,14 +32,7 @@ namespace PataNext.Export.Desktop.Providers
 		{
 			simulationScheduler.Schedule(args =>
 			{
-				args.CreateEntity().Set(ConnectUserRequest.ViaLogin(login, password));
-			}, simulationWc.Mgr, SchedulingParametersWithArgs.AsOnce);
-			
-			Console.WriteLine("1.");
-			simulationScheduler.Schedule(args =>
-			{
-				Console.WriteLine("2.");
-				/*RequestUtility.New(simulationWc.Mgr, ConnectUserRequest.ViaLogin(args.login, args.password))
+				RequestUtility.New(simulationWc.Mgr, ConnectUserRequest.ViaLogin(args.login, args.password))
 				              .GetAsync<ConnectUserRequest.Error>()
 				              .ContinueWithScheduler(uiScheduler, error =>
 				              {
@@ -53,7 +48,7 @@ namespace PataNext.Export.Desktop.Providers
 						              Text = error.Message,
 						              Action = () => { }
 					              });
-				              });*/
+				              });
 			}, (simulationWc.Mgr, login, password), SchedulingParametersWithArgs.AsOnce);
 		}
 
@@ -62,9 +57,48 @@ namespace PataNext.Export.Desktop.Providers
 			simulationScheduler.Schedule(args => { args.CreateEntity().Set(new DisconnectUserRequest()); }, simulationWc.Mgr, SchedulingParametersWithArgs.AsOnce);
 		}
 
+		private DiscordFeature lastDiscordFeature;
 		public void ConnectDiscord()
 		{
-			throw new NotImplementedException("not yet implemented");
+			simulationScheduler.Schedule(() =>
+			{
+				var discordFeature = new ContextBindingStrategy(simulationWc.Ctx, true).Resolve<DiscordFeature>();
+				lastDiscordFeature = discordFeature ?? throw new NullReferenceException(nameof(discordFeature));
+				
+				if (discordFeature.Client.CurrentUser != null)
+				{
+					onReady(null, null);
+					return;
+				}
+
+				discordFeature.Client.OnReady += onReady;
+			}, default);
+			
+			void onReady(object sender, ReadyMessage args)
+			{
+				lastDiscordFeature.Client.OnReady -= onReady;
+
+				simulationScheduler.Schedule(() =>
+				{
+					RequestUtility.New(simulationWc.Mgr, ConnectUserWithDiscordRequest.Create(lastDiscordFeature.Client.CurrentUser.ID, async _ => ""))
+					              .GetAsync<ConnectUserRequest.Error>()
+					              .ContinueWithScheduler(uiScheduler, error =>
+					              {
+						              Current.Value = new()
+						              {
+							              Error   = true,
+							              Message = error.Message
+						              };
+
+						              notifications.Push(new()
+						              {
+							              Title  = "Connection Error!",
+							              Text   = error.Message,
+							              Action = () => { }
+						              });
+					              });
+				}, default);
+			}
 		}
 
 		private WorldCollection simulationWc;
