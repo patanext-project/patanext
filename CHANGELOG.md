@@ -1,3 +1,17 @@
+# 2021.511.2300
+## Launcher
++ Authentification with Discord.
++ Added an error for wrong connections.
+• Fixed a crash when entering the Input Settings interface.
+
+## Game
+• Modified 'Test Scenar' to restart the mission when one entity is left alive.
+• Modified 'Test Scenar' to stop the AI from attacking once dead.
+
+## Client
+• Fixed a freezing issue when closing the game while the client is active
+• Applied a non-knowing fix on non loading models for units
+
 # 2021.505.2105
 This version is an official release
 
