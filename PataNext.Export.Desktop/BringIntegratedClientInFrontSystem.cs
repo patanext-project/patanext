@@ -21,6 +21,8 @@ namespace PataNext.Export.Desktop
 			var val = !World.Mgr.Get<VisualHWND>().IsEmpty && !World.Mgr.Get<GameClient>().IsEmpty && base.CanUpdate();
 			if (!val)
 			{
+				EnableWindow(visualHwnd.Value, true);
+				
 				timeBeforeEnablingMainWindow = Environment.TickCount + 500;
 				return false;
 			}

@@ -1,3 +1,8 @@
+# 2021.512.1742
+## Launcher
+• FIX: CTRL+G is now working again to swap between client and launcher.
+• FIX: Clients can now be relaunched again after it get closed.
+
 # 2021.511.2300
 ## Launcher
 + Authentification with Discord.

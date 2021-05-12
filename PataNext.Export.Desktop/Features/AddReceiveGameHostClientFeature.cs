@@ -87,9 +87,12 @@ namespace PataNext.Export.Desktop
 						FileName        = client.ExecutablePath,
 						CreateNoWindow  = true,
 						UseShellExecute = false,
-						RedirectStandardOutput = true
-					}
+						RedirectStandardOutput = true,
+					},
+					
+					EnableRaisingEvents = true
 				};
+
 				process.Start();
 				process.WaitForInputIdle();
 
@@ -105,7 +108,14 @@ namespace PataNext.Export.Desktop
 				};
 				var clientEntity = World.Mgr.CreateEntity();
 				clientEntity.Set(gameClient);
-
+				
+				process.Exited += (_, _) =>
+				{
+					Console.WriteLine("Dispose client");
+					if (clientEntity.IsAlive)
+						clientEntity.Dispose();
+				};
+				
 				TaskRunUtility.StartUnwrap(async cc =>
 				{
 					logger.ZLogInformation("Tryin' to get MainWindowHandle");

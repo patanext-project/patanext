@@ -233,12 +233,17 @@ namespace PataNext.Export.Desktop
 				ShowIntegratedWindows = showIntegrated && begin.AddSeconds(2) < DateTime.Now
 			});
 
+			if (gameBootstrap.Global.World.Get<GameClient>().IsEmpty)
+			{
+				showIntegrated = true;
+			}
+
 			kb.Capture();
 
 			// TODO: fix issues with swapping
 			// - Sometimes the keyboard is stuck on one window
 			// - Sometimes it doesn't even want to swap (even though SWAP is being printed)
-			/*var listener = kb.EventListener as SharpDxInputSystem.KeyboardListenerSimple;
+			var listener = kb.EventListener as SharpDxInputSystem.KeyboardListenerSimple;
 			if (listener.ControlMap[KeyCode.Key_G].IsPressed && kb.IsShiftState(Keyboard.ShiftState.Ctrl))
 			{
 				showIntegrated = !showIntegrated;
@@ -246,7 +251,7 @@ namespace PataNext.Export.Desktop
 			}
 
 			foreach (var c in listener.ControlMap)
-				c.Value.IsPressed = false;*/
+				c.Value.IsPressed = false;
 		}
 
 		protected override bool OnKeyDown(KeyDownEvent e)
