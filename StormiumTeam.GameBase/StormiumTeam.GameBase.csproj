@@ -18,7 +18,7 @@
 
     <ItemGroup>
       <PackageReference Include="BepuPhysics" Version="2.3.0-beta2" />
-      <PackageReference Include="MagicOnion" Version="4.1.1" />
+      <PackageReference Include="MagicOnion" Version="4.2.0" />
       <PackageReference Include="NetFabric.Hyperlinq" Version="3.0.0-beta29" />
     </ItemGroup>
 

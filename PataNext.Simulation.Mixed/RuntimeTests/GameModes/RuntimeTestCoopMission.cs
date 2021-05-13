@@ -104,6 +104,20 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 						await Task.Yield();
 					}
 
+					var squads = GetBuffer<OwnedRelative<ArmySquadDescription>>(formation);
+					while (squads.Count == 0)
+						await Task.Yield();
+					
+					foreach (var squad in squads)
+					{
+						var units = GetBuffer<OwnedRelative<ArmyUnitDescription>>(squad.Target);
+						foreach (var unit in units)
+						{
+							while (!HasComponent<MasterServerIsUnitLoaded>(unit.Target))
+								await Task.Yield();
+						}
+					}
+
 					await Task.Delay(TimeSpan.FromSeconds(2));
 					Console.WriteLine("start gamemode!");
 

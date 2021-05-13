@@ -93,24 +93,34 @@ namespace PataNext.Export.Desktop.Updater
 						return;
 					}
 
-					Schedule(() =>
+					// Only show the notification to update if deltaPatching is on.
+					// If it isn't, this mean the user wanted to update but failed due to incorrect delta.
+					// Then we don't need to ask the user again to re-update (the user will think it didn't updated correctly) and retry updating now
+					if (deltaPatching)
 					{
-						Notifications.Clear(typeof(UpdateNotification));
-						Notifications.Push(new UpdateNotification()
+						Schedule(() =>
 						{
-							Title  = "Information",
-							Text   = $"Update to '{info.FutureReleaseEntry.Version}' is available!",
-							Action = () =>
+							Notifications.Clear(typeof(UpdateNotification));
+							Notifications.Push(new UpdateNotification()
 							{
-								Patch.Version.Value    = info.FutureReleaseEntry.Version.ToString();
-								Patch.IsUpdating.Value = true;
-								
-								Notifications.Clear(typeof(UpdateNotification));
-								
-								Task.Run(async () => await startUpdate(info));
-							}
+								Title = "Information",
+								Text  = $"Update to '{info.FutureReleaseEntry.Version}' is available!",
+								Action = () =>
+								{
+									Patch.Version.Value    = info.FutureReleaseEntry.Version.ToString();
+									Patch.IsUpdating.Value = true;
+
+									Notifications.Clear(typeof(UpdateNotification));
+
+									Task.Run(async () => await startUpdate(info));
+								}
+							});
 						});
-					});
+					}
+					else
+					{
+						await startUpdate(info);
+					}
 				}
 				catch (Exception ex)
 				{

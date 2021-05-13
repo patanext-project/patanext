@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using MagicOnion.Client;
 using PataNext.MasterServerShared.Services;
 using PataNext.Module.Simulation.Components;
+using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Systems;
@@ -52,8 +53,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 			private HubClientConnectionCache<IUnitHub, IUnitHubReceiver>             unitHub;
 			private HubClientConnectionCache<IUnitPresetHub, IUnitPresetHubReceiver> unitPresetHub;
 			private HubClientConnectionCache<IItemHub, IItemHubReceiver>             itemHub;
-
-
+			
 			protected override void OnFeatureAdded(Entity entity, MasterServerFeature obj)
 			{
 				base.OnFeatureAdded(entity, obj);
@@ -64,15 +64,16 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 				DependencyResolver.AddDependency(new TaskDependency(unitPresetHub.Client));
 				DependencyResolver.AddDependency(new TaskDependency(itemHub.Client));
 			}
-
+			
 			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				if (!(unitPresetHub.Client.Result is { } unitPresetClient))
 					throw new NullReferenceException(nameof(unitPresetHub));
 				if (!(itemHub.Client.Result is { } itemClient))
 					throw new NullReferenceException(nameof(unitPresetHub));
-				
+
 				var presetId = entity.Get<GetAndSetFullUnitsPresetDetailsRequest>().SourceGuid;
+				var globalTasks = new List<Task>();
 
 				// ----------------- ---------------- ++
 				//	Preset Details
@@ -87,36 +88,65 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 				var equipmentMap   = await unitPresetClient.GetEquipments(presetId);
 				var equipmentFinal = new UnitDisplayedEquipment[equipmentMap.Count];
 				
-				var count = 0;
-				foreach (var (rootAssetId, itemId) in equipmentMap)
 				{
-					equipmentFinal[count++] = new()
+					var count = 0;
+					var tasks = new List<Task<(string attachment, string resource)>>();
+					foreach (var (rootAssetId, itemId) in equipmentMap)
 					{
-						Attachment = attachDb.GetOrCreate((await viewableAssetService.GetPointer(rootAssetId)).ToResPath().FullString),
-						Resource   = equipDb.GetOrCreate((await itemClient.GetAssetPointer(itemId)).ToResPath().FullString),
-					};
+						tasks.Add(Task.Run(async () =>
+							(
+								(await viewableAssetService.GetPointer(rootAssetId)).ToResPath().FullString,
+								(await itemClient.GetAssetPointer(itemId)).ToResPath().FullString
+							)
+						));
+					}
+
+					globalTasks.Add(Task.Run(async () =>
+					{
+						foreach (var t in tasks)
+						{
+							var (attachment, resource) = await t;
+							equipmentFinal[count++] = new()
+							{
+								Attachment = attachDb.GetOrCreate(attachment),
+								Resource   = equipDb.GetOrCreate(resource)
+							};
+						}						
+					}));
 				}
-				
+
 				// ----------------- ---------------- ++
 				//	Abilities
 				// ++ -------------- ++
 				var abilitySongMap = await unitPresetClient.GetAbilities(presetId);
 				var abilityList    = new List<UnitDefinedAbilities>(); // we don't know how much abilities will be there
-				
-				foreach (var (_, abilityMap) in abilitySongMap)
-				{
-					foreach (var (songAsset, view) in abilityMap)
-					{
-						await viewableAssetService.GetPointer(songAsset);
 
-						if (!string.IsNullOrEmpty(view.Top))
-							abilityList.Add(new((await viewableAssetService.GetPointer(view.Top)).ToResPath().FullString, AbilitySelection.Top));
-						if (!string.IsNullOrEmpty(view.Mid))
-							abilityList.Add(new((await viewableAssetService.GetPointer(view.Mid)).ToResPath().FullString, AbilitySelection.Horizontal));
-						if (!string.IsNullOrEmpty(view.Bot))
-							abilityList.Add(new((await viewableAssetService.GetPointer(view.Bot)).ToResPath().FullString, AbilitySelection.Bottom));
+				{
+					var tasks = new List<Task<UnitDefinedAbilities>>();
+					foreach (var (_, abilityMap) in abilitySongMap)
+					{
+						foreach (var (songAsset, view) in abilityMap)
+						{
+							await viewableAssetService.GetPointer(songAsset);
+
+							if (!string.IsNullOrEmpty(view.Top))
+								tasks.Add(Task.Run(async () => new UnitDefinedAbilities((await viewableAssetService.GetPointer(view.Top)).ToResPath().FullString, AbilitySelection.Top)));
+							if (!string.IsNullOrEmpty(view.Mid))
+								tasks.Add(Task.Run(async () => new UnitDefinedAbilities((await viewableAssetService.GetPointer(view.Mid)).ToResPath().FullString, AbilitySelection.Horizontal)));
+							if (!string.IsNullOrEmpty(view.Bot))
+								tasks.Add(Task.Run(async () => new UnitDefinedAbilities((await viewableAssetService.GetPointer(view.Bot)).ToResPath().FullString, AbilitySelection.Bottom)));
+						}
 					}
+
+					globalTasks.Add(Task.Run(async () =>
+					{
+						foreach (var t in tasks)
+							abilityList.Add(await t);
+					}));
 				}
+				
+				foreach (var t in globalTasks)
+					await t;
 
 				return e =>
 				{
@@ -136,6 +166,8 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 					var definedAbilities = target.GetBuffer<UnitDefinedAbilities>();
 					definedAbilities.Clear();
 					definedAbilities.AddRange(CollectionsMarshal.AsSpan(abilityList));
+
+					target.AddData(new MasterServerIsUnitLoaded());
 
 					Console.WriteLine($"Success for {e}");
 				};

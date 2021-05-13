@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <PackageVersion>2021.512.1742</PackageVersion>
+    <PackageVersion>2021.513.1450</PackageVersion>
     <Title>PataNext</Title>
     <Title>PataNext</Title>
     <Authors>guerro</Authors>
@@ -9,7 +9,7 @@
     <ApplicationIcon>game.ico</ApplicationIcon>
     <ApplicationIcon>game.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyVersion>2021.512.1742</AssemblyVersion>
+    <AssemblyVersion>2021.513.1450</AssemblyVersion>
     <AssemblyName>PataNext</AssemblyName>
     <Product>PataNext</Product>
     <PackageIconUrl>https://github.com/guerro323/patanext/blob/master/PataNext.Export.Desktop/game.ico</PackageIconUrl>

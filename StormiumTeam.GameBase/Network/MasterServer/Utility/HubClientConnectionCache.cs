@@ -25,7 +25,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer.Utility
 		protected override void OnFeatureAdded(Entity entity, MasterServerFeature obj)
 		{
 			base.OnFeatureAdded(entity, obj);
-
+			
 			Client = StreamingHubClient.ConnectAsync<THub, TReceiver>(obj.Channel, receiver)!;
 		}
 
