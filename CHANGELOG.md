@@ -1,3 +1,11 @@
+# 2021.513.1450
+## Launcher
+• FIX: Force update when delta patching failed
+
+## Game
++ Made the requests to get unit data from MasterServer to be more parallel.
+• FIX: CoopMission may have started without the armies units receiving their data from the MasterServer.
+
 # 2021.512.1742
 ## Launcher
 • FIX: CTRL+G is now working again to swap between client and launcher.
