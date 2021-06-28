@@ -93,18 +93,26 @@ namespace PataNext.Module.Simulation.Systems
 				RhythmCommandAction.WithOffset(2, 0.5f, RhythmKeys.Don),
 				RhythmCommandAction.WithOffset(3, 0, RhythmKeys.Don),
 			});
+			
+			DataBase.GetOrCreate(AsComponentType<SkipCommand>(), "skip", new[]
+			{
+				RhythmCommandAction.With(0, RhythmKeys.Chaka),
+				RhythmCommandAction.With(1, RhythmKeys.Chaka),
+				RhythmCommandAction.With(2, RhythmKeys.Pon),
+				RhythmCommandAction.With(3, RhythmKeys.Pon),
+			}, 3);
 
 			// not yet
-			/*AddComponent(DataBase.GetOrCreate(AsComponentType<QuickDefend>(), "quick_defend", new[]
+			AddComponent(DataBase.GetOrCreate(AsComponentType<QuickDefend>(), "quick_defend", new[]
 			{
 				RhythmCommandAction.With(0, RhythmKeys.Chaka),
 				RhythmCommandAction.WithSlider(1, 1, RhythmKeys.Pon)
-			}).Entity, new DefendCommand());
+			}, 4).Entity, new DefendCommand());
 			AddComponent(DataBase.GetOrCreate(AsComponentType<QuickRetreat>(), "quick_retreat", new[]
 			{
 				RhythmCommandAction.WithSlider(0, 2, RhythmKeys.Pon),
 				RhythmCommandAction.With(1, RhythmKeys.Pata)
-			}).Entity, new RetreatCommand());*/
+			}, 4).Entity, new RetreatCommand());
 		}
 	}
 }

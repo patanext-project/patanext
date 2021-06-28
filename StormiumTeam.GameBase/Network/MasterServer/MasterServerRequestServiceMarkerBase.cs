@@ -61,7 +61,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer
 			unprocessedEntitySet.Set<InProcess<TRequestComponent>>();
 		}
 
-		protected virtual void FillRule(ref EntityRuleBuilder rule)
+		protected virtual void FillRule(ref EntityQueryBuilder rule)
 		{
 			rule.With<TRequestComponent>()
 			    .Without<InProcess<TRequestComponent>>();

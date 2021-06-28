@@ -15,6 +15,7 @@ using GameHost.Simulation.Utility.Resource;
 using GameHost.Utility;
 using GameHost.Worlds.Components;
 using PataNext.Game.Abilities;
+using PataNext.Game.Abilities.Effects;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GameModes;
 using PataNext.Module.Simulation.Components.GamePlay.Abilities;
@@ -300,12 +301,12 @@ namespace PataNext.Module.Simulation.GameModes
 
 				if (i == 1)
 				{
-					statusComponentProvider.AddStatus(enemy, StatusEffect.Piercing, new StatusEffectSettingsBase
+					statusComponentProvider.AddStatus<Piercing>(enemy, new StatusEffectSettingsBase
 					{
 						Power             = 12
 					});
 				}
-				statusComponentProvider.AddStatus(enemy, StatusEffect.KnockBack, new StatusEffectSettingsBase
+				statusComponentProvider.AddStatus<KnockBack>(enemy, new StatusEffectSettingsBase
 				{
 					Resistance        = 20f,
 					RegenPerSecond    = 1f,
@@ -357,7 +358,7 @@ namespace PataNext.Module.Simulation.GameModes
 							stat.Health           = 250;
 							stat.AttackMeleeRange = 4;
 							
-							statusComponentProvider.AddStatus(unit, StatusEffect.Piercing, new StatusEffectSettingsBase
+							statusComponentProvider.AddStatus<Piercing>(unit, new StatusEffectSettingsBase
 							{
 								Power = 12f
 							});
@@ -459,11 +460,11 @@ namespace PataNext.Module.Simulation.GameModes
 								Resource   = localEquipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "horns", "default_horn"}, ResPath.EType.ClientResource))
 							});
 
-							statusComponentProvider.AddStatus(unit, StatusEffect.Piercing, new StatusEffectSettingsBase
+							statusComponentProvider.AddStatus<Piercing>(unit, new StatusEffectSettingsBase
 							{
 								Power = 3f
 							});
-							statusComponentProvider.AddStatus(unit, StatusEffect.KnockBack, new StatusEffectSettingsBase
+							statusComponentProvider.AddStatus<KnockBack>(unit, new StatusEffectSettingsBase
 							{
 								Resistance        = 10f,
 								RegenPerSecond    = 2f,
@@ -556,13 +557,13 @@ namespace PataNext.Module.Simulation.GameModes
 						Direction = UnitDirection.Right
 					});
 					
-					statusComponentProvider.AddStatus(unit, StatusEffect.Piercing, new StatusEffectSettingsBase
+					statusComponentProvider.AddStatus<Piercing>(unit, new StatusEffectSettingsBase
 					{
 						Resistance        = 50f,
 						RegenPerSecond    = 8f,
 						ImmunityPerAttack = 0.15f
 					});
-					statusComponentProvider.AddStatus(unit, StatusEffect.KnockBack, new StatusEffectSettingsBase
+					statusComponentProvider.AddStatus<KnockBack>(unit, new StatusEffectSettingsBase
 					{
 						Resistance        = 30f,
 						RegenPerSecond    = 2f,
@@ -612,7 +613,7 @@ namespace PataNext.Module.Simulation.GameModes
 								Data =
 								{
 									Mode   = CameraMode.Forced,
-									Offset = RigidTransform.Identity,
+									Offset = RigidPose.Identity,
 									Target = Safe(unit)
 								}
 							});

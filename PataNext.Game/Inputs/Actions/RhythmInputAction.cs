@@ -4,6 +4,7 @@ using GameHost.Inputs.DefaultActions;
 using GameHost.Inputs.Interfaces;
 using GameHost.Inputs.Layouts;
 using GameHost.Inputs.Systems;
+using GameHost.Worlds.Components;
 using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Game.Inputs.Actions
@@ -67,10 +68,10 @@ namespace PataNext.Game.Inputs.Actions
                         action.Active    |= buttonControl.isPressed;
                     }
 
-                    /*if (action.Active)
+                    if (action.Active)
                         action.ActiveTime += World.Mgr.Get<WorldTime>()[0].Delta;
                     else
-                        action.ActiveTime = TimeSpan.Zero;*/
+                        action.ActiveTime = TimeSpan.Zero;
                 }
             }
         }

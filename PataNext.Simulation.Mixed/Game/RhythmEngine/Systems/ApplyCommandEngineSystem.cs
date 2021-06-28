@@ -116,10 +116,10 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine.Systems
 					continue;
 				executing.WaitingForApply = false;
 
-				var targetResourceBuffer = GameWorld.GetBuffer<RhythmCommandActionBuffer>(executing.CommandTarget.Handle);
-				var beatDuration         = 0;
-				foreach (var element in targetResourceBuffer.Span)
-					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + 1 + element.Value.Beat.Offset + element.Value.Beat.SliderLength));
+				ref var identifier   = ref GameWorld.GetComponentData<RhythmCommandIdentifier>(executing.CommandTarget.Handle);
+				var     beatDuration = identifier.Duration;
+				/*foreach (var element in targetResourceBuffer.Span)
+					beatDuration = Math.Max(beatDuration, (int) Math.Ceiling(element.Value.Beat.Target + 1 + element.Value.Beat.Offset + element.Value.Beat.SliderLength));*/
 
 				// if (!isServer && settings.UseClientSimulation && simulateTagFromEntity.Exists(entity))
 				if (true)

@@ -77,6 +77,13 @@ namespace PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultComm
 		}
 	}
 	
+	public struct SkipCommand : IComponentData
+	{
+		public class Register : RegisterGameHostComponentData<SkipCommand>
+		{
+		}
+	}
+	
 	public struct QuickDefend : IComponentData
 	{
 		public class Register : RegisterGameHostComponentData<QuickDefend>

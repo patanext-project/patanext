@@ -15,6 +15,7 @@ using GameHost.IO;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
 using osu.Framework.Threading;
+using StormiumTeam.GameBase.Bootstrap;
 using ZLogger;
 
 namespace PataNext.Export.Desktop
@@ -71,6 +72,9 @@ namespace PataNext.Export.Desktop
 			}
 
 			var gameBootstrap = new GameBootstrap();
+
+			gameBootstrap.Global.Collection.GetOrCreate(wc => new BootstrapManager(wc));
+			
 			gameBootstrap.GameEntity.Set(new GameName("PataNext"));
 			gameBootstrap.GameEntity.Set(new GameUserStorage(new LocalStorage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/PataNext")));
 

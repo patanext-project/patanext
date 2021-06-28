@@ -45,8 +45,13 @@ namespace PataNext.Module.Simulation.Resources
 	public readonly struct RhythmCommandIdentifier : IComponentData
 	{
 		public readonly CharBuffer64 Value;
+		public readonly int          Duration;
 
-		public RhythmCommandIdentifier(CharBuffer64 value) => Value = value;
+		public RhythmCommandIdentifier(CharBuffer64 value, int duration)
+		{
+			Value    = value;
+			Duration = duration;
+		}
 	}
 
 	public class RhythmCommandResourceDb : GameResourceDb<RhythmCommandResource>
@@ -59,14 +64,21 @@ namespace PataNext.Module.Simulation.Resources
 		{
 		}
 
-		public GameResource<RhythmCommandResource> GetOrCreate(ComponentType type, string identifier = null, RhythmCommandAction[] buffer = null)
+		public GameResource<RhythmCommandResource> GetOrCreate(ComponentType type, string identifier = null, RhythmCommandAction[] buffer = null, int? beatDuration = null)
 		{
 			var resource = GetOrCreate(new RhythmCommandResource(type));
 			if (!GameWorld.HasComponent(resource.Handle, type))
 				GameWorld.AddComponent(resource.Handle, type);
 
+			if (beatDuration == null && buffer != null)
+			{
+				beatDuration = 0;
+				foreach (var element in buffer)
+					beatDuration = Math.Max(beatDuration.Value, (int) Math.Ceiling(element.Beat.Target + 1 + element.Beat.Offset + element.Beat.SliderLength));
+			}
+
 			if (identifier != null)
-				GameWorld.AddComponent(resource.Handle, new RhythmCommandIdentifier(identifier));
+				GameWorld.AddComponent(resource.Handle, new RhythmCommandIdentifier(identifier, beatDuration ?? 4));
 
 			if (buffer != null)
 				GameWorld.AddBuffer<RhythmCommandActionBuffer>(resource.Handle).AddRangeReinterpret(buffer.AsSpan());

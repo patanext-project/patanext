@@ -8,6 +8,7 @@ using GameHost.Core.Ecs;
 using GameHost.Injection.Dependency;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.Resource;
+using GameHost.Utility;
 using JetBrains.Annotations;
 using MagicOnion.Client;
 using PataNext.MasterServerShared.Services;
@@ -101,7 +102,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 						));
 					}
 
-					globalTasks.Add(Task.Run(async () =>
+					globalTasks.Add(TaskScheduler.StartUnwrap(async () =>
 					{
 						foreach (var t in tasks)
 						{

@@ -101,7 +101,7 @@ namespace PataNext.Simulation.Client.Rpc
 							AssetResPath = details.ResPath,
 							Name         = details.Name,
 							Description  = details.Description,
-							AssetType    = details.Type
+							AssetType    = details.Type.FullString
 						};
 					}
 					

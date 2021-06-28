@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using BepuPhysics;
 using BepuUtilities;
 using Collections.Pooled;
 using GameHost.Simulation.TabEcs;
@@ -90,7 +91,7 @@ namespace PataNext.Module.Simulation.GameModes
 								Data =
 								{
 									Mode   = CameraMode.Forced,
-									Offset = RigidTransform.Identity,
+									Offset = RigidPose.Identity,
 									Target = runtimeUnitFocus.Entity
 								}
 							});
@@ -138,7 +139,8 @@ namespace PataNext.Module.Simulation.GameModes
 							foreach (var definedAbility in definedAbilityBuffer)
 							{
 								var runtimeAbility = abilityCollection.SpawnFor(definedAbility.Id.ToString(), runtimeUnit, definedAbility.Selection);
-								AddComponent(runtimeAbility, new SimulationAuthority());
+								if (runtimeAbility != default)
+									AddComponent(runtimeAbility, new SimulationAuthority());
 							}
 						}
 

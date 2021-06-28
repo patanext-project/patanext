@@ -8,6 +8,7 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
 using PataNext.Game.Abilities;
+using PataNext.Game.Abilities.Effects;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.GamePlay.Units;
@@ -54,7 +55,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Damage
 				if (TryGetComponentBuffer<DamageFrameDataStatusEffect>(handle, out var statusBuffer))
 				{
 					foreach (var status in statusBuffer)
-						if (status.Type == StatusEffect.KnockBack && status.Power > 0)
+						if (status.Type == AsComponentType<KnockBack>() && status.Power > 0)
 							currentKnockbackPower = status.Power;
 				}
 
@@ -62,10 +63,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Damage
 					continue;
 
 				var playState = GetComponentData<UnitPlayState>(damageEvent.Victim.Handle);
-				if (statusProvider.HasStatus(damageEvent.Victim.Handle, StatusEffect.KnockBack))
+				if (statusProvider.HasStatus(damageEvent.Victim.Handle, AsComponentType<KnockBack>()))
 				{
-					ref readonly var state    = ref statusProvider.GetStatusState(damageEvent.Victim.Handle, StatusEffect.KnockBack);
-					ref readonly var settings = ref statusProvider.GetStatusSettings(damageEvent.Victim.Handle, StatusEffect.KnockBack);
+					ref readonly var state    = ref statusProvider.GetStatusState(damageEvent.Victim.Handle, AsComponentType<KnockBack>());
+					ref readonly var settings = ref statusProvider.GetStatusSettings(damageEvent.Victim.Handle, AsComponentType<KnockBack>());
 					if (state.CurrentResistance >= 0 || currentKnockbackPower < state.CurrentResistance)
 						continue;
 

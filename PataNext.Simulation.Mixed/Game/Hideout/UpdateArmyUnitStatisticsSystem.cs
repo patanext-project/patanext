@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GameHost.Core.Ecs;
 using GameHost.Native.Char;
 using GameHost.Simulation.Utility.EntityQuery;

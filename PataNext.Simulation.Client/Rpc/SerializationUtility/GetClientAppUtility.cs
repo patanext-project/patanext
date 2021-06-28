@@ -19,8 +19,7 @@ namespace PataNext.Game.Rpc.SerializationUtility
 			{
 				if (!(app is SimulationApplication simuApp))
 					continue;
-
-				Console.WriteLine(simuApp.AssignedEntity.Get<ApplicationName>().Value);
+				
 				if (!simuApp.AssignedEntity.Get<ApplicationName>().Value.StartsWith("client"))
 					continue;
 

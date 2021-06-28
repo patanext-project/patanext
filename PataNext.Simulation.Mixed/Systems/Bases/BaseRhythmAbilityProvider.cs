@@ -303,7 +303,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 				ref var component = ref GameWorld.GetComponentData<AbilityModifyStatsOnChaining>(entity);
 
 				var stats = new Dictionary<string, StatisticModifier>();
-				StatisticModifierJson.FromMap(ref stats, GetConfigurationData());
+				StatisticModifierJson.FromMap(ref stats, GetConfigurationData(), GameWorld);
 
 				void TryGet(string val, out StatisticModifier modifier)
 				{

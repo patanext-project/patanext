@@ -1,4 +1,5 @@
-﻿using GameHost.Simulation.TabEcs.Interfaces;
+﻿using GameHost.Simulation.TabEcs;
+using GameHost.Simulation.TabEcs.Interfaces;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 
@@ -45,10 +46,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Damage
 
 	public struct DamageFrameDataStatusEffect : IComponentBuffer
 	{
-		public StatusEffect Type;
-		public float        Power;
+		public ComponentType Type;
+		public float         Power;
 
-		public DamageFrameDataStatusEffect(StatusEffect type, float power)
+		public DamageFrameDataStatusEffect(ComponentType type, float power)
 		{
 			Type  = type;
 			Power = power;

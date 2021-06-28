@@ -5,6 +5,7 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.Utility.EntityQuery;
 using JetBrains.Annotations;
 using PataNext.Game.Abilities;
+using PataNext.Game.Abilities.Effects;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Systems;
 using StormiumTeam.GameBase;
@@ -50,16 +51,16 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Damage
 				if (TryGetComponentBuffer<DamageFrameDataStatusEffect>(handle, out var statusBuffer))
 				{
 					foreach (var status in statusBuffer)
-						if (status.Type == StatusEffect.Piercing && status.Power > 0)
+						if (status.Type == AsComponentType<Piercing>() && status.Power > 0)
 							currentPiercingPower = status.Power;
 				}
 
 				var piercedDefense        = 0f;
 				var piercedReceivedDamage = 0f;
-				if (statusProvider.HasStatus(damageEvent.Victim.Handle, StatusEffect.Piercing))
+				if (statusProvider.HasStatus(damageEvent.Victim.Handle, AsComponentType<Piercing>()))
 				{
-					ref readonly var state    = ref statusProvider.GetStatusState(damageEvent.Victim.Handle, StatusEffect.Piercing);
-					ref readonly var settings = ref statusProvider.GetStatusSettings(damageEvent.Victim.Handle, StatusEffect.Piercing);
+					ref readonly var state    = ref statusProvider.GetStatusState(damageEvent.Victim.Handle, AsComponentType<Piercing>());
+					ref readonly var settings = ref statusProvider.GetStatusSettings(damageEvent.Victim.Handle, AsComponentType<Piercing>());
 					if (state.CurrentResistance < 0)
 					{
 						var leftLv2 = state.CurrentResistance + (settings.Resistance * 2);

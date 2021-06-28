@@ -19,11 +19,24 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 				if (!pressure.IsSliderEnd)
 				{
 					array[resultCount].Start = pressure;
+					// Search for a slider end of the same key
+					var tempExec = exec + 1;
+					for (; tempExec < executingCommand.Count; tempExec++)
+					{
+						if (executingCommand[tempExec].KeyId == pressure.KeyId && executingCommand[tempExec].IsSliderEnd)
+						{
+							array[resultCount].End = executingCommand[tempExec];
+							break;
+						}
+					}
+					
+					/*// If we still have another pressure and the next pressure is a slider
+					// Then 
 					if (exec + 1 < executingCommand.Count && executingCommand[exec + 1].IsSliderEnd)
 					{
 						array[resultCount].End = executingCommand[exec + 1];
 						exec++;
-					}
+					}*/
 
 					resultCount++;
 				}
@@ -76,16 +89,25 @@ namespace PataNext.Module.Simulation.Game.RhythmEngine
 			if (executingCommand.Length != commandTarget.Count)
 				return false;
 
+			//Console.WriteLine("begin");
+			
 			var startSpan = executingCommand[0].Start.FlowBeat * beatInterval;
 			for (var i = 0; i != commandTarget.Count; i++)
 			{
 				var action   = commandTarget[i];
 				var pressure = executingCommand[i];
 
+				//Console.WriteLine($"{i} - {action.Key}, {pressure.Start.KeyId}");
+
 				if (action.Key != pressure.Start.KeyId)
 					return false;
+
 				if (!action.Beat.IsValid(executingCommand[i], startSpan, beatInterval))
+				{
+					//Console.WriteLine("start=" + action.Beat.IsStartValid(executingCommand[i].Start.Time, startSpan, beatInterval));
+					//Console.WriteLine($"slider={action.Beat.IsSliderValid(executingCommand[i].End.Time, startSpan, beatInterval)} {executingCommand[i].End.Time} {startSpan} ({executingCommand[i].IsSlider})");
 					return false;
+				}
 			}
 
 			return true;

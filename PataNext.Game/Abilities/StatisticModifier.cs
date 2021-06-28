@@ -1,6 +1,7 @@
 ﻿using System;
 using GameHost.Native;
 using GameHost.Native.Fixed;
+using GameHost.Simulation.TabEcs;
 using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Game.Abilities
@@ -44,7 +45,7 @@ namespace PataNext.Game.Abilities
 			Knockback = 1,
 		};
 
-		private static int FindIndex(Span<StatusEffectModifier> list, StatusEffect type)
+		private static int FindIndex(Span<StatusEffectModifier> list, ComponentType type)
 		{
 			var length = list.Length;
 			for (var i = 0; i != length; i++)
@@ -56,7 +57,7 @@ namespace PataNext.Game.Abilities
 			return -1;
 		}
 
-		public static bool TryGetEffect(ref Span<StatusEffectModifier> fixedBuffer, StatusEffect type, out StatusEffectModifier modifier)
+		public static bool TryGetEffect(ref Span<StatusEffectModifier> fixedBuffer, ComponentType type, out StatusEffectModifier modifier)
 		{
 			var index = FindIndex(fixedBuffer, type);
 			if (index < 0)
@@ -69,7 +70,7 @@ namespace PataNext.Game.Abilities
 			return true;
 		}
 
-		public static ref StatusEffectModifier SetEffectRef<TBuffer>(ref TBuffer fixedBuffer, StatusEffect type)
+		public static ref StatusEffectModifier SetEffectRef<TBuffer>(ref TBuffer fixedBuffer, ComponentType type)
 			where TBuffer : struct, IFixedBuffer<StatusEffectModifier>
 		{
 			var index = FindIndex(fixedBuffer.Span, type);
@@ -84,11 +85,11 @@ namespace PataNext.Game.Abilities
 
 	public struct StatusEffectModifier : IEquatable<StatusEffectModifier>
 	{
-		public StatusEffect Type;
-		public float        Power;
-		public float        RegenPerSecond;
-		public float        ReceiveImmunity;
-		public float        ReceivePower;
+		public ComponentType Type;
+		public float         Power;
+		public float         RegenPerSecond;
+		public float         ReceiveImmunity;
+		public float         ReceivePower;
 
 		public bool Equals(StatusEffectModifier other)
 		{

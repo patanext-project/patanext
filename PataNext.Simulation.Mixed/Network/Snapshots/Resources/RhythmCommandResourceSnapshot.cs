@@ -91,7 +91,7 @@ namespace PataNext.Module.Simulation.Network.Snapshots.Resources
 
 		public void ToComponent(ref RhythmCommandIdentifier component, in GetSerializerSetup setup)
 		{
-			component = new RhythmCommandIdentifier(Identifier);
+			component = new RhythmCommandIdentifier(Identifier, 4);
 		}
 	}
 }

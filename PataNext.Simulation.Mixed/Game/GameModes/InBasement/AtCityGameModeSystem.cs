@@ -417,7 +417,7 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 						Data =
 						{
 							Mode   = CameraMode.Forced,
-							Offset = RigidTransform.Identity,
+							Offset = RigidPose.Identity,
 							Target = character
 						}
 					});

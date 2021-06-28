@@ -21,8 +21,6 @@ namespace StormiumTeam.GameBase.Physics.Systems
 	{
 		private ILogger logger;
 
-		private IManagedWorldTime worldTime;
-
 		public Simulation Simulation { get; }
 
 		public BufferPool BufferPool { get; }
@@ -34,7 +32,6 @@ namespace StormiumTeam.GameBase.Physics.Systems
 			BufferPool = new BufferPool();
 			Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(), new PositionFirstTimestepper());
 
-			DependencyResolver.Add(() => ref worldTime);
 			DependencyResolver.Add(() => ref logger);
 		}
 
@@ -44,7 +41,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		protected override unsafe void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-			
+
 			disposeComponentBoard = new BepuPhysicsColliderComponentBoard(this, sizeof(TypedIndex), 0);
 			disposeComponentType  = GameWorld.RegisterComponent("DisposeShapeFromTypeIndex", disposeComponentBoard);
 		}
@@ -60,6 +57,9 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		public TypedIndex SetColliderShape<TShape>(GameEntityHandle entity, TShape shape, bool disposeOnRemove = true)
 			where TShape : unmanaged, IShape
 		{
+			if (GameWorld is null)
+				throw new NullReferenceException(nameof(GameWorld));
+
 			if (GameWorld.HasComponent(entity, disposeComponentType))
 				Simulation.Shapes.RecursivelyRemoveAndDispose(GetTypedIndex(entity), BufferPool);
 
@@ -77,7 +77,8 @@ namespace StormiumTeam.GameBase.Physics.Systems
 		                             float            maximumT = 0)
 		{
 			maximumT = velocity.Linear.Length();
-			
+			maximumT = 10;
+
 			if (!Sweep(against, shape, pose, velocity, out againstHit, maximumT))
 			{
 				thisShapeHit = default;
@@ -94,18 +95,19 @@ namespace StormiumTeam.GameBase.Physics.Systems
 
 			var secondSweep = Sweep(
 				thisShapePtr, shape.Type, pose, default,
-				shapePointer, againstCollider.Type, againstPose, new BodyVelocity(againstHit.normal * 0.01f),
+				shapePointer, againstCollider.Type, againstPose, new BodyVelocity(-againstHit.normal),
 				out thisShapeHit,
 				maximumT
 			);
 
+			// This mean that both objects don't overlap, so just return the basic distance
 			if (!secondSweep)
 			{
-				return float.NaN;
+				return againstHit.time1;
 			}
 
 			var dist = Vector3.Distance(againstHit.position, thisShapeHit.position);
-			Console.WriteLine($"{againstHit.position} {thisShapeHit.position} ({againstPose.Position} {pose.Position}) ({againstHit.time0} {againstHit.time1}, {thisShapeHit.time0} {thisShapeHit.time1})");
+			Console.WriteLine($"{againstHit.position} {thisShapeHit.position} ({againstPose.Position} {pose.Position}) ({againstHit.normal} {thisShapeHit.normal}) ({againstHit.time0} {againstHit.time1}, {thisShapeHit.time0} {thisShapeHit.time1})");
 			return againstHit.time0 <= 0 ? -dist : dist;
 		}
 
@@ -179,11 +181,12 @@ namespace StormiumTeam.GameBase.Physics.Systems
 
 			//Console.WriteLine($"{poseA.Position} {poseB.Position}");
 
+			
 			var filter = new AlwaysTrueSweepFilter();
 			var intersect = task.Sweep(
 				a, typeA, poseA.Orientation, velocityA,
 				b, typeB, poseB.Position - poseA.Position, poseB.Orientation, velocityB,
-				maximumT, 1e-2f, 1e-5f, 25, ref filter, Simulation.Shapes, Simulation.NarrowPhase.SweepTaskRegistry, BufferPool,
+				maximumT, -100, 1e-5f, 25, ref filter, Simulation.Shapes, Simulation.NarrowPhase.SweepTaskRegistry, BufferPool,
 				out hit.time0, out hit.time1, out hit.position, out hit.normal
 			);
 			hit.position += poseA.Position;
@@ -203,14 +206,65 @@ namespace StormiumTeam.GameBase.Physics.Systems
 				SetColliderShape(entity, compound);
 		}
 
-		public bool Overlap(GameEntityHandle        left,    GameEntityHandle right)
+		public bool Overlap(GameEntityHandle left, GameEntityHandle right)
 		{
 			throw new NotImplementedException();
 		}
 
 		public bool Distance(GameEntityHandle against, GameEntityHandle origin, float maxDistance, EntityOverrides? overrideAgainst, EntityOverrides? overrideOrigin, out DistanceResult distanceResult)
 		{
-			throw new NotImplementedException();
+			TypedIndex againstCollider = GetTypedIndex(against),
+			           originCollider  = GetTypedIndex(origin);
+
+			RigidPose againstPose = RigidPose.Identity,
+			          originPose  = RigidPose.Identity;
+
+			BodyVelocity againstVelocity = default,
+			             originVelocity  = default;
+
+			if (overrideAgainst is { } againstOverrides)
+			{
+				againstPose.Position   = againstOverrides.Position;
+				againstVelocity.Linear = againstOverrides.Velocity;
+			}
+			else
+			{
+				TryGetComponentData(against, out Position position);
+				TryGetComponentData(against, out Velocity velocity);
+
+				againstPose.Position   = position.Value;
+				againstVelocity.Linear = velocity.Value;
+			}
+
+			if (overrideOrigin is { } originOverrides)
+			{
+				originPose.Position   = originOverrides.Position;
+				originVelocity.Linear = originOverrides.Velocity;
+			}
+			else
+			{
+				TryGetComponentData(origin, out Position position);
+				TryGetComponentData(origin, out Velocity velocity);
+
+				originPose.Position   = position.Value;
+				originVelocity.Linear = velocity.Value;
+			}
+
+			/*var isHit = Sweep(originCollider, originPose, originVelocity,
+				againstCollider, againstPose, againstVelocity,
+				out var hit);
+
+			Console.WriteLine($"{hit.time0} {hit.time1}");*/
+
+			AddComponent(against, new Position(againstPose.Position));
+			AddComponent(against, new Velocity {Value = againstVelocity.Linear});
+			var d = Distance(against, originCollider, originPose, originVelocity, out var againstHit, out var originHit);
+
+			distanceResult.Distance = d;
+			distanceResult.Normal   = -againstHit.normal;
+			distanceResult.Position = againstHit.position;
+
+			return d <= maxDistance;
 		}
 	}
 }

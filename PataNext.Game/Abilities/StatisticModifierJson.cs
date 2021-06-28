@@ -6,6 +6,8 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using GameHost.Native;
+using GameHost.Simulation.TabEcs;
+using PataNext.Game.Abilities.Effects;
 using RevolutionSnapshot.Core.Buffers;
 
 namespace PataNext.Game.Abilities
@@ -21,7 +23,7 @@ public static class StatisticModifierJson
 		/// don't mute the dictionary!
 		/// </summary>
 		/// <returns></returns>
-		public static unsafe void FromMap(ref Dictionary<string, StatisticModifier> hashMap, string json)
+		public static unsafe void FromMap(ref Dictionary<string, StatisticModifier> hashMap, string json, GameWorld gameWorld)
 		{
 			if (json == null)
 				return;
@@ -40,13 +42,13 @@ public static class StatisticModifierJson
 						continue;
 
 					var mod = StatisticModifier.Default;
-					Deserialize(ref mod, prop.Value);
+					Deserialize(ref mod, prop.Value, gameWorld);
 					hashMap[prop.Name] = mod;
 				}
 			}
 		}
 
-		private static void Deserialize(ref StatisticModifier modifier, JsonElement element)
+		private static void Deserialize(ref StatisticModifier modifier, JsonElement element, GameWorld gameWorld)
 		{
 			bool update(ref float original, string member)
 			{
@@ -94,10 +96,10 @@ public static class StatisticModifierJson
 
 			if (element.TryGetProperty("status_global", out var statusObj))
 			{
-				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, StatusEffect.Critical), statusObj);
-				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, StatusEffect.KnockBack), statusObj);
-				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, StatusEffect.Stagger), statusObj);
-				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, StatusEffect.Piercing), statusObj);
+				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, gameWorld.AsComponentType<Critical>()), statusObj);
+				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, gameWorld.AsComponentType<KnockBack>()), statusObj);
+				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, gameWorld.AsComponentType<Stagger>()), statusObj);
+				update_status(ref StatisticModifier.SetEffectRef(ref modifier.StatusEffects, gameWorld.AsComponentType<Piercing>()), statusObj);
 			}
 		}
 

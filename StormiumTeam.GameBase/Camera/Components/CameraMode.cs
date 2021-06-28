@@ -1,4 +1,5 @@
 ﻿using System;
+using BepuPhysics;
 using BepuUtilities;
 using GameHost.Injection;
 using GameHost.Revolution.NetCode;
@@ -31,16 +32,16 @@ namespace StormiumTeam.GameBase.Camera.Components
 		public CameraMode Mode;
 
 		public GameEntity         Target;
-		public RigidTransform Offset;
+		public RigidPose Offset;
 	}
 
 	public struct LocalCameraState : IComponentData
 	{
 		public CameraState Data;
 
-		public CameraMode     Mode   => Data.Mode;
-		public GameEntity     Target => Data.Target;
-		public RigidTransform Offset => Data.Offset;
+		public CameraMode Mode   => Data.Mode;
+		public GameEntity Target => Data.Target;
+		public RigidPose  Offset => Data.Offset;
 		
 		public class Register : RegisterGameHostComponentData<LocalCameraState>
 		{}
@@ -50,9 +51,9 @@ namespace StormiumTeam.GameBase.Camera.Components
 	{
 		public CameraState Data;
 
-		public CameraMode     Mode   => Data.Mode;
-		public GameEntity     Target => Data.Target;
-		public RigidTransform Offset => Data.Offset;
+		public CameraMode Mode   => Data.Mode;
+		public GameEntity Target => Data.Target;
+		public RigidPose  Offset => Data.Offset;
 
 		public class Register : RegisterGameHostComponentData<ServerCameraState>
 		{

@@ -51,8 +51,10 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 		public struct Response
 		{
 			public ResPath ResPath;
+			public ResPath Type;
 			public string  Name, Description;
-			public string  Type;
+
+			public int StackCount;
 		}
 
 		public class Process : MasterServerRequestHub<IItemHub, IItemHubReceiver, GetItemDetailsRequest>
@@ -63,14 +65,16 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 
 			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
-				var result = await Service.GetAssetDetails(entity.Get<GetItemDetailsRequest>().ItemGuid);
+				var result = await Service.GetItemDetails(entity.Get<GetItemDetailsRequest>().ItemGuid);
 
 				return e => e.Set(new Response
 				{
-					ResPath     = new(ResPath.EType.MasterServer, result.Pointer.Author, result.Pointer.Mod, result.Pointer.Id),
-					Name        = result.Name,
-					Description = result.Description,
-					Type        = result.Type
+					ResPath     = new(ResPath.EType.MasterServer, result.AssetDetails.Pointer.Author, result.AssetDetails.Pointer.Mod, result.AssetDetails.Pointer.Id),
+					Name        = result.AssetDetails.Name,
+					Description = result.AssetDetails.Description,
+					Type        = new(result.AssetDetails.Type),
+
+					StackCount = result.StackCount
 				});
 			}
 		}

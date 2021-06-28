@@ -7,6 +7,7 @@ using GameHost.Revolution.NetCode.LLAPI;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
 using GameHost.Worlds;
+using StormiumTeam.GameBase.Bootstrap;
 using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.GamePlay.Events;
@@ -41,6 +42,7 @@ namespace StormiumTeam.GameBase
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
+
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{
 				if (listener is SimulationApplication simulationApplication)
@@ -110,8 +112,9 @@ namespace StormiumTeam.GameBase
 							simulationApplication.Data.Collection.GetOrCreate(typeof(DisconnectUserRequest.Process));
 
 							simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserRequest.Process));
+							#if !STORMIUM
 							simulationApplication.Data.Collection.GetOrCreate(typeof(ConnectUserWithDiscordRequest.Process));
-							
+							#endif
 							
 							simulationApplication.Data.Collection.GetOrCreate(typeof(GetAssetPointerRequest.Process));
 						}

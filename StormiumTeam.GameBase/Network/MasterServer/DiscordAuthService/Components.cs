@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !STORMIUM || NET
+using System;
 using System.Threading.Tasks;
 using Cysharp.Text;
 using DefaultEcs;
@@ -59,7 +60,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer.StandardAuthService
 
 				Console.WriteLine("yo1");
 
-				if (result.Token == null)
+				if (result.Token == null) 
 				{
 					logger.ZLogCritical("Couldn't connect with Discord Id {0}", component.UserId);
 					return e => { e.Set(new Error {Message = ZString.Format("Couldn't connect with Discord Id {0}", component.UserId)}); };
@@ -71,3 +72,4 @@ namespace StormiumTeam.GameBase.Network.MasterServer.StandardAuthService
 		}
 	}
 }
+#endif

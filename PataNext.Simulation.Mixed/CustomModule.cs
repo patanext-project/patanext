@@ -4,6 +4,8 @@ using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Revolution.NetCode.LLAPI;
 using GameHost.Simulation.Application;
+using GameHost.Simulation.Features.ShareWorldState;
+using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.Resource;
 using GameHost.Threading;
 using GameHost.Utility;
@@ -12,6 +14,7 @@ using MagicOnion;
 using Microsoft.Extensions.Logging;
 using PataNext.MasterServerShared.Services;
 using PataNext.Module.Simulation;
+using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.Special;
@@ -271,27 +274,29 @@ namespace PataNext.Module.Simulation
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitKitResource>.Defaults>.Create(simulationApplication.Data.World, new()));
 
 						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IRhythmEngineSimulationPass.RegisterPass(),
-							new[] {typeof(IUpdateSimulationPass.RegisterPass)},
-							new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
+							new[] { typeof(IUpdateSimulationPass.RegisterPass) },
+							new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
 
 						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilityPreSimulationPass.RegisterPass(),
-							new[] {typeof(IUpdateSimulationPass.RegisterPass), typeof(IRhythmEngineSimulationPass.RegisterPass)},
-							new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
+							new[] { typeof(IUpdateSimulationPass.RegisterPass), typeof(IRhythmEngineSimulationPass.RegisterPass) },
+							new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
 
 						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilitySimulationPass.RegisterPass(),
-							new[] {typeof(IUpdateSimulationPass.RegisterPass), typeof(IAbilityPreSimulationPass.RegisterPass)},
-							new[] {typeof(IPostUpdateSimulationPass.RegisterPass)});
+							new[] { typeof(IUpdateSimulationPass.RegisterPass), typeof(IAbilityPreSimulationPass.RegisterPass) },
+							new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
 
 						InjectProviders(simulationApplication);
 						InjectMasterServerHubs(simulationApplication.Data);
 						InjectMasterServerProcessSystems(simulationApplication.Data);
 
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Systems.SynchronizeInventorySystem));
+						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.DontSerializeAbilityEngineSet));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.LocalRhythmCommandResourceManager));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.KitCollectionSystem));
-						
+
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.RegisterDefaultKits));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.UnitDescription.RegisterContainer));
@@ -347,6 +352,12 @@ namespace PataNext.Module.Simulation
 
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Scenar.TestScenarProvider));
+
+						if (simulationApplication.Data.Collection.TryGet(out SendWorldStateSystem sendWorldStateSystem))
+						{
+							var gameWorld = new ContextBindingStrategy(simulationApplication.Data.Context, false).Resolve<GameWorld>();
+							sendWorldStateSystem.SetDisabled(gameWorld.AsComponentType<PlayerInventoryTarget>(), true);
+						}
 
 						var serializerCollection = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
 						InjectSerializers(simulationApplication, serializerCollection);

@@ -14,8 +14,10 @@ using GameHost.Core.Execution;
 using GameHost.Core.IO;
 using GameHost.Core.Threading;
 using GameHost.Injection;
+using GameHost.Inputs.Systems;
 using GameHost.Revolution.NetCode.LLAPI.Systems;
 using GameHost.Simulation.Application;
+using GameHost.Simulation.Features.ShareWorldState;
 using GameHost.Simulation.TabEcs;
 using GameHost.Threading;
 using GameHost.Transports;
@@ -137,10 +139,15 @@ namespace PataNext.Export.Desktop
 				}
 				
 				
-				/*var serverGameWorld = new ContextBindingStrategy(app.Data.Context, false).Resolve<GameWorld>();
-				serverGameWorld.AddComponent<BasicTestGameMode>(serverGameWorld.CreateEntity());*/
+				var serverGameWorld = new ContextBindingStrategy(app.Data.Context, false).Resolve<GameWorld>();
+				//serverGameWorld.AddComponent<BasicTestGameMode>(serverGameWorld.CreateEntity());
 				
-				app.Data.Collection.GetOrCreate(typeof(RuntimeTestCoopMission));
+				//app.Data.Collection.GetOrCreate(typeof(RuntimeTestCoopMission));
+
+				app.Data.Collection.GetOrCreate(typeof(RuntimeTestUnitBarracks));
+
+				app.Data.Collection.GetOrCreate(typeof(SendWorldStateSystem));
+				app.Data.Collection.GetOrCreate(typeof(SharpDxInputSystem));
 
 				app.Data.Collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.SerializerCollection));
 				app.Data.Collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.Systems.UpdateDriverSystem));

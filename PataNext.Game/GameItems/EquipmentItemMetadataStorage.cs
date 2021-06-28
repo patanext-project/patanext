@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DefaultEcs;
@@ -37,6 +38,8 @@ namespace PataNext.Game.GameItems
 			var multiplicative = EquipmentItemStatisticsMultiplicative.Default;
 
 			var root = document.RootElement;
+			root = root.GetProperty("stat");
+			
 			if (root.TryGetProperty("+", out var addProp))
 			{
 				additive.Health  = tryGetInt(addProp, "health");

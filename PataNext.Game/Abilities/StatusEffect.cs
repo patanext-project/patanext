@@ -1,48 +1,50 @@
-﻿namespace PataNext.Game.Abilities
+﻿using GameHost.Simulation.TabEcs.Interfaces;
+
+namespace PataNext.Game.Abilities
 {
 	namespace Effects
 	{
-		public readonly struct Critical
+		public readonly struct Critical : IEntityComponent
 		{
 		}
 
-		public readonly struct KnockBack
+		public readonly struct KnockBack : IEntityComponent
 		{
 		}
 
-		public readonly struct Stagger
+		public readonly struct Stagger : IEntityComponent
 		{
 		}
 
-		public readonly struct Burn
+		public readonly struct Burn : IEntityComponent
 		{
 		}
 
-		public readonly struct Sleep
+		public readonly struct Sleep : IEntityComponent
 		{
 		}
 
-		public readonly struct Freeze
+		public readonly struct Freeze : IEntityComponent
 		{
 		}
 		
-		public readonly struct Poison
+		public readonly struct Poison : IEntityComponent
 		{
 		}
 		
-		public readonly struct Tumble
+		public readonly struct Tumble : IEntityComponent
 		{
 		}
 		
-		public readonly struct Wind
+		public readonly struct Wind : IEntityComponent
 		{
 		}
 		
-		public readonly struct Piercing
+		public readonly struct Piercing : IEntityComponent
 		{
 		}
 		
-		public readonly struct Silence
+		public readonly struct Silence : IEntityComponent
 		{
 		}
 	}

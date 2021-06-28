@@ -38,8 +38,9 @@ namespace PataNext.Module.Simulation.Game.Providers
 		{
 			if (GameWorld.Exists(data.OptionalClub))
 			{
+				Console.WriteLine(data.OptionalClub);
 				if (!HasComponent<ClubDescription>(data.OptionalClub))
-					throw new InvalidOperationException("not a club");
+					throw new InvalidOperationException(GameWorld.DebugCreateErrorMessage(data.OptionalClub.Handle, "Not a Club entity"));
 				AddComponent(entity, new Relative<ClubDescription>(data.OptionalClub));
 			}
 		}

@@ -25,6 +25,10 @@ namespace StormiumTeam.GameBase.Physics.Systems
 
 	public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
 	{
+		public void Initialize(Simulation simulation)
+		{
+		}
+
 		public void PrepareForIntegration(float dt)
 		{
 		}

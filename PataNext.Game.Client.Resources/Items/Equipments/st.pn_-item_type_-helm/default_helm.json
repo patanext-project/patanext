@@ -1,0 +1,24 @@
+{
+    "id": "default_helm",
+    "name": "Default Helm",
+    "description": "T h e  D e s c r i p t i o n",
+    "default": true,
+    "stat":
+    {
+        "+": {
+            "attack": 28,
+            "status":
+            {
+                "offense":
+                {
+                    "critical": 10,
+                    "knockback": 5,
+                    "stagger": 10
+                }
+            }
+        },
+        "*": {
+            "attack_speed": 1.0
+        }
+    }
+}

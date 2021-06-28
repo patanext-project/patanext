@@ -61,17 +61,23 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			DependencyResolver.AddDependency(new TaskDependency(taskScheduler.StartUnwrap(async () =>
+			var isInstant = false;
+			if (isInstant)
+				TestInstant();
+			else
 			{
-				while (currentUserSystem.User.Token is null)
+				DependencyResolver.AddDependency(new TaskDependency(taskScheduler.StartUnwrap(async () =>
 				{
-					await Task.Delay(10);
-				}
-			})));
-			DependencyResolver.OnComplete(_ =>
-			{
-				TestWithMasterServer();
-			});
+					while (currentUserSystem.User.Token is null)
+					{
+						await Task.Delay(10);
+					}
+				})));
+				DependencyResolver.OnComplete(_ =>
+				{
+					TestWithMasterServer();
+				});
+			}
 		}
 
 		protected override void OnUpdate()

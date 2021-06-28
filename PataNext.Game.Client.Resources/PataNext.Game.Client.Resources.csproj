@@ -15,10 +15,12 @@
         <EmbeddedResource Include="Abilities\**\*" />
         <EmbeddedResource Include="Fonts\**\*" />
         <EmbeddedResource Include="Textures\**\*" />
+        <EmbeddedResource Include="Items\**\*" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Fonts" />
+      <Folder Include="Items\Equipments" />
     </ItemGroup>
 
 </Project>

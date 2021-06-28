@@ -30,8 +30,8 @@ namespace PataNext.Export.Desktop
 			
 			collection.Mgr.CreateEntity().Set<IFeature>(new MasterServerFeature("http://82.65.166.186:5000"));
 
-			/*World.Mgr.CreateEntity().Set(new DisconnectUserRequest("12345689"));
-			World.Mgr.CreateEntity().Set(ConnectUserRequest.ViaLogin("guerro323", "337117463"));*/
+			World.Mgr.CreateEntity().Set(new DisconnectUserRequest("12345689"));
+			World.Mgr.CreateEntity().Set(ConnectUserRequest.ViaLogin("guerro323", "1316050985"));
 			
 			return;
 			
