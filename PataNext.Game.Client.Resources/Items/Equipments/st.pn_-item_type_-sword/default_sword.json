@@ -9,7 +9,7 @@
             "attack": 28,
             "status":
             {
-                "offense":
+                "power":
                 {
                     "critical": 10,
                     "knockback": 5,

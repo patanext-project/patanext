@@ -19,7 +19,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		public readonly GameEntity       Entity;
 		public readonly GameEntityHandle Handle;
 
-		public bool Exists() => GameWorld.Exists(Entity);
+		public readonly bool Exists() => GameWorld.Exists(Entity);
 
 		public void ThrowIfNotExists()
 		{

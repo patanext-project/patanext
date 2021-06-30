@@ -7,7 +7,10 @@ using GameHost.Core.Ecs;
 using GameHost.Core.IO;
 using GameHost.Simulation.TabEcs.Interfaces;
 using PataNext.Game.GameItems;
+using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Resources;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.Components
 {
@@ -47,6 +50,7 @@ namespace PataNext.Module.Simulation.Components
 			where TFill : IList<Entity>;
 
 		public abstract Entity GetStack(Entity assetEntity);
+		public abstract bool   Contains(Entity itemEntity);
 
 		public abstract void Dispose();
 	}
@@ -79,6 +83,14 @@ namespace PataNext.Module.Simulation.Components
 		void Clear(Entity assetEntity);
 	}
 
+	/// <summary>
+	/// An inventory that support equipments that can be swapped on units
+	/// </summary>
+	public interface ISwapEquipmentInventory
+	{
+		void RequestSwap(SafeEntityFocus origin, string attachment, Entity newEquipmentEntity);
+	}
+
 	public class PlayerInventoryNoRead : PlayerInventoryBase
 	{
 		public override void Read<TFill, TRestrict>(TFill list, TRestrict restrictTypes = default)
@@ -94,13 +106,19 @@ namespace PataNext.Module.Simulation.Components
 			return default;
 		}
 
+		public override bool Contains(Entity itemEntity)
+		{
+			return false;
+		}
+
 		public override void Dispose()
 		{
 		}
 	}
 
 	public class LocalPlayerInventory : PlayerInventoryBase,
-	                                    IWritablePlayerInventory
+	                                    IWritablePlayerInventory,
+	                                    ISwapEquipmentInventory
 	{
 		private PooledDictionary<string, PooledList<Entity>> itemsByType = new();
 
@@ -135,6 +153,20 @@ namespace PataNext.Module.Simulation.Components
 		{
 			var desc = assetEntity.Get<GameItemDescription>();
 			return getStackIndex(desc.Type, desc.Id);
+		}
+
+		public override bool Contains(Entity itemEntity)
+		{
+			var assetEntity = itemEntity.Get<TrucItemInventory>().AssetEntity;
+
+			if (!itemsByType.TryGetValue(assetEntity.Get<GameItemDescription>().Type, out var itemList))
+				return false;
+
+			foreach (var item in itemList)
+				if (item == itemEntity)
+					return true;
+
+			return false;
 		}
 
 		public override void Dispose()
@@ -222,6 +254,16 @@ namespace PataNext.Module.Simulation.Components
 		{
 			if (itemsByType.TryGetValue(assetEntity.Get<GameItemDescription>().Type, out var list))
 				list.Clear();
+		}
+
+		public void RequestSwap(SafeEntityFocus origin, string attachment, Entity newEquipmentEntity)
+		{
+			var gameWorld = origin.GameWorld;
+			foreach (ref var equipment in origin.GetBuffer<UnitDefinedEquipments>())
+			{
+				if (gameWorld.GetComponentData<UnitAttachmentResource>(equipment.Attachment.Handle).Value.Span.SequenceEqual(attachment))
+					equipment.Item = newEquipmentEntity;
+			}
 		}
 	}
 }

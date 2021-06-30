@@ -6,19 +6,16 @@
     "stat":
     {
         "+": {
-            "attack": 28,
+            "defense": 1,
+            "health": 20,
+            "attack": 10,
             "status":
             {
-                "offense":
+                "power":
                 {
-                    "critical": 10,
-                    "knockback": 5,
-                    "stagger": 10
+                    "stagger": 15
                 }
             }
-        },
-        "*": {
-            "attack_speed": 1.0
         }
     }
 }

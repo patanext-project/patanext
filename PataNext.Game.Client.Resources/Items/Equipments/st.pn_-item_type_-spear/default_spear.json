@@ -6,13 +6,12 @@
     "stat":
     {
         "+": {
-            "attack": 28,
+            "attack": 20,
             "status":
             {
-                "offense":
+                "power":
                 {
                     "critical": 10,
-                    "knockback": 5,
                     "stagger": 10
                 }
             }

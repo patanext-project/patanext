@@ -65,6 +65,13 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 			return default;
 		}
 
+		public override bool Contains(Entity itemEntity)
+		{
+			return itemEntity.TryGet(out ToMasterServerId masterServerId)
+			       && msIdToEntity.TryGetValue(masterServerId.Value, out var expected)
+			       && itemEntity == expected;
+		}
+
 		public override void Dispose()
 		{
 			foreach (var (_, ent) in msIdToEntity)

@@ -6,19 +6,14 @@
     "stat":
     {
         "+": {
-            "attack": 28,
+            "defense": 3,
             "status":
             {
-                "offense":
+                "resistance":
                 {
-                    "critical": 10,
-                    "knockback": 5,
-                    "stagger": 10
+                    "piercing": 30
                 }
             }
-        },
-        "*": {
-            "attack_speed": 1.0
         }
     }
 }
