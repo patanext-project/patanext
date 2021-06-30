@@ -16,9 +16,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 {
 	public class SynchronizeInventorySystem : AppSystemWithFeature<MasterServerFeature>
 	{
-		private ItemHubReceiver itemHubReceiver;
-		private World           itemWorld;
-
+		private ItemHubReceiver  itemHubReceiver;
 		private GameItemsManager itemsManager;
 
 		private IScheduler scheduler;
@@ -26,12 +24,10 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 		public SynchronizeInventorySystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref itemHubReceiver);
-			DependencyResolver.Add(() => ref itemWorld);
 			DependencyResolver.Add(() => ref itemsManager);
 
 			AddDisposable(inventoryReqEntity = World.Mgr.CreateEntity());
-			AddDisposable(itemWorld);
-			AddDisposable(scheduler = new Scheduler());
+			AddDisposable(scheduler          = new Scheduler());
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
@@ -89,8 +85,15 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 			{
 				inventoryReqEntity.Remove<GetInventoryRequest.Response>();
 
-				inventory.setMasterServerItems(createEntity, inventoryResponse.ItemIds);
+				inventory.setMasterServerItems(inventoryResponse.ItemIds);
 			}
+
+			foreach (var newItem in inventory.newItems)
+			{
+				itemUpdateSet.Add(newItem);
+			}
+			
+			inventory.newItems.Clear();
 
 			foreach (var updateGuid in itemUpdateSet)
 			{
@@ -114,24 +117,6 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 			}
 
 			scheduler.Run();
-		}
-
-
-		private Func<string, Entity> createEntity;
-
-		protected override void OnInit()
-		{
-			base.OnInit();
-
-			createEntity = guid =>
-			{
-				var entity = itemWorld.CreateEntity();
-				entity.Set(new GetItemDetailsRequest(guid));
-
-				itemUpdateSet.Add(guid);
-
-				return entity;
-			};
 		}
 	}
 }

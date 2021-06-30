@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Injection.Dependency;
@@ -13,6 +14,8 @@ using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Game.Hideout;
+using PataNext.Module.Simulation.GameModes;
 using PataNext.Module.Simulation.Network.MasterServer.Services;
 using PataNext.Module.Simulation.Network.MasterServer.Systems;
 using PataNext.Module.Simulation.Resources;
@@ -39,6 +42,8 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 		private ResPathGen                        resPathGen;
 		private UnitStatusEffectComponentProvider statusEffectProvider;
 
+		private MasterServerPlayerInventoryProvider inventoryProvider;
+
 		private GameItemsManager itemMgr;
 		
 		private CurrentUserSystem currentUserSystem;
@@ -54,6 +59,8 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 			DependencyResolver.Add(() => ref statusEffectProvider);
 			DependencyResolver.Add(() => ref itemMgr);
 			
+			DependencyResolver.Add(() => ref inventoryProvider);
+			
 			DependencyResolver.Add(() => ref currentUserSystem);
 		}
 
@@ -66,11 +73,33 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 			{
 				RequestUtility.CreateTracked(World.Mgr,
 					new GetFavoriteGameSaveRequest(),
-					(Entity _, GetFavoriteGameSaveRequest.Response response) => { start(response.SaveId); });
+					(Entity _, GetFavoriteGameSaveRequest.Response response) => { startMasterserver(response.SaveId); });
 			});
 		}
 
-		private void start(string saveId)
+		private void startMasterserver(string saveId)
+		{
+			var player = CreateEntity();
+			AddComponent(Safe(player),
+				new PlayerDescription(),
+				new GameRhythmInputComponent(),
+				new PlayerIsLocal(),
+				new InputAuthority()
+			);
+			
+			var inventory    = World.Mgr.CreateEntity();
+			var inventoryObj = inventoryProvider.Create(saveId);
+			inventory.Set(inventoryObj);
+			inventory.Set((PlayerInventoryBase) inventoryObj);
+
+			AddComponent(player, new PlayerAttachedGameSave(saveId));
+			AddComponent(player, new PlayerInventoryTarget(inventory));
+
+			var formation = CreateEntity();
+			AddComponent(formation, new LocalArmyFormation());
+		}
+		
+		private void startLocal(string saveId)
 		{
 			var uberArchResource = localArchetypeDb.GetOrCreate(new(resPathGen.Create(new[] { "archetype", "uberhero_std_unit" }, ResPath.EType.MasterServer)));
 			var kitResource      = localKitDb.GetOrCreate(new("taterazay"));

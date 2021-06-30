@@ -6,10 +6,32 @@ using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
 using PataNext.Game.GameItems;
 using PataNext.Module.Simulation.Components;
+using PataNext.Module.Simulation.Network.MasterServer.Services;
 using StormiumTeam.GameBase;
 
 namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 {
+	public class MasterServerPlayerInventoryProvider : AppSystem
+	{
+		private World itemWorld;
+		
+		public MasterServerPlayerInventoryProvider(WorldCollection collection) : base(collection)
+		{
+			AddDisposable(itemWorld = new());
+		}
+
+		public MasterServerPlayerInventory Create(string saveId)
+		{
+			return new(saveId, guid =>
+			{
+				var entity = itemWorld.CreateEntity();
+				entity.Set(new GetItemDetailsRequest(guid));
+
+				return entity;
+			});
+		}
+	}
+
 	public class MasterServerPlayerInventory : PlayerInventoryBase
 	{
 		private struct ToMasterServerId
@@ -22,9 +44,13 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 
 		public readonly string SaveId;
 
-		public MasterServerPlayerInventory(string saveId)
+		private Func<string, Entity> createEntity;
+
+		public MasterServerPlayerInventory(string saveId, Func<string, Entity> createEntity)
 		{
 			SaveId = saveId;
+
+			this.createEntity = createEntity;
 		}
 
 		public override void Read<TFill, TRestrict>(TFill list, TRestrict restrictTypes = default)
@@ -49,7 +75,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 				return;
 
 			foreach (var (_, item) in dict)
-				if (item.Get<TrucItemInventory>().AssetEntity == assetEntity)
+				if (item.Get<ItemInventory>().AssetEntity == assetEntity)
 					list.Add(item);
 		}
 
@@ -59,7 +85,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 				return default;
 
 			foreach (var (_, item) in dict)
-				if (item.Get<TrucItemInventory>().AssetEntity == assetEntity)
+				if (item.Get<ItemInventory>().AssetEntity == assetEntity)
 					return assetEntity;
 
 			return default;
@@ -82,17 +108,19 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 		}
 
 		internal PooledDictionary<string, Entity> msIdToEntity = new();
+		internal PooledList<string>               newItems = new();
 
-		internal void setMasterServerItems(Func<string, Entity> create, string[] itemGuids)
+		internal void setMasterServerItems(string[] itemGuids)
 		{
 			foreach (var guid in itemGuids)
 			{
 				if (!msIdToEntity.ContainsKey(guid))
 				{
-					var entity = create(guid);
+					var entity = createEntity(guid);
 					entity.Set(new ToMasterServerId { Value = guid });
 
 					msIdToEntity.Add(guid, entity);
+					newItems.Add(guid);
 				}
 			}
 
@@ -131,10 +159,28 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 				typeToGuidItemMap[desc.Type] = dict = new();
 
 			var entity = msIdToEntity[guid];
-			entity.Set(new TrucItemInventory { AssetEntity = assetEntity });
+			entity.Set(new ItemInventory { AssetEntity = assetEntity });
 
 			dict[guid] = entity;
 			return entity;
+		}
+
+		// -- This will create a temporary item, or get an existing one
+		// This method must only be used in rare case such as receiving equipment from an unit (since it may be possible that the inventory isn't totally updated)
+		internal Entity getOrCreateTemporaryItem(string guid, Entity assetEntity)
+		{
+			if (!msIdToEntity.TryGetValue(guid, out var itemEntity) || !itemEntity.Has<ItemInventory>())
+			{
+				itemEntity = createEntity(guid);
+				itemEntity.Set(new ToMasterServerId { Value = guid });
+
+				msIdToEntity[guid] = itemEntity;
+				newItems.Add(guid); // TODO: instead of directly adding it to the list, there should be some sort of confirmation
+				
+				setKnownItem(guid, assetEntity);
+			}
+
+			return itemEntity;
 		}
 	}
 }

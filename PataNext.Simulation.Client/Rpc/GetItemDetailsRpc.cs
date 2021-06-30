@@ -44,7 +44,7 @@ namespace PataNext.Simulation.Client.Rpc
 
 					Response response;
 
-					var assetEntity = entity.Get<TrucItemInventory>().AssetEntity;
+					var assetEntity = entity.Get<ItemInventory>().AssetEntity;
 					var desc        = assetEntity.Get<GameItemDescription>();
 					if (assetEntity.TryGet(out EquipmentItemDescription equipmentItemDescription))
 						response.ItemType = equipmentItemDescription.ItemType;

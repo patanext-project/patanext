@@ -67,7 +67,8 @@ namespace PataNext.Module.Simulation.Game.Hideout
 				var equipmentBuffer = definedEquipmentsAccessor[entity];
 				foreach (var equip in equipmentBuffer)
 				{
-					if (gameItemsManager.TryGetDescription(equip.Item.Get<TrucItemInventory>().AssetEntity.Get<GameItemDescription>().Id, out var equipmentDescEntity)
+					var asset = equip.Item.Get<ItemInventory>().AssetEntity;
+					if (gameItemsManager.TryGetDescription(asset.Get<GameItemDescription>().Id, out var equipmentDescEntity)
 					    && equipmentDescEntity.TryGet(out EquipmentItemDescription equipmentDesc))
 					{
 						statistics.Health              += equipmentDesc.Additive.Health;

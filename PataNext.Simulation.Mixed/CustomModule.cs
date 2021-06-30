@@ -291,6 +291,7 @@ namespace PataNext.Module.Simulation
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Systems.SynchronizeInventorySystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateUnitEquipmentRequestSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Systems.MasterServerPlayerInventoryProvider));
 						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.DontSerializeAbilityEngineSet));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.LocalRhythmCommandResourceManager));

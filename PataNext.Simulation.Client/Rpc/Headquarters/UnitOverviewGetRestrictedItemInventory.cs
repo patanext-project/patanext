@@ -90,7 +90,7 @@ namespace PataNext.Simulation.Client.Rpc
 					using var final = new PooledList<Response.Item>();
 					foreach (var item in list)
 					{
-						var asset = item.Get<TrucItemInventory>().AssetEntity;
+						var asset = item.Get<ItemInventory>().AssetEntity;
 						if (!asset.TryGet(out EquipmentItemDescription equipmentDesc))
 							continue;
 

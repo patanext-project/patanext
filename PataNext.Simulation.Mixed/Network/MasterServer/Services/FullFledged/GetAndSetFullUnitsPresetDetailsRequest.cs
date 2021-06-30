@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Collections.Pooled;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Injection.Dependency;
@@ -11,10 +12,12 @@ using GameHost.Simulation.Utility.Resource;
 using GameHost.Utility;
 using JetBrains.Annotations;
 using MagicOnion.Client;
+using PataNext.Game.GameItems;
 using PataNext.MasterServerShared.Services;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Network.MasterServer.Systems;
 using PataNext.Module.Simulation.Resources;
 using PataNext.Module.Simulation.Systems;
 using STMasterServer.Shared.Services.Assets;
@@ -22,6 +25,8 @@ using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.MasterServer;
 using StormiumTeam.GameBase.Network.MasterServer.AssetService;
 using StormiumTeam.GameBase.Network.MasterServer.Utility;
+using StormiumTeam.GameBase.Roles.Components;
+using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
@@ -29,6 +34,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 	public struct GetAndSetFullUnitsPresetDetailsRequest
 	{
 		public SafeEntityFocus GameEntity;
+
 		public string          SourceGuid;
 
 		public class Process : MasterServerRequestServiceMarkerDefaultEcs<GetAndSetFullUnitsPresetDetailsRequest>
@@ -37,6 +43,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 			private GameResourceDb<EquipmentResource>      equipDb;
 			private GameResourceDb<UnitArchetypeResource>  archDb;
 			private KitCollectionSystem                    kitCollectionSystem;
+			private GameItemsManager                       itemsManager;
 
 			public Process([NotNull] WorldCollection collection) : base(collection)
 			{
@@ -48,9 +55,11 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 				DependencyResolver.Add(() => ref equipDb);
 				DependencyResolver.Add(() => ref archDb);
 				DependencyResolver.Add(() => ref kitCollectionSystem);
+				DependencyResolver.Add(() => ref itemsManager);
 			}
 
 			private IViewableAssetService                                            viewableAssetService;
+			private IRoleService                                            roleService;
 			private HubClientConnectionCache<IUnitHub, IUnitHubReceiver>             unitHub;
 			private HubClientConnectionCache<IUnitPresetHub, IUnitPresetHubReceiver> unitPresetHub;
 			private HubClientConnectionCache<IItemHub, IItemHubReceiver>             itemHub;
@@ -60,6 +69,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 				base.OnFeatureAdded(entity, obj);
 
 				viewableAssetService = MagicOnionClient.Create<IViewableAssetService>(obj.Channel);
+				roleService          = MagicOnionClient.Create<IRoleService>(obj.Channel);
 
 				DependencyResolver.AddDependency(new TaskDependency(unitHub.Client));
 				DependencyResolver.AddDependency(new TaskDependency(unitPresetHub.Client));
@@ -72,6 +82,10 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 					throw new NullReferenceException(nameof(unitPresetHub));
 				if (!(itemHub.Client.Result is { } itemClient))
 					throw new NullReferenceException(nameof(unitPresetHub));
+
+				var focus     = entity.Get<GetAndSetFullUnitsPresetDetailsRequest>().GameEntity;
+				var player    = focus.GetData<Relative<PlayerDescription>>();
+				var inventory = focus.GameWorld.GetComponentData<PlayerInventoryTarget>(player.Handle).Value.Get<MasterServerPlayerInventory>();
 
 				var presetId = entity.Get<GetAndSetFullUnitsPresetDetailsRequest>().SourceGuid;
 				var globalTasks = new List<Task>();
@@ -86,33 +100,78 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 				// ----------------- ---------------- ++
 				//	Equipments
 				// ++ -------------- ++
-				var equipmentMap   = await unitPresetClient.GetEquipments(presetId);
-				var equipmentFinal = new UnitDisplayedEquipment[equipmentMap.Count];
+				var equipmentMap        = await unitPresetClient.GetEquipments(presetId);
+				var allowedEquipmentMap = await roleService.GetAllowedEquipments(presetDetails.RoleId);
+				
+				var equipmentFinal     = new UnitDisplayedEquipment[equipmentMap.Count];
+				var equipmentItemFinal = new UnitDefinedEquipments[equipmentMap.Count];
+				var allowedEquipmentFinal   = new PooledList<UnitAllowedEquipment>();
 				
 				{
-					var count = 0;
-					var tasks = new List<Task<(string attachment, string resource)>>();
+					var count   = 0;
+					var tasks   = new List<Task<(string attachment, string resource, string itemId)>>();
+					var aeTasks = new List<Task<(string attachment, string[] types)>>();
 					foreach (var (rootAssetId, itemId) in equipmentMap)
 					{
 						tasks.Add(Task.Run(async () =>
 							(
 								(await viewableAssetService.GetPointer(rootAssetId)).ToResPath().FullString,
-								(await itemClient.GetAssetPointer(itemId)).ToResPath().FullString
+								(await itemClient.GetAssetPointer(itemId)).ToResPath().FullString,
+								itemId
 							)
 						));
+					}
+
+					foreach (var (rootAssetId, allowedTypeIds) in allowedEquipmentMap)
+					{
+						aeTasks.Add(Task.Run(async () =>
+						{
+							var array = new string[allowedTypeIds.Length];
+							for (var i = 0; i < allowedTypeIds.Length; i++)
+								array[i] = (await viewableAssetService.GetPointer(allowedTypeIds[i])).ToResPath().FullString;
+
+							return (
+								(await viewableAssetService.GetPointer(rootAssetId)).ToResPath().FullString,
+								array
+							);
+						}));
 					}
 
 					globalTasks.Add(TaskScheduler.StartUnwrap(async () =>
 					{
 						foreach (var t in tasks)
 						{
-							var (attachment, resource) = await t;
-							equipmentFinal[count++] = new()
+							var (attachment, resource, itemId) = await t;
+							if (!itemsManager.TryGetDescription(new(resource), out var itemAsset))
+								throw new InvalidOperationException("no asset found on " + resource);
+							Console.WriteLine($"TryGetResource {resource} : {itemAsset}");
+
+							if (!itemAsset.Has<GameItemDescription>())
+								throw new InvalidOperationException("no desc on " + resource);
+							
+							var i = count++;
+							equipmentFinal[i] = new()
 							{
 								Attachment = attachDb.GetOrCreate(attachment),
 								Resource   = equipDb.GetOrCreate(resource)
 							};
-						}						
+							equipmentItemFinal[i] = new()
+							{
+								Attachment = attachDb.GetOrCreate(attachment),
+								Item       = inventory.getOrCreateTemporaryItem(itemId, itemAsset)
+							};
+						}
+
+						foreach (var t in aeTasks)
+						{
+							var (attachment, types) = await t;
+							foreach (var type in types)
+								allowedEquipmentFinal.Add(new()
+								{
+									Attachment    = attachDb.GetOrCreate(attachment),
+									EquipmentType = equipDb.GetOrCreate(type)
+								});
+						}
 					}));
 				}
 
@@ -161,8 +220,11 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 
 					var definedEquipments = target.GetBuffer<UnitDefinedEquipments>();
 					definedEquipments.Clear();
-					definedEquipments.Reinterpret<UnitDisplayedEquipment>()
-					                 .AddRange(equipmentFinal);
+					definedEquipments.AddRange(equipmentItemFinal);
+
+					var allowedEquipments = target.GetBuffer<UnitAllowedEquipment>();
+					allowedEquipments.Clear();
+					allowedEquipments.AddRange(allowedEquipmentFinal.Span);
 
 					var definedAbilities = target.GetBuffer<UnitDefinedAbilities>();
 					definedAbilities.Clear();

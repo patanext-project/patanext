@@ -24,12 +24,12 @@ namespace PataNext.Module.Simulation.Components
 		}
 	}
 
-	public struct TrucItemInventory
+	public struct ItemInventory
 	{
 		public Entity AssetEntity;
 	}
 
-	public struct TrucItemStack
+	public struct ItemStackInventory
 	{
 		public int Count;
 	}
@@ -145,7 +145,7 @@ namespace PataNext.Module.Simulation.Components
 				return;
 
 			foreach (var item in itemList)
-				if (item.Get<TrucItemInventory>().AssetEntity == assetEntity)
+				if (item.Get<ItemInventory>().AssetEntity == assetEntity)
 					list.Add(item);
 		}
 
@@ -157,7 +157,7 @@ namespace PataNext.Module.Simulation.Components
 
 		public override bool Contains(Entity itemEntity)
 		{
-			var assetEntity = itemEntity.Get<TrucItemInventory>().AssetEntity;
+			var assetEntity = itemEntity.Get<ItemInventory>().AssetEntity;
 
 			if (!itemsByType.TryGetValue(assetEntity.Get<GameItemDescription>().Type, out var itemList))
 				return false;
@@ -199,7 +199,7 @@ namespace PataNext.Module.Simulation.Components
 				itemsByType[desc.Type] = list = new();
 
 			var entity = ActionWorld.CreateEntity();
-			entity.Set(new TrucItemInventory { AssetEntity = assetEntity });
+			entity.Set(new ItemInventory { AssetEntity = assetEntity });
 
 			list.Add(entity);
 			return entity;
@@ -218,14 +218,14 @@ namespace PataNext.Module.Simulation.Components
 				else
 				{
 					stackIndex = ActionWorld.CreateEntity();
-					stackIndex.Set(new TrucItemInventory { AssetEntity = assetEntity });
-					stackIndex.Set(new TrucItemStack());
+					stackIndex.Set(new ItemInventory { AssetEntity = assetEntity });
+					stackIndex.Set(new ItemStackInventory());
 
 					list.Add(stackIndex);
 				}
 
-			stackIndex.Get<TrucItemStack>().Count += count;
-			if (stackIndex.Get<TrucItemStack>().Count > 0)
+			stackIndex.Get<ItemStackInventory>().Count += count;
+			if (stackIndex.Get<ItemStackInventory>().Count > 0)
 				return stackIndex;
 
 			stackIndex.Dispose();
@@ -236,7 +236,7 @@ namespace PataNext.Module.Simulation.Components
 
 		public bool Destroy(Entity itemEntity)
 		{
-			return itemEntity.TryGet(out TrucItemInventory itemInventory)
+			return itemEntity.TryGet(out ItemInventory itemInventory)
 			       && itemInventory.AssetEntity.TryGet(out GameItemDescription desc)
 			       && itemsByType.TryGetValue(desc.Type, out var list)
 			       && list.Remove(itemEntity);

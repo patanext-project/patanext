@@ -73,7 +73,7 @@ namespace PataNext.Simulation.Client.Rpc
 							if (i == 0)
 								squad.Leader = entity;
 							else
-								squad.Soldiers[i] = entity;
+								squad.Soldiers[i - 1] = entity;
 						}
 
 						squads.Add(squad);

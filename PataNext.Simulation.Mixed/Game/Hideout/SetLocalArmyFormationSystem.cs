@@ -215,6 +215,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitDefinedAbilities>());
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitDisplayedEquipment>());
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitDefinedEquipments>());
+								GameWorld.AddComponent(unitEntity, AsComponentType<UnitAllowedEquipment>());
 
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitArchetype>());
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitCurrentKit>());
