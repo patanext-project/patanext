@@ -20,7 +20,7 @@ namespace PataNext.Simulation.Client
 			global.Collection.GetOrCreate(typeof(ConnectToServerRpc.System));
 			global.Collection.GetOrCreate(typeof(DisconnectFromServerRpc.System));
 			global.Collection.GetOrCreate(typeof(SendServerNoticeRpc.System));
-			global.Collection.GetOrCreate(typeof(GetInventoryRpc.System));
+			//global.Collection.GetOrCreate(typeof(GetInventoryRpc.System));
 			global.Collection.GetOrCreate(typeof(GetSavePresetsRpc.Process));
 			global.Collection.GetOrCreate(typeof(HeadquartersGetUnitsRpc.Process));
 			global.Collection.GetOrCreate(typeof(CopyPresetToUnitRpc.Process));

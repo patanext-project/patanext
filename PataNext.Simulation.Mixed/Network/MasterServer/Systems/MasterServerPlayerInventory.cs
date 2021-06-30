@@ -4,6 +4,7 @@ using Collections.Pooled;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
+using PataNext.Game.GameItems;
 using PataNext.Module.Simulation.Components;
 using StormiumTeam.GameBase;
 
@@ -15,15 +16,15 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 		{
 			public string Value;
 		}
-		
-		private PooledDictionary<string, string>                                  guidToItemType    = new();
-		private PooledDictionary<string, PooledDictionary<string, InventoryItem>> typeToGuidItemMap = new();
+
+		private PooledDictionary<string, string>                           guidToItemType    = new();
+		private PooledDictionary<string, PooledDictionary<string, Entity>> typeToGuidItemMap = new();
 
 		public readonly string SaveId;
 
 		public MasterServerPlayerInventory(string saveId)
 		{
-			SaveId    = saveId;
+			SaveId = saveId;
 		}
 
 		public override void Read<TFill, TRestrict>(TFill list, TRestrict restrictTypes = default)
@@ -42,15 +43,24 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 				list.Add(item);
 		}
 
-		public override InventoryItem GetItemInfo(Entity entity)
+		public override void GetItemsOfAsset<TFill>(TFill list, Entity assetEntity)
 		{
-			if (entity.TryGet(out ToMasterServerId masterServerId)
-			    && guidToItemType.TryGetValue(masterServerId.Value, out var type)
-			    && typeToGuidItemMap.TryGetValue(type, out var dict)
-			    && dict.TryGetValue(masterServerId.Value, out var inventoryItem))
-			{
-				return inventoryItem;
-			}
+			if (!typeToGuidItemMap.TryGetValue(assetEntity.Get<GameItemDescription>().Type, out var dict))
+				return;
+
+			foreach (var (_, item) in dict)
+				if (item.Get<TrucItemInventory>().AssetEntity == assetEntity)
+					list.Add(item);
+		}
+
+		public override Entity GetStack(Entity assetEntity)
+		{
+			if (!typeToGuidItemMap.TryGetValue(assetEntity.Get<GameItemDescription>().Type, out var dict))
+				return default;
+
+			foreach (var (_, item) in dict)
+				if (item.Get<TrucItemInventory>().AssetEntity == assetEntity)
+					return assetEntity;
 
 			return default;
 		}
@@ -69,8 +79,15 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 		internal void setMasterServerItems(Func<string, Entity> create, string[] itemGuids)
 		{
 			foreach (var guid in itemGuids)
+			{
 				if (!msIdToEntity.ContainsKey(guid))
-					msIdToEntity.Add(guid, create(guid));
+				{
+					var entity = create(guid);
+					entity.Set(new ToMasterServerId { Value = guid });
+
+					msIdToEntity.Add(guid, entity);
+				}
+			}
 
 			using var scheduler = new Scheduler();
 			foreach (var (guid, ent) in msIdToEntity)
@@ -93,18 +110,24 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 			scheduler.Run();
 		}
 
-		internal void setKnownItem(string guid, InventoryItem item)
+		internal Entity setKnownItem(string guid, Entity assetEntity)
 		{
+			var desc = assetEntity.Get<GameItemDescription>();
+
 			if (!guidToItemType.TryGetValue(guid, out var previousType)
-			    || item.TypeId.FullString != previousType)
+			    || desc.Type != previousType)
 			{
-				guidToItemType[guid] = item.TypeId.FullString;
+				guidToItemType[guid] = desc.Type;
 			}
 
-			if (!typeToGuidItemMap.TryGetValue(item.TypeId.FullString, out var dict))
-				typeToGuidItemMap[item.TypeId.FullString] = dict = new();
+			if (!typeToGuidItemMap.TryGetValue(desc.Type, out var dict))
+				typeToGuidItemMap[desc.Type] = dict = new();
 
-			dict[guid] = item;
+			var entity = msIdToEntity[guid];
+			entity.Set(new TrucItemInventory { AssetEntity = assetEntity });
+
+			dict[guid] = entity;
+			return entity;
 		}
 	}
 }

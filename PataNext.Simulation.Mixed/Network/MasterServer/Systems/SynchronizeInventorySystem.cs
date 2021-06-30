@@ -5,6 +5,7 @@ using GameHost.Core.Ecs;
 using GameHost.Core.Features.Systems;
 using GameHost.Core.Threading;
 using GameHost.Injection.Dependency;
+using PataNext.Game.GameItems;
 using PataNext.MasterServerShared.Services;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Network.MasterServer.Services;
@@ -18,12 +19,15 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 		private ItemHubReceiver itemHubReceiver;
 		private World           itemWorld;
 
+		private GameItemsManager itemsManager;
+
 		private IScheduler scheduler;
 
 		public SynchronizeInventorySystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref itemHubReceiver);
 			DependencyResolver.Add(() => ref itemWorld);
+			DependencyResolver.Add(() => ref itemsManager);
 
 			AddDisposable(inventoryReqEntity = World.Mgr.CreateEntity());
 			AddDisposable(itemWorld);
@@ -95,17 +99,11 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 
 				if (entity.TryGet(out GetItemDetailsRequest.Response response))
 				{
+					if (!itemsManager.TryGetDescription(response.ResPath, out var assetEntity)) 
+						continue;
+					
 					entity.Remove<GetItemDetailsRequest.Response>();
-
-					inventory.setKnownItem(updateGuid, new()
-					{
-						ItemTarget = entity,
-						AssetId    = response.ResPath,
-						TypeId     = response.Type,
-
-						Count       = response.StackCount,
-						IsStackable = response.StackCount > 0
-					});
+					inventory.setKnownItem(updateGuid, assetEntity);
 
 					scheduler.Schedule(args => args.set.Remove(args.guid), (set: itemUpdateSet, guid: updateGuid), default);
 				}

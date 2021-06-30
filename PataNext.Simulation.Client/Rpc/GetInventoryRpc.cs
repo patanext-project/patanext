@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Collections.Pooled;
+using DefaultEcs;
 using GameHost.Applications;
 using GameHost.Core.Ecs;
 using GameHost.Core.RPC;
@@ -20,7 +21,8 @@ using NotImplementedException = System.NotImplementedException;
 
 namespace PataNext.Simulation.Client.Rpc
 {
-	public struct GetInventoryRpc : IGameHostRpcWithResponsePacket<GetInventoryRpc.Response>
+	// TODO: rework it
+	/*public struct GetInventoryRpc : IGameHostRpcWithResponsePacket<GetInventoryRpc.Response>
 	{
 		public MasterServerSaveId Save; // optional
 
@@ -75,7 +77,7 @@ namespace PataNext.Simulation.Client.Rpc
 
 					var itemMgr = new ContextBindingStrategy(app.Data.Context, true).Resolve<GameItemsManager>();
 
-					using var list = new PooledList<InventoryItem>();
+					using var list = new PooledList<Entity>();
 					inventory.Read(list, request.FilterCategories);
 
 					var array = new Response.Item[list.Count];
@@ -111,5 +113,5 @@ namespace PataNext.Simulation.Client.Rpc
 				});
 			}
 		}
-	}
+	}*/
 }

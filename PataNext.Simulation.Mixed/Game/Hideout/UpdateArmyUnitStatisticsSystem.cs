@@ -5,6 +5,7 @@ using GameHost.Native.Char;
 using GameHost.Simulation.Utility.EntityQuery;
 using JetBrains.Annotations;
 using PataNext.Game.GameItems;
+using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Units;
@@ -66,11 +67,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 				var equipmentBuffer = definedEquipmentsAccessor[entity];
 				foreach (var equip in equipmentBuffer)
 				{
-					var resource = GetComponentData<EquipmentResource>(equip.Resource.Handle);
-					if (!bufferToResPath.TryGetValue(resource.Value, out var resPath))
-						bufferToResPath[resource.Value] = resPath = new(resource.Value.ToString());
-
-					if (gameItemsManager.TryGetDescription(resPath, out var equipmentDescEntity)
+					if (gameItemsManager.TryGetDescription(equip.Item.Get<TrucItemInventory>().AssetEntity.Get<GameItemDescription>().Id, out var equipmentDescEntity)
 					    && equipmentDescEntity.TryGet(out EquipmentItemDescription equipmentDesc))
 					{
 						statistics.Health              += equipmentDesc.Additive.Health;

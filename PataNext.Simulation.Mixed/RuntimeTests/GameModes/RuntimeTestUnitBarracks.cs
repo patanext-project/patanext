@@ -6,6 +6,7 @@ using GameHost.Injection.Dependency;
 using GameHost.Simulation.Utility.Resource;
 using PataNext.Game.Abilities;
 using PataNext.Game.Abilities.Effects;
+using PataNext.Game.GameItems;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
@@ -37,6 +38,8 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 
 		private ResPathGen                        resPathGen;
 		private UnitStatusEffectComponentProvider statusEffectProvider;
+
+		private GameItemsManager itemMgr;
 		
 		private CurrentUserSystem currentUserSystem;
 
@@ -49,6 +52,7 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 
 			DependencyResolver.Add(() => ref resPathGen);
 			DependencyResolver.Add(() => ref statusEffectProvider);
+			DependencyResolver.Add(() => ref itemMgr);
 			
 			DependencyResolver.Add(() => ref currentUserSystem);
 		}
@@ -80,10 +84,26 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 			);
 			
 			var inventory    = World.Mgr.CreateEntity();
-			var inventoryObj = new MasterServerPlayerInventory(saveId);
+			/*var inventoryObj = new MasterServerPlayerInventory(saveId);
+			inventory.Set(inventoryObj);
+			inventory.Set((PlayerInventoryBase) inventoryObj);*/
+			var inventoryObj = new LocalPlayerInventory();
+			inventoryObj.ActionWorld = World.Mgr;
 			inventory.Set(inventoryObj);
 			inventory.Set((PlayerInventoryBase) inventoryObj);
-			
+
+			Entity helmItem = default;
+			Entity swordItem = default;
+			if (itemMgr.TryGetDescription(new(ResPath.EType.MasterServer, "st", "pn", new[] { "equipment", "helm", "default_helm" }), out var helmAsset))
+				helmItem = inventoryObj.Create(helmAsset);
+			if (itemMgr.TryGetDescription(new(ResPath.EType.MasterServer, "st", "pn", new[] { "equipment", "sword", "default_sword" }), out var swordAsset))
+				swordItem = inventoryObj.Create(swordAsset);
+			if (itemMgr.TryGetDescription(new(ResPath.EType.MasterServer, "st", "pn", new[] { "equipment", "sword", "default_spear" }), out var spearAsset))
+			{
+				inventoryObj.Create(spearAsset);
+				inventoryObj.Create(spearAsset);
+			}
+
 			AddComponent(player, new PlayerAttachedGameSave(saveId));
 			AddComponent(player, new PlayerInventoryTarget(inventory));
 			
@@ -149,12 +169,12 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 					definedEquip.Add(new()
 					{
 						Attachment = attachDb.GetOrCreate(resPathGen.Create(new[] { "equip_root", "helm" }, ResPath.EType.MasterServer)),
-						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] { "equipment", "helm", "default_helm" }, ResPath.EType.MasterServer)),
+						Item   = helmItem
 					});
 					definedEquip.Add(new()
 					{
 						Attachment = attachDb.GetOrCreate(resPathGen.Create(new[] { "equip_root", "r_eq" }, ResPath.EType.MasterServer)),
-						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] { "equipment", "sword", "default_sword" }, ResPath.EType.MasterServer)),
+						Item       = swordItem
 					});
 
 					var allowedEquip = GameWorld.AddBuffer<UnitAllowedEquipment>(unit);

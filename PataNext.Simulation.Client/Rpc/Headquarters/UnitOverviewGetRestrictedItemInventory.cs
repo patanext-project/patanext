@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Collections.Pooled;
+using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.RPC;
 using GameHost.Injection;
@@ -27,8 +28,8 @@ namespace PataNext.Simulation.Client.Rpc
 		{
 			public struct Item
 			{
-				public MasterServerItemId Id;
-				public ResPath            AssetResPath;
+				public Entity  Id;
+				public ResPath AssetResPath;
 
 				public string             AssetType;
 				public string             Name;
@@ -67,47 +68,41 @@ namespace PataNext.Simulation.Client.Rpc
 						return await WithError(3, "unit has no UnitAllowedEquipment buffer");
 
 					var gameWorld = unit.GameWorld;
-					
+
 					using var contains = new PooledList<ResPath>();
 					foreach (var allowed in unit.GetBuffer<UnitAllowedEquipment>())
 					{
 						if (new ResPath(gameWorld.GetComponentData<UnitAttachmentResource>(allowed.Attachment.Handle).Value.ToString()).Equals(new(request.AttachmentTarget)))
-							contains.Add(new (gameWorld.GetComponentData<EquipmentResource>(allowed.EquipmentType.Handle).Value.ToString()));
+							contains.Add(new(gameWorld.GetComponentData<EquipmentResource>(allowed.EquipmentType.Handle).Value.ToString()));
 					}
-					
+
 					foreach (var t in contains)
 						Console.WriteLine(">>> " + t.FullString);
-					
+
 					var inventory = player.GetData<PlayerInventoryTarget>().Value
 					                      .Get<PlayerInventoryBase>();
 
 					var itemMgr = new ContextBindingStrategy(app.Data.Context, true).Resolve<GameItemsManager>();
 
-					using var list = new PooledList<InventoryItem>();
+					using var list = new PooledList<Entity>();
 					inventory.Read(list);
 
 					using var final = new PooledList<Response.Item>();
 					foreach (var item in list)
 					{
-						if (!itemMgr.TryGetDescription(item.AssetId, out var entity))
+						var asset = item.Get<TrucItemInventory>().AssetEntity;
+						if (!asset.TryGet(out EquipmentItemDescription equipmentDesc))
 							continue;
 
-						if (!entity.TryGet(out EquipmentItemDescription equipmentDesc))
-							continue;
+						var desc = asset.Get<GameItemDescription>();
+						Console.WriteLine("<<< " + new ResPath(equipmentDesc.ItemType).FullString + ", " + desc.Type + contains.Contains(new(equipmentDesc.ItemType)));
 
-						var id = string.Empty;
-						if (item.ItemTarget.IsAlive && item.ItemTarget.TryGet(out MasterServerControlledItemData controlledItemData))
-							id = controlledItemData.ItemGuid.ToString();
-
-						Console.WriteLine("<<< " + new ResPath(equipmentDesc.ItemType).FullString + ", " + item.AssetId.FullString + contains.Contains(new(equipmentDesc.ItemType)));
-
-						var desc = entity.Get<GameItemDescription>();
 						if (contains.Contains(new(equipmentDesc.ItemType)))
 							final.Add(new()
 							{
-								Id           = new(id),
-								AssetResPath = item.AssetId,
-								AssetType    = item.TypeId.FullString,
+								Id           = item,
+								AssetResPath = desc.Id,
+								AssetType    = desc.Type,
 								Name         = desc.Name,
 								Description  = desc.Description,
 								EquippedBy   = default
