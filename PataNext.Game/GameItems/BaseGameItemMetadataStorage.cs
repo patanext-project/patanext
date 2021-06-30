@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using DefaultEcs;
 using GameHost.Core.IO;
+using StormiumTeam.GameBase;
 
 namespace PataNext.Game.GameItems
 {
@@ -16,6 +17,7 @@ namespace PataNext.Game.GameItems
 		}
 
 		public string CurrentPath => Parent.CurrentPath;
+
 		public Task<IEnumerable<IFile>> GetFilesAsync(string pattern)
 		{
 			return Parent.GetFilesAsync(pattern);
@@ -26,7 +28,7 @@ namespace PataNext.Game.GameItems
 			return Parent.GetOrCreateDirectoryAsync(path);
 		}
 	}
-	
+
 	public class GameItemMetadataFile : IFile
 	{
 		public readonly IFile Base;
@@ -52,9 +54,14 @@ namespace PataNext.Game.GameItems
 			var document  = JsonDocument.Parse(jsonBytes);
 
 			target.Set(new GameItemDescription(
+				default,
+				default,
 				document.RootElement.GetProperty("name").GetString(),
 				document.RootElement.GetProperty("description").GetString()
 			));
+			if (document.RootElement.TryGetProperty("stackable", out var stackableProp)
+			    && stackableProp.GetBoolean())
+				target.Set(new GameItemIsStackable());
 
 			FillDescriptionChildClass(target, document);
 		}
@@ -66,13 +73,24 @@ namespace PataNext.Game.GameItems
 
 	public struct GameItemDescription
 	{
+		public ResPath Id;
+		public string  Type;
+
 		public string Name;
 		public string Description;
 
-		public GameItemDescription(string name, string description)
+		public GameItemDescription(ResPath id, string type, string name, string description)
 		{
+			Id   = id;
+			Type = type;
+			
 			Name        = name;
 			Description = description;
 		}
+	}
+
+	public struct GameItemIsStackable
+	{
+
 	}
 }

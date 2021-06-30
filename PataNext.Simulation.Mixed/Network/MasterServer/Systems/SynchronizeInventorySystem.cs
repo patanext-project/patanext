@@ -16,15 +16,18 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 	public class SynchronizeInventorySystem : AppSystemWithFeature<MasterServerFeature>
 	{
 		private ItemHubReceiver itemHubReceiver;
+		private World           itemWorld;
 
 		private IScheduler scheduler;
 
 		public SynchronizeInventorySystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref itemHubReceiver);
+			DependencyResolver.Add(() => ref itemWorld);
 
 			AddDisposable(inventoryReqEntity = World.Mgr.CreateEntity());
-			AddDisposable(scheduler          = new Scheduler());
+			AddDisposable(itemWorld);
+			AddDisposable(scheduler = new Scheduler());
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
@@ -73,7 +76,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 			if (inventoryUpdate)
 			{
 				inventoryUpdate = false;
-				
+
 				inventoryReqEntity.Set(new GetInventoryRequest(inventory.SaveId, Array.Empty<string>()));
 				inventoryReqEntity.Remove<GetInventoryRequest.Response>();
 			}
@@ -93,17 +96,17 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 				if (entity.TryGet(out GetItemDetailsRequest.Response response))
 				{
 					entity.Remove<GetItemDetailsRequest.Response>();
-					
+
 					inventory.setKnownItem(updateGuid, new()
 					{
-						AdditionalData = entity,
-						AssetId        = response.ResPath,
-						TypeId         = response.Type,
+						ItemTarget = entity,
+						AssetId    = response.ResPath,
+						TypeId     = response.Type,
 
 						Count       = response.StackCount,
 						IsStackable = response.StackCount > 0
 					});
-					
+
 					scheduler.Schedule(args => args.set.Remove(args.guid), (set: itemUpdateSet, guid: updateGuid), default);
 				}
 				else if (!entity.Has<GetItemDetailsRequest>())
@@ -111,7 +114,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 					entity.Set(new GetItemDetailsRequest(updateGuid));
 				}
 			}
-			
+
 			scheduler.Run();
 		}
 
@@ -124,9 +127,9 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 
 			createEntity = guid =>
 			{
-				var entity = World.Mgr.CreateEntity();
+				var entity = itemWorld.CreateEntity();
 				entity.Set(new GetItemDetailsRequest(guid));
-				
+
 				itemUpdateSet.Add(guid);
 
 				return entity;

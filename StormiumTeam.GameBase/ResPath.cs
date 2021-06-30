@@ -118,7 +118,7 @@ namespace StormiumTeam.GameBase
             }
 
             // Client Resource
-            if (path.StartsWith("cr://"))
+            else if (path.StartsWith("cr://"))
             {
                 var asSpan = path.AsSpan("cr://".Length);
 
@@ -131,6 +131,12 @@ namespace StormiumTeam.GameBase
                 inspection.ResourcePath = asSpan.Slice(asSpan.IndexOf('/') + 1).ToString();
             }
 
+            // Treat path without a protocol as a masterserver path
+            else if (path.Contains("/") && path.Contains("."))
+            {
+                return Inspect("ms://" + path);
+            }
+            
             inspection.IsCore = inspection.Author == inspection.ModPack && inspection.Author == "#";
 
             return inspection;

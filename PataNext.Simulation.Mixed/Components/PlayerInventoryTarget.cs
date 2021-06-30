@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using Collections.Pooled;
 using DefaultEcs;
+using GameHost.Core.Ecs;
+using GameHost.Core.IO;
 using GameHost.Simulation.TabEcs.Interfaces;
+using PataNext.Game.GameItems;
 using StormiumTeam.GameBase;
 
 namespace PataNext.Module.Simulation.Components
@@ -18,71 +21,77 @@ namespace PataNext.Module.Simulation.Components
 		}
 	}
 
-	public struct InventoryItem
+	public struct TrucItemInventory
 	{
-		// don't use AdditionalData if IsStackable is enabled
-		public Entity AdditionalData;
+		public Entity AssetEntity;
+	}
 
-		public bool IsStackable;
-		public int  Count;
-
-		public ResPath AssetId;
-		public ResPath TypeId;
-
-		public static InventoryItem Single(ResPath assetId, ResPath typeId, Entity additionalData = default)
-		{
-			return new()
-			{
-				AdditionalData = additionalData,
-
-				AssetId = assetId,
-				TypeId  = typeId
-			};
-		}
-
-		public static InventoryItem Stack(int count, ResPath assetId, ResPath typeId)
-		{
-			return new()
-			{
-				IsStackable = true,
-				Count       = count,
-
-				AssetId = assetId,
-				TypeId  = typeId
-			};
-		}
+	public struct TrucItemStack
+	{
+		public int Count;
 	}
 
 	public abstract class PlayerInventoryBase : IDisposable
 	{
 		public void Read<TFill>(TFill list)
-			where TFill : IList<InventoryItem>
+			where TFill : IList<Entity>
 		{
 			Read<TFill, string[]>(list);
 		}
-		
+
 		public abstract void Read<TFill, TRestrict>(TFill list, TRestrict restrictTypes = default)
-			where TFill : IList<InventoryItem>
+			where TFill : IList<Entity>
 			where TRestrict : IList<string>;
+
+		public abstract void GetItemsOfAsset<TFill>(TFill list, Entity assetEntity)
+			where TFill : IList<Entity>;
+
+		public abstract Entity GetStack(Entity assetEntity);
 
 		public abstract void Dispose();
 	}
 
 	public interface IWritablePlayerInventory
 	{
-		void SetStackable(ResPath assetId);
-		
-		void Add(InventoryItem    item);
-		bool Remove(InventoryItem item);
+		World ActionWorld { get; set; }
+
+		/// <summary>
+		/// Create an item based on an asset
+		/// </summary>
+		/// <param name="assetEntity">The asset</param>
+		/// <remarks>
+		///	If the item is stackable, it will add one to the current stack or create the stack if it doesn't exist
+		/// </remarks>
+		/// <returns></returns>
+		Entity Create(Entity assetEntity);
+
+		/// <summary>
+		/// Add to an item stack
+		/// </summary>
+		/// <param name="assetEntity">The asset</param>
+		/// <param name="count">How much item will be added to the stack. Can be negative</param>
+		/// <returns>A perhaps null entity. It's not null if the stack is superior to 0</returns>
+		Entity AddToStack(Entity assetEntity, int count);
+
+		bool Destroy(Entity itemEntity);
 
 		void Clear();
-		void Clear(ResPath type);
+		void Clear(Entity assetEntity);
 	}
 
 	public class PlayerInventoryNoRead : PlayerInventoryBase
 	{
 		public override void Read<TFill, TRestrict>(TFill list, TRestrict restrictTypes = default)
 		{
+		}
+
+		public override void GetItemsOfAsset<TFill>(TFill list, Entity assetEntity)
+		{
+		}
+
+		public override Entity GetStack(Entity assetEntity)
+		{
+			return default;
 		}
 
 		public override void Dispose()
@@ -93,14 +102,8 @@ namespace PataNext.Module.Simulation.Components
 	public class LocalPlayerInventory : PlayerInventoryBase,
 	                                    IWritablePlayerInventory
 	{
-		private PooledDictionary<string, PooledList<InventoryItem>> itemsByType = new();
-		private HashSet<string>                                     stackableMap = new();
+		private PooledDictionary<string, PooledList<Entity>> itemsByType = new();
 
-		public void SetStackable(ResPath assetId)
-		{
-			stackableMap.Add(assetId.FullString);
-		}
-		
 		public override void Read<TFill, TRestrict>(TFill list, TRestrict restrictTypes = default)
 		{
 			if (restrictTypes?.Count > 0)
@@ -118,69 +121,93 @@ namespace PataNext.Module.Simulation.Components
 				list.Add(item);
 		}
 
+		public override void GetItemsOfAsset<TFill>(TFill list, Entity assetEntity)
+		{
+			if (!itemsByType.TryGetValue(assetEntity.Get<GameItemDescription>().Type, out var itemList))
+				return;
+
+			foreach (var item in itemList)
+				if (item.Get<TrucItemInventory>().AssetEntity == assetEntity)
+					list.Add(item);
+		}
+
+		public override Entity GetStack(Entity assetEntity)
+		{
+			var desc = assetEntity.Get<GameItemDescription>();
+			return getStackIndex(desc.Type, desc.Id);
+		}
+
 		public override void Dispose()
 		{
 			Clear();
 			itemsByType.Dispose();
 		}
 
-		private int getStackIndex(string typeId, string assetId)
+		private Entity getStackIndex(string typeId, ResPath assetId)
 		{
 			var items = itemsByType[typeId];
-			for (var i = 0; i < items.Count; i++)
+			foreach (var item in items)
 			{
-				var item = items[i];
-				if (item.IsStackable && item.AssetId.FullString == assetId)
-					return i;
+				if (item.Get<GameItemDescription>().Id.Equals(assetId))
+					return item;
 			}
 
-			return -1;
+			return default;
 		}
 
-		public void Add(InventoryItem item)
+		public World ActionWorld { get; set; }
+
+		public Entity Create(Entity assetEntity)
 		{
-			if (!itemsByType.TryGetValue(item.TypeId.FullString, out var list))
-				itemsByType[item.TypeId.FullString] = list = new();
+			if (assetEntity.Has<GameItemIsStackable>())
+				return AddToStack(assetEntity, 1);
 
-			if (item.IsStackable || stackableMap.Contains(item.AssetId.FullString))
-			{
-				var stackIndex = getStackIndex(item.TypeId.FullString, item.AssetId.FullString);
-				if (stackIndex >= 0)
-				{
-					var curr = list[stackIndex];
-					curr.Count       += Math.Max(item.Count, 1);
-					list[stackIndex] =  curr;
-					return;
-				}
-			}
+			var desc = assetEntity.Get<GameItemDescription>();
+			if (!itemsByType.TryGetValue(desc.Type, out var list))
+				itemsByType[desc.Type] = list = new();
 
-			list.Add(item);
+			var entity = ActionWorld.CreateEntity();
+			entity.Set(new TrucItemInventory { AssetEntity = assetEntity });
+
+			list.Add(entity);
+			return entity;
 		}
 
-		public bool Remove(InventoryItem item)
+		public Entity AddToStack(Entity assetEntity, int count)
 		{
-			if (!itemsByType.TryGetValue(item.TypeId.FullString, out var list))
-				return false;
+			var desc = assetEntity.Get<GameItemDescription>();
+			if (!itemsByType.TryGetValue(desc.Type, out var list))
+				itemsByType[desc.Type] = list = new();
 
-			if (item.IsStackable || stackableMap.Contains(item.AssetId.FullString))
-			{
-				var stackIndex = getStackIndex(item.TypeId.FullString, item.AssetId.FullString);
-				if (stackIndex >= 0)
+			var stackIndex = getStackIndex(desc.Type, desc.Id);
+			if (!stackIndex.IsAlive)
+				if (count <= 0)
+					return default;
+				else
 				{
-					var curr = list[stackIndex];
-					curr.Count += Math.Min(item.Count, -1);
-					if (curr.Count <= 0)
-					{
-						list.RemoveAt(stackIndex);
-						return true;
-					}
+					stackIndex = ActionWorld.CreateEntity();
+					stackIndex.Set(new TrucItemInventory { AssetEntity = assetEntity });
+					stackIndex.Set(new TrucItemStack());
 
-					list[stackIndex] = curr;
-					return true;
+					list.Add(stackIndex);
 				}
-			}
 
-			return list.Remove(item);
+			stackIndex.Get<TrucItemStack>().Count += count;
+			if (stackIndex.Get<TrucItemStack>().Count > 0)
+				return stackIndex;
+
+			stackIndex.Dispose();
+			stackIndex = default;
+
+			return stackIndex;
+		}
+
+		public bool Destroy(Entity itemEntity)
+		{
+			return itemEntity.TryGet(out TrucItemInventory itemInventory)
+			       && itemInventory.AssetEntity.TryGet(out GameItemDescription desc)
+			       && itemsByType.TryGetValue(desc.Type, out var list)
+			       && list.Remove(itemEntity);
 		}
 
 		public void Clear()
@@ -191,9 +218,9 @@ namespace PataNext.Module.Simulation.Components
 			itemsByType.Clear();
 		}
 
-		public void Clear(ResPath type)
+		public void Clear(Entity assetEntity)
 		{
-			if (itemsByType.TryGetValue(type.FullString, out var list))
+			if (itemsByType.TryGetValue(assetEntity.Get<GameItemDescription>().Type, out var list))
 				list.Clear();
 		}
 	}

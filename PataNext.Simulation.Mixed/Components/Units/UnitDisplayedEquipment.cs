@@ -1,4 +1,5 @@
 ﻿using System;
+using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.Features.ShareWorldState.BaseSystems;
 using GameHost.Simulation.TabEcs.Interfaces;
@@ -18,7 +19,7 @@ namespace PataNext.Module.Simulation.Components.Units
 			Attachment = attachment;
 			Resource   = resource;
 		}
-		
+
 		public class Register : RegisterGameHostComponentBuffer<UnitDisplayedEquipment>
 		{
 		}
@@ -62,12 +63,12 @@ namespace PataNext.Module.Simulation.Components.Units
 	public struct UnitDefinedEquipments : IComponentBuffer
 	{
 		public GameResource<UnitAttachmentResource> Attachment;
-		public GameResource<EquipmentResource>      Resource;
-		
-		public UnitDefinedEquipments(GameResource<UnitAttachmentResource> attachment, GameResource<EquipmentResource> resource)
+		public Entity                               Item;
+
+		public UnitDefinedEquipments(GameResource<UnitAttachmentResource> attachment, Entity item)
 		{
 			Attachment = attachment;
-			Resource   = resource;
+			Item       = item;
 		}
 	}
 }

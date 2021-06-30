@@ -26,7 +26,7 @@ namespace PataNext.Game.GameItems
 		{
 			idToEntityMap = new();
 
-			var helmEnt = collection.Mgr.CreateEntity();
+			/*var helmEnt = collection.Mgr.CreateEntity();
 			helmEnt.Set(new GameItemDescription("helm", "helm_desc"));
 			helmEnt.Set(new EquipmentItemDescription
 			{
@@ -91,7 +91,7 @@ namespace PataNext.Game.GameItems
 				}
 			});
 			
-			Register(bowEnt, new(ResPath.EType.MasterServer, "st", "pn", "equipment/bow/default_bow"));
+			Register(bowEnt, new(ResPath.EType.MasterServer, "st", "pn", "equipment/bow/default_bow"));*/
 		}
 
 		public Task<Entity[]> RegisterEquipmentsAsync(EquipmentItemMetadataStorage storage)
@@ -173,6 +173,10 @@ namespace PataNext.Game.GameItems
 					Console.WriteLine($"{final.ItemType} {final.ResPath}");
 
 					await final.File.FillDescription(entity);
+					entity.Get<EquipmentItemDescription>()
+					      .ItemType = final.ItemType;
+					entity.Get<GameItemDescription>()
+					      .Type = "equipments";
 
 					Register(entity, final.ResPath);
 
@@ -189,7 +193,8 @@ namespace PataNext.Game.GameItems
 		{
 			Debug.Assert(entity.Has<GameItemDescription>(), "entity.Has<GameItemDescription>()");
 
-			idToEntityMap[resPath] = entity;
+			entity.Get<GameItemDescription>().Id = resPath;
+			idToEntityMap[resPath]               = entity;
 		}
 
 		public bool TryGetDescription(ResPath resPath, out Entity entity)

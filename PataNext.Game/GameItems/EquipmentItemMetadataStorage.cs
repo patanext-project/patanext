@@ -69,7 +69,8 @@ namespace PataNext.Game.GameItems
 
 	public struct EquipmentItemDescription
 	{
-		public EquipmentItemStatisticsAdditive Additive;
+		public string                                ItemType;
+		public EquipmentItemStatisticsAdditive       Additive;
 		public EquipmentItemStatisticsMultiplicative Multiplicative;
 	}
 

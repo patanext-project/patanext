@@ -8,6 +8,7 @@ using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Threading;
 using PataNext.Module.Simulation.Components.Network;
 using StormiumTeam.GameBase.Roles.Descriptions;
+using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Game.Rpc.SerializationUtility
 {
@@ -29,6 +30,17 @@ namespace PataNext.Game.Rpc.SerializationUtility
 			throw new InvalidOperationException("no client app found");
 		}
 
+		public static SafeEntityFocus GetLocalPlayer(SimulationApplication app)
+		{
+			var gameWorld = new ContextBindingStrategy(app.Data.Context, true).Resolve<GameWorld>();
+			if (gameWorld != null && gameWorld.TryGetSingleton<PlayerIsLocal>(out GameEntityHandle playerHandle))
+			{
+				return new(gameWorld, gameWorld.Safe(playerHandle));
+			}
+
+			return default;
+		}
+		
 		public static string? GetLocalPlayerSave(SimulationApplication app)
 		{
 			var gameWorld = new ContextBindingStrategy(app.Data.Context, true).Resolve<GameWorld>();

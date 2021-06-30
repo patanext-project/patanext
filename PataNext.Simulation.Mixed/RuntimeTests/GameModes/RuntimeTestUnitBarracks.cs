@@ -79,8 +79,10 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 				new InputAuthority()
 			);
 			
-			var inventory = World.Mgr.CreateEntity();
-			inventory.Set(new MasterServerPlayerInventory(saveId));
+			var inventory    = World.Mgr.CreateEntity();
+			var inventoryObj = new MasterServerPlayerInventory(saveId);
+			inventory.Set(inventoryObj);
+			inventory.Set((PlayerInventoryBase) inventoryObj);
 			
 			AddComponent(player, new PlayerAttachedGameSave(saveId));
 			AddComponent(player, new PlayerInventoryTarget(inventory));
@@ -152,7 +154,29 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 					definedEquip.Add(new()
 					{
 						Attachment = attachDb.GetOrCreate(resPathGen.Create(new[] { "equip_root", "r_eq" }, ResPath.EType.MasterServer)),
-						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] { "equipment", "greatshield", "default_greatshield" }, ResPath.EType.MasterServer)),
+						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] { "equipment", "sword", "default_sword" }, ResPath.EType.MasterServer)),
+					});
+
+					var allowedEquip = GameWorld.AddBuffer<UnitAllowedEquipment>(unit);
+					allowedEquip.Add(new()
+					{
+						Attachment = attachDb.GetOrCreate(resPathGen.Create(new[] { "equip_root", "helm" }, ResPath.EType.MasterServer)),
+						EquipmentType = equipDb.GetOrCreate(resPathGen.Create(new[] { "item_type", "helm" }, ResPath.EType.MasterServer))
+					});
+					allowedEquip.Add(new()
+					{
+						Attachment    = attachDb.GetOrCreate(resPathGen.Create(new[] { "equip_root", "l_eq" }, ResPath.EType.MasterServer)),
+						EquipmentType = equipDb.GetOrCreate(resPathGen.Create(new[] { "item_type", "shield" }, ResPath.EType.MasterServer))
+					});
+					allowedEquip.Add(new()
+					{
+						Attachment    = attachDb.GetOrCreate(resPathGen.Create(new[] { "equip_root", "r_eq" }, ResPath.EType.MasterServer)),
+						EquipmentType = equipDb.GetOrCreate(resPathGen.Create(new[] { "item_type", "sword" }, ResPath.EType.MasterServer))
+					});
+					allowedEquip.Add(new()
+					{
+						Attachment    = attachDb.GetOrCreate(resPathGen.Create(new[] { "equip_root", "r_eq" }, ResPath.EType.MasterServer)),
+						EquipmentType = equipDb.GetOrCreate(resPathGen.Create(new[] { "item_type", "spear" }, ResPath.EType.MasterServer))
 					});
 
 					statusEffectProvider.AddStatus(unit, AsComponentType<Critical>(), new() { Power = 12, Resistance = 30, RegenPerSecond = 0.1f });
