@@ -98,7 +98,7 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 				helmItem = inventoryObj.Create(helmAsset);
 			if (itemMgr.TryGetDescription(new(ResPath.EType.MasterServer, "st", "pn", new[] { "equipment", "sword", "default_sword" }), out var swordAsset))
 				swordItem = inventoryObj.Create(swordAsset);
-			if (itemMgr.TryGetDescription(new(ResPath.EType.MasterServer, "st", "pn", new[] { "equipment", "sword", "default_spear" }), out var spearAsset))
+			if (itemMgr.TryGetDescription(new(ResPath.EType.MasterServer, "st", "pn", new[] { "equipment", "spear", "default_spear" }), out var spearAsset))
 			{
 				inventoryObj.Create(spearAsset);
 				inventoryObj.Create(spearAsset);

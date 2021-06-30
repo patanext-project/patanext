@@ -28,8 +28,8 @@ namespace PataNext.Simulation.Client.Rpc
 		{
 			public struct Item
 			{
-				public Entity  Id;
-				public ResPath AssetResPath;
+				public SerializableEntity Id;
+				public ResPath            AssetResPath;
 
 				public string             AssetType;
 				public string             Name;
