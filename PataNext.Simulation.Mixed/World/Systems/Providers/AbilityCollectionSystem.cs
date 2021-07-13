@@ -23,7 +23,7 @@ namespace PataNext.Module.Simulation.Systems
 			DependencyResolver.Add(() => ref logger);
 			DependencyResolver.Add(() => ref gameWorld);
 			// this is a dependency we don't use, but since the providers use them, it help other to indicate that we may need to wait a bit more
-			DependencyResolver.Add<LocalRhythmCommandResourceManager>();
+			DependencyResolver.Add<SpawnDefaultCommandsSystem>();
 		}
 
 		public GameEntityHandle SpawnFor<TJsonData>(string           abilityId, GameEntityHandle owner,

@@ -11,11 +11,11 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.Systems
 {
-	public class LocalRhythmCommandResourceManager : GameAppSystem
+	public class SpawnDefaultCommandsSystem : GameAppSystem
 	{
 		public RhythmCommandResourceDb DataBase;
 
-		public LocalRhythmCommandResourceManager(WorldCollection collection) : base(collection)
+		public SpawnDefaultCommandsSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref DataBase);
 		}

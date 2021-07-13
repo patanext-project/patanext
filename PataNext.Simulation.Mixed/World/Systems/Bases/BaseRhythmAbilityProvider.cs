@@ -92,7 +92,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 
 		private AbilityCollectionSystem abilityCollectionSystem;
 
-		protected LocalRhythmCommandResourceManager localRhythmCommandResourceManager;
+		protected SpawnDefaultCommandsSystem SpawnDefaultCommandsSystem;
 		protected AbilityDescStorage                abilityStorage;
 		protected ILogger                           logger;
 		protected ResPathGen                        resPath;
@@ -100,7 +100,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 		protected BaseRhythmAbilityProvider(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref abilityCollectionSystem);
-			DependencyResolver.Add(() => ref localRhythmCommandResourceManager);
+			DependencyResolver.Add(() => ref SpawnDefaultCommandsSystem);
 			DependencyResolver.Add(() => ref abilityStorage, new GetAbilityDescStorageStrategy(this));
 			DependencyResolver.Add(() => ref logger);
 			DependencyResolver.Add(() => ref resPath);
@@ -268,7 +268,7 @@ namespace PataNext.Module.Simulation.BaseSystems
 		{
 			var combos = new FixedBuffer32<GameEntity>();
 
-			var commandDb = localRhythmCommandResourceManager.DataBase;
+			var commandDb = SpawnDefaultCommandsSystem.DataBase;
 			GameWorld.GetComponentData<AbilityCommands>(entity) = new AbilityCommands
 			{
 				Chaining = commandDb.GetOrCreate(GetChainingCommand()),

@@ -296,7 +296,7 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Systems.MasterServerPlayerInventoryProvider));
 						
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.DontSerializeAbilityEngineSet));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.LocalRhythmCommandResourceManager));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.SpawnDefaultCommandsSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.KitCollectionSystem));

@@ -22,4 +22,9 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Game\Systems" />
+      <Folder Include="World" />
+    </ItemGroup>
+
 </Project>
