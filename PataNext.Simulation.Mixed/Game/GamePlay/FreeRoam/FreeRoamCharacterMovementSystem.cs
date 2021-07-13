@@ -22,7 +22,7 @@ using StormiumTeam.GameBase.SystemBase;
 
 namespace PataNext.Module.Simulation.Game.GamePlay.FreeRoam
 {
-	[UpdateAfter(typeof(UnitPhysicsSystem))]
+	[UpdateBefore(typeof(UnitPhysicsSystem))]
 	[UpdateBefore(typeof(UnitCollisionSystem))]
 	public class FreeRoamCharacterMovementSystem : GameAppSystem, IPostUpdateSimulationPass
 	{

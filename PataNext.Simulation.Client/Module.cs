@@ -7,6 +7,7 @@ using GameHost.Worlds;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Systems.GhRpc;
 using PataNext.Simulation.Client.Rpc;
+using PataNext.Simulation.Client.Rpc.City;
 using PataNext.Simulation.Client.Systems;
 using PataNext.Simulation.Client.Systems.Inputs;
 
@@ -27,8 +28,11 @@ namespace PataNext.Simulation.Client
 			global.Collection.GetOrCreate(typeof(HeadquartersGetUnitsRpc.Process));
 			global.Collection.GetOrCreate(typeof(CopyPresetToUnitRpc.Process));
 			global.Collection.GetOrCreate(typeof(UnitOverviewGetRestrictedItemInventory.Process));
-			
+
 			global.Collection.GetOrCreate(typeof(UnitOverviewStatisticsRpc.Process));
+			
+			global.Collection.GetOrCreate(typeof(ModifyPlayerCityLocationRpc.Process));
+			global.Collection.GetOrCreate(typeof(ObeliskStartMissionRpc.Process));
 
 			foreach (var listener in global.World.Get<IListener>())
 			{

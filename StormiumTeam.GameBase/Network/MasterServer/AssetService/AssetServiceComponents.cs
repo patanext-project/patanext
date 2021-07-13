@@ -34,7 +34,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer.AssetService
 			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
 			{
 				var result = await Service.GetPointer(entity.Get<GetAssetPointerRequest>().AssetGuid);
-				
+
 				return e => e.Set(new Response
 				{
 					ResPath = new(ResPath.EType.MasterServer, result.Author, result.Mod, result.Id)
@@ -42,7 +42,7 @@ namespace StormiumTeam.GameBase.Network.MasterServer.AssetService
 			}
 		}
 	}
-	
+
 	public struct GetAssetDetailsRequest
 	{
 		public string AssetGuid;
@@ -75,6 +75,34 @@ namespace StormiumTeam.GameBase.Network.MasterServer.AssetService
 					Name        = result.Name,
 					Description = result.Description,
 					Type        = result.Type
+				});
+			}
+		}
+	}
+
+	public struct GetAssetGuidRequest
+	{
+		public ResPath Path;
+
+		public struct Response
+		{
+			public string Guid;
+		}
+
+		public class Process : MasterServerRequestService<IViewableAssetService, GetAssetGuidRequest>
+		{
+			public Process([NotNull] WorldCollection collection) : base(collection)
+			{
+			}
+
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			{
+				var path   = entity.Get<GetAssetGuidRequest>().Path;
+				var result = await Service.GetGuid(path.Author, path.ModPack, path.Resource);
+
+				return e => e.Set(new Response
+				{
+					Guid = result
 				});
 			}
 		}

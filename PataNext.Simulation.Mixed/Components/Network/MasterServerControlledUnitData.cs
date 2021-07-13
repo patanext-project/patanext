@@ -12,4 +12,14 @@ namespace PataNext.Module.Simulation.Components.Network
 			UnitGuid = unitGuid;
 		}
 	}
+	
+	public struct MasterServerUnitPresetData : IComponentData
+	{
+		public CharBuffer64 PresetGuid;
+
+		public MasterServerUnitPresetData(CharBuffer64 presetGuid)
+		{
+			PresetGuid = presetGuid;
+		}
+	}
 }

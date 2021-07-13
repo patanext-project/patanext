@@ -7,6 +7,7 @@ using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Components.Units;
 using StormiumTeam.GameBase.Physics;
 using StormiumTeam.GameBase.Physics.Systems;
 
@@ -24,7 +25,8 @@ namespace PataNext.Module.Simulation.Game.Providers
 
 			entityComponents.AddRange(new[]
 			{
-				GameWorld.AsComponentType<UnitFreeRoamMovement>()
+				GameWorld.AsComponentType<UnitFreeRoamMovement>(),
+				GameWorld.AsComponentType<UnitDisplayedEquipment>()
 			});
 		}
 	}

@@ -8,10 +8,12 @@ using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Resource;
 using JetBrains.Annotations;
+using PataNext.MasterServerShared.Services;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Components.Units;
+using PataNext.Module.Simulation.Network.MasterServer;
 using PataNext.Module.Simulation.Network.MasterServer.Services;
 using PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged;
 using PataNext.Module.Simulation.Resources;
@@ -32,7 +34,9 @@ namespace PataNext.Module.Simulation.Game.Hideout
 		private GameResourceDb<UnitArchetypeResource>  archDb;
 		private GameResourceDb<UnitAttachmentResource> attachDb;
 		private GameResourceDb<EquipmentResource>      equipDb;
-		
+
+		private UnitPresetHubReceiver presetHubReceiver;
+
 		public UpdateMasterServerUnitSystem([NotNull] WorldCollection collection) : base(collection)
 		{
 			initScheduler = new Scheduler();
@@ -41,6 +45,8 @@ namespace PataNext.Module.Simulation.Game.Hideout
 			DependencyResolver.Add(() => ref archDb);
 			DependencyResolver.Add(() => ref attachDb);
 			DependencyResolver.Add(() => ref equipDb);
+			
+			DependencyResolver.Add(() => ref presetHubReceiver);
 		}
 
 		private EntityQuery uninitializedQuery;
@@ -64,6 +70,26 @@ namespace PataNext.Module.Simulation.Game.Hideout
 				AsComponentType<Initialized>(),
 				AsComponentType<UnitRequestManager>()
 			});
+			
+			presetHubReceiver.PresetUpdate += onPresetUpdate;
+		}
+
+		private void onPresetUpdate(string presetId)
+		{
+			foreach (var unit in unitQuery)
+			{
+				if (!TryGetComponentData(unit, out MasterServerUnitPresetData presetData))
+					continue;
+				if (!presetData.PresetGuid.Span.SequenceEqual(presetId))
+					continue;
+
+				var controller = GetComponentData<PresetRequestManager>(unit).Source;
+				controller.Set(new GetAndSetFullUnitsPresetDetailsRequest
+				{
+					GameEntity = Focus(Safe(unit)),
+					SourceGuid = presetId
+				});
+			}
 		}
 
 		protected override void OnUpdate()

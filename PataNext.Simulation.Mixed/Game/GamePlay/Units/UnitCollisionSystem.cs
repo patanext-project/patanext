@@ -6,6 +6,7 @@ using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Worlds.Components;
+using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay;
@@ -57,7 +58,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 
 				Vector3 thisVelocity = default;
 
-				var prev = GetComponentData<UnitControllerState>(unit).PreviousPosition;
+				ref var controllerState = ref GetComponentData<UnitControllerState>(unit);
+				var     prev            = controllerState.PreviousPosition;
 				foreach (var teamEntity in enemyBuffer)
 				{
 					foreach (var enemy in GetBuffer<TeamEntityContainer>(teamEntity.Team.Handle).Reinterpret<GameEntity>())
@@ -67,6 +69,12 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 
 						if (!physicsSystem.Distance(enemy.Handle, unit, 0, default, new EntityOverrides {Position = thisPosition, Velocity = thisPosition - prev}, out var result))
 							continue;
+
+						if (!GetComponentData<EnvironmentCollider>(enemy.Handle).Slide
+						&& HasComponent<GroundState>(unit))
+						{
+							GetComponentData<GroundState>(unit).Value = true;
+						}
 						
 						thisPosition -= result.Distance * result.Normal;
 

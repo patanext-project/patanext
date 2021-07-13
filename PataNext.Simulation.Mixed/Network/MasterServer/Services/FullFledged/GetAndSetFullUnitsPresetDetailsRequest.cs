@@ -45,6 +45,8 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 			private KitCollectionSystem                    kitCollectionSystem;
 			private GameItemsManager                       itemsManager;
 
+			private ResPathGen resPathGen;
+
 			public Process([NotNull] WorldCollection collection) : base(collection)
 			{
 				DependencyResolver.Add(() => ref unitHub);
@@ -56,6 +58,8 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 				DependencyResolver.Add(() => ref archDb);
 				DependencyResolver.Add(() => ref kitCollectionSystem);
 				DependencyResolver.Add(() => ref itemsManager);
+				
+				DependencyResolver.Add(() => ref resPathGen);
 			}
 
 			private IViewableAssetService                                            viewableAssetService;
@@ -214,10 +218,32 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 					target.GetData<UnitArchetype>()  = new(archDb.GetOrCreate(new(archetypeAssetPtr.ToResPath().FullString)));
 					target.GetData<UnitCurrentKit>() = new(kitCollectionSystem.GetKit(kitAssetPtr.ToResPath()));
 
+					var maskFound = false;
+					foreach (var elem in equipmentFinal)
+					{
+						if (target.GameWorld.GetComponentData<UnitAttachmentResource>(elem.Attachment.Handle).Value.Span.IndexOf("mask") >= 0)
+						{
+							maskFound = true;
+							break;
+						}
+					}
+
 					var displayedEquipments = target.GetBuffer<UnitDisplayedEquipment>();
 					displayedEquipments.Clear();
 					displayedEquipments.AddRange(equipmentFinal);
+					if (!maskFound)
+					{
+						var maskAttachment = attachDb.GetOrCreate(new(resPathGen.Create(new[] { "equip_root", "mask" }, ResPath.EType.MasterServer)));
+						var kit            = target.GetData<UnitCurrentKit>().Resource;
+						var resource       = target.GameWorld.GetComponentData<UnitKitResource>(kit.Handle).Value.Span;
+						resource = resource[(resource.LastIndexOf('/')+1)..];
+						
+						var mask = equipDb.GetOrCreate(new(resPathGen.Create(new[] { "equipment", "mask", resource.ToString() }, ResPath.EType.MasterServer)));
 
+						Console.WriteLine($"add {resPathGen.Create(new[] { "equipment", "mask", resource.ToString()}, ResPath.EType.MasterServer)}");
+						displayedEquipments.Add(new(maskAttachment, mask));
+					}
+					
 					var definedEquipments = target.GetBuffer<UnitDefinedEquipments>();
 					definedEquipments.Clear();
 					definedEquipments.AddRange(equipmentItemFinal);
@@ -231,6 +257,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 					definedAbilities.AddRange(CollectionsMarshal.AsSpan(abilityList));
 
 					target.AddData(new MasterServerIsUnitLoaded());
+					target.AddData(new MasterServerUnitPresetData(presetId));
 
 					Console.WriteLine($"Success for {e}");
 				};

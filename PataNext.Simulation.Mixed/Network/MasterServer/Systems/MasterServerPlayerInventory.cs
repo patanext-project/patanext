@@ -4,19 +4,28 @@ using Collections.Pooled;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
+using Microsoft.Extensions.Logging;
 using PataNext.Game.GameItems;
 using PataNext.Module.Simulation.Components;
+using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Network.MasterServer.Services;
 using StormiumTeam.GameBase;
+using StormiumTeam.GameBase.Network.MasterServer.AssetService;
+using StormiumTeam.GameBase.Network.MasterServer.Utility;
+using StormiumTeam.GameBase.SystemBase;
+using ZLogger;
 
 namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 {
 	public class MasterServerPlayerInventoryProvider : AppSystem
 	{
-		private World itemWorld;
-		
+		private World   itemWorld;
+		private ILogger logger;
+
 		public MasterServerPlayerInventoryProvider(WorldCollection collection) : base(collection)
 		{
+			DependencyResolver.Add(() => ref logger);
+
 			AddDisposable(itemWorld = new());
 		}
 
@@ -28,11 +37,25 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 				entity.Set(new GetItemDetailsRequest(guid));
 
 				return entity;
+			}, (origin, attachment, guid) =>
+			{
+				if (!origin.Has<MasterServerUnitPresetData>())
+				{
+					logger.ZLogError("{0} is not an unit controlled by the MasterServer", origin);
+					return;
+				}
+
+				var preset = origin.GetData<MasterServerUnitPresetData>().PresetGuid.ToString();
+				// We need the attachment to be a GUID and not the resource path
+				RequestUtility.CreateTracked(World.Mgr, new GetAssetGuidRequest { Path = new(attachment) }, (Entity _, GetAssetGuidRequest.Response response) =>
+				{
+					RequestUtility.CreateFireAndForget(World.Mgr, new SetPresetEquipments(preset, response.Guid, guid));
+				});
 			});
 		}
 	}
 
-	public class MasterServerPlayerInventory : PlayerInventoryBase
+	public class MasterServerPlayerInventory : PlayerInventoryBase, ISwapEquipmentInventory
 	{
 		private struct ToMasterServerId
 		{
@@ -45,12 +68,14 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 		public readonly string SaveId;
 
 		private Func<string, Entity> createEntity;
+		private Action<SafeEntityFocus, string, string>             swapEquipment;
 
-		public MasterServerPlayerInventory(string saveId, Func<string, Entity> createEntity)
+		public MasterServerPlayerInventory(string saveId, Func<string, Entity> createEntity, Action<SafeEntityFocus, string, string> swapEquipment)
 		{
 			SaveId = saveId;
 
-			this.createEntity = createEntity;
+			this.createEntity  = createEntity;
+			this.swapEquipment = swapEquipment;
 		}
 
 		public override void Read<TFill, TRestrict>(TFill list, TRestrict restrictTypes = default)
@@ -181,6 +206,11 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Systems
 			}
 
 			return itemEntity;
+		}
+
+		public void RequestSwap(SafeEntityFocus origin, string attachment, Entity newEquipmentEntity)
+		{
+			swapEquipment(origin, attachment, newEquipmentEntity.Get<ToMasterServerId>().Value);
 		}
 	}
 }

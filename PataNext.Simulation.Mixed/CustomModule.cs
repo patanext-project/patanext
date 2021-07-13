@@ -21,6 +21,7 @@ using PataNext.Module.Simulation.Components.GamePlay.Special;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.GamePlay.FreeRoam;
 using PataNext.Module.Simulation.Game.Providers;
+using PataNext.Module.Simulation.GameModes.InBasement;
 using PataNext.Module.Simulation.Network.MasterServer;
 using PataNext.Module.Simulation.Network.NetCodeRpc;
 using PataNext.Module.Simulation.Network.Snapshots;
@@ -30,7 +31,6 @@ using PataNext.Module.Simulation.Network.Snapshots.Resources;
 using PataNext.Module.Simulation.Network.Snapshots.Team;
 using PataNext.Module.Simulation.Passes;
 using PataNext.Module.Simulation.Resources;
-using PataNext.Module.Simulation.Systems.GhRpc;
 using PataNext.Simulation.Mixed.Components.GamePlay.RhythmEngine.DefaultCommands;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.Authorities;
@@ -96,6 +96,7 @@ namespace PataNext.Module.Simulation
 			inject<Network.MasterServer.Services.GetUnitPresetEquipmentsRequest.Process>();
 			inject<Network.MasterServer.Services.GetUnitPresetAbilitiesRequest.Process>();
 			inject<Network.MasterServer.Services.CopyPresetToTargetUnitRequest.Process>();
+			inject<Network.MasterServer.Services.SetPresetEquipments.Process>();
 
 			inject<Network.MasterServer.Services.GetItemAssetPointerRequest.Process>();
 			inject<Network.MasterServer.Services.GetItemDetailsRequest.Process>();
@@ -109,6 +110,8 @@ namespace PataNext.Module.Simulation
 		{
 			app.Data.Collection.GetOrCreate(typeof(FreeRoamUnitProvider));
 			app.Data.Collection.GetOrCreate(typeof(FreeRoamCharacterMovementSystem));
+			app.Data.Collection.GetOrCreate(typeof(CharacterEnterCityLocationSystem));
+			app.Data.Collection.GetOrCreate(typeof(SynchronizeCharacterVisualSystem));
 		}
 
 		private void InjectSerializers(SimulationApplication app, SerializerCollection sc)
@@ -257,7 +260,6 @@ namespace PataNext.Module.Simulation
 		public CustomModule(Entity source, Context ctxParent, GameHostModuleDescription original) : base(source, ctxParent, original)
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-			global.Collection.GetOrCreate(typeof(SwitchAuthorityRpc.System));
 
 			foreach (ref readonly var listener in global.World.Get<IListener>())
 			{

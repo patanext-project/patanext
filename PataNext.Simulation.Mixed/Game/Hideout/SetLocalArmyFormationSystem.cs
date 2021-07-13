@@ -12,9 +12,11 @@ using Microsoft.Extensions.Logging;
 using PataNext.MasterServerShared.Services;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Components.Hideout;
 using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Network.MasterServer.Services;
+using PataNext.Module.Simulation.Systems;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.MasterServer.Utility;
 using StormiumTeam.GameBase.Roles.Components;
@@ -27,10 +29,12 @@ namespace PataNext.Module.Simulation.Game.Hideout
 	public class SetLocalArmyFormationSystem : GameAppSystem
 	{
 		private ILogger logger;
+		private UnitStatusEffectComponentProvider statusEffectProvider;
 
 		public SetLocalArmyFormationSystem([NotNull] WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref logger);
+			DependencyResolver.Add(() => ref statusEffectProvider);
 		}
 
 		private EntityQuery localPlayerQuery;
@@ -141,6 +145,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 							);
 
 							GameWorld.AddComponent(squadEntity, AsComponentType<OwnedRelative<ArmyUnitDescription>>());
+							GameWorld.AddComponent(squadEntity, new HideoutSquadIndex(squadIdx - 1));
 
 							if ((ELocalSquadType) squadIdx != ELocalSquadType.UberHero)
 							{
@@ -209,7 +214,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 									new Owner(squadFocus.Entity)
 								);
 
-								if ((ELocalSquadType) squadIdx == ELocalSquadType.Hatapon)
+								if ((ELocalSquadType)squadIdx == ELocalSquadType.Hatapon)
 									AddComponent(unitEntity, new UnitTargetControlTag());
 
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitDefinedAbilities>());
@@ -222,9 +227,28 @@ namespace PataNext.Module.Simulation.Game.Hideout
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitStatistics>());
 								GameWorld.AddComponent(unitEntity, AsComponentType<UnitIndexInSquad>());
 
+								foreach (var statusType in new[]
+								{
+									typeof(PataNext.Game.Abilities.Effects.Critical),
+									typeof(PataNext.Game.Abilities.Effects.KnockBack),
+									typeof(PataNext.Game.Abilities.Effects.Stagger),
+									typeof(PataNext.Game.Abilities.Effects.Burn),
+									typeof(PataNext.Game.Abilities.Effects.Sleep),
+									typeof(PataNext.Game.Abilities.Effects.Freeze),
+									typeof(PataNext.Game.Abilities.Effects.Poison),
+									typeof(PataNext.Game.Abilities.Effects.Tumble),
+									typeof(PataNext.Game.Abilities.Effects.Wind),
+									typeof(PataNext.Game.Abilities.Effects.Piercing),
+									typeof(PataNext.Game.Abilities.Effects.Silence),
+								})
+								{
+									statusEffectProvider.AddStatus(unitEntity, GameWorld.AsComponentType(statusType), new());
+								}
+								
+
 								unitBuffer.Add(Safe(unitEntity));
 
-								Console.WriteLine($"Created Unit {unitIdx} of squad {(ELocalSquadType) squadIdx} {unitEntity} (MID {squadData.Leader})");
+								Console.WriteLine($"Created Unit {unitIdx} of squad {(ELocalSquadType)squadIdx} {unitEntity} (MID {squadData.Leader})");
 							}
 							else if (unitBuffer.Count > unitIdx && unitBuffer.Count > unitCount && unitIdx >= unitCount)
 							{
@@ -240,7 +264,15 @@ namespace PataNext.Module.Simulation.Game.Hideout
 							unitFocus.AddData(new MasterServerControlledUnitData(unitIdx == 0 ? squadData.Leader : squadData.Soldiers[unitIdx - 1]))
 							         // Make sure that UberHero and Hatapon is the first in their squad.
 							         // The Uberhero will share the same squad that correspond to the other 
-							         .AddData(new UnitIndexInSquad((ELocalSquadType) squadIdx < ELocalSquadType.SquadTate ? 0 : unitIdx + 1));
+							         .AddData(new UnitIndexInSquad((ELocalSquadType)squadIdx < ELocalSquadType.SquadTate ? 0 : unitIdx));
+							// ^ originally it was 'unitIdx + 1' but since I've learnt that the Uberhero is at the same index as the leader
+							// it was modified, ingame the uberhero will be put in front via abilities 
+
+							if (unitIdx == 0 && (ELocalSquadType)squadIdx >= ELocalSquadType.SquadTate)
+							{
+								Console.WriteLine("add hideoutleadersquad");
+								GameWorld.UpdateOwnedComponent(squadFocus.Handle, new HideoutLeaderSquad { Leader = unitFocus.Entity });
+							}
 						}
 
 						#endregion

@@ -110,7 +110,7 @@ namespace PataNext.CoreAbilities.Mixed
 			{
 				if (ent.TryGet(out RegisteredModule registeredModule)
 				    && registeredModule.State == ModuleState.None
-				    && registeredModule.Description.NameId == "PataNext.CoreAbilities.Server")
+				    && (registeredModule.Description.NameId == "PataNext.CoreAbilities.Server"))
 				{
 					Console.WriteLine("Load Server Module!");
 					global.World.CreateEntity()

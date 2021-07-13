@@ -32,5 +32,10 @@ namespace PataNext.Module.Simulation.Components.Units
 				}
 			}
 		}
+
+		public bool Equals(UnitArchetype unitArchetype)
+		{
+			return Resource.Equals(unitArchetype.Resource);
+		}
 	}
 }

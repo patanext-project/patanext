@@ -113,9 +113,10 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 				if (translation.Y < 0) // meh
 					translation.Y = 0;
 
-				groundState = translation.Y <= 0;
 				if (!controllerState.ControlOverVelocityY && groundState)
 					velocity.Y = Math.Max(velocity.Y, 0);
+				
+				groundState = translation.Y <= 0;
 
 				for (var i = 0; i < 3; i++)
 					translation.Ref(i) = float.IsNaN(translation.Ref(i)) ? 0.0f : translation.Ref(i);

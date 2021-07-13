@@ -33,11 +33,11 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 				Debug.Assert(Service != null, "Service != null");
 
 				var result = await Service.GetSoftPresets(entity.Get<GetSaveUnitPresetsRequest>().SaveId);
-				return e => e.Set(new Response {PresetIds = result});
+				return e => e.Set(new Response { PresetIds = result });
 			}
 		}
 	}
-	
+
 	public struct GetUnitPresetDetailsRequest
 	{
 		public string PresetId;
@@ -60,7 +60,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 				Debug.Assert(Service != null, "Service != null");
 
 				var result = await Service.GetDetails(entity.Get<GetUnitPresetDetailsRequest>().PresetId);
-				return e => e.Set(new Response {Result = result});
+				return e => e.Set(new Response { Result = result });
 			}
 		}
 	}
@@ -94,7 +94,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 				Debug.Assert(Service != null, "Service != null");
 
 				var result = await Service.GetEquipments(entity.Get<GetUnitPresetEquipmentsRequest>().PresetId);
-				return e => e.Set(new Response {Result = result});
+				return e => e.Set(new Response { Result = result });
 			}
 		}
 	}
@@ -128,7 +128,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 				Debug.Assert(Service != null, "Service != null");
 
 				var result = await Service.GetAbilities(entity.Get<GetUnitPresetAbilitiesRequest>().PresetId);
-				return e => e.Set(new Response {Result = result});
+				return e => e.Set(new Response { Result = result });
 			}
 		}
 	}
@@ -156,11 +156,53 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services
 
 				var req = entity.Get<CopyPresetToTargetUnitRequest>();
 				Console.WriteLine($"yooooo {req.SoftPresetId} {req.UnitId}");
-				
+
 				await Service.CopyPresetToTargetUnit(req.SoftPresetId, req.UnitId);
 
 				Console.WriteLine("copied!");
-				
+
+				return _ => { };
+			}
+		}
+	}
+
+	public struct SetPresetEquipments
+	{
+		public string                     PresetId;
+		public Dictionary<string, string> Updates;
+
+		public SetPresetEquipments(string presetId, Dictionary<string, string> updates)
+		{
+			PresetId = presetId;
+			Updates  = updates;
+		}
+
+		public SetPresetEquipments(string presetId, string attachmentId, string itemId)
+		{
+			PresetId = presetId;
+			Updates = new()
+			{
+				{ attachmentId, itemId }
+			};
+		}
+
+		public class Process : MasterServerRequestHub<IUnitPresetHub, IUnitPresetHubReceiver, SetPresetEquipments>
+		{
+			public Process([NotNull] WorldCollection collection) : base(collection)
+			{
+			}
+
+			protected override async Task<Action<Entity>> OnUnprocessedRequest(Entity entity, RequestCallerStatus callerStatus)
+			{
+				Debug.Assert(Service != null, "Service != null");
+
+				var req = entity.Get<SetPresetEquipments>();
+				Console.WriteLine($"modifying equipment of preset {req.PresetId} {req.Updates.Count}");
+
+				await Service.SetEquipments(req.PresetId, req.Updates);
+
+				Console.WriteLine("modified");
+
 				return _ => { };
 			}
 		}

@@ -5,9 +5,11 @@ namespace PataNext.Module.Simulation.Network.MasterServer
 {
 	public class UnitPresetHubReceiver : IUnitPresetHubReceiver
 	{
+		public event Action<string> PresetUpdate; 
+
 		public void OnPresetUpdate(string presetId)
 		{
-			Console.WriteLine($"Preset {presetId} updated.");
+			PresetUpdate?.Invoke(presetId);
 		}
 	}
 }

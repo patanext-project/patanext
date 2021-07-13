@@ -59,6 +59,8 @@ namespace PataNext.Module.Simulation.Systems
 		private Dictionary<ComponentType, ComponentType> stateMap    = new();
 		private Dictionary<ComponentType, ComponentType> settingsMap = new();
 
+		private Dictionary<string, ComponentType> shortNameToType = new();
+
 		public UnitStatusEffectComponentProvider([NotNull] WorldCollection collection) : base(collection)
 		{
 		}
@@ -107,6 +109,8 @@ namespace PataNext.Module.Simulation.Systems
 				var friendlyName  = TypeExt.GetFriendlyName(type);
 				var componentType = GameWorld.AsComponentType(type);
 
+				shortNameToType[type.Name.ToLower()] = componentType;
+
 				stateMap[componentType] = GameWorld.RegisterComponent(friendlyName + "State",
 					new SingleComponentBoard(Unsafe.SizeOf<StatusEffectStateBase>(), 0),
 					optionalParentType: AsComponentType<StatusEffectStateBase>());
@@ -142,6 +146,11 @@ namespace PataNext.Module.Simulation.Systems
 		public ref StatusEffectSettingsBase GetStatusSettings(GameEntityHandle handle, ComponentType type)
 		{
 			return ref GameWorld.GetComponentData<StatusEffectSettingsBase>(handle, settingsMap[type]);
+		}
+
+		public bool TryGetStatusType(string key, out ComponentType o)
+		{
+			return shortNameToType.TryGetValue(key, out o);
 		}
 	}
 }

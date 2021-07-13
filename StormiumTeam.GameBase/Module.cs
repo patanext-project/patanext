@@ -117,6 +117,8 @@ namespace StormiumTeam.GameBase
 							#endif
 							
 							simulationApplication.Data.Collection.GetOrCreate(typeof(GetAssetPointerRequest.Process));
+							simulationApplication.Data.Collection.GetOrCreate(typeof(GetAssetDetailsRequest.Process));
+							simulationApplication.Data.Collection.GetOrCreate(typeof(GetAssetGuidRequest.Process));
 						}
 
 						var serializerCollection = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));

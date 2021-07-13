@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
     <ProjectReference Include="..\PataNext.CoreAbilities.Mixed\PataNext.CoreAbilities.Mixed.csproj" />
     <ProjectReference Include="..\PataNext.CoreAbilities.Server\PataNext.CoreAbilities.Server.csproj" />
+    <ProjectReference Include="..\PataNext.CoreMissions.Mixed\PataNext.CoreMissions.Mixed.csproj" />
     <ProjectReference Include="..\PataNext.Feature.RhythmEngineAudio\PataNext.Feature.RhythmEngineAudio.csproj" />
     <ProjectReference Include="..\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
     <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />

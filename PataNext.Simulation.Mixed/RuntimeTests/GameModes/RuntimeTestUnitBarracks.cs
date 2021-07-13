@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Threading.Tasks;
+using Box2D.NetStandard.Collision.Shapes;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Injection.Dependency;
@@ -10,11 +12,16 @@ using PataNext.Game.Abilities.Effects;
 using PataNext.Game.GameItems;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.Army;
+using PataNext.Module.Simulation.Components.GameModes;
+using PataNext.Module.Simulation.Components.GameModes.City;
+using PataNext.Module.Simulation.Components.GameModes.City.Scenes;
+using PataNext.Module.Simulation.Components.GamePlay;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Network;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Hideout;
+using PataNext.Module.Simulation.Game.Visuals;
 using PataNext.Module.Simulation.GameModes;
 using PataNext.Module.Simulation.Network.MasterServer.Services;
 using PataNext.Module.Simulation.Network.MasterServer.Systems;
@@ -24,6 +31,8 @@ using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Network.MasterServer.User;
 using StormiumTeam.GameBase.Network.MasterServer.Utility;
+using StormiumTeam.GameBase.Physics;
+using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
@@ -39,6 +48,8 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 		GameResourceDb<EquipmentResource>      equipDb;
 		GameResourceDb<UnitAttachmentResource> attachDb;
 
+		private GameResourceDb<GameGraphicResource> graphicDb;
+
 		private ResPathGen                        resPathGen;
 		private UnitStatusEffectComponentProvider statusEffectProvider;
 
@@ -48,16 +59,21 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 		
 		private CurrentUserSystem currentUserSystem;
 
+		private IPhysicsSystem physicsSystem;
+
 		public RuntimeTestUnitBarracks(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref localArchetypeDb);
 			DependencyResolver.Add(() => ref localKitDb);
 			DependencyResolver.Add(() => ref equipDb);
 			DependencyResolver.Add(() => ref attachDb);
+			DependencyResolver.Add(() => ref graphicDb);
 
 			DependencyResolver.Add(() => ref resPathGen);
 			DependencyResolver.Add(() => ref statusEffectProvider);
 			DependencyResolver.Add(() => ref itemMgr);
+			
+			DependencyResolver.Add(() => ref physicsSystem);
 			
 			DependencyResolver.Add(() => ref inventoryProvider);
 			
@@ -86,6 +102,36 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 				new PlayerIsLocal(),
 				new InputAuthority()
 			);
+			
+			{
+				var barracksScene = CreateEntity();
+				AddComponent(barracksScene, new CityLocationTag());
+				AddComponent(barracksScene, new CityBarrackScene());
+				AddComponent(barracksScene, new Position(x: 12));
+				AddComponent(barracksScene, new EntityVisual(graphicDb.GetOrCreate(resPathGen.Create(new[] { "Models", "GameModes", "City", "DefaultScenes", "Barracks" }, ResPath.EType.ClientResource))));
+
+				using (var collider = World.Mgr.CreateEntity())
+				{
+					collider.Set((Shape)new Box2D.NetStandard.Collision.Shapes.PolygonShape(3, 2));
+					physicsSystem.AssignCollider(barracksScene, collider);
+				}
+			}
+			
+			{
+				var obeliskScene = CreateEntity();
+				AddComponent(obeliskScene, new CityLocationTag());
+				AddComponent(obeliskScene, new CityObeliskScene());
+				AddComponent(obeliskScene, new Position(x: -12));
+				AddComponent(obeliskScene, new EntityVisual(graphicDb.GetOrCreate(resPathGen.Create(new[] { "Models", "GameModes", "City", "DefaultScenes", "Obelisk" }, ResPath.EType.ClientResource))));
+
+				using (var collider = World.Mgr.CreateEntity())
+				{
+					collider.Set((Shape)new Box2D.NetStandard.Collision.Shapes.PolygonShape(2, 5));
+					physicsSystem.AssignCollider(obeliskScene, collider);
+				}
+			}
+
+			AddComponent(CreateEntity(), new AtCityGameModeData());
 			
 			var inventory    = World.Mgr.CreateEntity();
 			var inventoryObj = inventoryProvider.Create(saveId);

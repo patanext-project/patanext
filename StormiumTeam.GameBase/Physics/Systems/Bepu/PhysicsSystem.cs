@@ -208,7 +208,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 
 		public bool Overlap(GameEntityHandle left, GameEntityHandle right)
 		{
-			throw new NotImplementedException();
+			return Distance(left, right, 0, default, default, out _);
 		}
 
 		public bool Distance(GameEntityHandle against, GameEntityHandle origin, float maxDistance, EntityOverrides? overrideAgainst, EntityOverrides? overrideOrigin, out DistanceResult distanceResult)

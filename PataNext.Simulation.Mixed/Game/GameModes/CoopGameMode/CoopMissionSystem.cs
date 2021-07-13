@@ -13,6 +13,7 @@ using GameHost.Simulation.Utility.EntityQuery;
 using GameHost.Simulation.Utility.Time;
 using GameHost.Utility;
 using GameHost.Worlds.Components;
+using PataNext.Game;
 using PataNext.Game.Scenar;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
@@ -51,6 +52,8 @@ namespace PataNext.Module.Simulation.GameModes
 		private CoopMissionSquadProvider        squadProvider;
 		private AbilityCollectionSystem         abilityCollection;
 
+		private MissionManager missionManager;
+
 		public CoopMissionSystem(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref worldTime);
@@ -61,6 +64,8 @@ namespace PataNext.Module.Simulation.GameModes
 			DependencyResolver.Add(() => ref unitProvider);
 			DependencyResolver.Add(() => ref squadProvider);
 			DependencyResolver.Add(() => ref abilityCollection);
+			
+			DependencyResolver.Add(() => ref missionManager);
 		}
 
 		private GameEntity playerClub;
@@ -267,5 +272,9 @@ namespace PataNext.Module.Simulation.GameModes
 
 	public struct CoopMission : IComponentData
 	{
+		public struct TargetMission : IComponentData
+		{
+			public Entity Entity;
+		}
 	}
 }
