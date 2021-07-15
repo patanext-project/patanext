@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DefaultEcs;
 using GameHost.Core.Ecs;
@@ -65,6 +66,8 @@ namespace PataNext.Client.Systems
 			{
 				await bgmFile.ComputeDescription();
 
+				Console.WriteLine($"found BGM {bgmFile.Description.Name} (id: {bgmFile.Description.Id})");
+				
 				void setOrCreateEntity()
 				{
 					var (some, ent) = bgmSet.GetEntities()

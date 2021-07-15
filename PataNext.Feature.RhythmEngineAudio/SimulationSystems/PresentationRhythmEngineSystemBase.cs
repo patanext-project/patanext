@@ -62,7 +62,7 @@ namespace PataNext.Simulation.Client.Systems
 			var localInfo = new RhythmEngineInformation();
 			if (LocalRhythmEngine != default)
 			{
-				localInfo.ActiveBgmId = "topkek";
+				localInfo.ActiveBgmId = "ponbekedetta_rock";
 				localInfo.Elapsed     = gameWorld.GetComponentData<RhythmEngineLocalState>(LocalRhythmEngine).Elapsed;
 				if (gameWorld.HasComponent<RhythmEngineExecutingCommand>(LocalRhythmEngine))
 				{

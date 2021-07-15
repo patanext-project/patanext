@@ -7,6 +7,8 @@ namespace PataNext.Game
 {
 	public struct MissionDetails
 	{
+		public ResPath Path;
+		
 		public string  Name;
 		public ResPath Scenar;
 	}
@@ -24,6 +26,8 @@ namespace PataNext.Game
 			var ent = World.Mgr.CreateEntity();
 			ent.Set(new MissionDetails
 			{
+				Path = missionPath,
+				
 				Name = name,
 				Scenar = scenarPath
 			});

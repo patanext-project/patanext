@@ -1,9 +1,14 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using BepuPhysics;
 using Collections.Pooled;
+using GameHost.Core.Ecs;
+using GameHost.IO;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.EntityQuery;
+using PataNext.Game;
+using PataNext.Game.Scenar;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.GameModes;
 using PataNext.Module.Simulation.Components.GameModes.City;
@@ -97,11 +102,39 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 				AsComponentType<PlayerCurrentCityLocation>()
 			});
 		}
+		
+		private ResourceHandle<ScenarResource> scenarResource;
+		private GameEntity                     scenarGameEntity;
+
+		private async ValueTask loadMissionAsync()
+		{
+			if (!TryGetComponentData(GetGameModeHandle(), out AtCityGameModeData.TargetMission targetMission))
+				throw new InvalidOperationException("The gamemode should have a target mission");
+
+			if (!targetMission.Target.TryGet(out MissionDetails missionDetails))
+				throw new InvalidOperationException($"{targetMission.Target} has no {nameof(MissionDetails)} component");
+
+			// Load Scenar
+			var scenarRequest = World.Mgr.CreateEntity();
+			scenarRequest.Set(new ScenarLoadRequest(missionDetails.Scenar));
+
+			scenarResource = new ResourceHandle<ScenarResource>(scenarRequest);
+
+			while (!scenarResource.IsLoaded)
+				await Task.Yield();
+
+			AddComponent(GetGameModeHandle(), new ExecutingMissionData(targetMission.Target));
+			
+			scenarGameEntity = Safe(CreateEntity());
+			GameWorld.Link(scenarGameEntity.Handle, GetGameModeHandle(), true);
+			
+			await scenarResource.Result.Interface.StartAsync(scenarGameEntity, Safe(GetGameModeHandle()));
+		}
 
 		protected override async Task GetStateMachine(CancellationToken token)
 		{
-			GameWorld.TryGetSingleton<AtCityGameModeData>(out GameEntityHandle gameModeEntity);
-
+			var gameModeEntity = GetGameModeHandle();
+			
 			environmentTeam = Safe(CreateEntity());
 			AddComponent(environmentTeam, new TeamDescription());
 			AddComponent(environmentTeam, new SimulationAuthority());
@@ -123,10 +156,14 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 
 			var isPlayingGameModeType = AsComponentType<CityCurrentGameModeTarget>();
 			var isSleepingType        = AsComponentType<IsInSleepingState>();
+			var firstRun              = true;
 
 			using var temporaryEntities = new PooledList<GameEntityHandle>();
 			while (!token.IsCancellationRequested)
 			{
+				playerWithoutInputQuery.CheckForNewArchetypes();
+				playerWithInputQuery.CheckForNewArchetypes();
+				
 				temporaryEntities.Clear();
 
 				var shouldSleep = HasComponent(gameModeEntity, isPlayingGameModeType);
@@ -142,6 +179,21 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 								cleanPlayer(player);
 
 							GameWorld.AddComponent(gameModeEntity, isSleepingType);
+
+							if (scenarResource.IsLoaded)
+							{
+								await scenarResource.Result.Interface.CleanupAsync(false);
+							}
+
+							RemoveEntity(scenarGameEntity);
+						}
+
+						var targetGameMode = GetComponentData<CityCurrentGameModeTarget>(gameModeEntity).Entity;
+						if (!GameWorld.Exists(targetGameMode)
+						    || HasComponent<GameModeIsDisposedTag>(targetGameMode))
+						{
+							RemoveEntity(targetGameMode);
+							GameWorld.RemoveComponent(gameModeEntity, isPlayingGameModeType);
 						}
 
 						break;
@@ -151,22 +203,30 @@ namespace PataNext.Module.Simulation.GameModes.InBasement
 					// If we were in a sleeping state then we need to load old data TODO
 					case false:
 					{
-						if (HasComponent(gameModeEntity, isSleepingType))
+						if (HasComponent(gameModeEntity, isSleepingType) || firstRun)
+						{
 							// TODO: Load previous city data (unit positions, etc...)
 
+							// Load city map/mission with scenar
+							await loadMissionAsync();
+
 							GameWorld.RemoveComponent(gameModeEntity, isSleepingType);
+						}
 
 						// Add missing input component to players
 						playerWithoutInputQuery.AddEntitiesTo(temporaryEntities);
 						foreach (var player in temporaryEntities)
 							initializePlayer(gameModeEntity, player);
 
+						await scenarResource.Result.Interface.LoopAsync();
 						PlayLoop();
 						break;
 					}
 				}
 
 				await Task.Yield();
+
+				firstRun = false;
 			}
 
 			// Remove input component from players

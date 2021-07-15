@@ -53,6 +53,8 @@ namespace PataNext.Module.Simulation.GameModes
 						Offset = offset
 					})))).Entity);
 
+					GameWorld.Link(runtimeSquad.Handle, GetGameModeHandle(), true);
+
 					var unitBuffer = GetBuffer<OwnedRelative<ArmyUnitDescription>>(ownedSquad.Target);
 					for (var unitIdx = 0; unitIdx < unitBuffer.Count; unitIdx++)
 					{
@@ -73,6 +75,8 @@ namespace PataNext.Module.Simulation.GameModes
 							UnitTarget   = target,
 							RhythmEngine = rhythmEngine
 						});
+
+						GameWorld.Link(runtimeUnit, new[] { player.Handle, GetGameModeHandle() }, true);
 
 						var ownedUnitFocus   = Focus(ownedUnit.Target);
 						var runtimeUnitFocus = Focus(Safe(runtimeUnit));

@@ -148,7 +148,6 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 							var (attachment, resource, itemId) = await t;
 							if (!itemsManager.TryGetDescription(new(resource), out var itemAsset))
 								throw new InvalidOperationException("no asset found on " + resource);
-							Console.WriteLine($"TryGetResource {resource} : {itemAsset}");
 
 							if (!itemAsset.Has<GameItemDescription>())
 								throw new InvalidOperationException("no desc on " + resource);
@@ -239,8 +238,6 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 						resource = resource[(resource.LastIndexOf('/')+1)..];
 						
 						var mask = equipDb.GetOrCreate(new(resPathGen.Create(new[] { "equipment", "mask", resource.ToString() }, ResPath.EType.MasterServer)));
-
-						Console.WriteLine($"add {resPathGen.Create(new[] { "equipment", "mask", resource.ToString()}, ResPath.EType.MasterServer)}");
 						displayedEquipments.Add(new(maskAttachment, mask));
 					}
 					
@@ -258,8 +255,6 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 
 					target.AddData(new MasterServerIsUnitLoaded());
 					target.AddData(new MasterServerUnitPresetData(presetId));
-
-					Console.WriteLine($"Success for {e}");
 				};
 			}
 		}

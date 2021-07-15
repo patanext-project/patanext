@@ -1,4 +1,5 @@
-﻿using GameHost.Core.Ecs;
+﻿using System;
+using GameHost.Core.Ecs;
 using StormiumTeam.GameBase;
 
 namespace PataNext.Game.Scenar
@@ -12,6 +13,7 @@ namespace PataNext.Game.Scenar
 				if (msg.ScenarPath.Equals(ScenarPath) == false)
 					return;
 
+				Console.WriteLine("Provide for " + ScenarPath);
 				msg.SetScenar(Provide());
 			}));
 		}

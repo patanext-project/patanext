@@ -160,8 +160,6 @@ namespace PataNext.Module.Simulation.Game.Hideout
 							}
 
 							ownedSquadBuffer.Add(new(Safe(squadEntity)));
-
-							Console.WriteLine($"Created Squad {(ELocalSquadType) squadIdx}");
 						}
 						else if (ownedSquadBuffer.Count > squadIdx && ownedSquadBuffer.Count > squadCount && squadIdx >= squadCount)
 						{
@@ -248,7 +246,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 
 								unitBuffer.Add(Safe(unitEntity));
 
-								Console.WriteLine($"Created Unit {unitIdx} of squad {(ELocalSquadType)squadIdx} {unitEntity} (MID {squadData.Leader})");
+								//Console.WriteLine($"Created Unit {unitIdx} of squad {(ELocalSquadType)squadIdx} {unitEntity} (MID {squadData.Leader})");
 							}
 							else if (unitBuffer.Count > unitIdx && unitBuffer.Count > unitCount && unitIdx >= unitCount)
 							{
@@ -256,7 +254,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 								RemoveEntity(unitBuffer[squadIdx]);
 								unitBuffer.RemoveAt(squadIdx--);
 
-								Console.WriteLine($"Destroyed Unit {unitIdx}");
+								//Console.WriteLine($"Destroyed Unit {unitIdx}");
 								continue;
 							}
 
@@ -270,7 +268,6 @@ namespace PataNext.Module.Simulation.Game.Hideout
 
 							if (unitIdx == 0 && (ELocalSquadType)squadIdx >= ELocalSquadType.SquadTate)
 							{
-								Console.WriteLine("add hideoutleadersquad");
 								GameWorld.UpdateOwnedComponent(squadFocus.Handle, new HideoutLeaderSquad { Leader = unitFocus.Entity });
 							}
 						}

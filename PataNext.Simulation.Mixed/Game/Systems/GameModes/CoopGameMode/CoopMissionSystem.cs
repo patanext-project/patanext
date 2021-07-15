@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Threading.Tasks;
-using BepuUtilities;
 using Collections.Pooled;
 using DefaultEcs;
 using GameHost.Core.Ecs;
@@ -10,29 +9,21 @@ using GameHost.IO;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
-using GameHost.Simulation.Utility.Time;
-using GameHost.Utility;
 using GameHost.Worlds.Components;
 using PataNext.Game;
 using PataNext.Game.Scenar;
-using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.RhythmEngine;
 using PataNext.Module.Simulation.Components.GamePlay.Special;
-using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Providers;
-using PataNext.Module.Simulation.Game.Visuals;
 using PataNext.Module.Simulation.GameModes.DataCoopMission;
-using PataNext.Module.Simulation.Network.Snapshots;
 using PataNext.Module.Simulation.Systems;
 using StormiumTeam.GameBase;
-using StormiumTeam.GameBase.Camera.Components;
 using StormiumTeam.GameBase.GamePlay;
 using StormiumTeam.GameBase.GamePlay.Events;
 using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.GamePlay.Health.Providers;
-using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Physics.Components;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
@@ -87,21 +78,34 @@ namespace PataNext.Module.Simulation.GameModes
 				OptionalClub = clubFocus.Entity
 			}));
 
+			GameWorld.Link(clubFocus.Handle, playerTeam.Handle, true);
+
 			return base.GameModeInitialisation();
 		}
 
-		private ResourceHandle<ScenarResource> scenarEntity;
+		private ResourceHandle<ScenarResource> scenarResource;
+		private GameEntity                     scenarGameEntity;
 
 		protected override async Task GameModeStartRound()
 		{
-			// Load Scenar
+			GameWorld.TryGetSingleton<CoopMission>(out GameEntityHandle gameModeEntity);
+
+			if (!TryGetComponentData(gameModeEntity, out CoopMission.TargetMission targetMission))
+				throw new InvalidOperationException("The gamemode should have a target mission");
+
+			if (!targetMission.Entity.TryGet(out MissionDetails missionDetails))
+				throw new InvalidOperationException($"{targetMission.Entity} has no {nameof(MissionDetails)} component");
+
+				// Load Scenar
 			var scenarRequest = World.Mgr.CreateEntity();
-			scenarRequest.Set(new ScenarLoadRequest(new (ResPath.EType.ClientResource, "guerro", "test", "scenar")));
+			scenarRequest.Set(new ScenarLoadRequest(missionDetails.Scenar));
 
-			scenarEntity = new ResourceHandle<ScenarResource>(scenarRequest);
+			scenarResource = new ResourceHandle<ScenarResource>(scenarRequest);
 
-			while (!scenarEntity.IsLoaded)
+			while (!scenarResource.IsLoaded)
 				await Task.Yield();
+
+			AddComponent(GetGameModeHandle(), new ExecutingMissionData(targetMission.Entity));
 
 			var postComponentScheduler = new Scheduler();
 
@@ -135,6 +139,9 @@ namespace PataNext.Module.Simulation.GameModes
 				AddComponent(playerHandle, new Relative<RhythmEngineDescription>(Safe(rhythmEngine)));
 				
 				GameWorld.AssureComponents(playerHandle, stackalloc [] { AsComponentType<OwnedRelative<UnitDescription>>() });
+
+				GameWorld.Link(target, stackalloc[] {playerHandle, GetGameModeHandle()}, true);
+				GameWorld.Link(rhythmEngine, stackalloc[] {playerHandle, GetGameModeHandle()}, true);
 			}, postComponentScheduler);
 
 			postComponentScheduler.Run();
@@ -151,15 +158,18 @@ namespace PataNext.Module.Simulation.GameModes
 					StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(1))
 				};
 			}
+
+			scenarGameEntity = Safe(CreateEntity());
+			GameWorld.Link(scenarGameEntity.Handle, GetGameModeHandle(), true);
 			
-			await scenarEntity.Result.Interface.StartAsync();
+			await scenarResource.Result.Interface.StartAsync(scenarGameEntity, Safe(GetGameModeHandle()));
 		}
 
 		private EntityQuery damageEventQuery, livableQuery;
 		protected override async Task GameModePlayLoop()
 		{
 			// Either the resource got destroyed or something worst happened
-			if (!scenarEntity.IsLoaded)
+			if (!scenarResource.IsLoaded)
 			{
 				RequestEndRound();
 				return;
@@ -220,21 +230,23 @@ namespace PataNext.Module.Simulation.GameModes
 				addList.RemoveAt(0);
 			}
 
-			await scenarEntity.Result.Interface.LoopAsync();
+			await scenarResource.Result.Interface.LoopAsync();
 		}
 
 		protected override async Task GameModeEndRound()
 		{
 			await base.GameModeEndRound();
 
-			if (scenarEntity.IsLoaded)
+			if (scenarResource.IsLoaded)
 			{
-				await scenarEntity.Result.Interface.CleanupAsync(false);
+				await scenarResource.Result.Interface.CleanupAsync(false);
 
-				scenarEntity.Entity.Dispose();
+				scenarResource.Entity.Dispose();
+
+				RemoveEntity(scenarGameEntity);
 			}
 
-			scenarEntity = default;
+			scenarResource = default;
 
 			var postComponentScheduler = new Scheduler();
 			

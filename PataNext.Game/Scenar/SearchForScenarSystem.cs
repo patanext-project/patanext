@@ -2,6 +2,8 @@
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
 using GameHost.IO;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace PataNext.Game.Scenar
 {
@@ -10,6 +12,8 @@ namespace PataNext.Game.Scenar
 		private EntitySet  requestSet;
 		private IScheduler scheduler;
 
+		private ILogger logger;
+
 		public SearchForScenarSystem(WorldCollection collection) : base(collection)
 		{
 			requestSet = collection.Mgr.GetEntities()
@@ -17,6 +21,7 @@ namespace PataNext.Game.Scenar
 			                       .AsSet();
 
 			DependencyResolver.Add(() => ref scheduler);
+			DependencyResolver.Add(() => ref logger);
 		}
 
 		public override bool CanUpdate()
@@ -35,7 +40,13 @@ namespace PataNext.Game.Scenar
 				// TODO: search for files, if no files found, then ask for assemblies
 
 				World.Mgr.Publish(new ScenarRequestAssemblyPassMessage(entity, entity.Get<ScenarLoadRequest>().Path));
-				entity.Set<IsResourceLoaded<ScenarResource>>();
+				if (!entity.Has<ScenarResource>())
+				{
+					logger.ZLogWarning("No Scenar found at path " + entity.Get<ScenarLoadRequest>().Path);
+					continue;
+				}
+				else
+					entity.Set<IsResourceLoaded<ScenarResource>>();
 			}
 
 			requestSet.Remove<ScenarLoadRequest>();

@@ -7,6 +7,7 @@ using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Injection.Dependency;
 using GameHost.Simulation.Utility.Resource;
+using PataNext.Game;
 using PataNext.Game.Abilities;
 using PataNext.Game.Abilities.Effects;
 using PataNext.Game.GameItems;
@@ -61,6 +62,8 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 
 		private IPhysicsSystem physicsSystem;
 
+		private MissionManager missionMgr;
+
 		public RuntimeTestUnitBarracks(WorldCollection collection) : base(collection)
 		{
 			DependencyResolver.Add(() => ref localArchetypeDb);
@@ -72,6 +75,7 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 			DependencyResolver.Add(() => ref resPathGen);
 			DependencyResolver.Add(() => ref statusEffectProvider);
 			DependencyResolver.Add(() => ref itemMgr);
+			DependencyResolver.Add(() => ref missionMgr);
 			
 			DependencyResolver.Add(() => ref physicsSystem);
 			
@@ -102,36 +106,14 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 				new PlayerIsLocal(),
 				new InputAuthority()
 			);
-			
-			{
-				var barracksScene = CreateEntity();
-				AddComponent(barracksScene, new CityLocationTag());
-				AddComponent(barracksScene, new CityBarrackScene());
-				AddComponent(barracksScene, new Position(x: 12));
-				AddComponent(barracksScene, new EntityVisual(graphicDb.GetOrCreate(resPathGen.Create(new[] { "Models", "GameModes", "City", "DefaultScenes", "Barracks" }, ResPath.EType.ClientResource))));
 
-				using (var collider = World.Mgr.CreateEntity())
-				{
-					collider.Set((Shape)new Box2D.NetStandard.Collision.Shapes.PolygonShape(3, 2));
-					physicsSystem.AssignCollider(barracksScene, collider);
-				}
-			}
-			
-			{
-				var obeliskScene = CreateEntity();
-				AddComponent(obeliskScene, new CityLocationTag());
-				AddComponent(obeliskScene, new CityObeliskScene());
-				AddComponent(obeliskScene, new Position(x: -12));
-				AddComponent(obeliskScene, new EntityVisual(graphicDb.GetOrCreate(resPathGen.Create(new[] { "Models", "GameModes", "City", "DefaultScenes", "Obelisk" }, ResPath.EType.ClientResource))));
+			var gameMode = CreateEntity();
+			AddComponent(gameMode, new AtCityGameModeData());
 
-				using (var collider = World.Mgr.CreateEntity())
-				{
-					collider.Set((Shape)new Box2D.NetStandard.Collision.Shapes.PolygonShape(2, 5));
-					physicsSystem.AssignCollider(obeliskScene, collider);
-				}
-			}
-
-			AddComponent(CreateEntity(), new AtCityGameModeData());
+			if (missionMgr.TryGet(new(ResPath.EType.MasterServer, "st", "pn", "mission/city/patapolis"), out var entity))
+				AddComponent(gameMode, new AtCityGameModeData.TargetMission(entity));
+			else
+				throw new InvalidOperationException("patapolis not found! " + new ResPath(ResPath.EType.MasterServer, "st", "pn", "mission/city/patapolis").FullString);
 			
 			var inventory    = World.Mgr.CreateEntity();
 			var inventoryObj = inventoryProvider.Create(saveId);

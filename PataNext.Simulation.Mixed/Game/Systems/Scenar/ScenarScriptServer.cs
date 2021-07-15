@@ -13,6 +13,8 @@ namespace PataNext.Module.Simulation.Game.Scenar
 	public abstract class ScenarScriptServer : GameAppSystem, IScenar
 		//where TScenar : struct, IComponentData
 	{
+		protected GameEntity ScenarInGameWorld;
+
 		protected ScenarScriptServer(WorldCollection wc) : base(wc)
 		{
 		}
@@ -21,9 +23,17 @@ namespace PataNext.Module.Simulation.Game.Scenar
 		protected abstract Task OnLoop();
 		protected abstract Task OnCleanup(bool reuse);
 
-		async Task IScenar.StartAsync()
+		protected GameEntity Self;
+		protected GameEntity Creator;
+		
+		async Task IScenar.StartAsync(GameEntity self, GameEntity creator)
 		{
+			Self    = self;
+			Creator = creator;
+			
 			await DependencyResolver.AsTask;
+			ScenarInGameWorld = Safe(CreateEntity());
+			
 			await OnStart();
 		}
 
@@ -37,9 +47,13 @@ namespace PataNext.Module.Simulation.Game.Scenar
 		{
 			await DependencyResolver.AsTask;
 			await OnCleanup(reuse);
-			
+
 			if (!reuse)
+			{
 				Dispose();
+
+				RemoveEntity(ScenarInGameWorld);
+			}
 		}
 	}
 }

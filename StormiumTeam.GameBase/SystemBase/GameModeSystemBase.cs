@@ -36,13 +36,13 @@ namespace StormiumTeam.GameBase.SystemBase
 		{
 		}
 
-		private EntityQuery gameModeQuery;
+		protected EntityQuery GameModeQuery;
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			gameModeQuery = CreateEntityQuery(new[] {typeof(TGameMode)});
+			GameModeQuery = CreateEntityQuery(new[] {typeof(TGameMode)});
 		}
 
 		protected abstract Task GetStateMachine(CancellationToken token);
@@ -54,7 +54,7 @@ namespace StormiumTeam.GameBase.SystemBase
 		{
 			base.OnUpdate();
 
-			switch (gameModeQuery.Any())
+			switch (GameModeQuery.Any())
 			{
 				case true when currentTask == null:
 					ccs         = new CancellationTokenSource();
@@ -79,7 +79,7 @@ namespace StormiumTeam.GameBase.SystemBase
 				// What should we do if the GameMode crash?
 				// Removing the entity does not seems like an ideal solution...
 				// Maybe adding a component like 'HasCrashed' would work better?
-				gameModeQuery.RemoveAllEntities();
+				GameModeQuery.RemoveAllEntities();
 			}
 
 			if (TaskScheduler is SameThreadTaskScheduler sameThreadTaskScheduler)
@@ -91,6 +91,14 @@ namespace StormiumTeam.GameBase.SystemBase
 			base.Dispose();
 
 			ccs?.Dispose();
+		}
+
+		public GameEntityHandle GetGameModeHandle()
+		{
+			foreach (var handle in GameModeQuery)
+				return handle;
+
+			return default;
 		}
 
 		public void Do(Action ac) => ac();

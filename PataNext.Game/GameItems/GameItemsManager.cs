@@ -170,8 +170,6 @@ namespace PataNext.Game.GameItems
 					var final  = await task;
 					var entity = World.Mgr.CreateEntity();
 
-					Console.WriteLine($"{final.ItemType} {final.ResPath}");
-
 					await final.File.FillDescription(entity);
 					entity.Get<EquipmentItemDescription>()
 					      .ItemType = final.ItemType;

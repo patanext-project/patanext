@@ -8,8 +8,4 @@
       <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Missions" />
-    </ItemGroup>
-
 </Project>

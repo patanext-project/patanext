@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using GameHost.Core.Ecs;
@@ -16,6 +17,13 @@ namespace PataNext.Module.Simulation.GameModes
 	{
 	}
 
+	public struct GameModeRequestCleanUp : IComponentData
+	{
+		public bool RemoveGameModeEntityOnFinish;
+	}
+
+	public struct GameModeIsDisposedTag : IComponentData {}
+
 	public class MissionGameModeBase<TGameMode> : GameModeSystemBase<TGameMode>
 		where TGameMode : struct, IComponentData
 	{
@@ -24,12 +32,14 @@ namespace PataNext.Module.Simulation.GameModes
 		}
 
 		protected EntityQuery EndRoundQuery { get; set; }
+		protected EntityQuery CleanUpQuery { get; set; }
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
 
 			EndRoundQuery = CreateEntityQuery(new[] {typeof(GameModeRequestEndRound)});
+			CleanUpQuery  = CreateEntityQuery(new[] {typeof(GameModeRequestCleanUp)});
 		}
 
 		protected override async Task GetStateMachine(CancellationToken token)
@@ -37,14 +47,16 @@ namespace PataNext.Module.Simulation.GameModes
 			await GameModeInitialisation();
 			//await GameModeLoadMap(token);
 
-			while (!token.IsCancellationRequested)
+			while (!token.IsCancellationRequested
+			&& !CleanUpQuery.Any())
 			{
 				await GameModeStartRound();
 
 				EndRoundQuery.RemoveAllEntities();
 
 				while (!token.IsCancellationRequested
-				       && !EndRoundQuery.Any())
+				       && !EndRoundQuery.Any()
+				       && !CleanUpQuery.Any())
 				{
 					await GameModePlayLoop();
 					await Task.Yield();
@@ -55,6 +67,16 @@ namespace PataNext.Module.Simulation.GameModes
 			}
 
 			await GameModeCleanUp();
+			Console.WriteLine("cleanup");
+
+			foreach (var handle in CleanUpQuery)
+				if (GetComponentData<GameModeRequestCleanUp>(handle).RemoveGameModeEntityOnFinish)
+				{
+					GameModeQuery.RemoveAllEntities();
+					break;
+				}
+
+			CleanUpQuery.RemoveAllEntities();
 		}
 
 		protected virtual async Task GameModeLoadMap(CancellationToken token)
@@ -72,7 +94,12 @@ namespace PataNext.Module.Simulation.GameModes
 
 		public void RequestEndRound()
 		{
-			GameWorld.AddComponent(GameWorld.CreateEntity(), default(GameModeRequestEndRound));
+			AddComponent(CreateEntity(), default(GameModeRequestEndRound));
+		}
+
+		public void RequestCleanUp()
+		{
+			AddComponent(CreateEntity(), default(GameModeRequestCleanUp));
 		}
 
 		protected virtual Task GameModeInitialisation() => Task.CompletedTask;
