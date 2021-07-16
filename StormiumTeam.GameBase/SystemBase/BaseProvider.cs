@@ -1,29 +1,42 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Collections.Pooled;
+using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
+using JetBrains.Annotations;
 
 namespace StormiumTeam.GameBase.SystemBase
 {
-	public abstract class BaseProvider<TCreateData> : GameAppSystem
-		where TCreateData : struct
+	public abstract class BaseProvider : GameAppSystem
 	{
-		private PooledList<ComponentType> componentTypes;
+		internal PooledList<ComponentType> componentTypes;
 
-		public BaseProvider(WorldCollection collection) : base(collection)
+		protected BaseProvider(WorldCollection collection) : base(collection)
 		{
 		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-			componentTypes = new PooledList<ComponentType>();
+			componentTypes = new();
 			GetComponents(componentTypes);
 		}
 
 		public abstract void GetComponents(PooledList<ComponentType> entityComponents);
+
+		public abstract void             SpawnBatchEntities(Span<Entity> dentArray, Span<GameEntityHandle> outputEntities);
+		public abstract GameEntityHandle SpawnEntity(Entity              dent);
+	}
+
+	public abstract class BaseProvider<TCreateData> : BaseProvider
+		where TCreateData : struct
+	{
+		public BaseProvider(WorldCollection collection) : base(collection)
+		{
+		}
 
 		public abstract void SetEntityData(GameEntityHandle entity, TCreateData data);
 
@@ -40,11 +53,33 @@ namespace StormiumTeam.GameBase.SystemBase
 			}
 		}
 
+		public override void SpawnBatchEntities(Span<Entity> dentArray, Span<GameEntityHandle> outputEntities)
+		{
+			var array = ArrayPool<TCreateData>.Shared.Rent(dentArray.Length);
+			try
+			{
+				var span = array.AsSpan(0, dentArray.Length);
+				for (var i = 0; i < dentArray.Length; i++)
+					span[i] = dentArray[i].Get<TCreateData>();
+
+				SpawnBatchEntitiesWithArguments(span, outputEntities);
+			}
+			finally
+			{
+				ArrayPool<TCreateData>.Shared.Return(array);
+			}
+		}
+
 		public virtual GameEntityHandle SpawnEntityWithArguments(TCreateData data)
 		{
 			GameEntityHandle output = default;
 			SpawnBatchEntitiesWithArguments(MemoryMarshal.CreateSpan(ref data, 1), MemoryMarshal.CreateSpan(ref output, 1));
 			return output;
+		}
+
+		public override GameEntityHandle SpawnEntity(Entity dent)
+		{
+			return SpawnEntityWithArguments(dent.Get<TCreateData>());
 		}
 
 		public void SpawnAndForget(TCreateData data)

@@ -57,6 +57,9 @@ namespace PataNext.Module.Simulation
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionUnitTargetProvider));
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionRhythmEngineProvider));
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionSquadProvider));
+			
+			app.Data.Collection.GetOrCreate(typeof(Game.Providers.BastionDynamicGroupProvider));
+			app.Data.Collection.GetOrCreate(typeof(Game.Providers.BastionFixedGroupProvider));
 		}
 
 		private void InjectMasterServerHubs(ApplicationData app)
@@ -344,6 +347,8 @@ namespace PataNext.Module.Simulation
 						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.CoopMissionSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.EndFlagUpdateSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.Bastion.BastionDynamicRecycleDeadEntitiesSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.Bastion.BastionSpawnAllIfAllDeadSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.SetLocalArmyFormationSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateMasterServerUnitSystem));
