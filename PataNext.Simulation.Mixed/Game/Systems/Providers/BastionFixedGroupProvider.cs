@@ -30,13 +30,13 @@ namespace PataNext.Module.Simulation.Game.Providers
 			entityComponents.AddRange(new[]
 			{
 				AsComponentType<BastionDescription>(),
-				AsComponentType<BastionEntities>(),
+				AsComponentType<SquadEntityContainer>(),
 			});
 		}
 
 		public override void SetEntityData(GameEntityHandle entity, Create data)
 		{
-			var buffer = GetBuffer<BastionEntities>(entity).Reinterpret<GameEntity>();
+			var buffer = GetBuffer<SquadEntityContainer>(entity).Reinterpret<GameEntity>();
 			buffer.AddRange(data.Entities);
 
 			if (data.AutoLink == true)

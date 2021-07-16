@@ -13,6 +13,7 @@ using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
 using StormiumTeam.GameBase.SystemBase;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 {
@@ -36,7 +37,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 			bastionQuery = CreateEntityQuery(new[]
 			{
 				typeof(BastionDescription),
-				typeof(BastionEntities),
+				typeof(SquadEntityContainer),
 				typeof(BastionSpawnAllIfAllDead),
 				typeof(BastionProvideDynamicEntity)
 			});
@@ -56,7 +57,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 
 			aliveQuery.CheckForNewArchetypes();
 
-			var entitiesAccessor  = GetBufferAccessor<BastionEntities>();
+			var entitiesAccessor  = GetBufferAccessor<SquadEntityContainer>();
 			var providerAccessor  = GetAccessor<BastionProvideDynamicEntity>();
 			var conditionAccessor = GetAccessor<BastionSpawnAllIfAllDead>();
 			foreach (var entity in bastionQuery)
@@ -64,7 +65,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 				var buffer     = entitiesAccessor[entity];
 				var aliveCount = 0;
 				foreach (var unit in buffer)
-					if (aliveQuery.MatchAgainst(unit.Entity.Handle))
+					if (aliveQuery.MatchAgainst(unit.Value.Handle))
 						aliveCount++;
 
 				if (aliveCount > 0)
@@ -102,18 +103,23 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 			}
 		}
 
-		private void linkEntityToBastion(ComponentBuffer<BastionEntities> entitiesList, GameEntityHandle bastion, GameEntityHandle unit, bool assureRemoveBastionUnitWhenDead)
+		private void linkEntityToBastion(ComponentBuffer<SquadEntityContainer> entitiesList, GameEntityHandle bastion, GameEntityHandle unit, bool assureRemoveBastionUnitWhenDead)
 		{
 			GameWorld.Link(unit, bastion, true);
 			GameWorld.UpdateOwnedComponent(unit, new Relative<BastionDescription>(Safe(bastion)));
 
-			entitiesList.Add(new() { Entity = Safe(unit) });
+			entitiesList.Add(new() { Value = Safe(unit) });
 
 			if (HasComponent<Relative<TeamDescription>>(bastion))
 				GameWorld.AssignComponent(unit, GameWorld.GetComponentReference<Relative<TeamDescription>>(bastion));
 
+			if (HasComponent<UnitTargetDescription>(bastion))
+				GameWorld.UpdateOwnedComponent(unit, new Relative<UnitTargetDescription>(Safe(bastion)));
+
 			if (assureRemoveBastionUnitWhenDead && !HasComponent<RemoveBastionUnitWhenDead>(unit))
 				AddComponent(unit, new RemoveBastionUnitWhenDead { Delay = TimeSpan.FromSeconds(6) });
+
+			GetComponentData<Position>(unit) = GetComponentData<Position>(bastion);
 		}
 	}
 }

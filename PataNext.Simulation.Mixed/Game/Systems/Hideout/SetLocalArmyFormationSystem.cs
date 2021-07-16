@@ -149,7 +149,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 
 							if ((ELocalSquadType) squadIdx != ELocalSquadType.UberHero)
 							{
-								GameWorld.AddComponent(squadEntity, new InGameSquadIndexFromCenter((ELocalSquadType) squadIdx switch
+								GameWorld.AddComponent(squadEntity, new SquadIndexFromCenter((ELocalSquadType) squadIdx switch
 								{
 									ELocalSquadType.SquadTate => 2,
 									ELocalSquadType.SquadYari => 1,

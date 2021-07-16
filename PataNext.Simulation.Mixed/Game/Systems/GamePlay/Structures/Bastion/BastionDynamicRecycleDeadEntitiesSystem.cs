@@ -35,7 +35,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 			bastionQuery = CreateEntityQuery(new[]
 			{
 				typeof(BastionDescription),
-				typeof(BastionEntities)
+				typeof(SquadEntityContainer)
 			});
 
 			unitMask = CreateEntityQuery(new[]
@@ -51,7 +51,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 
 			unitMask.CheckForNewArchetypes();
 
-			var entitiesAccessor  = GetBufferAccessor<BastionEntities>();
+			var entitiesAccessor  = GetBufferAccessor<SquadEntityContainer>();
 			var conditionAccessor = GetAccessor<RemoveBastionUnitWhenDead>();
 			foreach (var entity in bastionQuery)
 			{

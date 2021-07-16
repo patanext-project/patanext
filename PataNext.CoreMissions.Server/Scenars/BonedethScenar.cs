@@ -9,6 +9,7 @@ using PataNext.CoreMissions.Server.Game;
 using PataNext.CoreMissions.Server.Providers;
 using PataNext.Game.Scenar;
 using PataNext.Module.Simulation.Components.GamePlay.Special;
+using PataNext.Module.Simulation.Components.GamePlay.Special.Squad;
 using PataNext.Module.Simulation.Components.GamePlay.Structures.Bastion;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Providers;
@@ -16,6 +17,7 @@ using PataNext.Module.Simulation.Game.Scenar;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Roles.Components;
 using StormiumTeam.GameBase.Roles.Descriptions;
+using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.CoreMissions.Server.Scenars
 {
@@ -75,7 +77,11 @@ namespace PataNext.CoreMissions.Server.Scenars
 					Direction = UnitDirection.Left,
 					Statistics = new()
 					{
-						Health = 200
+						Health = 200,
+						BaseWalkSpeed = 2,
+						MovementAttackSpeed = 2,
+						
+						Weight = 8
 					},
 
 					HealthBegin = 200,
@@ -83,11 +89,14 @@ namespace PataNext.CoreMissions.Server.Scenars
 
 					Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponYarida" }, ResPath.EType.ClientResource))
 				}, 3);
-				
+
 				var bastion = bastionProvider.SpawnEntityWithArguments(arguments);
 				GameWorld.Link(bastion, EnemyTeam.Handle, true);
 
-				AddComponent(bastion, new BastionSpawnAllIfAllDead { Delay = TimeSpan.FromSeconds(5) });
+				AddComponent(bastion, new AutoSquadUnitDisplacement { Space = 0.5f });
+				AddComponent(bastion, new BastionSpawnAllIfAllDead { Delay  = TimeSpan.FromSeconds(5) });
+
+				GetComponentData<Position>(bastion).Value.X = 8;
 			}
 
 			foreach (var entity in GameWorld.Boards.Entity.GetLinkedEntities(EnemyTeam.Id))
@@ -106,8 +115,8 @@ namespace PataNext.CoreMissions.Server.Scenars
 
 		private CobblestoneBarricadeProvider cobblestoneBarricadeProvider;
 
-		private BotUnitProvider             botUnitProvider;
-		private BastionDynamicGroupProvider bastionProvider;
+		private BotUnitProvider      botUnitProvider;
+		private TowerBastionProvider bastionProvider;
 
 		public BonedethScenar(WorldCollection wc) : base(wc)
 		{

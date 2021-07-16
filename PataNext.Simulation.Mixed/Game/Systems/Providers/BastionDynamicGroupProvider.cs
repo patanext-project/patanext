@@ -75,7 +75,7 @@ namespace PataNext.Module.Simulation.Game.Providers
 			entityComponents.AddRange(new[]
 			{
 				AsComponentType<BastionDescription>(),
-				AsComponentType<BastionEntities>(),
+				AsComponentType<SquadEntityContainer>(),
 				AsComponentType<BastionProvideDynamicEntity>(),
 				AsComponentType<BastionSettings>()
 			});

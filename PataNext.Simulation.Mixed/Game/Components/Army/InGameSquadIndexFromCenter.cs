@@ -2,11 +2,21 @@
 
 namespace PataNext.Module.Simulation.Components.Army
 {
-	public struct InGameSquadIndexFromCenter : IComponentData
+	public struct SquadIndexFromCenter : IComponentData
 	{
 		public int   Value;
 
-		public InGameSquadIndexFromCenter(int value)
+		public SquadIndexFromCenter(int value)
+		{
+			Value = value;
+		}
+	}
+
+	public struct InGameSquadOffset : IComponentData
+	{
+		public float Value;
+
+		public InGameSquadOffset(float value)
 		{
 			Value = value;
 		}

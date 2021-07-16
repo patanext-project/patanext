@@ -2,6 +2,7 @@
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using JetBrains.Annotations;
+using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.Roles;
 using StormiumTeam.GameBase.SystemBase;
 
@@ -23,13 +24,14 @@ namespace PataNext.Module.Simulation.GameModes.DataCoopMission
 			entityComponents.AddRange(new[]
 			{
 				AsComponentType<InGameSquadDescription>(),
-				AsComponentType<SquadEntityContainer>()
+				AsComponentType<SquadEntityContainer>(),
+				AsComponentType<InGameSquadOffset>()
 			});
 		}
 
 		public override void SetEntityData(GameEntityHandle entity, Create data)
 		{
-
+			GetComponentData<InGameSquadOffset>(entity).Value = data.Offset;
 		}
 	}
 }

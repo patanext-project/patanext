@@ -7,6 +7,7 @@ using Collections.Pooled;
 using GameHost.Simulation.TabEcs;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.Special;
+using PataNext.Module.Simulation.Components.GamePlay.Special.Squad;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
@@ -43,7 +44,7 @@ namespace PataNext.Module.Simulation.GameModes
 				var squadBuffer = GetBuffer<OwnedRelative<ArmySquadDescription>>(formationHandle);
 				foreach (var ownedSquad in squadBuffer)
 				{
-					var offset = TryGetComponentData(ownedSquad.Target, out InGameSquadIndexFromCenter squadIndexFromCenter)
+					var offset = TryGetComponentData(ownedSquad.Target, out SquadIndexFromCenter squadIndexFromCenter)
 						? squadIndexFromCenter.Value * 1.5f
 						: 0.0f;
 
@@ -52,6 +53,9 @@ namespace PataNext.Module.Simulation.GameModes
 					{
 						Offset = offset
 					})))).Entity);
+
+					if (HasComponent<SquadIndexFromCenter>(ownedSquad.Target))
+						runtimeSquad.AddData(new AutoSquadUnitDisplacement { Space = 0.5f });
 
 					GameWorld.Link(runtimeSquad.Handle, GetGameModeHandle(), true);
 
@@ -111,7 +115,7 @@ namespace PataNext.Module.Simulation.GameModes
 						if (TryGetComponentData(ownedUnit.Target, out EntityVisual entityVisual))
 							AddComponent(runtimeUnit, entityVisual);
 
-						if (!HasComponent<InGameSquadIndexFromCenter>(ownedSquad.Target))
+						if (!HasComponent<SquadIndexFromCenter>(ownedSquad.Target))
 						{
 							var kitResource = ownedUnitFocus.GetData<UnitCurrentKit>().Resource;
 							if (TryGetComponentData(kitResource.Entity, out UnitSquadArmySelectorFromCenter squadSelector))
