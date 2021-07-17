@@ -25,30 +25,35 @@ namespace PataNext.Module.Simulation.Network.Snapshots
 		public uint Tick { get; set; }
 
 		public Ghost Enemy;
-		public int   Distance;
+		public int   SelfDistance;
+		public int   RelativeDistance;
 
 		public void Serialize(in BitBuffer buffer, in UnitEnemySeekingStateSnapshot baseline, in GhostSetup setup)
 		{
 			buffer.AddGhostDelta(Enemy, baseline.Enemy);
-			buffer.AddIntDelta(Distance, baseline.Distance);
+			buffer.AddIntDelta(SelfDistance, baseline.SelfDistance);
+			buffer.AddIntDelta(RelativeDistance, baseline.RelativeDistance);
 		}
 
 		public void Deserialize(in BitBuffer buffer, in UnitEnemySeekingStateSnapshot baseline, in GhostSetup setup)
 		{
-			Enemy    = buffer.ReadGhostDelta(baseline.Enemy);
-			Distance = buffer.ReadIntDelta(baseline.Distance);
+			Enemy            = buffer.ReadGhostDelta(baseline.Enemy);
+			SelfDistance     = buffer.ReadIntDelta(baseline.SelfDistance);
+			RelativeDistance = buffer.ReadIntDelta(baseline.RelativeDistance);
 		}
 
 		public void FromComponent(in UnitEnemySeekingState component, in GhostSetup setup)
 		{
-			Enemy    = setup.ToGhost(component.Enemy);
-			Distance = (int) (component.Distance * 15);
+			Enemy            = setup.ToGhost(component.Enemy);
+			SelfDistance     = (int) (component.SelfDistance * 15);
+			RelativeDistance = (int) (component.RelativeDistance * 15);
 		}
 
 		public void ToComponent(ref UnitEnemySeekingState component, in GhostSetup setup)
 		{
-			component.Enemy    = setup.FromGhost(Enemy);
-			component.Distance = (float) (Distance / 15f);
+			component.Enemy            = setup.FromGhost(Enemy);
+			component.SelfDistance     = (float) (SelfDistance / 15f);
+			component.RelativeDistance = (float) (RelativeDistance / 15f);
 		}
 	}
 }

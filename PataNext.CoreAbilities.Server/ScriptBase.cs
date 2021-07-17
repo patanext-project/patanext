@@ -44,41 +44,49 @@ namespace PataNext.CoreAbilities.Server
 				case ENearestOrder.SelfThenRelative:
 					if (TryGetComponentData(entity, out seekingState))
 					{
-						result = (seekingState.Enemy, seekingState.Distance);
+						result = (seekingState.Enemy, seekingState.SelfDistance);
 						if (result.dist <= maxSelfDistance)
 							return (result.enemy, result.dist, true);
+
+						result = (seekingState.Enemy, seekingState.RelativeDistance);
+						if (result.dist <= maxRelativeDistance)
+							return (result.enemy, result.dist, false);
 					}
 
 					if (TryGetComponentData(entity, out relative)
 					    && TryGetComponentData(relative.Handle, out seekingState))
 					{
-						result = (seekingState.Enemy, seekingState.Distance);
+						result = (seekingState.Enemy, seekingState.SelfDistance);
 						if (result.dist <= maxRelativeDistance)
 							return (result.enemy, result.dist, false);
 					}
 
 					return default;
 				case ENearestOrder.RelativeThenSelf:
+					if (TryGetComponentData(entity, out seekingState))
+					{
+						result = (seekingState.Enemy, seekingState.RelativeDistance);
+						if (result.dist <= maxRelativeDistance)
+							return (result.enemy, result.dist, false);
+						
+						result = (seekingState.Enemy, seekingState.SelfDistance);
+						if (result.dist <= maxSelfDistance)
+							return (result.enemy, result.dist, true);
+					}
+
 					if (TryGetComponentData(entity, out relative)
 					    && TryGetComponentData(relative.Handle, out seekingState))
 					{
-						result = (seekingState.Enemy, seekingState.Distance);
+						result = (seekingState.Enemy, seekingState.SelfDistance);
 						if (result.dist <= maxRelativeDistance)
 							return (result.enemy, result.dist, false);
-					}
-
-					if (TryGetComponentData(entity, out seekingState))
-					{
-						result = (seekingState.Enemy, seekingState.Distance);
-						if (result.dist <= maxSelfDistance)
-							return (result.enemy, result.dist, true);
 					}
 
 					return default;
 				case ENearestOrder.SelfOnly:
 					if (TryGetComponentData(entity, out seekingState))
 					{
-						return (seekingState.Enemy, seekingState.Distance, false);
+						return (seekingState.Enemy, seekingState.SelfDistance, false);
 					}
 
 					break;
@@ -86,7 +94,7 @@ namespace PataNext.CoreAbilities.Server
 					if (TryGetComponentData(entity, out relative)
 					    && TryGetComponentData(entity, out seekingState))
 					{
-						return (seekingState.Enemy, seekingState.Distance, false);
+						return (seekingState.Enemy, seekingState.RelativeDistance, false);
 					}
 
 					break;

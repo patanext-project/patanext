@@ -9,7 +9,8 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 	public struct UnitEnemySeekingState : IComponentData
 	{
 		public GameEntity Enemy;
-		public float      Distance;
+		public float      RelativeDistance;
+		public float      SelfDistance;
 
 		public class Register : RegisterGameHostComponentData<UnitEnemySeekingState>
 		{

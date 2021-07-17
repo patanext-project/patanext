@@ -54,7 +54,9 @@ namespace PataNext.CoreMissions.Server.Providers
 				AsComponentType<EntityVisual>(),
 				AsComponentType<SimulationAuthority>(),
 				AsComponentType<MovableAreaAuthority>(),
-				AsComponentType<UnitBodyCollider>()
+				AsComponentType<UnitBodyCollider>(),
+
+				AsComponentType<UnitEnemySeekingState>()
 			});
 		}
 
