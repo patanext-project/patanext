@@ -334,6 +334,7 @@ namespace PataNext.Module.Simulation
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Collision.UberHeroColliderSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Squad.UpdateSquadUnitDisplacementSystem));
+						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Ai.SimpleAiSystem));
 
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
 						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));

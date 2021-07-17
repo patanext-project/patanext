@@ -70,9 +70,11 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 						if (remove)
 							RemoveEntity(buffer[i]);
 					}
-					
+
 					if (remove)
+					{
 						buffer.RemoveAt(i--);
+					}
 				}
 			}
 		}

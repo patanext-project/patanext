@@ -51,11 +51,11 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Special.Squad
 
 				var initialOffset = 0f;
 				if (HasComponent(squadEntity, indexFromSquadComponentType))
-					initialOffset = GameWorld.GetComponentData<InGameSquadOffset>(squadEntity, indexFromSquadComponentType).Value * 1.5f;
+					initialOffset = GameWorld.GetComponentData<InGameSquadOffset>(squadEntity, indexFromSquadComponentType).Value;
 
 				validEntities.Clear();
 				foreach (var ent in buffer)
-					if (unitMask.MatchAgainst(ent.Handle))
+					if (GameWorld.Exists(ent) && unitMask.MatchAgainst(ent.Handle))
 						validEntities.Add(ent);
 
 				var length = validEntities.Count;

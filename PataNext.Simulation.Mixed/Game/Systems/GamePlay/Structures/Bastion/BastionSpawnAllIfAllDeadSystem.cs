@@ -40,6 +40,9 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 				typeof(SquadEntityContainer),
 				typeof(BastionSpawnAllIfAllDead),
 				typeof(BastionProvideDynamicEntity)
+			}, none: new[]
+			{
+				typeof(LivableIsDead)
 			});
 
 			aliveQuery = CreateEntityQuery(new[]

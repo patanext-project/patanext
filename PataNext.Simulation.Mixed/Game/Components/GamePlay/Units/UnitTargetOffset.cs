@@ -27,7 +27,7 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Units
 			if (size == 1 && i == 0)
 				return 0;
 			
-			return (i - (size - 1) / 2) * space + space / 2f;
+			return (i - (size/* - 1*/) / 2) * space + space / 2f;
 		}
 	}
 

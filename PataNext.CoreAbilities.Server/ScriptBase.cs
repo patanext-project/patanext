@@ -124,7 +124,19 @@ namespace PataNext.CoreAbilities.Server
 		                                                         ENearestOrder nearestOrder      = ENearestOrder.SelfThenRelative,
 		                                                         bool          addEnemyWeakPoint = true)
 		{
+			var hasRelative = HasComponent<Relative<UnitTargetDescription>>(entity);
+			// If the unit doesn't have a playstate (can happen if it's fixed to a position)
+			// Then modify the distance based on the SeekRange and force nearestOrder to be SelfOnly
+			if (!hasRelative && TryGetComponentData(entity, out UnitPlayState playState))
+			{
+				targetDistance = playState.AttackSeekRange;
+				selfDistance   = playState.AttackSeekRange;
+
+				nearestOrder = ENearestOrder.SelfOnly;
+			}
+		
 			var (enemy, enemyDist, isFromSelf) = GetNearestEnemyComplete(entity.Handle, selfDistance, targetDistance, nearestOrder);
+			Console.WriteLine($"{enemy} {enemyDist} {isFromSelf}");
 			if (enemy != default)
 			{
 				RoutineGetNearOfEnemyResult result;

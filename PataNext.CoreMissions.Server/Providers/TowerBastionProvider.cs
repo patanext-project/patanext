@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
 using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Game.Providers;
+using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.Transform.Components;
 
 namespace PataNext.CoreMissions.Server.Providers
@@ -18,12 +19,13 @@ namespace PataNext.CoreMissions.Server.Providers
 		public override void GetComponents(PooledList<ComponentType> entityComponents)
 		{
 			base.GetComponents(entityComponents);
-			
+
 			entityComponents.AddRange(new[]
 			{
 				AsComponentType<UnitTargetDescription>(),
 				AsComponentType<Position>(),
-				AsComponentType<UnitEnemySeekingState>()
+				AsComponentType<UnitEnemySeekingState>(),
+				AsComponentType<LivableHealth>()
 			});
 		}
 	}
