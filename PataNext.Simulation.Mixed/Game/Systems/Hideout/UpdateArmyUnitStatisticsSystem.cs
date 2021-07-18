@@ -87,6 +87,19 @@ namespace PataNext.Module.Simulation.Game.Hideout
 
 					AttackMeleeRange = 2f
 				};
+				
+				if (TryGetComponentData(entity, out UnitCurrentRole role))
+				{
+					var roleEntity = role.Resource.Entity;
+					if (TryGetComponentData(roleEntity, out UnitStatistics roleStats))
+					{
+						statistics.Health  += roleStats.Health;
+						statistics.Defense += roleStats.Defense;
+						
+						statistics.AttackSeekRange += roleStats.AttackSeekRange;
+						statistics.Attack          += roleStats.Attack;
+					}
+				}
 
 				var equipmentBuffer = definedEquipmentsAccessor[entity];
 				foreach (var equip in equipmentBuffer)

@@ -277,6 +277,7 @@ namespace PataNext.Module.Simulation
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitArchetypeResource>.Defaults>.Create(simulationApplication.Data.World, new()));
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitAttachmentResource>.Defaults>.Create(simulationApplication.Data.World, new()));
 						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitKitResource>.Defaults>.Create(simulationApplication.Data.World, new()));
+						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitRoleResource>.Defaults>.Create(simulationApplication.Data.World, new()));
 
 						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IRhythmEngineSimulationPass.RegisterPass(),
 							new[] { typeof(IUpdateSimulationPass.RegisterPass) },

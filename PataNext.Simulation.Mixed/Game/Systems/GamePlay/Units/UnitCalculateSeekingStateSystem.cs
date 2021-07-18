@@ -109,12 +109,9 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 						}
 					}
 
-					if (!freeSeekerMask.MatchAgainst(unit))
-					{
-						Console.WriteLine(GameWorld.DebugCreateErrorMessage(unit, "doesn't match freeseker"));
+					if (!freeSeekerMask.MatchAgainst(unit)) 
 						continue;
-					}
-
+					
 					ref readonly var pos   = ref positionAccessor[unit].Value.X;
 					ref var          state = ref seekingStateAccessor[unit];
 

@@ -28,6 +28,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 		private EntityQuery bastionQuery;
 		private EntityQuery unitMask;
 
+		public TimeSpan CurrentSpan;
+
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
@@ -47,6 +49,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 
 		public void OnBeforeSimulationUpdate()
 		{
+			CurrentSpan = worldTime.Total;
+
 			var dt = worldTime.Delta;
 
 			unitMask.CheckForNewArchetypes();
@@ -56,7 +60,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 			foreach (var entity in bastionQuery)
 			{
 				var buffer = entitiesAccessor[entity].Reinterpret<GameEntity>();
-				for (var i = 0; i < buffer.Count; i++)
+				for (var i = buffer.Count - 1; i >= 0; i--)
 				{
 					var remove = GameWorld.Exists(buffer[i]) == false;
 					if (!remove && unitMask.MatchAgainst(buffer[i].Handle))
@@ -72,9 +76,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 					}
 
 					if (remove)
-					{
-						buffer.RemoveAt(i--);
-					}
+						buffer.RemoveAt(i);
 				}
 			}
 		}

@@ -19,4 +19,8 @@
       <Folder Include="Updater" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="CS-Script" Version="4.0.2" />
+    </ItemGroup>
+
 </Project>

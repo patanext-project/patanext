@@ -24,26 +24,53 @@ namespace PataNext.Module.Simulation.Defaults
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			kitCollectionSystem.Register(handle =>
+			kitCollectionSystem.RegisterKit(handle =>
 			{
 				AddComponent(handle, new UnitSquadArmySelectorFromCenter(0));
 				AddComponent(handle, new UnitTargetOffset {Idle = 0});
 			}, new[] {resPathGen.GetDefaults().With(new[] {"kit", "hatadan"}, ResPath.EType.MasterServer)});
-			kitCollectionSystem.Register(handle =>
+			
+			kitCollectionSystem.RegisterKit(handle =>
 			{
 				AddComponent(handle, new UnitSquadArmySelectorFromCenter(2));
 				AddComponent(handle, new UnitTargetOffset {Idle = 3});
 			}, new[] {resPathGen.GetDefaults().With(new[] {"kit", "taterazay"}, ResPath.EType.MasterServer)});
-			kitCollectionSystem.Register(handle =>
+			kitCollectionSystem.RegisterRole(handle =>
+			{
+				AddComponent(handle, new UnitStatistics()
+				{
+					Health = 150,
+					Defense = 1,
+					AttackSpeed = 2
+				});
+			}, new[] {resPathGen.GetDefaults().With(new[] {"role", "taterazay", "base"}, ResPath.EType.MasterServer)});
+			
+			kitCollectionSystem.RegisterKit(handle =>
 			{
 				AddComponent(handle, new UnitSquadArmySelectorFromCenter(1));
 				AddComponent(handle, new UnitTargetOffset {Idle = 1});
 			}, new[] {resPathGen.GetDefaults().With(new[] {"kit", "yarida"}, ResPath.EType.MasterServer)});
-			kitCollectionSystem.Register(handle =>
+			kitCollectionSystem.RegisterRole(handle =>
+			{
+				AddComponent(handle, new UnitStatistics()
+				{
+					Health      = 120
+				});
+			}, new[] {resPathGen.GetDefaults().With(new[] {"role", "yarida", "base"}, ResPath.EType.MasterServer)});
+			
+			kitCollectionSystem.RegisterKit(handle =>
 			{
 				AddComponent(handle, new UnitSquadArmySelectorFromCenter(-1));
 				AddComponent(handle, new UnitTargetOffset {Idle = -3});
 			}, new[] {resPathGen.GetDefaults().With(new[] {"kit", "yumiyacha"}, ResPath.EType.MasterServer)});
+			kitCollectionSystem.RegisterRole(handle =>
+			{
+				AddComponent(handle, new UnitStatistics()
+				{
+					Health = 100,
+					AttackSeekRange = 8
+				});
+			}, new[] {resPathGen.GetDefaults().With(new[] {"role", "yumiyacha", "base"}, ResPath.EType.MasterServer)});
 		}
 	}
 }

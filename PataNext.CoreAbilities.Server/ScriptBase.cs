@@ -144,7 +144,6 @@ namespace PataNext.CoreAbilities.Server
 			}
 		
 			var (enemy, enemyDist, isFromSelf) = GetNearestEnemyComplete(entity.Handle, selfDistance, targetDistance, nearestOrder);
-			Console.WriteLine($"{enemy} {enemyDist} {isFromSelf}");
 			if (enemy != default)
 			{
 				RoutineGetNearOfEnemyResult result;

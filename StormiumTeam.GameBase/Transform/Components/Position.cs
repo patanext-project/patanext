@@ -27,6 +27,11 @@ namespace StormiumTeam.GameBase.Transform.Components
 			Value.Z = z;
 		}
 
+		public override string ToString()
+		{
+			return $"Position({Value.X}, {Value.Y}, {Value.Z})";
+		}
+
 		public class Serializer : DeltaSnapshotSerializerBase<Snapshot, Position>
 		{
 			public Serializer([NotNull] ISnapshotInstigator instigator, [NotNull] Context ctx) : base(instigator, ctx)

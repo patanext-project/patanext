@@ -16,7 +16,7 @@ namespace PataNext.CoreMissions.Server
 	public class Module : GameHostModule
 	{
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
-		{
+		{		
 			var systems = new PooledList<Type>();
 			AddDisposable(systems);
 			

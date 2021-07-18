@@ -24,6 +24,7 @@
     <ProjectReference Include="..\PataNext.CoreAbilities.Mixed\PataNext.CoreAbilities.Mixed.csproj" />
     <ProjectReference Include="..\PataNext.CoreAbilities.Server\PataNext.CoreAbilities.Server.csproj" />
     <ProjectReference Include="..\PataNext.CoreMissions.Mixed\PataNext.CoreMissions.Mixed.csproj" />
+    <ProjectReference Include="..\PataNext.CoreMissions.Server\PataNext.CoreMissions.Server.csproj" />
     <ProjectReference Include="..\PataNext.Feature.RhythmEngineAudio\PataNext.Feature.RhythmEngineAudio.csproj" />
     <ProjectReference Include="..\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
     <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
@@ -41,6 +42,8 @@
     <PackageReference Include="ppy.squirrel.windows" Version="1.9.0.5" />
     <PackageReference Include="SharpCompress" Version="0.22.0" />
     <PackageReference Include="System.IO.Packaging" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="6.0.0-preview.3.21201.4" />
   </ItemGroup>
   <ItemGroup>

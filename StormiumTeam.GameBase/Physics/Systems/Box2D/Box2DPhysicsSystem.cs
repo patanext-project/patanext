@@ -123,7 +123,7 @@ namespace StormiumTeam.GameBase.Physics.Systems
 					if (TryGetComponentData(right, out Position posB))
 						transformB.Set(posB.Value.XY(), 0);
 
-					var cache = new SimplexCache();
+					using var cache = new SimplexCache();
 					Contact.Distance(out var output, cache, new DistanceInput
 					{
 						proxyA     = proxyA, proxyB         = proxyB,

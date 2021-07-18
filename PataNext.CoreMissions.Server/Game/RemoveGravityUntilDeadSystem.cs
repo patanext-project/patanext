@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using GameHost.Core;
 using GameHost.Core.Ecs;
-using GameHost.Simulation.TabEcs;
-using GameHost.Simulation.TabEcs.HLAPI;
 using GameHost.Simulation.TabEcs.Interfaces;
 using GameHost.Simulation.Utility.EntityQuery;
 using JetBrains.Annotations;
@@ -12,7 +10,6 @@ using PataNext.Module.Simulation.Game.GamePlay.Units;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.SystemBase;
-using StormiumTeam.GameBase.Utility.Misc.EntitySystem;
 
 namespace PataNext.CoreMissions.Server.Game
 {
@@ -28,6 +25,11 @@ namespace PataNext.CoreMissions.Server.Game
 		}
 
 		private EntityQuery           unitQuery;
+
+		public void log(object obj)
+		{
+			Console.WriteLine("  JS: " + obj);
+		}
 
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{

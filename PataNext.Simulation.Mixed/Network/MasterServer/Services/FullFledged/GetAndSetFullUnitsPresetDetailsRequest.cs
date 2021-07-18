@@ -100,6 +100,7 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 				var presetDetails     = await unitPresetClient.GetDetails(presetId);
 				var kitAssetPtr       = await viewableAssetService.GetPointer(presetDetails.KitId);
 				var archetypeAssetPtr = await viewableAssetService.GetPointer(presetDetails.ArchetypeId);
+				var roleAssetPtr      = await viewableAssetService.GetPointer(presetDetails.RoleId);
 
 				// ----------------- ---------------- ++
 				//	Equipments
@@ -214,8 +215,11 @@ namespace PataNext.Module.Simulation.Network.MasterServer.Services.FullFledged
 				return e =>
 				{
 					var target = e.Get<GetAndSetFullUnitsPresetDetailsRequest>().GameEntity;
-					target.GetData<UnitArchetype>()  = new(archDb.GetOrCreate(new(archetypeAssetPtr.ToResPath().FullString)));
-					target.GetData<UnitCurrentKit>() = new(kitCollectionSystem.GetKit(kitAssetPtr.ToResPath()));
+					target.GameWorld.AssureComponents(target.Handle, new[] { target.GameWorld.AsComponentType<UnitCurrentRole>() });
+					
+					target.GetData<UnitArchetype>()   = new(archDb.GetOrCreate(new(archetypeAssetPtr.ToResPath().FullString)));
+					target.GetData<UnitCurrentKit>()  = new(kitCollectionSystem.GetKit(kitAssetPtr.ToResPath()));
+					target.GetData<UnitCurrentRole>() = new(kitCollectionSystem.GetRole(roleAssetPtr.ToResPath()));
 
 					var maskFound = false;
 					foreach (var elem in equipmentFinal)

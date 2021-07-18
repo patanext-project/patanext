@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Numerics;
 using System.Threading.Tasks;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
-using PataNext.CoreMissions.Mixed;
 using PataNext.CoreMissions.Mixed.Missions;
 using PataNext.CoreMissions.Server.Game;
 using PataNext.CoreMissions.Server.Providers;
 using PataNext.Game.Scenar;
-using PataNext.Module.Simulation.Components.GamePlay.Special;
 using PataNext.Module.Simulation.Components.GamePlay.Special.Squad;
 using PataNext.Module.Simulation.Components.GamePlay.Structures.Bastion;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Providers;
-using PataNext.Module.Simulation.Game.Scenar;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Network.Authorities;
 using StormiumTeam.GameBase.Roles.Components;
@@ -24,18 +20,17 @@ namespace PataNext.CoreMissions.Server.Scenars
 {
 	public class BonedethScenar : MissionScenarScript
 	{
-		public class Provider : ScenarProvider
+		private TowerBastionProvider bastionProvider;
+
+		private SimpleAiBotUnitProvider botUnitProvider;
+
+		private CobblestoneBarricadeProvider cobblestoneBarricadeProvider;
+
+		public BonedethScenar(WorldCollection wc) : base(wc)
 		{
-			public Provider(WorldCollection collection) : base(collection)
-			{
-			}
-
-			public override ResPath ScenarPath => BonedethMissionRegister.ScenarPath;
-
-			public override IScenar Provide()
-			{
-				return new BonedethScenar(World);
-			}
+			DependencyResolver.Add(() => ref cobblestoneBarricadeProvider);
+			DependencyResolver.Add(() => ref botUnitProvider);
+			DependencyResolver.Add(() => ref bastionProvider);
 		}
 
 		protected override Task OnStart()
@@ -45,7 +40,7 @@ namespace PataNext.CoreMissions.Server.Scenars
 			{
 				var barricade = cobblestoneBarricadeProvider.SpawnEntityWithArguments(new()
 				{
-					Health   = 800,
+					Health   = 1500,
 					Position = new(15, 0)
 				});
 				GameWorld.Link(barricade, EnemyTeam.Handle, true);
@@ -57,97 +52,143 @@ namespace PataNext.CoreMissions.Server.Scenars
 						Direction = UnitDirection.Left,
 						Statistics = new()
 						{
-							Health = 100,
-							
-							Attack = 8,
-							AttackSpeed = 2,
-							
+							Health = 300,
+
+							Attack      = 12,
+							AttackSpeed = 4,
+
 							AttackSeekRange = 20
 						},
 
-						HealthBegin = 100,
+						HealthBegin = 300,
 						Collider    = new(1, 1.5f),
 
-						InitialPosition = new Vector2(15, 2.5f), // spawn on top of barricade
+						InitialPosition = new(15, 2.5f), // spawn on top of barricade
 
-						Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponYarida" }, ResPath.EType.ClientResource))
+						Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponYarida" }, ResPath.EType.ClientResource)),
+
+						Equipments = new()
+						{
+							{ GetAttachment(new[] { "equip_root", "helm" }), GetEquipment(new[] { "equipment", "helm", "default_helm" }) },
+							{ GetAttachment(new[] { "equip_root", "r_eq" }), GetEquipment(new[] { "equipment", "spear", "default_spear" }) }
+						}
 					},
-					
+
 					Actions = new[]
 					{
-						(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle =>
-						{
-							var ab = abilityCollection.SpawnFor(ResPathGen.Create(new[] { "ability", "yarida", "default_attack" }, ResPath.EType.MasterServer), handle);
-							AddComponent(ab, new SimulationAuthority());
-
-							return ab;
-						})),
-						(TimeSpan.FromSeconds(2), null)
+						(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle => CreateAbility(handle, new[] { "ability", "yarida", "default_attack" })))
 					}
 				});
 				AddComponent(unit, new RemoveGravityUntilDead());
 				AddComponent(unit, new EliminateIfTargetIsDead(Safe(barricade)));
 
 				GameWorld.Link(unit, EnemyTeam.Handle, true);
-			}
 
-			{
-				var barricade = cobblestoneBarricadeProvider.SpawnEntityWithArguments(new()
+				// Create a bastion that will spawn Tate enemies
+				// linked to the stone barricade
+				// And another with Yari enemies
 				{
-					Health   = 800,
-					Position = new(8, 0)
-				});
-				GameWorld.Link(barricade, EnemyTeam.Handle, true);
-
-				var arguments = new BastionDynamicGroupProvider.Create();
-				arguments.SetProviderForAll(botUnitProvider, new SimpleAiBotUnitProvider.Create
-				{
-					Parent = new()
+					var arguments = new BastionDynamicGroupProvider.Create();
+					arguments.SetProviderForAll(botUnitProvider, new SimpleAiBotUnitProvider.Create
 					{
-						Direction = UnitDirection.Left,
-						Statistics = new()
+						Parent = new()
 						{
-							Health              = 200,
-							BaseWalkSpeed       = 2,
-							MovementAttackSpeed = 2,
+							Direction = UnitDirection.Left,
+							Statistics = new()
+							{
+								Health              = 500,
+								BaseWalkSpeed       = 2,
+								MovementAttackSpeed = 2,
 
-							Weight = 8,
-							
-							AttackSeekRange = 20,
-							AttackSpeed = 2,
-							
-							Attack = 5,
-							Defense = 2
+								Weight = 8,
+
+								AttackSeekRange = 20,
+								AttackSpeed     = 4,
+
+								Attack  = 8,
+								Defense = 10
+							},
+
+							HealthBegin = 500,
+							Collider    = new(1, 1.5f),
+
+							Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponTaterazay" }, ResPath.EType.ClientResource)),
+
+							Equipments = new()
+							{
+								{ GetAttachment(new[] { "equip_root", "helm" }), GetEquipment(new[] { "equipment", "helm", "default_helm" }) },
+								{ GetAttachment(new[] { "equip_root", "l_eq" }), GetEquipment(new[] { "equipment", "shield", "default_shield" }) },
+								{ GetAttachment(new[] { "equip_root", "r_eq" }), GetEquipment(new[] { "equipment", "sword", "default_sword" }) }
+							}
 						},
 
-						HealthBegin = 200,
-						Collider    = new(1, 1.5f),
-
-						Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponTaterazay" }, ResPath.EType.ClientResource))
-					},
-
-					Actions = new[]
-					{
-						(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle =>
+						Actions = new[]
 						{
-							var ab = abilityCollection.SpawnFor(ResPathGen.Create(new[] { "ability", "taterazay", "default_attack" }, ResPath.EType.MasterServer), handle);
-							AddComponent(ab, new SimulationAuthority());
+							(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle => CreateAbility(handle, new[] { "ability", "taterazay", "default_attack" })))
+						}
+					}, 3);
 
-							return ab;
-						})),
-						(TimeSpan.FromSeconds(2), null)
-					}
-				}, 4);
+					var bastion = bastionProvider.SpawnEntityWithArguments(arguments);
+					GameWorld.Link(bastion, EnemyTeam.Handle, true);
 
-				var bastion = bastionProvider.SpawnEntityWithArguments(arguments);
-				GameWorld.Link(bastion, EnemyTeam.Handle, true);
+					AddComponent(bastion, new AutoSquadUnitDisplacement { Space = 0.5f });
+					AddComponent(bastion, new BastionSpawnAllIfAllDead { Delay  = TimeSpan.FromSeconds(8) });
 
-				AddComponent(bastion, new AutoSquadUnitDisplacement { Space = 0.5f });
-				AddComponent(bastion, new BastionSpawnAllIfAllDead { Delay  = TimeSpan.FromSeconds(5) });
+					AddComponent(bastion, new EliminateIfTargetIsDead(Safe(barricade)));
 
-				AddComponent(bastion, new EliminateIfTargetIsDead(Safe(barricade)));
+					GetComponentData<Position>(bastion).Value = GetComponentData<Position>(barricade).Value;
 
-				GetComponentData<Position>(bastion).Value.X = 8;
+					// Yari
+
+					arguments = new();
+					arguments.SetProviderForAll(botUnitProvider, new SimpleAiBotUnitProvider.Create
+					{
+						Parent = new()
+						{
+							Direction = UnitDirection.Left,
+							Statistics = new()
+							{
+								Health              = 200,
+								BaseWalkSpeed       = 2,
+								MovementAttackSpeed = 2,
+
+								Weight = 8,
+
+								AttackSeekRange = 20,
+								AttackSpeed     = 4,
+
+								Attack  = 8,
+								Defense = 0
+							},
+
+							HealthBegin = 200,
+							Collider    = new(1, 1.5f),
+
+							Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponYarida" }, ResPath.EType.ClientResource)),
+
+							Equipments = new()
+							{
+								{ GetAttachment(new[] { "equip_root", "helm" }), GetEquipment(new[] { "equipment", "helm", "default_helm" }) },
+								{ GetAttachment(new[] { "equip_root", "r_eq" }), GetEquipment(new[] { "equipment", "spear", "default_spear" }) }
+							}
+						},
+
+						Actions = new[]
+						{
+							(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle => CreateAbility(handle, new[] { "ability", "yarida", "default_attack" })))
+						}
+					}, 3);
+
+					bastion = bastionProvider.SpawnEntityWithArguments(arguments);
+					GameWorld.Link(bastion, EnemyTeam.Handle, true);
+
+					AddComponent(bastion, new AutoSquadUnitDisplacement { Space = 0.5f });
+					AddComponent(bastion, new BastionSpawnAllIfAllDead { Delay  = TimeSpan.FromSeconds(10) });
+
+					AddComponent(bastion, new EliminateIfTargetIsDead(Safe(barricade)));
+
+					GetComponentData<Position>(bastion).Value = GetComponentData<Position>(barricade).Value;
+				}
 			}
 
 			foreach (var entity in GameWorld.Boards.Entity.GetLinkedEntities(EnemyTeam.Id))
@@ -164,16 +205,18 @@ namespace PataNext.CoreMissions.Server.Scenars
 		{
 		}
 
-		private CobblestoneBarricadeProvider cobblestoneBarricadeProvider;
-
-		private SimpleAiBotUnitProvider botUnitProvider;
-		private TowerBastionProvider    bastionProvider;
-
-		public BonedethScenar(WorldCollection wc) : base(wc)
+		public class Provider : ScenarProvider
 		{
-			DependencyResolver.Add(() => ref cobblestoneBarricadeProvider);
-			DependencyResolver.Add(() => ref botUnitProvider);
-			DependencyResolver.Add(() => ref bastionProvider);
+			public Provider(WorldCollection collection) : base(collection)
+			{
+			}
+
+			public override ResPath ScenarPath => BonedethMissionRegister.ScenarPath;
+
+			public override IScenar Provide()
+			{
+				return new BonedethScenar(World);
+			}
 		}
 	}
 }

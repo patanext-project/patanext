@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using Collections.Pooled;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
@@ -10,6 +11,7 @@ using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Providers;
 using PataNext.Module.Simulation.Game.Visuals;
 using PataNext.Module.Simulation.Network.Snapshots;
+using PataNext.Module.Simulation.Resources;
 using StormiumTeam.GameBase.GamePlay.Health;
 using StormiumTeam.GameBase.GamePlay.Health.Systems;
 using StormiumTeam.GameBase.Network.Authorities;
@@ -34,6 +36,8 @@ namespace PataNext.CoreMissions.Server.Providers
 			public int  HealthBegin;
 
 			public float? CustomGravity;
+
+			public Dictionary<GameResource<UnitAttachmentResource>, GameResource<EquipmentResource>> Equipments;
 		}
 
 		private PlayableUnitProvider  parent;
@@ -56,7 +60,8 @@ namespace PataNext.CoreMissions.Server.Providers
 				AsComponentType<MovableAreaAuthority>(),
 				AsComponentType<UnitBodyCollider>(),
 
-				AsComponentType<UnitEnemySeekingState>()
+				AsComponentType<UnitEnemySeekingState>(),
+				AsComponentType<UnitDisplayedEquipment>()
 			});
 		}
 
@@ -86,6 +91,12 @@ namespace PataNext.CoreMissions.Server.Providers
 
 			if (data.CustomGravity is { } gravity)
 			{
+			}
+
+			if (data.Equipments is { } equipments)
+			{
+				foreach (var (attachment, equipment) in equipments)
+					GetBuffer<UnitDisplayedEquipment>(entity).Add(new(attachment, equipment));
 			}
 		}
 	}

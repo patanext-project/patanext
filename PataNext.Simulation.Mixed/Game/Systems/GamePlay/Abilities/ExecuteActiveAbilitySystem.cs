@@ -66,7 +66,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Abilities
 			{
 				typeof(OwnerActiveAbility),
 				typeof(SimulationAuthority)
-			}));
+			}), forceSingleThread: false);
 		}
 
 		public void OnAbilitySimulationPass()

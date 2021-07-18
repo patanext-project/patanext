@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GameHost.Core;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
@@ -56,6 +57,15 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Structures.Bastion
 
 		public void OnBeforeSimulationUpdate()
 		{
+			if (World.TryGet(out BastionDynamicRecycleDeadEntitiesSystem recycler) && worldTime.Total != recycler.CurrentSpan)
+			{
+				var pass = World.DefaultSystemCollection.Passes.First(p => p is IPreUpdateSimulationPass);
+				foreach (var type in pass.RegisteredObjects)
+					Console.WriteLine(type.GetType());
+				
+				throw new InvalidOperationException("should have been updated after recycler");
+			}
+
 			var dt = worldTime.Delta;
 
 			aliveQuery.CheckForNewArchetypes();
