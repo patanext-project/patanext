@@ -19,7 +19,7 @@ namespace PataNext.Module.Simulation.Tests
 				}
 			}
 		}
-");
+", null);
 			Assert.IsTrue(map.ContainsKey("perfect"));
 			Assert.AreEqual(map["perfect"].MovementSpeed, 1.2f, 0.01f);
 		}
