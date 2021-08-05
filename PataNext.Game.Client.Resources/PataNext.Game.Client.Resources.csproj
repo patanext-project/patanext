@@ -6,7 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
       <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
     </ItemGroup>
 

@@ -14,6 +14,8 @@ namespace StormiumTeam.GameBase.Transform.Components
 	public struct Position : IComponentData
 	{
 		public Vector3 Value;
+
+		public Vector2 AsXY() => new(Value.X, Value.Y);
 		
 		public Position(Vector3 val)
 		{

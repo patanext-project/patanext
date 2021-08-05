@@ -8,11 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Audio\GameHost.Audio.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Transports\GameHost.Transports.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Audio\GameHost.Audio.csproj" />
       <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
       <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
     </ItemGroup>

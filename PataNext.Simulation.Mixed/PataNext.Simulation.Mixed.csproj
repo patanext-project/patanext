@@ -9,9 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
-      <ProjectReference Include="..\..\..\Patapon\MasterServer\guerr\PataNext.MasterServer.Shared\PataNext.MasterServer.Shared.csproj" />
+      <ProjectReference Include="..\..\MasterServer.PataNext\PataNext.MasterServer.Shared\PataNext.MasterServer.Shared.csproj" />
       <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
       <ProjectReference Include="..\StormiumTeam.GameBase\StormiumTeam.GameBase.csproj" />
     </ItemGroup>

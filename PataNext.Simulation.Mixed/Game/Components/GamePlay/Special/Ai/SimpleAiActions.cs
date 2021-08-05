@@ -8,6 +8,8 @@ namespace PataNext.Module.Simulation.Components.GamePlay.Special.Ai
 	{
 		public TimeSpan TimeBeforeNextAbility;
 		public int      Index;
+		
+		public GameEntity PreviousAbility;
 	}
 
 	public struct SimpleAiActions : IComponentBuffer

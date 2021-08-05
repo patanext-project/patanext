@@ -53,12 +53,12 @@ namespace PataNext.CoreMissions.Server
 
 		protected GameResource<UnitAttachmentResource> GetAttachment(string[] resource)
 		{
-			return AttachmentDb.GetOrCreate(ResPathGen.Create(resource, ResPath.EType.ClientResource));
+			return AttachmentDb.GetOrCreate(ResPathGen.Create(resource, ResPath.EType.MasterServer));
 		}
 
 		protected GameResource<EquipmentResource> GetEquipment(string[] resource)
 		{
-			return EquipmentDb.GetOrCreate(ResPathGen.Create(resource, ResPath.EType.ClientResource));
+			return EquipmentDb.GetOrCreate(ResPathGen.Create(resource, ResPath.EType.MasterServer));
 		}
 
 		protected GameEntityHandle CreateAbility(GameEntityHandle owner, string[] resource)

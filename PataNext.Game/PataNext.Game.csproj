@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Transports\GameHost.Transports.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
-      <ProjectReference Include="..\StormiumTeam.GameBase\StormiumTeam.GameBase.csproj" />
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Transports\GameHost.Transports.csproj" />
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost\GameHost.csproj" />
+        <ProjectReference Include="..\StormiumTeam.GameBase\StormiumTeam.GameBase.csproj" />
     </ItemGroup>
 
     <ItemGroup>

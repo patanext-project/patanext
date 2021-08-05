@@ -123,7 +123,7 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 
 				controllerState.ControlOverVelocity    = default;
 				controllerState.OverrideTargetPosition = false;
-				controllerState.PassThroughEnemies     = false;
+				controllerState.PassThroughEnemies     = HasComponent<LivableIsDead>(entity);
 				controllerState.PreviousPosition       = previousPosition;
 			}
 		}

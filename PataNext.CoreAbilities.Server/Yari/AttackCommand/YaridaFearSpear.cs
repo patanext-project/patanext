@@ -88,7 +88,7 @@ namespace PataNext.CoreAbilities.Server.Yari.AttackCommand
                 execute.Post.Schedule(projectileProvider.SpawnAndForget,
                     (owner,
                         position + throwOffsetXYZ - new Vector3(0, 0.25f, 0),
-                        new Vector3 {X = abilitySettings.ThrowVelocity.X, Y = abilitySettings.ThrowVelocity.Y + accuracy * (float) random.NextDouble()},
+                        new Vector3 {X = abilitySettings.ThrowVelocity.X * direction.Value, Y = abilitySettings.ThrowVelocity.Y + accuracy * (float) random.NextDouble()},
                         new Vector3(abilitySettings.Gravity * 1.3f, 0)
                     ), default);
             }

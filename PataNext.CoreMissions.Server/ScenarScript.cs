@@ -17,7 +17,7 @@ namespace PataNext.CoreMissions.Server
 	public abstract class ScenarScript : ScenarScriptServer
 	{
 		protected IPhysicsSystem PhysicsSystem;
-		
+
 		protected ResPathGen ResPathGen;
 
 		protected GameResourceDb<GameGraphicResource> GraphicDb;
@@ -25,10 +25,15 @@ namespace PataNext.CoreMissions.Server
 		protected ScenarScript(WorldCollection wc) : base(wc)
 		{
 			DependencyResolver.Add(() => ref PhysicsSystem);
-			
+
 			DependencyResolver.Add(() => ref ResPathGen);
-			
+
 			DependencyResolver.Add(() => ref GraphicDb);
+		}
+
+		public GameResource<GameGraphicResource> GetGraphic(string[] resource)
+		{
+			return GraphicDb.GetOrCreate(ResPathGen.Create(resource, ResPath.EType.ClientResource));
 		}
 	}
 }

@@ -210,8 +210,8 @@ namespace PataNext.Module.Simulation.GameModes
 
 					if (TryGetComponentData(handle, out Velocity velocity) && TryGetComponentData(handle, out UnitDirection direction))
 					{
-						if (velocity.Value.X > direction.Value)
-							velocity.Value.X = direction.Value;
+						if (velocity.Value.X > -direction.Value)
+							velocity.Value.X = -direction.Value;
 						
 						velocity.Value.X -= direction.Value * 7f;
 

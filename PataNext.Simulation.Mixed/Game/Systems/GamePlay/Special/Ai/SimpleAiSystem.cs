@@ -47,6 +47,8 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Special.Ai
 				if (buffer.Count == 0)
 					continue;
 
+				var update = false;
+				
 				SimpleAiActions current;
 				if (!HasComponent<LivableIsDead>(entity))
 				{
@@ -56,19 +58,20 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Special.Ai
 					if (controller.TimeBeforeNextAbility <= total)
 					{
 						var previousAbility = buffer[controller.Index].AbilityTarget;
-						if (GameWorld.Exists(previousAbility))
+						if (GameWorld.Exists(controller.PreviousAbility))
 						{
-							GetComponentData<AbilityState>(previousAbility).Phase = EAbilityPhase.Chaining;
-							ownerActiveAbility.PreviousActive                     = previousAbility;
+							GetComponentData<AbilityState>(controller.PreviousAbility).Phase = EAbilityPhase.None;
 						}
-
+						controller.PreviousAbility = previousAbility;
+						
 						controller.Index++;
 						if (controller.Index >= buffer.Count)
 							controller.Index = 0;
-
+						
 						controller.TimeBeforeNextAbility = total + buffer[controller.Index].Duration;
+						update                           = true;
 					}
-					
+
 					current = buffer[controller.Index];
 				}
 				else
@@ -78,16 +81,67 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Special.Ai
 					if (GameWorld.Exists(previousAbility))
 						GetComponentData<AbilityState>(previousAbility).Phase = EAbilityPhase.None;
 				}
-				
+
 				switch (current.Type)
 				{
 					case SimpleAiActions.EType.Wait:
+						if (GameWorld.Exists(controller.PreviousAbility))
+						{
+							GetComponentData<AbilityState>(controller.PreviousAbility).Phase = EAbilityPhase.Chaining;
+							ownerActiveAbility.PreviousActive                                = controller.PreviousAbility;
+						}
+
 						break;
 
 					case SimpleAiActions.EType.Ability:
 						ownerActiveAbility.Active                                   = current.AbilityTarget;
-						GetComponentData<AbilityState>(current.AbilityTarget).Phase = EAbilityPhase.Active;
+
+						ref var abilityState = ref GetComponentData<AbilityState>(current.AbilityTarget);
+						if ((GetComponentData<AbilityActivation>(current.AbilityTarget).Type & EAbilityActivationType.HeroMode) != 0)
+						{
+							if (controller.TimeBeforeNextAbility - total > current.Duration - TimeSpan.FromMilliseconds(500))
+								abilityState.Phase = EAbilityPhase.HeroActivation;
+							else
+								abilityState.Phase = EAbilityPhase.Active;
+						}
+						else
+							abilityState.Phase = EAbilityPhase.Active;
+
+						if (update)
+						{
+							abilityState.ActivationVersion++;
+							abilityState.UpdateVersion++;
+						}
+
+						if (GameWorld.Exists(controller.PreviousAbility))
+						{
+							GetComponentData<AbilityState>(controller.PreviousAbility).Phase = EAbilityPhase.None;
+							ownerActiveAbility.PreviousActive                                = controller.PreviousAbility;
+						}
+
 						break;
+				}
+				
+				if (buffer.Count > 2 && update)
+				{
+					var str = $"Actions: <Update {update}>\n";
+					for (var index = 0; index < buffer.Count; index++)
+					{
+						var ac = buffer[index];
+						str += $"  [{ac.Type}] <Duration {ac.Duration.TotalMilliseconds}ms>";
+						if (ac.Type == SimpleAiActions.EType.Ability)
+						{
+							str += $" <Target {ac.AbilityTarget}> <Phase {GetComponentData<AbilityState>(ac.AbilityTarget).Phase}>";
+							if (controller.PreviousAbility == ac.AbilityTarget)
+								str += " <Previous>";
+							else if (controller.Index == index)
+								str += " <Current>";
+						}
+
+						str += "\n";
+					}
+
+					Console.WriteLine(str);
 				}
 			}
 		}

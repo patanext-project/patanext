@@ -1,13 +1,11 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using Box2D.NetStandard.Collision.Shapes;
 using Collections.Pooled;
-using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
 using GameHost.Simulation.Utility.Resource;
-using JetBrains.Annotations;
 using PataNext.Module.Simulation.Components.GamePlay;
-using PataNext.Module.Simulation.Game.Providers;
 using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.SystemBase;
 
@@ -22,11 +20,9 @@ namespace PataNext.CoreMissions.Server.Providers
 		}
 
 		private GameResourceDb<GameGraphicResource> graphicDb;
-		private SimpleDestroyableStructureProvider  parent;
+		private DestructibleProvider                parent;
 
 		private ResPathGen resPathGen;
-
-		private Entity colliderSettings;
 
 		public CobblestoneBarricadeProvider([NotNull] WorldCollection collection) : base(collection)
 		{
@@ -34,9 +30,6 @@ namespace PataNext.CoreMissions.Server.Providers
 			DependencyResolver.Add(() => ref parent);
 
 			DependencyResolver.Add(() => ref resPathGen);
-
-			AddDisposable(colliderSettings = World.Mgr.CreateEntity());
-			colliderSettings.Set<Shape>(new PolygonShape(new Vector2(-1.15f, 2.5f), new Vector2(+1.15f, 2.5f), new Vector2(-2, 0), new Vector2(+2, 0)));
 		}
 
 		public override void GetComponents(PooledList<ComponentType> entityComponents)
@@ -46,14 +39,13 @@ namespace PataNext.CoreMissions.Server.Providers
 
 		public override void SetEntityData(GameEntityHandle entity, Create data)
 		{
-			parent.SetEntityData(entity, new()
-			{
-				Area               = new(0, 2),
-				Visual             = graphicDb.GetOrCreate(resPathGen.Create(new[] { "Models", "GameModes", "Structures", "CobblestoneBarricade", "Prefab" }, ResPath.EType.ClientResource)),
-				ColliderDefinition = colliderSettings,
-				Health             = data.Health,
-				Position           = new(data.Position, 0)
-			});
+			var args = new DestructibleProvider.Create(
+				graphicDb.GetOrCreate(resPathGen.Create(new[] { "Models", "GameModes", "Structures", "CobblestoneBarricade", "Prefab" }, ResPath.EType.ClientResource)),
+				data.Health,
+				data.Position,
+				new PolygonShape(new Vector2(-1.15f, 2.5f), new Vector2(+1.15f, 2.5f), new Vector2(-2, 0), new Vector2(+2, 0))
+			);
+			parent.SetEntityData(entity, args);
 		}
 	}
 }

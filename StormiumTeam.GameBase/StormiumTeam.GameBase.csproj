@@ -16,12 +16,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Common\Packages\package.stormiumteam.networking\gamehost\GameHost.Revolution.NetCode.Generator\GameHost.Revolution.NetCode.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
-      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
-      <ProjectReference Include="..\..\..\Patapon\MasterServer\guerr\PataNext.MasterServer\STMasterServer.Shared\STMasterServer.Shared.csproj" />
-      <ProjectReference Include="..\..\package.stormiumteam.networking\gamehost\GameHost.Revolution.NetCode\GameHost.Revolution.NetCode.csproj" />
+      <ProjectReference Include="..\..\Module.Networking\gamehost\GameHost.Revolution.NetCode.Generator\GameHost.Revolution.NetCode.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+      <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
+      <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
+      <ProjectReference Include="..\..\FrameWork.GameHost\GameHost\GameHost.csproj" />
+      <ProjectReference Include="..\..\MasterServer.PataNext\PataNext.MasterServer\STMasterServer.Shared\STMasterServer.Shared.csproj" />
+      <ProjectReference Include="..\..\Module.Networking\gamehost\GameHost.Revolution.NetCode\GameHost.Revolution.NetCode.csproj" />
     </ItemGroup>
 
     <ItemGroup>

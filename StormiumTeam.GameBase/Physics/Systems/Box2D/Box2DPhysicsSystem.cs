@@ -87,6 +87,12 @@ namespace StormiumTeam.GameBase.Physics.Systems
 				return;
 			}
 
+			if (settings.TryGet(out Shape[] shapes))
+			{
+				AssignCollider(entity, shapes);
+				return;
+			}
+
 			// bepu conversion
 			if (settings.TryGet(out Box box))
 			{

@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PataNext.CoreAbilities.Mixed\PataNext.CoreAbilities.Mixed.csproj" />
       <ProjectReference Include="..\PataNext.CoreMissions.Mixed\PataNext.CoreMissions.Mixed.csproj" />
       <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
     </ItemGroup>

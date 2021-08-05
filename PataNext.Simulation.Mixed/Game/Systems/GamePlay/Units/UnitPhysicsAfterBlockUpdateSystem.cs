@@ -44,6 +44,9 @@ namespace PataNext.Module.Simulation.Game.GamePlay.Units
 					typeof(ContributeToTeamMovableArea),
 					typeof(Relative<TeamDescription>),
 					typeof(SimulationAuthority)
+				}, new[]
+				{
+					typeof(LivableIsDead)
 				}))
 				{
 					ref readonly var controllerState = ref controllerStateAccessor[entity];

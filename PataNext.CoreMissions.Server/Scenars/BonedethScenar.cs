@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using GameHost.Core.Ecs;
 using GameHost.Simulation.TabEcs;
+using PataNext.CoreAbilities.Mixed.CYari;
 using PataNext.CoreMissions.Mixed.Missions;
 using PataNext.CoreMissions.Server.Game;
 using PataNext.CoreMissions.Server.Providers;
 using PataNext.Game.Scenar;
 using PataNext.Module.Simulation.Components.GamePlay.Special.Squad;
 using PataNext.Module.Simulation.Components.GamePlay.Structures.Bastion;
+using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Components.Roles;
 using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.Game.Providers;
 using StormiumTeam.GameBase;
@@ -33,57 +37,164 @@ namespace PataNext.CoreMissions.Server.Scenars
 			DependencyResolver.Add(() => ref bastionProvider);
 		}
 
+		private void part_01_YariAndTateDefendingEntrance()
+		{
+			var barricade = cobblestoneBarricadeProvider.SpawnEntityWithArguments(new()
+			{
+				Health   = 2500,
+				Position = new(10, 0)
+			});
+			GameWorld.Link(barricade, EnemyTeam.Handle, true);
+
+			GameEntityHandle unit;
+			
+			// Spawn a Yari enemy which will be on top of the barricade
+			unit = botUnitProvider.SpawnEntityWithArguments(new()
+			{
+				Parent = new()
+				{
+					Direction = UnitDirection.Left,
+					Statistics = new()
+					{
+						Health = 400,
+
+						Attack      = 18,
+						AttackSpeed = 4,
+
+						AttackSeekRange = 20
+					},
+
+					HealthBegin = 400,
+					Collider    = new(1, 1.5f),
+
+					InitialPosition = GetComponentData<Position>(barricade).AsXY() + new Vector2(0, 2.5f), // spawn on top of barricade
+
+					Visual = GetGraphic(new[] { "Models", "Patapon", "PataponYarida" }),
+
+					Equipments = new()
+					{
+						{ GetAttachment(new[] { "equip_root", "helm" }), GetEquipment(new[] { "equipment", "helm", "default_helm" }) },
+						{ GetAttachment(new[] { "equip_root", "r_eq" }), GetEquipment(new[] { "equipment", "spear", "default_spear" }) }
+					}
+				},
+
+				Actions = new[]
+				{
+					(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle =>
+					{
+						var ab = CreateAbility(handle, new[] { "ability", "yarida", "default_attack" });
+						GetComponentData<YaridaBasicAttackAbility>(ab).ThrowVelocity = new(16.5f, -2.5f);
+
+						return ab;
+					}))
+				}
+			});
+			AddComponent(unit, new RemoveGravityUntilDead());
+			AddComponent(unit, new EliminateIfTargetIsDead(Safe(barricade)));
+
+			GameWorld.Link(unit, EnemyTeam.Handle, true);
+			
+			// Spawn a Tate enemy which will protect the Yari and the barricade
+			unit = botUnitProvider.SpawnEntityWithArguments(new()
+			{
+				Parent = new()
+				{
+					Direction = UnitDirection.Left,
+					Statistics = new()
+					{
+						Health = 750,
+						
+						Attack = 8,
+						AttackSpeed = 4,
+
+						Defense = 3
+					},
+
+					HealthBegin = 750,
+					Collider    = new(1, 1.5f),
+
+					InitialPosition = GetComponentData<Position>(barricade).AsXY() - new Vector2(4, 0), // near of the barricade
+
+					Visual = GetGraphic(new[] { "Models", "Patapon", "PataponTaterazay" }),
+
+					Equipments = new()
+					{
+						{ GetAttachment(new[] { "equip_root", "helm" }), GetEquipment(new[] { "equipment", "helm", "default_helm" }) },
+						{ GetAttachment(new[] { "equip_root", "l_eq" }), GetEquipment(new[] { "equipment", "shield", "default_shield" }) },
+						{ GetAttachment(new[] { "equip_root", "r_eq" }), GetEquipment(new[] { "equipment", "sword", "default_sword" }) }
+					}
+				},
+
+				Actions = new[]
+				{
+					(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle => CreateAbility(handle, new[] { "ability", "tate", "def_defstay" })))
+				}
+			});
+
+			GameWorld.Link(unit, EnemyTeam.Handle, true);
+		}
+		
+				private void part_02_Super()
+				{
+					var relative = CreateEntity();
+					AddComponent(relative, new UnitTargetDescription());
+					AddComponent(relative, new Position(x: 20));
+					AddComponent(relative, new UnitEnemySeekingState());
+					AddComponent(relative, UnitDirection.Left);
+			
+			var unit = botUnitProvider.SpawnEntityWithArguments(new()
+			{
+				Parent = new()
+				{
+					Direction = UnitDirection.Left,
+					Statistics = new()
+					{
+						Health = 500,
+						
+						Attack = 15,
+						AttackSpeed = 2,
+						
+						MovementAttackSpeed = 2.5f,
+
+						Defense = 1,
+						
+						AttackSeekRange = 20
+					},
+
+					HealthBegin = 750,
+					Collider    = new(1, 1.5f),
+
+					InitialPosition = new Vector2(20, 0), // near of the barricade
+
+					Visual = GetGraphic(new[] { "Models", "UberHero", "CharacterYarida" }),
+
+					Equipments = new()
+					{
+						{ GetAttachment(new[] { "equip_root", "helm" }), GetEquipment(new[] { "equipment", "helm", "default_helm" }) },
+						{ GetAttachment(new[] { "equip_root", "r_eq" }), GetEquipment(new[] { "equipment", "spear", "default_spear" }) }
+					}
+				},
+
+				Actions = new[]
+				{
+					(TimeSpan.FromSeconds(4), new Func<GameEntityHandle, GameEntityHandle>(handle => CreateAbility(handle, new[] { "ability", "yari", "fear_spear" }))),
+					(TimeSpan.FromSeconds(2), default),
+					(TimeSpan.FromSeconds(4), new Func<GameEntityHandle, GameEntityHandle>(handle => CreateAbility(handle, new[] { "ability", "yarida", "default_attack" }))),
+					(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle => CreateAbility(handle, new[] { "ability", "default", "charge" }))),
+				}
+			});
+
+			GameWorld.Link(unit, EnemyTeam.Handle, true);
+		}
+
 		protected override Task OnStart()
 		{
 			base.OnStart();
 
-			{
-				var barricade = cobblestoneBarricadeProvider.SpawnEntityWithArguments(new()
-				{
-					Health   = 1500,
-					Position = new(15, 0)
-				});
-				GameWorld.Link(barricade, EnemyTeam.Handle, true);
+			part_01_YariAndTateDefendingEntrance();
+			part_02_Super();
 
-				var unit = botUnitProvider.SpawnEntityWithArguments(new()
-				{
-					Parent = new()
-					{
-						Direction = UnitDirection.Left,
-						Statistics = new()
-						{
-							Health = 300,
-
-							Attack      = 12,
-							AttackSpeed = 4,
-
-							AttackSeekRange = 20
-						},
-
-						HealthBegin = 300,
-						Collider    = new(1, 1.5f),
-
-						InitialPosition = new(15, 2.5f), // spawn on top of barricade
-
-						Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponYarida" }, ResPath.EType.ClientResource)),
-
-						Equipments = new()
-						{
-							{ GetAttachment(new[] { "equip_root", "helm" }), GetEquipment(new[] { "equipment", "helm", "default_helm" }) },
-							{ GetAttachment(new[] { "equip_root", "r_eq" }), GetEquipment(new[] { "equipment", "spear", "default_spear" }) }
-						}
-					},
-
-					Actions = new[]
-					{
-						(TimeSpan.FromSeconds(2), new Func<GameEntityHandle, GameEntityHandle>(handle => CreateAbility(handle, new[] { "ability", "yarida", "default_attack" })))
-					}
-				});
-				AddComponent(unit, new RemoveGravityUntilDead());
-				AddComponent(unit, new EliminateIfTargetIsDead(Safe(barricade)));
-
-				GameWorld.Link(unit, EnemyTeam.Handle, true);
-
+			/*{
 				// Create a bastion that will spawn Tate enemies
 				// linked to the stone barricade
 				// And another with Yari enemies
@@ -112,7 +223,7 @@ namespace PataNext.CoreMissions.Server.Scenars
 							HealthBegin = 500,
 							Collider    = new(1, 1.5f),
 
-							Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponTaterazay" }, ResPath.EType.ClientResource)),
+							Visual = GetGraphic(new[] { "Models", "Patapon", "PataponTaterazay" }),
 
 							Equipments = new()
 							{
@@ -164,7 +275,7 @@ namespace PataNext.CoreMissions.Server.Scenars
 							HealthBegin = 200,
 							Collider    = new(1, 1.5f),
 
-							Visual = GraphicDb.GetOrCreate(ResPathGen.Create(new[] { "Models", "Patapon", "PataponYarida" }, ResPath.EType.ClientResource)),
+							Visual = GetGraphic(new[] { "Models", "Patapon", "PataponYarida" }),
 
 							Equipments = new()
 							{
@@ -189,7 +300,7 @@ namespace PataNext.CoreMissions.Server.Scenars
 
 					GetComponentData<Position>(bastion).Value = GetComponentData<Position>(barricade).Value;
 				}
-			}
+			}*/
 
 			foreach (var entity in GameWorld.Boards.Entity.GetLinkedEntities(EnemyTeam.Id))
 				AddComponent(entity, new Relative<TeamDescription>(EnemyTeam));
