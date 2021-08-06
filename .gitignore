@@ -30,7 +30,6 @@ ExportedObj/
 idea/
 .consulo/
 *.unityproj
-*.sln
 *.suo
 *.tmp
 *.user
