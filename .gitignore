@@ -12,8 +12,6 @@ GitIgnore/
 # Github repository: https://github.com/Unity-Technologies/InputSystem
 *com.unity.inputsystem/
 
-Box2D.Integrated/
-
 Plugins/
 
 # Visual Studio 2015 cache directory
