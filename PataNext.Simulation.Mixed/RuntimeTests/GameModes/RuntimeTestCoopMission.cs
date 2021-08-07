@@ -4,10 +4,12 @@ using System.Threading.Tasks;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Threading;
+using GameHost.Injection;
 using GameHost.Injection.Dependency;
 using GameHost.Simulation.Utility.Resource;
 using GameHost.Utility;
 using JetBrains.Annotations;
+using PataNext.Game;
 using PataNext.Module.Simulation.Components;
 using PataNext.Module.Simulation.Components.Army;
 using PataNext.Module.Simulation.Components.GamePlay.Units;
@@ -61,7 +63,9 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 		{
 			base.OnDependenciesResolved(dependencies);
 
-			var isInstant = false;
+			Console.WriteLine("  Test Instant");
+			
+			var isInstant = true;
 			if (isInstant)
 				TestInstant();
 			else
@@ -138,8 +142,8 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 
 		private void TestInstant()
 		{
-						var uberArchResource = localArchetypeDb.GetOrCreate(new UnitArchetypeResource(resPathGen.Create(new[] {"archetype", "uberhero_std_unit"}, ResPath.EType.MasterServer)));
-			var kitResource = localKitDb.GetOrCreate(new UnitKitResource("wondabarappa"));
+			var uberArchResource = localArchetypeDb.GetOrCreate(new UnitArchetypeResource(resPathGen.Create(new[] { "archetype", "uberhero_std_unit" }, ResPath.EType.MasterServer)));
+			var kitResource      = localKitDb.GetOrCreate(new UnitKitResource("wondabarappa"));
 
 			var player = CreateEntity();
 			AddComponent(Safe(player),
@@ -167,6 +171,10 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 					new Relative<PlayerDescription>(Safe(player)),
 					new ArmySquadDescription(),
 					new Owner(Safe(formation)));
+				
+				GetBuffer<OwnedRelative<ArmySquadDescription>>(formation)
+					.Add(new(Safe(squad)));
+				
 				GameWorld.AddComponent(squad, AsComponentType<OwnedRelative<ArmyUnitDescription>>());
 				{
 					// ----
@@ -184,25 +192,13 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 						new UnitTargetControlTag()
 					);
 
-					var abilityBuffer = GameWorld.AddBuffer<UnitDefinedAbilities>(unit);
-					abilityBuffer.Add(new UnitDefinedAbilities("march", AbilitySelection.Horizontal));
-					abilityBuffer.Add(new UnitDefinedAbilities("backward", AbilitySelection.Horizontal));
-					abilityBuffer.Add(new UnitDefinedAbilities("party", AbilitySelection.Horizontal));
-					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "mega", "sonic_atk_def"}, ResPath.EType.MasterServer), AbilitySelection.Horizontal));
-					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "mega", "magic_atk_def"}, ResPath.EType.MasterServer), AbilitySelection.Bottom));
-					abilityBuffer.Add(new UnitDefinedAbilities(resPathGen.Create(new[] {"ability", "mega", "word_atk_def"}, ResPath.EType.MasterServer), AbilitySelection.Top));
+					AddComponent(unit, new UnitStatistics());
 
+					var abilityBuffer  = GameWorld.AddBuffer<UnitDefinedAbilities>(unit);
 					var displayedEquip = GameWorld.AddBuffer<UnitDisplayedEquipment>(unit);
-					displayedEquip.Add(new UnitDisplayedEquipment
-					{
-						Attachment = attachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "mask"}, ResPath.EType.MasterServer)),
-						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "masks", "guardira"}, ResPath.EType.ClientResource))
-					});
-					displayedEquip.Add(new UnitDisplayedEquipment
-					{
-						Attachment = attachDb.GetOrCreate(resPathGen.Create(new[] {"equip_root", "r_eq"}, ResPath.EType.MasterServer)),
-						Resource   = equipDb.GetOrCreate(resPathGen.Create(new[] {"equipments", "horns", "default_horn"}, ResPath.EType.ClientResource))
-					});
+					
+					GetBuffer<OwnedRelative<ArmyUnitDescription>>(squad)
+						.Add(new(Safe(unit)));
 				}
 			}
 
@@ -210,6 +206,15 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 			{
 				var gameMode = GameWorld.CreateEntity();
 				GameWorld.AddComponent(gameMode, new CoopMission());
+
+				var missionMgr = new ContextBindingStrategy(Context, true).Resolve<MissionManager>();
+				if (!missionMgr.TryGet(resPathGen.GetDefaults().With(new[] { "mission", "debug" }, ResPath.EType.MasterServer), out var missionEntity))
+					throw new InvalidOperationException("couldn't find mission");
+
+				GameWorld.AddComponent(gameMode, new CoopMission.TargetMission
+				{
+					Entity = missionEntity
+				});
 			}, default);
 		}
 	}

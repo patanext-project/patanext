@@ -86,7 +86,7 @@ namespace PataNext.Simulation.Client.Systems
 
 		public override bool CanUpdate()
 		{
-			return GameWorld.Contains(LocalEngine) && LocalInformation.Elapsed >= TimeSpan.Zero && base.CanUpdate();
+			return base.CanUpdate() && GameWorld.Contains(LocalEngine) && LocalInformation.Elapsed >= TimeSpan.Zero;
 		}
 
 		protected override void OnUpdatePass()

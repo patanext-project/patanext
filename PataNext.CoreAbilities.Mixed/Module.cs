@@ -9,6 +9,7 @@ using GameHost.IO;
 using GameHost.Revolution.NetCode.LLAPI;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
+using GameHost.Utility;
 using GameHost.Worlds;
 using PataNext.Game.Abilities;
 using Module = PataNext.CoreAbilities.Mixed.Module;
@@ -23,69 +24,66 @@ namespace PataNext.CoreAbilities.Mixed
 
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
-			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-			foreach (ref readonly var listener in global.World.Get<IListener>())
+			var global = new ContextBindingStrategy(Ctx, true).Resolve<GlobalWorld>();
+			
+			AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 			{
-				if (listener is SimulationApplication simulationApplication)
-				{
-					simulationApplication.Schedule(() =>
-					{
-						var sc     = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
-						var appCtx = simulationApplication.Data.Context;
-						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilitySystem));
+				var sc     = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
+				var appCtx = simulationApplication.Data.Context;
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilitySystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultMarchAbilitySystem));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultRetreatAbilityProvider));
-						sc.Register(inst => new Defaults.DefaultRetreatAbility.Serializer(inst, appCtx));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultBackwardAbilitySystem));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilityProvider));
-						sc.Register(inst => new Defaults.DefaultJumpAbility.Serializer(inst, appCtx));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultRetreatAbilityProvider));
+				sc.Register(inst => new Defaults.DefaultRetreatAbility.Serializer(inst, appCtx));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilityProvider));
-						sc.Register(inst => new Defaults.DefaultPartyAbility.Serializer(inst, appCtx));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultJumpAbilityProvider));
+				sc.Register(inst => new Defaults.DefaultJumpAbility.Serializer(inst, appCtx));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultChargeAbilityProvider));
-						sc.Register(inst => new Defaults.DefaultChargeAbility.Serializer(inst, appCtx));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultPartyAbilityProvider));
+				sc.Register(inst => new Defaults.DefaultPartyAbility.Serializer(inst, appCtx));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilitySystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.DefaultChargeAbilityProvider));
+				sc.Register(inst => new Defaults.DefaultChargeAbility.Serializer(inst, appCtx));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilitySystem));
-						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayCounterAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendFrontalAbilitySystem));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilitySystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicDefendStayAbilitySystem));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicAttackAbilityProvider));
-						sc.Register(inst => new CTate.TaterazayBasicAttackAbility.Serializer(inst, appCtx));
-						sc.Register(inst => new CTate.TaterazayBasicAttackAbility.State.Serializer(inst, appCtx));
-						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CGuard.GuardiraBasicDefendAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CGuard.GuardiraMegaShieldAbilityProvider));
-						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaBasicAttackAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaLeapAttackAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaFearSpearAbilityProvider));
-						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CPike.WooyariMultiAttackAbilityProvider));
-						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CYumi.YumiyachaBasicAttackAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CYumi.YumiyachaSnipeAttackAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayCounterAbilityProvider));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicSonicAttackAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicWordAttackAbilityProvider));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicMagicAttackAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayEnergyFieldAbilitySystem));
 
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));						
-					}, default);
-				}
-			}
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazayBasicAttackAbilityProvider));
+				sc.Register(inst => new CTate.TaterazayBasicAttackAbility.Serializer(inst, appCtx));
+				sc.Register(inst => new CTate.TaterazayBasicAttackAbility.State.Serializer(inst, appCtx));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CGuard.GuardiraBasicDefendAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CGuard.GuardiraMegaShieldAbilityProvider));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaBasicAttackAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaLeapAttackAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CYari.YaridaFearSpearAbilityProvider));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CPike.WooyariMultiAttackAbilityProvider));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CYumi.YumiyachaBasicAttackAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CYumi.YumiyachaSnipeAttackAbilityProvider));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicSonicAttackAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicWordAttackAbilityProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CMega.MegaponBasicMagicAttackAbilityProvider));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Subset.DefaultSubsetMarchAbilitySystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(CTate.TaterazaySuperAbilityProvider));
+			}));
 
 			Storage.Subscribe((_, exteriorStorage) =>
 			{

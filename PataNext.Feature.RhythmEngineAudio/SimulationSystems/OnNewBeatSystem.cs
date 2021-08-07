@@ -42,7 +42,7 @@ namespace PataNext.Simulation.Client.Systems
 
 		public override bool CanUpdate()
 		{
-			return LocalEngine != default && HasComponent<RhythmEngineIsPlaying>(LocalEngine) && base.CanUpdate();
+			return base.CanUpdate() && LocalEngine != default && HasComponent<RhythmEngineIsPlaying>(LocalEngine);
 		}
 
 		protected override void OnUpdatePass()

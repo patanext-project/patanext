@@ -73,7 +73,7 @@ namespace PataNext.Module.Simulation.Game.Hideout
 
 		public override bool CanUpdate()
 		{
-			return localPlayerQuery.Any() && base.CanUpdate();
+			return base.CanUpdate() && localPlayerQuery.Any();
 		}
 
 		protected override void OnUpdate()

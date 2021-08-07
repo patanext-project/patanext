@@ -100,9 +100,8 @@ namespace PataNext.Module.Simulation.GameModes
 			var scenarRequest = World.Mgr.CreateEntity();
 			scenarRequest.Set(new ScenarLoadRequest(missionDetails.Scenar));
 
-			scenarResource = new ResourceHandle<ScenarResource>(scenarRequest);
-
-			while (!scenarResource.IsLoaded)
+			scenarResource = new(scenarRequest);
+			while (!scenarResource.IsLoaded) 
 				await Task.Yield();
 
 			AddComponent(GetGameModeHandle(), new ExecutingMissionData(targetMission.Entity));
@@ -158,7 +157,7 @@ namespace PataNext.Module.Simulation.GameModes
 					StartTime = worldTime.Total.Add(TimeSpan.FromSeconds(1))
 				};
 			}
-
+			
 			scenarGameEntity = Safe(CreateEntity());
 			GameWorld.Link(scenarGameEntity.Handle, GetGameModeHandle(), true);
 			

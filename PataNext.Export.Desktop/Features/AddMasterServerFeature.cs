@@ -15,9 +15,8 @@ using StormiumTeam.GameBase.Network.MasterServer.Utility;
 
 namespace PataNext.Export.Desktop
 {
-	// TODO: This shouldn't be created from a system, but from the game bootstrap
-	// Or atleast have a way to get the configuration file from Global
 	[RestrictToApplication(typeof(SimulationApplication))]
+	[DontInjectSystemToWorld]
 	public class AddMasterServerFeature : AppSystem
 	{
 		private TaskScheduler taskScheduler;

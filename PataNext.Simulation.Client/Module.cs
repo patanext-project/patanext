@@ -3,6 +3,7 @@ using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
+using GameHost.Utility;
 using GameHost.Worlds;
 using PataNext.Game.Abilities;
 using PataNext.Module.Simulation.Systems.GhRpc;
@@ -30,28 +31,25 @@ namespace PataNext.Simulation.Client
 			global.Collection.GetOrCreate(typeof(UnitOverviewGetRestrictedItemInventory.Process));
 
 			global.Collection.GetOrCreate(typeof(UnitOverviewStatisticsRpc.Process));
-			
+
 			global.Collection.GetOrCreate(typeof(ModifyPlayerCityLocationRpc.Process));
 			global.Collection.GetOrCreate(typeof(ObeliskStartMissionRpc.Process));
 			global.Collection.GetOrCreate(typeof(LeaveMissionAndReturnToCityRpc.Process));
 
-			foreach (var listener in global.World.Get<IListener>())
+			AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 			{
-				if (listener is SimulationApplication simulationApplication)
+				if (!simulationApplication.AssignedEntity.Has<IClientSimulationApplication>())
+					return;
+
+				simulationApplication.Schedule(() =>
 				{
-					if (!simulationApplication.AssignedEntity.Has<IClientSimulationApplication>())
-						continue;
+					simulationApplication.Data.Collection.GetOrCreate(typeof(RegisterRhythmEngineInputSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(RegisterFreeRoamInputSystem));
+					simulationApplication.Data.Collection.GetOrCreate(typeof(AbilityHeroVoiceManager));
 
-					simulationApplication.Schedule(() =>
-					{
-						simulationApplication.Data.Collection.GetOrCreate(typeof(RegisterRhythmEngineInputSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(RegisterFreeRoamInputSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(AbilityHeroVoiceManager));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(InterpolateForeignUnitsPosition));
-					}, default);
-				}
-			}
+					simulationApplication.Data.Collection.GetOrCreate(typeof(InterpolateForeignUnitsPosition));
+				}, default);
+			}, automaticSchedule: false));
 		}
 	}
 }

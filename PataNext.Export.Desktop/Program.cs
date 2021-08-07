@@ -11,10 +11,12 @@ using System.Threading.Tasks;
 using Cysharp.Text;
 using GameHost.Core.Client;
 using GameHost.Game;
+using GameHost.Injection;
 using GameHost.IO;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
 using osu.Framework.Threading;
+using PataNext.Export.Desktop.Bootstrap;
 using StormiumTeam.GameBase.Bootstrap;
 using ZLogger;
 
@@ -38,8 +40,9 @@ namespace PataNext.Export.Desktop
 
 			CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
-			var enableVisuals    = true;
+			var enableVisuals    = false;
 			var launchClientJson = string.Empty;
+			var targetBootstrap  = ConfigurableBootstrap.NameId;
 			var options = new OptionSet
 			{
 				{
@@ -61,7 +64,8 @@ namespace PataNext.Export.Desktop
 					}
 				},
 				{"v|enable_visual", "enable visuals", v => enableVisuals = v != null},
-				{"disable_visual", "enable visuals", v => enableVisuals = v == null}
+				{"disable_visual", "enable visuals", v => enableVisuals = v == null},
+				{"b|bootstrap", "set bootstrap", b => targetBootstrap = b ?? ConfigurableBootstrap.NameId}
 			};
 			options.Parse(args);
 			
@@ -89,6 +93,8 @@ namespace PataNext.Export.Desktop
 			gameBootstrap.GameEntity.Set(typeof(Feature.RhythmEngineAudio.CustomModule));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Module));
 			gameBootstrap.GameEntity.Set(typeof(PataNext.Game.Client.Resources.Module));
+			
+			gameBootstrap.GameEntity.Set(new TargetBootstrap(targetBootstrap));
 
 			Console.WriteLine("getting clients at " + clientDirectory.FullName);
 			foreach (var clientData in clientDirectory.GetFiles("*.json", SearchOption.TopDirectoryOnly))
@@ -154,6 +160,22 @@ namespace PataNext.Export.Desktop
 
 			gameBootstrap.GameEntity.Set(new GameLoggerFactory(loggerFactory));
 			gameBootstrap.Setup();
+
+			var dependencyResolver = new DependencyResolver(gameBootstrap.Global.Scheduler, gameBootstrap.Global.Context, "Program")
+			{
+				DefaultStrategy = new ResolveSystemStrategy(gameBootstrap.Global.Collection)
+			};
+			dependencyResolver.Add<BootstrapManager>();
+			dependencyResolver.OnComplete(deps =>
+			{
+				gameBootstrap.Global.Scheduler.Schedule(() =>
+				{
+					var array = deps.ToArray();
+					(array[0] as BootstrapManager).ExecuteArgument(gameBootstrap.GameEntity.Get<TargetBootstrap>().NameId);
+					
+				}, default);
+			});
+
 			while (gameBootstrap.Loop())
 			{
 				Thread.Sleep(10);

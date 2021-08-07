@@ -6,6 +6,7 @@ using GameHost.Injection;
 using GameHost.IO;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
+using GameHost.Utility;
 using GameHost.Worlds;
 using PataNext.Game.Abilities;
 using PataNext.Game.BGM;
@@ -36,13 +37,10 @@ namespace PataNext.Game.Client.Resources
 				abilityDescStorage = new AbilityDescStorage(storage.GetOrCreateDirectoryAsync("Abilities").Result);
 
 				global.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
-				foreach (ref readonly var listener in global.World.Get<IListener>())
+				AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 				{
-					if (listener is SimulationApplication simulationApplication)
-					{
-						simulationApplication.Schedule(onAppBind, (simulationApplication, storage), default);
-					}
-				}
+					simulationApplication.Schedule(onAppBind, (simulationApplication, storage), default);
+				}, false));
 			}, true);
 		}
 

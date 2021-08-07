@@ -7,6 +7,7 @@ using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
+using GameHost.Utility;
 using GameHost.Worlds;
 using PataNext.Game.Abilities;
 using Module = PataNext.CoreAbilities.Server.Module;
@@ -30,18 +31,11 @@ namespace PataNext.CoreAbilities.Server
 		{
 			AppSystemResolver.ResolveFor<SimulationApplication>(typeof(Module).Assembly, systemTypes);
 
-			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-			foreach (ref readonly var listener in global.World.Get<IListener>())
+			AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 			{
-				if (listener is SimulationApplication simulationApplication)
-				{
-					simulationApplication.Schedule(() =>
-					{
-						foreach (var type in systemTypes)
-							AddDisposable((IDisposable) simulationApplication.Data.Collection.GetOrCreate(type));
-					}, default);
-				}
-			}
+				foreach (var type in systemTypes)
+					AddDisposable((IDisposable)simulationApplication.Data.Collection.GetOrCreate(type));
+			}));
 		}
 
 		protected override void OnDispose()

@@ -5,6 +5,7 @@ using GameHost.Core.Modules;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
+using GameHost.Utility;
 using GameHost.Worlds;
 
 [assembly: RegisterAvailableModule("Client Abilities", "guerro", typeof(PataNext.Simulation.Client.Abilities.Module))]
@@ -15,15 +16,11 @@ namespace PataNext.Simulation.Client.Abilities
 	{
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
-			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-			foreach (ref readonly var listener in global.World.Get<IListener>())
+			AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 			{
-				if (listener is SimulationApplication simulationApplication)
-				{
-					simulationApplication.Schedule(() => { simulationApplication.Data.Collection.GetOrCreate(typeof(TaterazayEnergyFieldClientProvider)); }, default);
-					simulationApplication.Schedule(() => { simulationApplication.Data.Collection.GetOrCreate(typeof(YaridaFearSpearClientProvider)); }, default);
-				}
-			}
+				simulationApplication.Data.Collection.GetOrCreate(typeof(TaterazayEnergyFieldClientProvider));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(YaridaFearSpearClientProvider));
+			}));
 		}
 	}
 }

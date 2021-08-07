@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DefaultEcs;
 using GameHost.Core.Ecs;
 using GameHost.Core.Ecs.Passes;
@@ -75,22 +76,32 @@ namespace StormiumTeam.GameBase.SystemBase
 		protected void Add<T1>(ForEachExecutorEntity<T1>.Func action, EntityQuery query = null)
 			where T1 : struct, IComponentData
 		{
-			LoopScheduler.Schedule(() =>
+			LoopScheduler.ScheduleWithCondition(() =>
 			{
+				if (DependencyResolver.Dependencies.Any())
+					return false;
+				
 				var final = QueryWith(query, new[] {typeof(T1)});
 				Add(new ForEachExecutorEntity<T1> {Inner = this, Action = action, Query = final});
-			}, default);
+
+				return false;
+			});
 		}
 
 		protected void Add<T1, T2>(ForEachExecutorEntity<T1, T2>.Func action, EntityQuery query = null)
 			where T1 : struct, IComponentData
 			where T2 : struct, IComponentData
 		{
-			LoopScheduler.Schedule(() =>
+			LoopScheduler.ScheduleWithCondition(() =>
 			{
-				var final = QueryWith(query, new[] {typeof(T1), typeof(T2)});
-				Add(new ForEachExecutorEntity<T1, T2> {Inner = this, Action = action, Query = final});
-			}, default);
+				if (DependencyResolver.Dependencies.Any())
+					return false;
+
+				var final = QueryWith(query, new[] { typeof(T1), typeof(T2) });
+				Add(new ForEachExecutorEntity<T1, T2> { Inner = this, Action = action, Query = final });
+
+				return true;
+			});
 		}
 
 		protected void Add<T1, T2, T3>(ForEachExecutorEntity<T1, T2, T3>.Func action, EntityQuery query = null)
@@ -98,11 +109,16 @@ namespace StormiumTeam.GameBase.SystemBase
 			where T2 : struct, IComponentData
 			where T3 : struct, IComponentData
 		{
-			LoopScheduler.Schedule(() =>
+			LoopScheduler.ScheduleWithCondition(() =>
 			{
-				var final = QueryWith(query, new[] {typeof(T1), typeof(T2), typeof(T3)});
-				Add(new ForEachExecutorEntity<T1, T2, T3> {Inner = this, Action = action, Query = final});
-			}, default);
+				if (DependencyResolver.Dependencies.Any())
+					return false;
+
+				var final = QueryWith(query, new[] { typeof(T1), typeof(T2), typeof(T3) });
+				Add(new ForEachExecutorEntity<T1, T2, T3> { Inner = this, Action = action, Query = final });
+
+				return true;
+			});
 		}
 	}
 

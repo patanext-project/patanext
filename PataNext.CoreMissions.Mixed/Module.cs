@@ -8,6 +8,7 @@ using GameHost.Core.Threading;
 using GameHost.Injection;
 using GameHost.Simulation.Application;
 using GameHost.Threading;
+using GameHost.Utility;
 using GameHost.Worlds;
 using PataNext.Game;
 using StormiumTeam.GameBase;
@@ -25,17 +26,11 @@ namespace PataNext.CoreMissions.Mixed
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
 			AppSystemResolver.ResolveFor<SimulationApplication>(GetType().Assembly, systems);
 
-			foreach (ref readonly var listener in global.World.Get<IListener>())
+			AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 			{
-				if (listener is SimulationApplication simulationApplication)
-				{
-					simulationApplication.Schedule(() =>
-					{
-						foreach (var type in systems)
-							AddDisposable((IDisposable)simulationApplication.Data.Collection.GetOrCreate(type));
-					}, default);
-				}
-			}
+				foreach (var type in systems)
+					AddDisposable((IDisposable)simulationApplication.Data.Collection.GetOrCreate(type));
+			}));
 			
 			global.Scheduler.Schedule(tryLoadModule, SchedulingParameters.AsOnce);
 		}

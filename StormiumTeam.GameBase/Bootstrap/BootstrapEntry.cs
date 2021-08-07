@@ -7,6 +7,13 @@ using StormiumTeam.GameBase.Utility.Misc;
 
 namespace StormiumTeam.GameBase.Bootstrap
 {
+	public readonly struct TargetBootstrap
+	{
+		public readonly string NameId;
+
+		public TargetBootstrap(string nameId) => NameId = nameId;
+	}
+
 	[RestrictToApplication(typeof(ExecutiveEntryApplication))]
 	public abstract class BootstrapEntry : AppSystem
 	{

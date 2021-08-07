@@ -28,32 +28,26 @@ namespace PataNext.Game
 			var systems = new List<Type>();
 			AppSystemResolver.ResolveFor<SimulationApplication>(GetType().Assembly, systems);
 
-			global.Context.BindExisting(DefaultEntity<ResPathDefaults>.Create(global.World, new() {Author = "st", ModPack = "pn"}));
+			global.Context.BindExisting(DefaultEntity<ResPathDefaults>.Create(global.World, new() { Author = "st", ModPack = "pn" }));
 
 			Storage.Subscribe((_, exteriorStorage) =>
 			{
 				var storage = exteriorStorage switch
 				{
-					{ } => new StorageCollection {exteriorStorage, DllStorage},
-					null => new StorageCollection {DllStorage}
+					{ } => new StorageCollection { exteriorStorage, DllStorage },
+					null => new StorageCollection { DllStorage }
 				};
 
 				var itemStorage = storage.GetOrCreateDirectoryAsync("items").Result;
-				
+
 				global.Context.BindExisting(new EquipmentItemMetadataStorage(itemStorage.GetOrCreateDirectoryAsync("equipments").Result));
 			}, true);
 
-			foreach (ref readonly var listener in global.World.Get<IListener>())
+			AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 			{
-				if (listener is SimulationApplication simulationApplication)
-				{
-					simulationApplication.Schedule(() =>
-					{
-						foreach (var type in systems)
-							simulationApplication.Data.Collection.GetOrCreate(type);
-					}, default);
-				}
-			}
+				foreach (var type in systems)
+					simulationApplication.Data.Collection.GetOrCreate(type);
+			}));
 		}
 	}
 }

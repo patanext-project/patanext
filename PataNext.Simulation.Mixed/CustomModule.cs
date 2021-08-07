@@ -57,7 +57,7 @@ namespace PataNext.Module.Simulation
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionUnitTargetProvider));
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionRhythmEngineProvider));
 			app.Data.Collection.GetOrCreate(typeof(GameModes.DataCoopMission.CoopMissionSquadProvider));
-			
+
 			app.Data.Collection.GetOrCreate(typeof(Game.Providers.BastionDynamicGroupProvider));
 			app.Data.Collection.GetOrCreate(typeof(Game.Providers.BastionFixedGroupProvider));
 		}
@@ -262,120 +262,112 @@ namespace PataNext.Module.Simulation
 
 		public CustomModule(Entity source, Context ctxParent, GameHostModuleDescription original) : base(source, ctxParent, original)
 		{
-			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
-
-			foreach (ref readonly var listener in global.World.Get<IListener>())
+			AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 			{
-				if (listener is SimulationApplication simulationApplication)
+				var ctx = simulationApplication.Data.Context;
+				ctx.BindExisting(DefaultEntity<GameResourceDb<EquipmentResource>.Defaults>.Create(simulationApplication.Data.World, new()));
+				ctx.BindExisting(DefaultEntity<GameResourceDb<GameGraphicResource>.Defaults>.Create(simulationApplication.Data.World, new()));
+				ctx.BindExisting(DefaultEntity<GameResourceDb<RhythmCommandResource>.Defaults>.Create(simulationApplication.Data.World, new()));
+				ctx.BindExisting(DefaultEntity<GameResourceDb<UnitArchetypeResource>.Defaults>.Create(simulationApplication.Data.World, new()));
+				ctx.BindExisting(DefaultEntity<GameResourceDb<UnitAttachmentResource>.Defaults>.Create(simulationApplication.Data.World, new()));
+				ctx.BindExisting(DefaultEntity<GameResourceDb<UnitKitResource>.Defaults>.Create(simulationApplication.Data.World, new()));
+				ctx.BindExisting(DefaultEntity<GameResourceDb<UnitRoleResource>.Defaults>.Create(simulationApplication.Data.World, new()));
+
+				simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IRhythmEngineSimulationPass.RegisterPass(),
+					new[] { typeof(IUpdateSimulationPass.RegisterPass) },
+					new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
+
+				simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilityPreSimulationPass.RegisterPass(),
+					new[] { typeof(IUpdateSimulationPass.RegisterPass), typeof(IRhythmEngineSimulationPass.RegisterPass) },
+					new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
+
+				simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilitySimulationPass.RegisterPass(),
+					new[] { typeof(IUpdateSimulationPass.RegisterPass), typeof(IAbilityPreSimulationPass.RegisterPass) },
+					new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
+
+				InjectProviders(simulationApplication);
+				InjectMasterServerHubs(simulationApplication.Data);
+				InjectMasterServerProcessSystems(simulationApplication.Data);
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Systems.SynchronizeInventorySystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateUnitEquipmentRequestSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Systems.MasterServerPlayerInventoryProvider));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.DontSerializeAbilityEngineSet));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.SpawnDefaultCommandsSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.KitCollectionSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.RegisterDefaultKits));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.UnitDescription.RegisterContainer));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.MountDescription.RegisterContainer));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmyFormationDescription.RegisterContainer));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmySquadDescription.RegisterContainer));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmyUnitDescription.RegisterContainer));
+
+				InjectFreeRoamSystems(simulationApplication);
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitUpdateStatusEffectSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculatePlayStateSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.UpdateActiveAbilitySystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ApplyAbilityStatisticOnChainingSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ExecuteActiveAbilitySystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Team.UpdateTeamMovableAreaSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.AbilityControlVelocitySystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculateSeekingStateSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCollisionSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsAfterBlockUpdateSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Collision.UberHeroColliderSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Squad.UpdateSquadUnitDisplacementSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Ai.SimpleAiSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.OnInputForRhythmEngine));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.GetNextCommandEngineSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ApplyCommandEngineSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.RhythmEngineResizeCommandBufferSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.BasicTestGameModeSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.InBasement.AtCityGameModeSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.StartYaridaTrainingGameMode));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.CoopMissionSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.EndFlagUpdateSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.Bastion.BastionDynamicRecycleDeadEntitiesSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.Bastion.BastionSpawnAllIfAllDeadSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.SetLocalArmyFormationSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateMasterServerUnitSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateArmyUnitStatisticsSystem));
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.GenerateDamageRequestSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyDefensiveBonusesSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyStatusSystem));
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyKnockbackSystem));
+
+
+				simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Scenar.TestScenarProvider));
+
+				if (simulationApplication.Data.Collection.TryGet(out SendWorldStateSystem sendWorldStateSystem))
 				{
-					simulationApplication.Schedule(() =>
-					{
-						var ctx = simulationApplication.Data.Context;
-						ctx.BindExisting(DefaultEntity<GameResourceDb<EquipmentResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-						ctx.BindExisting(DefaultEntity<GameResourceDb<GameGraphicResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-						ctx.BindExisting(DefaultEntity<GameResourceDb<RhythmCommandResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitArchetypeResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitAttachmentResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitKitResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-						ctx.BindExisting(DefaultEntity<GameResourceDb<UnitRoleResource>.Defaults>.Create(simulationApplication.Data.World, new()));
-
-						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IRhythmEngineSimulationPass.RegisterPass(),
-							new[] { typeof(IUpdateSimulationPass.RegisterPass) },
-							new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
-
-						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilityPreSimulationPass.RegisterPass(),
-							new[] { typeof(IUpdateSimulationPass.RegisterPass), typeof(IRhythmEngineSimulationPass.RegisterPass) },
-							new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
-
-						simulationApplication.Data.Collection.DefaultSystemCollection.AddPass(new IAbilitySimulationPass.RegisterPass(),
-							new[] { typeof(IUpdateSimulationPass.RegisterPass), typeof(IAbilityPreSimulationPass.RegisterPass) },
-							new[] { typeof(IPostUpdateSimulationPass.RegisterPass) });
-
-						InjectProviders(simulationApplication);
-						InjectMasterServerHubs(simulationApplication.Data);
-						InjectMasterServerProcessSystems(simulationApplication.Data);
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Systems.SynchronizeInventorySystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateUnitEquipmentRequestSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Network.MasterServer.Systems.MasterServerPlayerInventoryProvider));
-						
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.DontSerializeAbilityEngineSet));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.SpawnDefaultCommandsSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.AbilityCollectionSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Systems.KitCollectionSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Defaults.RegisterDefaultKits));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.UnitDescription.RegisterContainer));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.AbilityDescription.RegisterContainer));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Roles.MountDescription.RegisterContainer));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmyFormationDescription.RegisterContainer));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmySquadDescription.RegisterContainer));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Components.Army.ArmyUnitDescription.RegisterContainer));
-
-						InjectFreeRoamSystems(simulationApplication);
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitUpdateStatusEffectSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculatePlayStateSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.UpdateActiveAbilitySystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ApplyAbilityStatisticOnChainingSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.ExecuteActiveAbilitySystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Team.UpdateTeamMovableAreaSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Abilities.AbilityControlVelocitySystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCalculateSeekingStateSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitCollisionSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Units.UnitPhysicsAfterBlockUpdateSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Collision.UberHeroColliderSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Squad.UpdateSquadUnitDisplacementSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Special.Ai.SimpleAiSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ManageComponentTagSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ProcessEngineSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.OnInputForRhythmEngine));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.GetNextCommandEngineSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.ApplyCommandEngineSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.RhythmEngine.Systems.RhythmEngineResizeCommandBufferSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.BasicTestGameModeSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.InBasement.AtCityGameModeSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.StartYaridaTrainingGameMode));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(GameModes.CoopMissionSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.EndFlagUpdateSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.Bastion.BastionDynamicRecycleDeadEntitiesSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Structures.Bastion.BastionSpawnAllIfAllDeadSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.SetLocalArmyFormationSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateMasterServerUnitSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Hideout.UpdateArmyUnitStatisticsSystem));
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.GenerateDamageRequestSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyDefensiveBonusesSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyStatusSystem));
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.GamePlay.Damage.ApplyKnockbackSystem));
-
-
-						simulationApplication.Data.Collection.GetOrCreate(typeof(Game.Scenar.TestScenarProvider));
-
-						if (simulationApplication.Data.Collection.TryGet(out SendWorldStateSystem sendWorldStateSystem))
-						{
-							var gameWorld = new ContextBindingStrategy(simulationApplication.Data.Context, false).Resolve<GameWorld>();
-							sendWorldStateSystem.SetDisabled(gameWorld.AsComponentType<PlayerInventoryTarget>(), true);
-						}
-
-						var serializerCollection = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
-						InjectSerializers(simulationApplication, serializerCollection);
-					}, default);
+					var gameWorld = new ContextBindingStrategy(simulationApplication.Data.Context, false).Resolve<GameWorld>();
+					sendWorldStateSystem.SetDisabled(gameWorld.AsComponentType<PlayerInventoryTarget>(), true);
 				}
-			}
+
+				var serializerCollection = simulationApplication.Data.Collection.GetOrCreate(wc => new SerializerCollection(wc));
+				InjectSerializers(simulationApplication, serializerCollection);
+			}));
 		}
 	}
 }

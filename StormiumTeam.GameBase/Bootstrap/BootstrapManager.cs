@@ -23,5 +23,13 @@ namespace StormiumTeam.GameBase.Bootstrap
 		{
 			bootstraps[id].action(jsonArgs);
 		}
+
+		public void ExecuteArgument(string argument)
+		{
+			if (argument.EndsWith(".json"))
+				throw new NotImplementedException("bootstrap from files not yet implemented");
+			
+			Execute(argument, "{}");
+		}
 	}
 }
