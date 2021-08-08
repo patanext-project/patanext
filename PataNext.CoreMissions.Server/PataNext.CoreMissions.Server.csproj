@@ -12,7 +12,7 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <!-- When building, they should share the same OutDir! -->
-        <Exec Command="echo F|xcopy &quot;$(OutDir)PataNext.CoreMissions.Server.dll&quot; &quot;$(SolutionDir)PataNext.Export.Desktop\$(OutDir)Modules\PataNext.CoreMissions.Server.dll&quot; /y" />
+        <Exec Command="echo F|xcopy &quot;$(OutDir)PataNext.CoreMissions.Server.dll&quot; &quot;$(ProjectDir)..\PataNext.Export.Desktop\$(OutDir)Modules\PataNext.CoreMissions.Server.dll&quot; /y" />
     </Target>
     
 </Project>

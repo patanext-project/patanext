@@ -53,9 +53,7 @@ namespace PataNext.Export.Desktop.Bootstrap
 			var collection = application.Data.Collection;
 			collection.GetOrCreate(typeof(SendWorldStateSystem));
 			collection.GetOrCreate(typeof(SharpDxInputSystem));
-
-			collection.GetOrCreate(typeof(RuntimeTestCoopMission));
-
+			
 			collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.SerializerCollection));
 			collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.Systems.UpdateDriverSystem));
 			collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.Systems.SendSystems));
