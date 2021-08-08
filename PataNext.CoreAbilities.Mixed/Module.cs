@@ -112,7 +112,7 @@ namespace PataNext.CoreAbilities.Mixed
 				{
 					Console.WriteLine("Load Server Module!");
 					global.World.CreateEntity()
-					      .Set(new RequestLoadModule {Module = ent});
+					      .Set(new RequestLoadModule("PataNext.CoreAbilities.Server", ent));
 					return;
 				}
 			}
