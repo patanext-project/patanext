@@ -96,7 +96,7 @@ namespace PataNext.Export.Desktop
 			
 			gameBootstrap.GameEntity.Set(new TargetBootstrap(targetBootstrap));
 
-			Console.WriteLine("getting clients at " + clientDirectory.FullName);
+			Console.WriteLine("[Program] Searching for clients at:\n\tDirectory=" + clientDirectory.FullName);
 			foreach (var clientData in clientDirectory.GetFiles("*.json", SearchOption.TopDirectoryOnly))
 			{
 				var client     = JsonSerializer.Deserialize<ClientBootstrap>(File.ReadAllText(clientData.FullName));
@@ -108,7 +108,7 @@ namespace PataNext.Export.Desktop
 				var clientBootstrap = gameBootstrap.Global.World.CreateEntity();
 				clientBootstrap.Set(client);
 
-				Console.WriteLine($"found {client.ExecutablePath} ({clientData.Name})");
+				Console.WriteLine($"[Program] Found client:\n\tExecutable={client.ExecutablePath}\n\tClientFile={clientData.Name}");
 				if (launchClientJson != string.Empty && clientData.FullName == new FileInfo(launchClientJson).FullName)
 				{
 					gameBootstrap.Global.World.CreateEntity().Set(new LaunchClient(clientBootstrap));

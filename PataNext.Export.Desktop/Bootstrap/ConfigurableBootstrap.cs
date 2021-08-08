@@ -50,8 +50,6 @@ namespace PataNext.Export.Desktop.Bootstrap
 
 		protected virtual void OnCreateClient(Entity clientEntity, SimulationApplication application)
 		{
-			Console.WriteLine("  OnCreateClient");
-			
 			var collection = application.Data.Collection;
 			collection.GetOrCreate(typeof(SendWorldStateSystem));
 			collection.GetOrCreate(typeof(SharpDxInputSystem));

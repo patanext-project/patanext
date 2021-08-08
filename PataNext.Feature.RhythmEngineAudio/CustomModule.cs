@@ -24,8 +24,7 @@ namespace PataNext.Feature.RhythmEngineAudio
 			{
 				if (!simulationApplication.AssignedEntity.Has<IClientSimulationApplication>())
 					return;
-
-				Console.WriteLine("Add to " + simulationApplication.AssignedEntity.Get<ApplicationName>().Value);
+				
 				simulationApplication.Schedule(() =>
 				{
 					simulationApplication.Data.Collection.GetOrCreate(typeof(PresentationRhythmEngineSystemStart));

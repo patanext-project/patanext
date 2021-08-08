@@ -65,8 +65,6 @@ namespace PataNext.Client.Systems
 			foreach (var bgmFile in fileList.Select(f => new BgmFile(f)))
 			{
 				await bgmFile.ComputeDescription();
-
-				Console.WriteLine($"found BGM {bgmFile.Description.Name} (id: {bgmFile.Description.Id})");
 				
 				void setOrCreateEntity()
 				{
