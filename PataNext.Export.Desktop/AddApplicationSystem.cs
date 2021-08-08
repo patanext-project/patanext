@@ -123,7 +123,7 @@ namespace PataNext.Export.Desktop
 				var serverGameWorld = new ContextBindingStrategy(app.Data.Context, false).Resolve<GameWorld>();
 				//serverGameWorld.AddComponent<BasicTestGameMode>(serverGameWorld.CreateEntity());
 				
-				app.Data.Collection.GetOrCreate(typeof(RuntimeTestCoopMission));
+				//app.Data.Collection.GetOrCreate(typeof(RuntimeTestCoopMission));
 
 				//app.Data.Collection.GetOrCreate(typeof(RuntimeTestUnitBarracks));
 
