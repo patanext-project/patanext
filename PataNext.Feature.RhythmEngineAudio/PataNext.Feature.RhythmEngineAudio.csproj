@@ -6,14 +6,6 @@
         <Authors>PataNext.Module.Presentation</Authors>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <DefineConstants>TRACE;NOESIS</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DefineConstants>TRACE;NOESIS</DefineConstants>
-    </PropertyGroup>
-
     <ItemGroup>
         <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
         <ProjectReference Include="..\PataNext.Simulation.Client\PataNext.Simulation.Client.csproj" />
@@ -21,27 +13,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="OpenToolkit.Windowing.Common, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\OpenTK\opentk\src\OpenToolkit.Windowing.Desktop\bin\Release\netcoreapp3.0\OpenToolkit.Windowing.Common.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Collections.Pooled" Version="2.0.0-preview.27" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Controls\MenuEntryControl.xaml" />
       <EmbeddedResource Include="Sounds\**\*" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Interfaces\PlayFieldControl.xaml.cs">
-        <DependentUpon>PlayfieldControl.xaml</DependentUpon>
-      </Compile>
-      <Compile Update="Interfaces\PlayFieldControl.xaml.cs">
-        <DependentUpon>PlayFieldControl.xaml</DependentUpon>
-      </Compile>
     </ItemGroup>
 
 </Project>
