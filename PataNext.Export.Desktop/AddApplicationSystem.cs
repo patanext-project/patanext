@@ -107,8 +107,6 @@ namespace PataNext.Export.Desktop
 
 		public (Entity entity, SimulationApplication app) AddClient(string appName, int delayMs, bool first)
 		{
-			Console.WriteLine($"  Creating {appName} {first}");
-			
 			var clientApp = AddApp(appName, new SimulationApplication(globalWorld, null), clientListener);
 			{
 				clientApp.Set<IClientSimulationApplication>();

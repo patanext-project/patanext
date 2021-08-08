@@ -23,14 +23,12 @@ namespace PataNext.Game.Client.Resources
 
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
-			Console.WriteLine("Resources module loaded");
-
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
 			Storage.Subscribe((_, exteriorStorage) =>
 			{
 				var storage = exteriorStorage switch
 				{
-					{} => new StorageCollection {exteriorStorage, DllStorage},
+					{} => new StorageCollection {DllStorage, exteriorStorage},
 					null => new StorageCollection {DllStorage}
 				};
 

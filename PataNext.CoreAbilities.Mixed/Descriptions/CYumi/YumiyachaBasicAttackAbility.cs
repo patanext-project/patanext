@@ -34,7 +34,7 @@ namespace PataNext.CoreAbilities.Mixed.CYumi
         {
             DefaultConfiguration = new YumiyachaBasicAttackAbility
             {
-                DelayBeforeAttack = TimeSpan.FromSeconds(0.25),
+                DelayBeforeAttack = TimeSpan.FromSeconds(0.05),
                 PauseAfterAttack = TimeSpan.FromSeconds(0.2f),
                 ThrowVelocity    = new Vector2(8.5f, 19f),
                 Gravity          = new Vector2(0, -28f)

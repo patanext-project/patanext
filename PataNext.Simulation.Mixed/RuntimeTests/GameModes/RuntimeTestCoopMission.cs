@@ -62,8 +62,6 @@ namespace PataNext.Module.Simulation.RuntimeTests.GameModes
 		protected override void OnDependenciesResolved(IEnumerable<object> dependencies)
 		{
 			base.OnDependenciesResolved(dependencies);
-
-			Console.WriteLine("  Test Instant");
 			
 			var isInstant = true;
 			if (isInstant)

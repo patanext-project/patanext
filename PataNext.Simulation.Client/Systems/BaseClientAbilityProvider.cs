@@ -26,7 +26,6 @@ namespace PataNext.Game.Abilities
 			base.OnDependenciesResolved(dependencies);
 
 			var resources = ServerProvider.Resources;
-			Console.WriteLine($"Resource.HeroModeActivationSound={resources.HeroModeActivationSound}");
 			if (!string.IsNullOrEmpty(resources.HeroModeActivationSound))
 			{
 				heroVoiceManager.Register(ServerProvider.MasterServerId, resources.HeroModeActivationSound);
