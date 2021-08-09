@@ -5,7 +5,11 @@ using GameHost.Inputs.Systems;
 using GameHost.Simulation.Application;
 using GameHost.Simulation.Features.ShareWorldState;
 using JetBrains.Annotations;
+using PataNext.Module.Simulation.Components;
+using PataNext.Module.Simulation.Components.GamePlay.Units;
+using PataNext.Module.Simulation.Components.Units;
 using PataNext.Module.Simulation.RuntimeTests.GameModes;
+using StormiumTeam.GameBase;
 using StormiumTeam.GameBase.Bootstrap;
 
 namespace PataNext.Export.Desktop.Bootstrap
@@ -21,7 +25,7 @@ namespace PataNext.Export.Desktop.Bootstrap
 	public class ConfigurableBootstrap : BootstrapEntry<ConfigurableBootstrapFile>
 	{
 		public const string NameId = "configurable";
-		
+
 		public override string Id => NameId;
 
 		private AddApplicationSystem addApplicationSystem;
@@ -53,7 +57,7 @@ namespace PataNext.Export.Desktop.Bootstrap
 			var collection = application.Data.Collection;
 			collection.GetOrCreate(typeof(SendWorldStateSystem));
 			collection.GetOrCreate(typeof(SharpDxInputSystem));
-			
+
 			collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.SerializerCollection));
 			collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.Systems.UpdateDriverSystem));
 			collection.GetOrCreate(typeof(GameHost.Revolution.NetCode.LLAPI.Systems.SendSystems));
