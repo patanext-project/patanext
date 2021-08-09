@@ -17,10 +17,8 @@ using PataNext.Game.GameItems;
 
 namespace PataNext.Game.Client.Resources
 {
-	public class Module : GameHostModule, IModuleHasAbilityDescStorage
+	public class Module : GameHostModule
 	{
-		private AbilityDescStorage abilityDescStorage;
-
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
@@ -32,7 +30,7 @@ namespace PataNext.Game.Client.Resources
 					null => new StorageCollection {DllStorage}
 				};
 
-				abilityDescStorage = new AbilityDescStorage(storage.GetOrCreateDirectoryAsync("Abilities").Result);
+				Ctx.BindExisting(new AbilityDescStorage(storage.GetOrCreateDirectoryAsync("Abilities").Result));
 
 				global.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
 				AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
@@ -53,7 +51,5 @@ namespace PataNext.Game.Client.Resources
 			var itemStorage  = storage.GetOrCreateDirectoryAsync("Items").Result;
 			gameItemsMgr.RegisterEquipmentsAsync(new(itemStorage.GetOrCreateDirectoryAsync("Equipments").Result));
 		}
-
-		AbilityDescStorage IModuleHasAbilityDescStorage.Value => abilityDescStorage;
 	}
 }

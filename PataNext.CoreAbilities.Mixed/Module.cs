@@ -18,10 +18,8 @@ using Module = PataNext.CoreAbilities.Mixed.Module;
 
 namespace PataNext.CoreAbilities.Mixed
 {
-	public class Module : GameHostModule, IModuleHasAbilityDescStorage
+	public class Module : GameHostModule
 	{
-		private AbilityDescStorage abilityDescStorage;
-
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
 			var global = new ContextBindingStrategy(Ctx, true).Resolve<GlobalWorld>();
@@ -93,14 +91,12 @@ namespace PataNext.CoreAbilities.Mixed
 					null => new StorageCollection {DllStorage}
 				};
 
-				abilityDescStorage = new AbilityDescStorage(storage.GetOrCreateDirectoryAsync("Abilities").Result);
+				Ctx.BindExisting(new AbilityDescStorage(storage.GetOrCreateDirectoryAsync("Abilities").Result));
 			}, true);
 
 			global.Scheduler.Schedule(tryLoadModule, SchedulingParameters.AsOnce);
 		}
-
-		public AbilityDescStorage Value => abilityDescStorage;
-
+		
 		private void tryLoadModule()
 		{
 			var global = new ContextBindingStrategy(Ctx.Parent, true).Resolve<GlobalWorld>();

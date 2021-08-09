@@ -70,10 +70,11 @@ namespace PataNext.Module.Simulation.BaseSystems
 				if (module == null)
 					throw new InvalidOperationException("Invalid result");
 
-				if (module is IModuleHasAbilityDescStorage hasStorage)
-					return hasStorage.Value;
+				var resolved = new ContextBindingStrategy(module.Ctx, false).Resolve<AbilityDescStorage>();
+				if (resolved != null)
+					return resolved;
 
-				throw new InvalidOperationException($"Module {module.GetType()} does not implement 'IModuleHasAbilityDescStorage'");
+				throw new InvalidOperationException($"Module {module.GetType()} has abilities but does not have in context an '{nameof(AbilityDescStorage)}'");
 			}
 
 			public Func<object> GetResolver(Type type)
