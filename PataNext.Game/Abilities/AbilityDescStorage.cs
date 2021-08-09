@@ -5,16 +5,11 @@ using GameHost.IO;
 
 namespace PataNext.Game.Abilities
 {
-	public interface IModuleHasAbilityDescStorage
-	{
-		AbilityDescStorage Value { get; }
-	}
-
 	/// <summary>
 	/// A storage containing Ability description data
 	/// </summary>
 	/// <remarks>
-	/// The module in that assembly must implement IModuleHasAbilityDescStorage
+	/// The module in that assembly must have this in context
 	/// </remarks>
 	public class AbilityDescStorage : ChildStorage
 	{
