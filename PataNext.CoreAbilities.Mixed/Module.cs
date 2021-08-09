@@ -96,9 +96,7 @@ namespace PataNext.CoreAbilities.Mixed
 
 			global.Scheduler.Schedule(tryLoadModule, SchedulingParameters.AsOnce);
 		}
-
-		public AbilityDescStorage Value => abilityDescStorage;
-
+		
 		private void tryLoadModule()
 		{
 			var global = new ContextBindingStrategy(Ctx.Parent, true).Resolve<GlobalWorld>();
