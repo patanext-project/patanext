@@ -43,10 +43,5 @@ namespace PataNext.CoreAbilities.Mixed.CTate
 			
 			entityComponents.Add(AsComponentType<TaterazaySuperAbility.State>());
 		}
-
-		public override void SetEntityData(GameEntityHandle entity, CreateAbility data)
-		{
-			base.SetEntityData(entity, data);
-		}
 	}
 }
