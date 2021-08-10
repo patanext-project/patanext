@@ -32,6 +32,9 @@ idea/
 *.svd
 *.pdb
 
+logs/
+log.json
+
 # Unity3D generated meta files
 *.pidb.meta
 *.md.meta
