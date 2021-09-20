@@ -36,7 +36,7 @@
     <PackageReference Include="Mono.Options" Version="6.6.0.161" />
     <PackageReference Include="ppy.osu.Framework" Version="2021.427.0" />
     <PackageReference Include="ppy.squirrel.windows" Version="1.9.0.5" />
-    <PackageReference Include="SharpCompress" Version="0.22.0" />
+    <PackageReference Include="SharpCompress" Version="0.29.0" />
     <PackageReference Include="System.IO.Packaging" Version="5.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.9.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
