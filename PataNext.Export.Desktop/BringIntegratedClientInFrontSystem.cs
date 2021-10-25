@@ -10,6 +10,7 @@ namespace PataNext.Export.Desktop
 {
 	// big mess
 	[RestrictToApplication(typeof(ExecutiveEntryApplication))]
+	[DontInjectSystemToWorld] // don't work on linux
 	public class BringIntegratedClientInFrontSystem : AppSystem
 	{
 		public BringIntegratedClientInFrontSystem(WorldCollection collection) : base(collection)

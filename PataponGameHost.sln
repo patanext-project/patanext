@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game", "PataNext.G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Simulation.Mixed", "PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj", "{82C60F68-53EC-43EC-A2D5-2787B30BBACD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost", "..\FrameWork.GameHost\GameHost\GameHost.csproj", "{32412FB7-ED9B-4A9C-BBC3-AF97059D0D38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost", "..\Framework.GameHost\GameHost\GameHost.csproj", "{32412FB7-ED9B-4A9C-BBC3-AF97059D0D38}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Export.Desktop", "PataNext.Export.Desktop\PataNext.Export.Desktop.csproj", "{474C9AC4-BC50-4381-9F69-1342F0E6AD22}"
 EndProject
@@ -12,11 +12,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Feature.RhythmEngi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Simulation.Tests", "PataNext.Simulation.Tests\PataNext.Simulation.Tests.csproj", "{A26BF3EE-E20A-49DB-806C-5D11910E68C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost.Simulation", "..\FrameWork.GameHost\GameHost.Simulation\GameHost.Simulation.csproj", "{DFEEE720-F189-4D78-A597-2B8D51EB3F3C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost.Simulation", "..\Framework.GameHost\GameHost.Simulation\GameHost.Simulation.csproj", "{DFEEE720-F189-4D78-A597-2B8D51EB3F3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost.Transports", "..\FrameWork.GameHost\GameHost.Transports\GameHost.Transports.csproj", "{C5F1FA92-4066-4F2D-9A70-CD37AE0CA331}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost.Transports", "..\Framework.GameHost\GameHost.Transports\GameHost.Transports.csproj", "{C5F1FA92-4066-4F2D-9A70-CD37AE0CA331}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost.Inputs", "..\FrameWork.GameHost\GameHost.Inputs\GameHost.Inputs.csproj", "{4C655378-2ADF-4F49-BEEA-A7F0C3AF5FDA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost.Inputs", "..\Framework.GameHost\GameHost.Inputs\GameHost.Inputs.csproj", "{4C655378-2ADF-4F49-BEEA-A7F0C3AF5FDA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Simulation.Client", "PataNext.Simulation.Client\PataNext.Simulation.Client.csproj", "{46168492-9746-4A46-B531-60462251B595}"
 EndProject
@@ -26,7 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{68E5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Simulation", "Simulation", "{5E3022E1-2012-4FEB-8762-95C7787508D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost.Audio", "..\FrameWork.GameHost\GameHost.Audio\GameHost.Audio.csproj", "{860F0DFE-8FC3-4959-98B0-EE7E38CEA9E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHost.Audio", "..\Framework.GameHost\GameHost.Audio\GameHost.Audio.csproj", "{860F0DFE-8FC3-4959-98B0-EE7E38CEA9E5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game.Client.Resources", "PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj", "{0F159F6C-C188-4CEA-9BD9-D63287399DD2}"
 EndProject

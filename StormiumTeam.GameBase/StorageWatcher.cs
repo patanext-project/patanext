@@ -28,10 +28,6 @@ namespace StormiumTeam.GameBase
 		{
 			void addWatcher(FileSystemWatcher watcher)
 			{
-				if (Filters != null)
-					foreach (var filter in Filters)
-						watcher.Filters.Add(filter);
-
 				watcher.NotifyFilter = NotifyFilters.LastWrite
 				                       | NotifyFilters.FileName
 				                       | NotifyFilters.CreationTime;
@@ -53,11 +49,40 @@ namespace StormiumTeam.GameBase
 
 				watchers.Add(watcher);
 			}
-			
+
+			void addWatcherOP(FileSystemWatcher watcher)
+			{
+#if NETSTANDARD
+				if (Filters == null || Filters.Length == 0)
+				{
+					addWatcher(watcher);
+				}
+				else if (Filters.Length == 1)
+				{
+					watcher.Filter = Filters[0];
+					addWatcher(watcher);
+				}
+				else if (Filters.Length > 1)
+				{
+					foreach (var filter in Filters.AsSpan(1))
+					{
+						watcher = new(watcher.Path, filter);
+						addWatcher(watcher);
+					}
+				}
+#else
+				if (Filters != null)
+					foreach (var filter in Filters)
+						watcher.Filters.Add(filter);
+
+				addWatcher(watcher);
+#endif
+			}
+
 			switch (storage)
 			{
 				case LocalStorage localStorage:
-					addWatcher(new FileSystemWatcher(localStorage.CurrentPath ?? throw new InvalidOperationException("did not expect null")));
+					addWatcherOP(new FileSystemWatcher(localStorage.CurrentPath ?? throw new InvalidOperationException("did not expect null")));
 					return true;
 				case StorageCollection collection:
 					return collection.Aggregate(false, (current, child) => current | Add(child));
@@ -65,7 +90,7 @@ namespace StormiumTeam.GameBase
 					return childStorage.parent != null && Add(childStorage.parent);
 				case IStorageProvideWatcher provider:
 				{
-					addWatcher(provider.CreateWatcher());
+					addWatcherOP(provider.CreateWatcher());
 					return true;
 				}
 			}

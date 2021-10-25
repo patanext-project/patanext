@@ -35,7 +35,8 @@ namespace PataNext.Export.Desktop
 			if (args.Contains("rider"))
 			{
 				// For some weird reasons, nothing is getting written to the console if we don't put that line?
-				AttachConsole(-1);
+				if (OperatingSystem.IsWindows())
+					AttachConsole(-1);
 			}
 
 			CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -136,7 +137,8 @@ namespace PataNext.Export.Desktop
 
 		private static void runHost(GameBootstrap gameBootstrap)
 		{
-			AllocConsole();
+			if (OperatingSystem.IsWindows())
+				AllocConsole();
 
 			GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
 

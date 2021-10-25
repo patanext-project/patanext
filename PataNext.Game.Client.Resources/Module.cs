@@ -22,6 +22,7 @@ namespace PataNext.Game.Client.Resources
 		public Module(Entity source, Context ctxParent, GameHostModuleDescription description) : base(source, ctxParent, description)
 		{
 			var global = new ContextBindingStrategy(ctxParent, true).Resolve<GlobalWorld>();
+			Console.WriteLine("      OnModule!");
 			Storage.Subscribe((_, exteriorStorage) =>
 			{
 				var storage = exteriorStorage switch
@@ -33,6 +34,9 @@ namespace PataNext.Game.Client.Resources
 				Ctx.BindExisting(new AbilityDescStorage(storage.GetOrCreateDirectoryAsync("Abilities").Result));
 
 				global.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
+				
+				Console.WriteLine("      OnBindContainerStorage to global app!");
+				
 				AddDisposable(ApplicationTracker.Track(this, (SimulationApplication simulationApplication) =>
 				{
 					simulationApplication.Schedule(onAppBind, (simulationApplication, storage), default);
@@ -45,6 +49,8 @@ namespace PataNext.Game.Client.Resources
 			var (app, storage) = args;
 			
 			app.Data.Context.BindExisting(new BgmContainerStorage(storage.GetOrCreateDirectoryAsync("Bgm").Result));
+
+			Console.WriteLine("      OnBindContainerStorage to simu app!");
 
 			var gameItemsMgr = app.Data.Collection.GetOrCreate(wc => new GameItemsManager(wc));
 			

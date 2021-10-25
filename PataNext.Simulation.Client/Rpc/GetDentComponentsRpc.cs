@@ -61,7 +61,7 @@ namespace PataNext.Simulation.Client.Rpc
 						component.Description = desc.Description;
 						component.AssetType   = desc.Type;
 
-						response.ComponentTypeToJson["PataNext.Core.ItemDetails"] = JsonSerializer.Serialize(component, new() { IncludeFields = true });
+						response.ComponentTypeToJson["PataNext.Core.ItemDetails"] = JsonSerializer.Serialize(component, new JsonSerializerOptions { IncludeFields = true });
 					}
 
 					if (entity.TryGet(out MissionDetails missionDetails))
@@ -71,7 +71,7 @@ namespace PataNext.Simulation.Client.Rpc
 						component.Name   = missionDetails.Name;
 						component.Scenar = missionDetails.Scenar;
 
-						response.ComponentTypeToJson["PataNext.Core.MissionDetails"] = JsonSerializer.Serialize(component, new() { IncludeFields = true });
+						response.ComponentTypeToJson["PataNext.Core.MissionDetails"] = JsonSerializer.Serialize(component, new JsonSerializerOptions { IncludeFields = true });
 					}
 
 					return await WithResult(response);

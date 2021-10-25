@@ -11,9 +11,16 @@
       <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
     </ItemGroup>
 
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <!-- When building, they should share the same OutDir! -->
-        <Exec Command="echo F|xcopy &quot;$(OutDir)PataNext.CoreAbilities.Server.dll&quot; &quot;$(ProjectDir)..\PataNext.Export.Desktop\$(OutDir)Modules\PataNext.CoreAbilities.Server.dll&quot; /y" />
+    <Target Name="CopyModule" AfterTargets="Build">
+        <ItemGroup>
+            <ModuleAsm Include="$(OutDir)$(AssemblyName).dll" />
+        </ItemGroup>
+
+        <Copy
+                SourceFiles="@(ModuleAsm)"
+                DestinationFolder="$(ProjectDir)../PataNext.Export.Desktop/$(OutDir)Modules"
+                SkipUnchangedFiles="true"
+        />
     </Target>
 
 </Project>
