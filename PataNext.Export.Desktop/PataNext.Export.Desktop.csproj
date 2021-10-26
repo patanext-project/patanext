@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -13,20 +14,12 @@
     <AssemblyName>PataNext</AssemblyName>
     <Product>PataNext</Product>
     <PackageIconUrl>https://github.com/guerro323/patanext/blob/master/PataNext.Export.Desktop/game.ico</PackageIconUrl>
-    <LangVersion>9</LangVersion>
-    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PataNext.CoreAbilities.Mixed\PataNext.CoreAbilities.Mixed.csproj" />
-    <ProjectReference Include="..\PataNext.CoreAbilities.Server\PataNext.CoreAbilities.Server.csproj" />
-    <ProjectReference Include="..\PataNext.CoreMissions.Mixed\PataNext.CoreMissions.Mixed.csproj" />
-    <ProjectReference Include="..\PataNext.CoreMissions.Server\PataNext.CoreMissions.Server.csproj" />
-    <ProjectReference Include="..\PataNext.Feature.RhythmEngineAudio\PataNext.Feature.RhythmEngineAudio.csproj" />
     <ProjectReference Include="..\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
     <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
-    <ProjectReference Include="..\PataNext.Simulation.Client.Abilities\PataNext.Simulation.Client.Abilities.csproj" />
-    <ProjectReference Include="..\PataNext.Simulation.Client\PataNext.Simulation.Client.csproj" />
-    <ProjectReference Include="..\PataNext.Simulation.Mixed\PataNext.Simulation.Mixed.csproj" />
   </ItemGroup>
   <ItemGroup Label="Resources">
     <EmbeddedResource Include="game.ico" />
@@ -34,13 +27,6 @@
   <ItemGroup>
     <PackageReference Include="DiscordRichPresence" Version="1.143.0" />
     <PackageReference Include="Mono.Options" Version="6.6.0.161" />
-    <PackageReference Include="ppy.osu.Framework" Version="2021.427.0" />
-    <PackageReference Include="ppy.squirrel.windows" Version="1.9.0.5" />
-    <PackageReference Include="SharpCompress" Version="0.22.0" />
-    <PackageReference Include="System.IO.Packaging" Version="5.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.9.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="6.0.0-preview.3.21201.4" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Discord\x86\*">
@@ -50,7 +36,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Visual\Resource" />
-  </ItemGroup>
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

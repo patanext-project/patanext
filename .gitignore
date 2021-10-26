@@ -32,6 +32,9 @@ idea/
 *.svd
 *.pdb
 
+[Gg]enerated/
+[Pp]ackages/
+
 logs/
 log.json
 
@@ -86,3 +89,7 @@ msbuild.wrn
 #svn
 .svn/
 *.svn
+
+#Paket dependency manager
+.paket/
+paket-files/

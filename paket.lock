@@ -1,0 +1,9 @@
+STORAGE: NONE
+RESTRICTION: || (== net5.0) (== netstandard2.0) (== netstandard2.1)
+GIT
+  remote: https://github.com/guerro323/GameHost.git
+     (6bb16201698b0dd37f1c4b8d89dea321c3f33b1f)
+  remote: https://github.com/guerro323/revecs.git
+     (eb04ef4ed3d18575f666b61feaec8c3502eff2bc)
+  remote: https://github.com/guerro323/revtask.git
+     (d5775c20e5d68ba63adbf2230e620d16bdee7591)

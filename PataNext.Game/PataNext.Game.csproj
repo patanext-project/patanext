@@ -1,26 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <LangVersion>9</LangVersion>
-        <TargetFramework>net5.0</TargetFramework>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\..\Framework.GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
-        <ProjectReference Include="..\..\Framework.GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
-        <ProjectReference Include="..\..\Framework.GameHost\GameHost.Transports\GameHost.Transports.csproj" />
-        <ProjectReference Include="..\..\Framework.GameHost\GameHost\GameHost.csproj" />
-        <ProjectReference Include="..\StormiumTeam.GameBase\StormiumTeam.GameBase.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Features" />
-      <Folder Include="Updater" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="CS-Script" Version="4.0.2" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CS-Script" Version="4.0.2" />
+    <PackageReference Include="revecs" Version="1.0.0-42" />
+    <PackageReference Include="revecs.Generator" Version="1.0.0-42" OutputItemType="Analyzer" />
+    <PackageReference Include="revghost" Version="2021.9.23.2147" />
+  </ItemGroup>
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>../Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
