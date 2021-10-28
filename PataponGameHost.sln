@@ -1,10 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game", "PataNext.Game\PataNext.Game.csproj", "{51839579-5A24-475F-8153-EB332AC65C80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game", "src\PataNext.Game\PataNext.Game.csproj", "{51839579-5A24-475F-8153-EB332AC65C80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Export.Desktop", "PataNext.Export.Desktop\PataNext.Export.Desktop.csproj", "{474C9AC4-BC50-4381-9F69-1342F0E6AD22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Export.Desktop", "src\PataNext.Export.Desktop\PataNext.Export.Desktop.csproj", "{474C9AC4-BC50-4381-9F69-1342F0E6AD22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game.Client.Resources", "PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj", "{0F159F6C-C188-4CEA-9BD9-D63287399DD2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game.Client.Resources", "src\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj", "{0F159F6C-C188-4CEA-9BD9-D63287399DD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Export.Godot", "src\PataNext.Export.Godot\PataNext.Export.Godot.csproj", "{F9F00F1A-9D44-405F-891A-D5263F1DE87F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,10 @@ Global
 		{0F159F6C-C188-4CEA-9BD9-D63287399DD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F159F6C-C188-4CEA-9BD9-D63287399DD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F159F6C-C188-4CEA-9BD9-D63287399DD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9F00F1A-9D44-405F-891A-D5263F1DE87F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9F00F1A-9D44-405F-891A-D5263F1DE87F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9F00F1A-9D44-405F-891A-D5263F1DE87F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9F00F1A-9D44-405F-891A-D5263F1DE87F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

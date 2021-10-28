@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>exe</OutputType>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="GodotCLR" Version="1.0.0-42" />
+      <PackageReference Include="revghost" Version="2021.9.23.2147" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
+      <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
+    </ItemGroup>
+
+    <Target Name="CopyModule" AfterTargets="Build">
+        <ItemGroup>
+            <ModuleAsm Include="$(OutDir)*.dll" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(ModuleAsm)" DestinationFolder="../../Godot/project/dotnet" SkipUnchangedFiles="true" />
+    </Target>
+
+</Project>
