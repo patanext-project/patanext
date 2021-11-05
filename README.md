@@ -14,28 +14,32 @@ PataNext (also knew as Patapon 4 The Last Battle or P4TLB/TLB) is a community ba
 
 ___
 ### Framework:
-This game use my own framework, called GameHost (which will soon be public once I'll fix the mess)
+This game use the framework 'revghost' [(link)](https://github.com/guerro323/revecs) and the ECS library 'revecs' [(link)](https://github.com/guerro323/revecs)
 
 ___
-### Download links:
-The setup will download the launcher and the client. The launcher is still in very WIP (the inteface will be extremely different since I rushed the launcher)
-If there are any new update, the launcher will download them.
+### Developping:
+**Requirements:**
+- .NET 6 SDK
+- git
+- Godot 3.3
 
-Requirements:
-* NetCore 3.1 (require SDK or Desktop Runtime) [Direct Link](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.302-windows-x64-installer) (https://dotnet.microsoft.com/download/dotnet-core/3.1)
+**Project Steps:**
+- First time:
+  1. Clone the repository
+  2. Execute `dotnet cake prebuild.cake` in the terminal at the main folder *(aka where the README is)*
+  3. You can build or either run the project.
+- On each dependencies (eg: revghost update) change:
+  1. Remove the appropriate packages in your local nuget folder.
+     1. You can find the local packages folder by typing `dotnet nuget locals global-packages -l` in the terminal.
+     2. Delete the appropriate folder (eg: if revghost need an update, delete the revghost folder)
+  2. Execute 'dotnet cake prebuild.cake' in the terminal at the main folder.
+  3. You can build or either run the project with the changes.
 
-[Latest Windows x64 release](https://github.com/guerro323/patanext/releases/latest/download/Setup.exe)
-
-___
-### Roadmap:
--   [GameHost Migration](https://github.com/guerro323/patanext/projects/4)
-
-___
-### Importants links:
-
--   [Contributing (or just testing the early development)](CONTRIBUTING.md)
-
-___
+**Godot Client:**
+1. In the main folder run `godot Godot/project/project.godot`
+2. This should launch Godot with the respective project.
+3. Click on the start icon in Godot to start the project.
+4. (FOR NOW: When started, you'll be greeted by the beautiful `icon.png` bouncing around)
 
 <html>
     <p align="center">
