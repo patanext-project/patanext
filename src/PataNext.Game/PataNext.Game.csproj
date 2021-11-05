@@ -11,6 +11,9 @@
     <PackageReference Include="revecs.Generator" Version="1.0.0-42" OutputItemType="Analyzer" />
     <PackageReference Include="revghost" Version="2021.9.23.2147" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Modules\Simulation\Units" />
+  </ItemGroup>
   <PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>../Generated</CompilerGeneratedFilesOutputPath>

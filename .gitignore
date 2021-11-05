@@ -5,6 +5,8 @@
 *GameClient/[Bb]uilds/
 *GameClient/Assets/AssetStoreTools*
 
+Godot/project/dotnet/
+
 # Ignored folders
 GitIgnore/
 

@@ -17,7 +17,7 @@ public class SimulationScope : Scope
     public SimulationScope(Scope parent) : base(new ChildScopeContext(parent.Context))
     {
         Context.Register(World = new World());
-        Context.Register(JobRunner = new OpportunistJobRunner(0.8f));
+        Context.Register(JobRunner = new OpportunistJobRunner(0.0f));
         Context.Register(GameWorld = new RevolutionWorld());
         Context.Register(SystemGroup = new SystemGroup(GameWorld));
     }

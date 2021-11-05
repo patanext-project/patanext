@@ -1,5 +1,6 @@
 ﻿using System.Runtime.Loader;
 using GodotCLR;
+using GodotCLR.HighLevel;
 using revghost;
 using revghost.Domains;
 using revghost.IO.Storage;
@@ -13,7 +14,7 @@ public class Program
     {
         Console.WriteLine("Program - Load");
         
-        Native.Load((nuint*) ptr, &OnUpdate, &OnClean);
+        GodotHL.Load(ptr, OnUpdate, OnClean, OnExchange);
 
         var directory = Native.GetDirectory();
         for (var i = 0; i < directory.Length; i++)
@@ -55,7 +56,16 @@ public class Program
         OnInit(directory);
         return 0;
     }
-    
+
+    private static void OnExchange(Variant subject, VariantMethodArgs args, VariantArgBuilder ret)
+    {
+        GodotCLR.Godot.Print(subject.AsString());
+        if (subject.SequenceEquals("party_toggle"))
+        {
+            ret.Add("YEAH");
+        }
+    }
+
     private static GhostRunner runner;
     private static bool runnerLoopResult;
     

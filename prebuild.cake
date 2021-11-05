@@ -47,7 +47,7 @@ Task("Prebuild")
     
     void PackGithubProject(string gitLink)
     {
-        DoCommand($"dotnet pack paket-files/github.com/{gitLink}/ -o ./packages --version-suffix 42", workDir);
+        DoCommand($"dotnet pack ../paket-files/github.com/{gitLink}/ -o ./packages --version-suffix 42", workDir);
     }
     
     DoCommand("dotnet paket install");

@@ -32,6 +32,8 @@ public partial class Module : HostModule
             var domain = _world.CreateEntity();
             domain.Set<IListener>(new SimulationDomain(_scope, domain));
             domain.Set(new PushToListenerCollection(listenerCollection));
+            
+            _world.Set(new CurrentSimulationClient(domain));
         }
 
         LoadModule(scope => new RhythmEngine.Module(scope));

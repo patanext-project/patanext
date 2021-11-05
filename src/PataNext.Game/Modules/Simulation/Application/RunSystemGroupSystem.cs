@@ -77,6 +77,8 @@ public class RunSystemGroupSystem : AppSystem
 
     public RunSystemGroupSystem(Scope scope) : base(scope)
     {
+        scope.Context.Register(this);
+        
         this.scope = scope;
 
         Dependencies.AddRef(() => ref updateLoop);
@@ -84,6 +86,8 @@ public class RunSystemGroupSystem : AppSystem
         Dependencies.AddRef(() => ref jobRunner);
         Dependencies.AddRef(() => ref world);
     }
+
+    public Entity UpdateLoopEntity { get; private set; }
 
     protected override void OnInit()
     {
@@ -93,7 +97,7 @@ public class RunSystemGroupSystem : AppSystem
         Disposables.AddRange(new IDisposable[]
         {
             simulationUpdateLoop,
-            updateLoop.Subscribe(OnUpdate),
+            (UpdateLoopEntity = updateLoop.Subscribe(OnUpdate)),
         });
     }
 
