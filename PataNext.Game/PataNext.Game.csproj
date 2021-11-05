@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>9</LangVersion>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Inputs\GameHost.Inputs.csproj" />
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Simulation\GameHost.Simulation.csproj" />
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost.Transports\GameHost.Transports.csproj" />
+        <ProjectReference Include="..\..\FrameWork.GameHost\GameHost\GameHost.csproj" />
+        <ProjectReference Include="..\StormiumTeam.GameBase\StormiumTeam.GameBase.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Features" />
+      <Folder Include="Updater" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CS-Script" Version="4.0.2" />
+    </ItemGroup>
+
+</Project>

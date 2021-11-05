@@ -1,0 +1,15 @@
+﻿{
+	"modifiers":
+	{
+		"active": {
+			"defense": 0,
+			"receive_damage": 0.5,
+			"weight": 2.0,
+
+			"status_global":
+			{
+				"receive_power": 0.5
+			}
+		}
+	}
+}
