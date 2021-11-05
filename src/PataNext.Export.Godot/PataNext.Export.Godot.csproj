@@ -27,13 +27,13 @@
     <ItemGroup>
       <None Remove="PataNext.Export.Godot.runtimeconfig.json" />
       <Content Include="PataNext.Export.Godot.runtimeconfig.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
     <Target Name="CopyModule" AfterTargets="Build">
         <ItemGroup>
-            <ModuleAsm Include="$(OutDir)*.dll" />
+            <ModuleAsm Include="$(OutDir)*" />
         </ItemGroup>
 
         <Copy SourceFiles="@(ModuleAsm)" DestinationFolder="../../Godot/project/dotnet" SkipUnchangedFiles="true" />
