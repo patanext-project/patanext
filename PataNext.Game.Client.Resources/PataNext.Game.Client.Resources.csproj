@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>9</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Bgm\**\*" />
+        <EmbeddedResource Include="Abilities\**\*" />
+        <EmbeddedResource Include="Fonts\**\*" />
+        <EmbeddedResource Include="Textures\**\*" />
+        <EmbeddedResource Include="Items\**\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Fonts" />
+      <Folder Include="Items\Equipments" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>PataNext.Simulation.mixed</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>PataNext.Simulation.Mixed</AssemblyName>
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\MasterServer.PataNext\PataNext.MasterServer.Shared\PataNext.MasterServer.Shared.csproj" />
+      <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
+      <ProjectReference Include="..\StormiumTeam.GameBase\StormiumTeam.GameBase.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="OpenToolkit.Windowing.Common, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\..\..\OpenTK\opentk\src\OpenToolkit.Windowing.Desktop\bin\Release\netcoreapp3.0\OpenToolkit.Windowing.Common.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Game\Systems" />
+      <Folder Include="World" />
+    </ItemGroup>
+
+</Project>

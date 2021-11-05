@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
+        <UseWPF>True</UseWPF>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <DefineConstants>TRACE</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\GameHost\GameHost\GameHost.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Controls\MenuEntryControl.xaml.cs">
+        <DependentUpon>MenuEntryControl.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="OpenToolkit.Windowing.Common, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\..\..\OpenTK\opentk\src\OpenToolkit.Windowing.Desktop\bin\Release\netcoreapp3.0\OpenToolkit.Windowing.Common.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
