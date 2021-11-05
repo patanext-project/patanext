@@ -21,6 +21,7 @@ ___
 **Requirements:**
 - .NET 6 SDK
 - git
+- Godot 3.3
 
 **Project Steps:**
 - First time:
