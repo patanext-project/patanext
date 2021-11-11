@@ -4,12 +4,16 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <TargetFramework>net6.0</TargetFramework>
+
+    <!-- Nuget warn about packages downgrade, but they're actually intended (since they're local) -->
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CS-Script" Version="4.0.2" />
-    <PackageReference Include="revecs" Version="1.0.0-42" />
-    <PackageReference Include="revecs.Generator" Version="1.0.0-42" OutputItemType="Analyzer" />
-    <PackageReference Include="revghost" Version="2021.9.23.2147" />
+    <PackageReference Include="revecs" Version="0.0.0-local" />
+    <PackageReference Include="revecs.Generator" Version="0.0.0-local" OutputItemType="Analyzer" />
+    <PackageReference Include="revghost" Version="0.0.0-local" />
+    <PackageReference Include="revghost.Shared" Version="0.0.0-local" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\Simulation\Units" />
@@ -18,5 +22,4 @@
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>../Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

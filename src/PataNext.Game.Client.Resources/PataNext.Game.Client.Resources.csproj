@@ -18,5 +18,4 @@
     <Folder Include="Fonts" />
     <Folder Include="Items\Equipments" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

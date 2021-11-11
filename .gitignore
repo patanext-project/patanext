@@ -10,6 +10,10 @@ Godot/project/dotnet/
 # Ignored folders
 GitIgnore/
 
+# Dependency folder except deps.json
+dependencies/*
+!dependencies/deps.json
+
 # As I don't know how modules work in Github, I prefer to not put the files on my repository (for legal reasons)
 # Github repository: https://github.com/Unity-Technologies/InputSystem
 *com.unity.inputsystem/
