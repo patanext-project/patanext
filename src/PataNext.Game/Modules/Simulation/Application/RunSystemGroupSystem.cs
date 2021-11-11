@@ -97,7 +97,7 @@ public class RunSystemGroupSystem : AppSystem
         Disposables.AddRange(new IDisposable[]
         {
             simulationUpdateLoop,
-            (UpdateLoopEntity = updateLoop.Subscribe(OnUpdate)),
+            UpdateLoopEntity = updateLoop.Subscribe(OnUpdate)
         });
     }
 
