@@ -1,0 +1,18 @@
+{
+    "revghost":
+    {
+        "url": "https://github.com/guerro323/GameHost"
+    },
+    "revtask":
+    {
+        "url": "https://github.com/guerro323/revtask"
+    },
+    "revecs":
+    {
+        "url": "https://github.com/guerro323/revecs"
+    },
+    "GodotCLR":
+    {
+        "url": "https://github.com/guerro323/GodotProxy"
+    }
+}
