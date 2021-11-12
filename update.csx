@@ -183,6 +183,9 @@ void StartPackaging()
     {
         foreach (var (shortName, _) in DEPENDENCIES)
         {
+            // Create a fake nuget folder for dependency sub-dependencies
+            Directory.CreateDirectory($"dependencies/{shortName}/dependencies/.nuget");
+        
             Debug($"Building {shortName}");
             var process = Process.Start(new ProcessStartInfo(
                 "dotnet", 

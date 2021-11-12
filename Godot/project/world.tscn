@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://maps/Map.tscn" type="PackedScene" id=2]
+
+[node name="Spatial" type="Spatial"]
+
+[node name="Map" parent="." instance=ExtResource( 2 )]
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 0.561535, 0.258497, -0.786039, 0, 0.94995, 0.312401, 0.827453, -0.175424, 0.53343, -15.3714, 11.2253, 8.70623 )
+fov = 85.6901
