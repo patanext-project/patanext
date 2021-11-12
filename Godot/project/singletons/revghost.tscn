@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://gdnative/simple.gdns" type="Script" id=1]
+
+[node name="revghost" type="Node"]
+script = ExtResource( 1 )
+executable = "Stormium.Export.Godot"

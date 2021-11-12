@@ -16,8 +16,12 @@ _global_script_class_icons={
 
 config/name="Simple GDNative C Demo"
 config/description="Simple GDNative C Demo"
-run/main_scene="res://main.tscn"
+run/main_scene="res://world.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+revghost="*res://singletons/revghost.tscn"
 
 [gdnative]
 
@@ -29,6 +33,6 @@ multithread/thread_rid_pool_prealloc=60
 
 [rendering]
 
-quality/driver/driver_name="GLES2"
 vram_compression/import_etc=true
 vram_compression/import_etc2=false
+quality/shadows/filter_mode=2

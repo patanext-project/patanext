@@ -6,7 +6,7 @@ func _on_Button_pressed():
 	# Next arguments (variadic (aka params in C#)): method arguments
 	#
 	# In this case there are no method arguments
-	# This will call PataNext.Export.Godot.Program.OnExchange(,,)
+	# This will call Stormium.Export.Godot.Program.OnExchange(,,)
 	$Button.text = $Node.exchange("party_toggle")[0]
 
 func _process(delta):
