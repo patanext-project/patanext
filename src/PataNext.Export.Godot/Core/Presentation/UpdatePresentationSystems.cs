@@ -1,5 +1,5 @@
 using DefaultEcs;
-using PataNext.Game.Modules.Simulation.Application;
+using Quadrum.Game.Modules.Simulation.Application;
 using revghost;
 using revghost.Domains.Time;
 using revghost.Ecs;

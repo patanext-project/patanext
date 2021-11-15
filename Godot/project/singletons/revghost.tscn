@@ -4,4 +4,4 @@
 
 [node name="revghost" type="Node"]
 script = ExtResource( 1 )
-executable = "Stormium.Export.Godot"
+executable = "PataNext.Export.Godot"
