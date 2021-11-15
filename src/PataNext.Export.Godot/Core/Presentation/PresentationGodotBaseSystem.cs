@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using revecs.Core;
 using revecs.Core.Components.Boards;
-using revecs.Extensions.Generator.Components;
 using revghost;
 using RustTest;
 

@@ -9,7 +9,6 @@ using revecs.Extensions.Generator.Commands;
 using revecs.Extensions.Generator.Components;
 using revecs.Extensions.LinkedEntity.Generator;
 using revecs.Systems;
-using revtask.Core;
 
 namespace PataNext.Game.Modules.RhythmEngine;
 
@@ -24,7 +23,8 @@ public partial struct CreateCommandSystem : ISystem
         // command
         MarchCommand.Cmd.IAdmin,
         // required for factory
-        CommandActions.Cmd.IAdmin
+        CommandActions.Cmd.IAdmin,
+        CommandDuration.Cmd.IAdmin
     {}
 
     [RevolutionSystem]
@@ -37,11 +37,11 @@ public partial struct CreateCommandSystem : ISystem
             return;
 
         var group = cmd.CreateEntity();
-        March();
+        March(cmd, group);
 
-        void March()
+        static void March(Commands cmd, UEntityHandle group)
         {
-            var (ent, buffer) = Create();
+            var (ent, buffer) = Create(cmd, group);
             cmd.AddMarchCommand(ent);
             buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Left));
             buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Left));
@@ -49,11 +49,12 @@ public partial struct CreateCommandSystem : ISystem
             buffer.Add(RhythmCommandAction.With(3, (int) DefaultCommandKeys.Right));
         }
 
-        (UEntityHandle output, BufferData<RhythmCommandAction> buffer) Create()
+        static (UEntityHandle output, BufferData<RhythmCommandAction> buffer) Create(Commands cmd, UEntityHandle group)
         {
             var (ent, buffer) = CommandFactory.New(cmd);
             cmd.AddEntityLink(ent, group);
-            
+            cmd.UpdateCommandDuration(ent).Value = 4;
+
             return (ent, buffer);
         }
     }
