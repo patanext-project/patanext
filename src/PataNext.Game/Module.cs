@@ -11,6 +11,7 @@ public class Module : HostModule
 
     protected override void OnInit()
     {
-        LoadModule(scope => new Modules.Simulation.Module(scope));
+        LoadModule(scope => new Quadrum.Game.Module(scope));
+        LoadModule(scope => new Modules.RhythmEngine.Module(scope));
     }
 }
