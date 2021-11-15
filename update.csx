@@ -3,9 +3,10 @@
 using System.ComponentModel;
 using System.Text.Json;
 
-struct Dependency
+class Dependency
 {
     public string url { get; set; }
+    public string Path;
 }
 
 var DEPENDENCIES = JsonSerializer.Deserialize<Dictionary<string, Dependency>>(File.ReadAllText("dependencies/deps.json"));
@@ -88,10 +89,14 @@ void CheckDependencies()
                 Error($"Dependency {shortName} has an override, but doesn't point to a correct directory. (target={path})");
                 return;
             }
+            
+            dep.Path = path;
 
             Debug($"Dependency {shortName} has an override (target={path})', skipping.");
             continue;
         }
+        
+        dep.Path = sub.FullName;
 
         // Update
         if (sub.GetDirectories(".git").Any())
@@ -181,15 +186,15 @@ void StartPackaging()
 
     void Pack()
     {
-        foreach (var (shortName, _) in DEPENDENCIES)
+        foreach (var (shortName, dep) in DEPENDENCIES)
         {
             // Create a fake nuget folder for dependency sub-dependencies
-            Directory.CreateDirectory($"dependencies/{shortName}/dependencies/.nuget");
+            Directory.CreateDirectory($"{dep.Path}/dependencies/.nuget");
         
             Debug($"Building {shortName}");
             var process = Process.Start(new ProcessStartInfo(
                 "dotnet", 
-                $"pack ./dependencies/{shortName}/ -o ./dependencies/.nuget/ /p:Version=0.0.0-local"
+                $"pack {dep.Path}/ -o ./dependencies/.nuget/ /p:Version=0.0.0-local"
             ));
             process.WaitForExit();
         }
