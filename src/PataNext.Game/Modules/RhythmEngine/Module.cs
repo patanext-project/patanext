@@ -1,3 +1,4 @@
+using Quadrum.Game.Modules.Simulation.Application;
 using revghost;
 using revghost.Module;
 
@@ -17,6 +18,9 @@ public class Module : HostModule
 
     protected override void OnInit()
     {
-        
+        TrackDomain((SimulationDomain domain) =>
+        {
+            domain.SystemGroup.Add(new CreateCommandSystem());
+        });
     }
 }

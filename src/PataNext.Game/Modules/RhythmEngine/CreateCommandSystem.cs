@@ -35,9 +35,14 @@ public partial struct CreateCommandSystem : ISystem
     {
         if (groupQuery.Any())
             return;
-
+        
         var group = cmd.CreateEntity();
+        cmd.AddDefaultCommandGroup(group);
+        
         March(cmd, group);
+        Attack(cmd, group);
+        Defend(cmd, group);
+        Party(cmd, group);
 
         static void March(Commands cmd, UEntityHandle group)
         {
@@ -47,6 +52,36 @@ public partial struct CreateCommandSystem : ISystem
             buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Left));
             buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Left));
             buffer.Add(RhythmCommandAction.With(3, (int) DefaultCommandKeys.Right));
+        }
+        
+        static void Attack(Commands cmd, UEntityHandle group)
+        {
+            var (ent, buffer) = Create(cmd, group);
+            cmd.AddMarchCommand(ent);
+            buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Right));
+            buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Right));
+            buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Left));
+            buffer.Add(RhythmCommandAction.With(3, (int) DefaultCommandKeys.Right));
+        }
+        
+        static void Defend(Commands cmd, UEntityHandle group)
+        {
+            var (ent, buffer) = Create(cmd, group);
+            cmd.AddMarchCommand(ent);
+            buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Up));
+            buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Up));
+            buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Left));
+            buffer.Add(RhythmCommandAction.With(3, (int) DefaultCommandKeys.Right));
+        }
+        
+        static void Party(Commands cmd, UEntityHandle group)
+        {
+            var (ent, buffer) = Create(cmd, group);
+            cmd.AddMarchCommand(ent);
+            buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Left));
+            buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Right));
+            buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Down));
+            buffer.Add(RhythmCommandAction.With(3, (int) DefaultCommandKeys.Up));
         }
 
         static (UEntityHandle output, BufferData<RhythmCommandAction> buffer) Create(Commands cmd, UEntityHandle group)

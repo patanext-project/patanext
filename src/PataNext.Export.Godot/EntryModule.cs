@@ -32,7 +32,7 @@ public partial class EntryModule : HostModule
             domain.SystemGroup.Add(MoveUnit);
 
             new UpdatePresentationSystems(domain.Scope);
-            new TestPresentation(domain.Scope);
+            new RhythmEnginePresentation(domain.Scope);
         });
     }
 
