@@ -28,9 +28,10 @@ else
 {
     Debug("Starting godot project");
 
-    Process.Start(new ProcessStartInfo("godot", "Godot/project/project.godot")
+    var process = Process.Start(new ProcessStartInfo("godot", "Godot/project/project.godot")
             {
             }); 
+    process.WaitForExit();
 }
 
 void Debug(string msg)
