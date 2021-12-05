@@ -4,6 +4,7 @@ using Quadrum.Game.Modules.Simulation;
 using Quadrum.Game.Modules.Simulation.Application;
 using Quadrum.Game.Modules.Simulation.Common.Transform;
 using revecs;
+using revecs.Core;
 using revecs.Extensions.Generator.Commands;
 using revecs.Extensions.Generator.Components;
 using revecs.Systems;
@@ -24,14 +25,14 @@ public partial class EntryModule : HostModule
         // Add Godot related modules here
 
         Console.WriteLine("EntryModule - OnInit");
-        LoadModule(scope => new PataNext.Game.Module(scope));
+        LoadModule(sc => new PataNext.Game.Module(sc));
+        LoadModule(sc => new PataNext.Game.Client.Module(sc));
 
         TrackDomain((SimulationDomain domain) =>
         {
             domain.SystemGroup.Add(CreateUnit);
             domain.SystemGroup.Add(MoveUnit);
-
-            new UpdatePresentationSystems(domain.Scope);
+            
             new RhythmEnginePresentation(domain.Scope);
         });
     }

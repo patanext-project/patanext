@@ -10,6 +10,15 @@ namespace PataNext.Export.Desktop
             using var ghost = GhostInit.Launch(
                 scope => {},
                 scope => new PataNext.Game.Module(scope)
+                
+                
+                
+                
+                
+                
+                
+                
+                
             );
 
             while (ghost.Loop())
