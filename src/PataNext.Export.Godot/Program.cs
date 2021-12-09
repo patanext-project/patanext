@@ -26,6 +26,8 @@ public class Program
             }
         }
 
+        Environment.CurrentDirectory = directory;
+
         AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) =>
         {
             Console.WriteLine($"trying to resolve: {eventArgs.Name} (requested by {eventArgs.RequestingAssembly})");

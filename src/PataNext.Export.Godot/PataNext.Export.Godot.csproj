@@ -38,7 +38,7 @@
             <ModuleAsm Include="$(OutDir)**/*" />
         </ItemGroup>
 
-        <Copy SourceFiles="@(ModuleAsm)" DestinationFolder="../../Godot/project/dotnet" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(ModuleAsm)" DestinationFolder="../../Godot/project/dotnet/%(RecursiveDir)" SkipUnchangedFiles="true" />
     </Target>
 
     <PropertyGroup>
