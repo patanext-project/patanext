@@ -35,7 +35,7 @@
 
     <Target Name="CopyModule" AfterTargets="Build">
         <ItemGroup>
-            <ModuleAsm Include="$(OutDir)*" />
+            <ModuleAsm Include="$(OutDir)**/*" />
         </ItemGroup>
 
         <Copy SourceFiles="@(ModuleAsm)" DestinationFolder="../../Godot/project/dotnet" SkipUnchangedFiles="true" />
