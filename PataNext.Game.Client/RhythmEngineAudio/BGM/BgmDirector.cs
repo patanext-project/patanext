@@ -1,6 +1,7 @@
 using System.Text.Json;
 using GameHost.Native.Char;
 using PataNext.Game.Client.RhythmEngineAudio.BGM.Directors;
+using Quadrum.Game.BGM;
 using revghost.IO.Storage;
 
 namespace PataNext.Game.Client.RhythmEngineAudio.BGM;
