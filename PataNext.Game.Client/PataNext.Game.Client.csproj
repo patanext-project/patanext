@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="revecs.Generator" Version="0.0.0-local" OutputItemType="Analyzer" />
+        <PackageReference Include="SharpZipLib" Version="1.3.3" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\src\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
+      <ProjectReference Include="..\src\PataNext.Game\PataNext.Game.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -3,7 +3,9 @@
     <PropertyGroup>
         <OutputType>exe</OutputType>
         <EnableDynamicLoading>true</EnableDynamicLoading>
+        <LangVersion>preview</LangVersion>
         <TargetFramework>net6.0</TargetFramework>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -19,12 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\PataNext.Game.Client\PataNext.Game.Client.csproj" />
       <ProjectReference Include="..\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
       <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Core" />
     </ItemGroup>
 
     <ItemGroup>
@@ -36,10 +35,15 @@
 
     <Target Name="CopyModule" AfterTargets="Build">
         <ItemGroup>
-            <ModuleAsm Include="$(OutDir)*" />
+            <ModuleAsm Include="$(OutDir)**/*" />
         </ItemGroup>
 
-        <Copy SourceFiles="@(ModuleAsm)" DestinationFolder="../../Godot/project/dotnet" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(ModuleAsm)" DestinationFolder="../../Godot/project/dotnet/%(RecursiveDir)" SkipUnchangedFiles="true" />
     </Target>
+
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>../Generated/PataNext.Export.Godot</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>
 
 </Project>
