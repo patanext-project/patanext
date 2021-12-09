@@ -16,33 +16,33 @@ public class BgmDefaultSamplesLoader : BgmSamplesLoaderBase
 	{
 		commandsTaskMap = new TaskMap<CharBuffer64, ComboBasedCommand>(async key =>
 		{
-			var files = (await Store.GetFilesAsync($"commands/{key}/*.ogg"))
-				.Concat(await Store.GetFilesAsync($"commands/{key}/*.wav"))
-				.ToArray();
-
-			if (files.Length == 0)
+			using var files = new PooledList<IFile>();
+			Store.GetFiles($"commands/{key}/*.ogg", files);
+			Store.GetFiles($"commands/{key}/*.wav", files);
+			
+			if (files.Count == 0)
 				throw new InvalidOperationException($"No files found for command {key}");
 
-			return new ComboBasedCommand(files, key);
+			return new ComboBasedCommand(files.ToArray(), key);
 		});
 		bgmTaskMap = new TaskMap<byte, SlicedSoundTrack>(async key =>
 		{
-			var files = (await Store.GetFilesAsync("soundtrack/*.ogg"))
-				.Concat(await Store.GetFilesAsync("soundtrack/*.wav"))
-				.ToArray();
-
-			if (files.Length == 0)
+			using var files = new PooledList<IFile>();
+			Store.GetFiles($"soundtrack/*.ogg", files);
+			Store.GetFiles($"soundtrack/*.wav", files);
+			
+			if (files.Count == 0)
 				throw new InvalidOperationException("No files found for soundtrack");
 
-			return new SlicedSoundTrack(files);
+			return new SlicedSoundTrack(files.ToArray());
 		});
 		filesTaskMap = new TaskMap<string, SingleFile>(async key =>
 		{
-			var files = (await Store.GetFilesAsync($"samples/{key}.ogg"))
-				.Concat(await Store.GetFilesAsync($"samples/{key}.wav"))
-				.ToArray();
-
-			if (files.Length == 0)
+			using var files = new PooledList<IFile>();
+			Store.GetFiles($"samples/{key}.ogg", files);
+			Store.GetFiles($"samples{key}.wav", files);
+			
+			if (files.Count == 0)
 				throw new InvalidOperationException($"No files found for sample '{key}'");
 
 			return new SingleFile(files.First());
