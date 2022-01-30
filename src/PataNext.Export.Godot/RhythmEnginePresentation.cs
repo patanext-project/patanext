@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Collections.Pooled;
 using GodotCLR;
 using PataNext.Export.Godot.Presentation;
@@ -74,24 +75,24 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
 
                 // literally a copy of OnInputForRhythmEngine
                 // I didn't made it a system yet since inputs isn't really done (it's more of a rough sketch for now)
-                foreach (var (settings, state, recovery, executing, buffer, predictedBuffer) in _engineQuery)
+                foreach (var engine in _engineQuery)
                 {
-                    var renderBeat = RhythmEngineUtility.GetFlowBeat(state.__ref, settings.__ref);
-                    
+                    var renderBeat = RhythmEngineUtility.GetFlowBeat(engine.state, engine.settings);
+
                     var cmdChainEndFlow =
-                        RhythmEngineUtility.GetFlowBeat(TimeSpan.FromMilliseconds(executing.ChainEndTimeMs),
-                            settings.BeatInterval);
-                    var cmdEndFlow = RhythmEngineUtility.GetFlowBeat(TimeSpan.FromMilliseconds(executing.EndTimeMs),
-                        settings.BeatInterval);
+                        RhythmEngineUtility.GetFlowBeat(TimeSpan.FromMilliseconds(engine.executing.ChainEndTimeMs),
+                            engine.settings.BeatInterval);
+                    var cmdEndFlow = RhythmEngineUtility.GetFlowBeat(TimeSpan.FromMilliseconds(engine.executing.EndTimeMs),
+                        engine.settings.BeatInterval);
 
                     // check for one beat space between inputs (should we just check for predicted commands? 'maybe' we would have a command with one beat space)
-                    var failFlag1 = buffer.Count > 0
-                                    && predictedBuffer.Count == 0
-                                    && renderBeat > buffer[^1].Value.FlowBeat + 1
+                    var failFlag1 = engine.progress.Count > 0
+                                    && engine.predicted.Count == 0
+                                    && renderBeat > engine.progress[^1].Value.FlowBeat + 1
                                     && cmdChainEndFlow > 0;
                     // check if this is the first input and was started after the command input time
                     var failFlag3 = renderBeat > cmdEndFlow
-                                    && buffer.Count == 0
+                                    && engine.progress.Count == 0
                                     && cmdEndFlow > 0;
                     // check for inputs that were done after the current command chain
                     var failFlag2 = renderBeat >= cmdChainEndFlow
@@ -102,45 +103,45 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
                     if (failFlag0 || failFlag1 || failFlag2 || failFlag3)
                     {
                         GodotCLR.Godot.Print($"Failed {failFlag0} {failFlag1} {failFlag2} {failFlag3}");
-                        
-                        recovery.RecoveryActivationBeat = renderBeat + 1;
-                        executing.__ref = default;
+
+                        engine.recovery.RecoveryActivationBeat = renderBeat + 1;
+                        engine.executing = default;
                         continue;
                     }
 
-                    var pressure = new FlowPressure(lastInput, state.Elapsed, settings.BeatInterval)
+                    var pressure = new FlowPressure(lastInput, engine.state.Elapsed, engine.settings.BeatInterval)
                     {
                         IsSliderEnd = false
                     };
-                    
-                    buffer.Add(new RhythmEngineCommandProgress {Value = pressure});
-                    state.LastPressure = pressure;
 
-                    Console.WriteLine($"{state.Elapsed} {settings.BeatInterval} {pressure.FlowBeat}");
+                    engine.progress.Add(new RhythmEngineCommandProgress {Value = pressure});
+                    engine.state.LastPressure = pressure;
+
+                    Console.WriteLine($"{engine.state.Elapsed} {engine.settings.BeatInterval} {pressure.FlowBeat}");
                 }
             }
 
             var title = $"Rhythm Engine ({entity})";
             var currCommand = "Current:  ";
             var predicted = "Predicted:  \n";
-            
-            foreach (var (settings, state, recovery, executing, buffer, predictedBuffer) in _engineQuery)
+
+            foreach (var engine in _engineQuery)
             {
-                title += "  Elapsed: " + (int) state.Elapsed.TotalSeconds + "s";
-                
-                for (var i = 0; i < buffer.Count; i++)
+                title += "  Elapsed: " + (int) engine.state.Elapsed.TotalSeconds + "s";
+
+                for (var i = 0; i < engine.progress.Count; i++)
                 {
-                    currCommand += to_patapon_drum(buffer[i].Value.KeyId);
-                    if (i + 1 < buffer.Count)
+                    currCommand += to_patapon_drum(engine.progress[i].Value.KeyId);
+                    if (i + 1 < engine.progress.Count)
                         currCommand += " ";
                 }
 
-                Console.WriteLine(predictedBuffer.Count);
-                for (var i = 0; i < predictedBuffer.Count; i++)
+                Console.WriteLine(engine.predicted.Count);
+                for (var i = 0; i < engine.predicted.Count; i++)
                 {
                     var actionType = CommandActions.Type.GetOrCreate(GameWorld).UnsafeCast<RhythmCommandAction>();
-                    var actions = GameWorld.ReadComponent(predictedBuffer[i].Value.Handle, actionType);
-                    
+                    var actions = GameWorld.ReadComponent(engine.predicted[i].Value.Handle, actionType);
+
                     for (var j = 0; j < actions.Length; j++)
                     {
                         predicted += to_patapon_drum(actions[j].Key);
@@ -148,7 +149,7 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
                             predicted += " ";
                     }
 
-                    if (i + 1 < predictedBuffer.Count)
+                    if (i + 1 < engine.predicted.Count)
                         predicted += "\n";
                 }
             }
@@ -162,13 +163,14 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
         }
     }
 
-    private partial struct EngineQuery : IQuery,
-        Read<RhythmEngineSettings>,
-        Write<RhythmEngineState>,
-        Write<RhythmEngineRecoveryState>,
-        Read<GameCommandState>,
-        Write<RhythmEngineCommandProgress>,
-        Read<RhythmEnginePredictedCommands>
+    private partial struct EngineQuery : IQuery<(
+        Read<RhythmEngineSettings> settings,
+        Write<RhythmEngineState> state,
+        Write<RhythmEngineRecoveryState> recovery,
+        Write<GameCommandState> executing,
+        Write<RhythmEngineCommandProgress> progress,
+        Read<RhythmEnginePredictedCommands> predicted
+        )>
     {
     }
 }
