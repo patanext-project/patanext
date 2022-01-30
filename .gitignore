@@ -10,9 +10,15 @@ Godot/project/dotnet/
 # Ignored folders
 GitIgnore/
 
-# Dependency folder except deps.json
+# Dependency folder except deps.json and the .placeholder file
 dependencies/*
 !dependencies/deps.json
+
+# Reinclude .nuget, then ignore it again but keep .placeholder
+# We need to do this complicated step or else .placeholder can't just be re-included that simply
+!dependencies/.nuget/
+dependencies/.nuget/*
+!dependencies/.nuget/.placeholder
 
 # As I don't know how modules work in Github, I prefer to not put the files on my repository (for legal reasons)
 # Github repository: https://github.com/Unity-Technologies/InputSystem

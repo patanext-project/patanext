@@ -13,8 +13,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\src\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
-      <ProjectReference Include="..\src\PataNext.Game\PataNext.Game.csproj" />
+      <ProjectReference Include="..\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
+      <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
     </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using Collections.Pooled;
 using revecs.Core;
 using revecs.Core.Components.Boards;
-using revecs.Query;
+using revecs.Querying;
 using revecs.Utility;
 using revghost;
 using revghost.Ecs;
@@ -21,14 +21,18 @@ public abstract class PresentationBaseSystem : AppSystem
             public Board(int size, RevolutionWorld world) : base(size, world)
             {
             }
-
-            public override int RemoveReference(in UComponentHandle row, in UEntityHandle entity)
+            
+            public override void RemoveComponent(UEntityHandle handle)
             {
-                var list = Read<List<List<UEntitySafe>>>(row)[0];
-                foreach (var nestedList in list)
-                    nestedList.Add(World.Safe(entity));
-
-                return base.RemoveReference(in row, in entity);
+                var row = EntityLink[handle.Id];
+                if (ComponentDataColumn[row.Id] != null!)
+                {
+                    var list = ComponentDataColumn[row.Id];
+                    foreach (var nestedList in list)
+                        nestedList.Add(World.Safe(handle));
+                }
+                
+                base.RemoveComponent(handle);
             }
         }
 

@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\PataNext.Game.Client\PataNext.Game.Client.csproj" />
+      <ProjectReference Include="..\PataNext.Game.Client\PataNext.Game.Client.csproj" />
       <ProjectReference Include="..\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
       <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
     </ItemGroup>
