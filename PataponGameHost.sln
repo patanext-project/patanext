@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game.Client.Resour
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Export.Godot", "src\PataNext.Export.Godot\PataNext.Export.Godot.csproj", "{F9F00F1A-9D44-405F-891A-D5263F1DE87F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game.Client", "PataNext.Game.Client\PataNext.Game.Client.csproj", "{6BFDBAC9-DDD4-49EE-9538-281F0A961511}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PataNext.Game.Client", "src\PataNext.Game.Client\PataNext.Game.Client.csproj", "{6BFDBAC9-DDD4-49EE-9538-281F0A961511}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exports", "Exports", "{D7529681-34D1-45CE-8E96-346536187E75}"
 EndProject
