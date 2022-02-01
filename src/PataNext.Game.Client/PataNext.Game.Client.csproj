@@ -17,4 +17,17 @@
       <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <EmbeddedResource Include="RhythmEngineAudio\Resources\**\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="RhythmEngineAudio\Resources\Drums" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>../Generated/PataNext.Game.Client</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>
+
 </Project>

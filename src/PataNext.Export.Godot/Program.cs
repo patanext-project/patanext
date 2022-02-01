@@ -3,6 +3,7 @@ using GodotCLR;
 using GodotCLR.HighLevel;
 using revghost;
 using revghost.Domains;
+using revghost.Injection;
 using revghost.IO.Storage;
 using revghost.Module.Storage;
 
@@ -99,6 +100,18 @@ public class Program
     private static void OnUpdate()
     {
         runnerLoopResult = runner.Loop();
+        
+        /*var resolver = (runner.Scope.DependencyResolver as SchedulerDependencyResolver)!;
+        var list = new List<IDependencyCollection>();
+        resolver.GetQueuedCollections(ref list);
+        foreach (var collection in list)
+        {
+            Console.WriteLine($"{(collection as DependencyCollection).Source.ToString()}");
+            foreach (var dep in collection.Dependencies)
+            {
+                Console.WriteLine($"  :: {dep.ToString()}");
+            }
+        }*/
     }
 
     private static void OnClean()
