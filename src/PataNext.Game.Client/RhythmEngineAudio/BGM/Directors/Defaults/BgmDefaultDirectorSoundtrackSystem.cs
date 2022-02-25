@@ -66,8 +66,8 @@ public partial class
             return;
         }
 
-        var activationBeat = RhythmEngineUtility.GetActivationBeat(engine.State, engine.Settings);
-        var flowBeat = RhythmEngineUtility.GetFlowBeat(engine.State, engine.Settings);
+        var activationBeat = RhythmUtility.GetActivationBeat(engine.State, engine.Settings);
+        var flowBeat = RhythmUtility.GetFlowBeat(engine.State, engine.Settings);
 
         // After initial entrance
         (string type, int index) track = default;
@@ -123,7 +123,7 @@ public partial class
         var targetAudio = mappedAudioResources[track.type][track.index];
 
 
-        var cmdStartActivationBeat = RhythmEngineUtility.GetActivationBeat(
+        var cmdStartActivationBeat = RhythmUtility.GetActivationBeat(
             engine.CommandState.StartTime,
             engine.Settings.BeatInterval
         );

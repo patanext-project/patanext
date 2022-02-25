@@ -1,0 +1,3 @@
+res://libs/line_renderer/LineRenderer.gd
+res://scenes/models/uberhero/Uberhero.tscn
+res://scenes/models/uberhero/__int/Toon.material
