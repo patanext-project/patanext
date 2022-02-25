@@ -11,6 +11,8 @@ func _ready():
 
 
 func _process(_delta):
+	RenderingServer.render
+	
 	if Input.is_action_just_pressed("drum_left"):
 		inputs.append(1)
 	if Input.is_action_just_pressed("drum_right"):
@@ -34,6 +36,6 @@ func get_last_input() -> int:
 		return 0
 	
 	var last: int = inputs[0]
-	inputs.remove(0)
+	inputs.remove_at(0)
 	
 	return last;

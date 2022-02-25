@@ -76,12 +76,12 @@ public partial class ShoutDrumSystem : PresentationRhythmEngineSystemBase
 
         var score = 0;
         // TODO: 0.16f is a magic value for now, but it's the threshold for perfect pressures
-        if (Math.Abs(RhythmEngineUtility.GetScore(engine.State, engine.Settings)) >= 0.16f)
+        if (Math.Abs(RhythmUtility.GetScore(engine.State, engine.Settings)) >= 0.16f)
         {
             score = 1;
         }
 
-        if (engine.Recovery.IsRecovery(RhythmEngineUtility.GetFlowBeat(engine.State, engine.Settings)))
+        if (engine.Recovery.IsRecovery(RhythmUtility.GetFlowBeat(engine.State, engine.Settings)))
         {
             score = 2;
         }
@@ -90,7 +90,7 @@ public partial class ShoutDrumSystem : PresentationRhythmEngineSystemBase
         var isFirstInput = engine.Progress.Count == 0
                            && (engine.Executing.CommandTarget.Equals(default)
                                || engine.Executing.ActivationBeatStart <=
-                               RhythmEngineUtility.GetActivationBeat(engine.State, engine.Settings));
+                               RhythmUtility.GetActivationBeat(engine.State, engine.Settings));
 
         for (var i = 0; i < input.Actions.Length; i++)
         {
@@ -107,7 +107,7 @@ public partial class ShoutDrumSystem : PresentationRhythmEngineSystemBase
             audioPlayer.Play();
             
             if (engine.Executing.PowerInteger >= 100
-                && engine.Executing.ActivationBeatStart >= RhythmEngineUtility.GetActivationBeat(engine.State, engine.Settings))
+                && engine.Executing.ActivationBeatStart >= RhythmUtility.GetActivationBeat(engine.State, engine.Settings))
             {
                 perfectAudioPlayer.Play();
             }
