@@ -13,15 +13,29 @@ _global_script_class_icons={}
 
 [application]
 
-config/name="Simple GDNative C Demo"
-config/description="Simple GDNative C Demo"
+config/name="PataNext GDExtension"
+config/description="PataNext"
 run/main_scene="res://world.tscn"
+run/low_processor_mode=true
+boot_splash/bg_color=Color(0, 0, 0, 1)
 config/icon="res://icon.png"
 config/features=PackedStringArray("4.0")
 
 [autoload]
 
 revghost="*res://singletons/revghost.tscn"
+
+[debug]
+
+settings/stdout/print_fps=true
+
+[display]
+
+window/vsync/vsync_mode=0
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/autoanim/plugin.cfg")
 
 [gdnative]
 
@@ -58,9 +72,21 @@ drum_down={
 
 multithread/thread_rid_pool_prealloc=60
 
+[physics]
+
+2d/run_on_separate_thread=true
+3d/run_on_separate_thread=true
+
 [rendering]
 
-anti_aliasing/quality/msaa=2
+driver/depth_prepass/enable=false
+scaling_3d/mode=1
+anti_aliasing/quality/msaa=1
+anti_aliasing/quality/use_debanding=true
+batching/options/use_batching=true
+batching/options/use_batching_in_editor=true
+batching/debug/flash_batching=true
+batching/debug/diagnose_frame=true
 vram_compression/import_etc=true
 vram_compression/import_etc2=false
 quality/shadows/filter_mode=2
