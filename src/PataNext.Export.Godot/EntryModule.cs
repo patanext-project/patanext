@@ -36,7 +36,7 @@ public partial class EntryModule : HostModule
 
         TrackDomain((SimulationDomain domain) =>
         {
-            //new RhythmEnginePresentation(domain.Scope);
+            new RhythmEnginePresentation(domain.Scope);
             
             // for now create a random player entity
             var player = domain.GameWorld.CreateEntity();

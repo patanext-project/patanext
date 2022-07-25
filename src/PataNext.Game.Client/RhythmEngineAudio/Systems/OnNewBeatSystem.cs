@@ -48,7 +48,11 @@ public class OnNewBeatSystem : PresentationRhythmEngineSystemBase
         {
             // Play audio on each positive beat
             // TODO: maybe we should do .PlayDelayed(500ms) to be more precise?
-            audioPlayer.Play();
+            //audioPlayer.Play();
+            var delay = engine.Settings.BeatInterval;
+            delay += time.Total;
+            
+            audioPlayer.PlayDelayed(delay);
         }
     }
 }

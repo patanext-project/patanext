@@ -12,7 +12,7 @@ script/source = "extends Node3D
 func _ready():
 	PhysicsServer3D.set_active(false)
 	
-	var size = 50
+	var size = 10
 	for x in size:
 		for y in size:
 			var node = uberhero.instantiate() as Node3D

@@ -24,7 +24,7 @@ func _process(_delta):
 	$CurrCommand.text = curr_command
 	$Predicted.text = predicted
 	
-	print(1 / _delta)
+	# print(1 / _delta)
 
 func has_input_left():
 	return inputs.size() > 0

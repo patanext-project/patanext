@@ -1,11 +1,14 @@
 using System.Runtime.CompilerServices;
+using GodotCLR;
 using revecs.Core;
 using revecs.Core.Components.Boards;
 using revghost;
 
+using NodeProxy = GodotCLR.GD.Node;
+
 namespace PataNext.Export.Godot.Presentation;
 
-/*public abstract class PresentationGodotBaseSystem : PresentationBaseSystem
+public abstract class PresentationGodotBaseSystem : PresentationBaseSystem
 {
     protected PresentationGodotBaseSystem(Scope scope) : base(scope)
     {
@@ -33,7 +36,7 @@ namespace PataNext.Export.Godot.Presentation;
     {
         if (!OnSetPresentation(entity, out var proxy))
         {
-            if (proxy.IsCreated)
+            if (proxy.Pointer == IntPtr.Zero)
                 throw new InvalidOperationException("proxy shouldn't have been created if it returned false");
             
             return;
@@ -51,12 +54,13 @@ namespace PataNext.Export.Godot.Presentation;
         if (!OnRemovePresentation(entity, node))
             return;
 
-        node.Dispose();
+        node.Call("queue_free", ReadOnlySpan<Variant>.Empty);
         entitiesToProxies.Remove(entity);
 
         if (GameWorld.Exists(entity))
         {
-            GameWorld.GetComponentData(entity.Handle, GenericType).Dispose();
+            // ? it was here
+            //GameWorld.GetComponentData(entity.Handle, GenericType).Dispose();
             GameWorld.RemoveComponent(entity.Handle, GenericType);
         }
     }
@@ -64,4 +68,4 @@ namespace PataNext.Export.Godot.Presentation;
     protected abstract bool OnSetPresentation(in UEntitySafe entity, out NodeProxy node);
 
     protected abstract bool OnRemovePresentation(in UEntitySafe entity, in NodeProxy node);
-}*/
+}
