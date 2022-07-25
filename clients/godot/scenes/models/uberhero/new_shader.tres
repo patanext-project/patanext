@@ -1,0 +1,30 @@
+[gd_resource type="VisualShader" load_steps=2 format=3 uid="uid://ce1fcls7aonk3"]
+
+[sub_resource type="VisualShaderNodeVec2Uniform" id="VisualShaderNodeVec2Uniform_d1bvc"]
+uniform_name = "Vector2Uniform"
+
+[resource]
+code = "shader_type spatial;
+uniform vec2 Vector2Uniform;
+
+
+
+void fragment() {
+// Vector2Uniform:2
+	vec2 n_out2p0 = Vector2Uniform;
+
+
+// Output:0
+	ALBEDO = vec3(n_out2p0, 0.0);
+
+
+}
+"
+graph_offset = Vector2(-334, -25)
+engine_version = {
+"major": 4,
+"minor": 0
+}
+nodes/fragment/2/node = SubResource( "VisualShaderNodeVec2Uniform_d1bvc" )
+nodes/fragment/2/position = Vector2(-80, 220)
+nodes/fragment/connections = PackedInt32Array(2, 0, 0, 0)

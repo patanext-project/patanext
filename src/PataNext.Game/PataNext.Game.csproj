@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
 
     <!-- Nuget warn about packages downgrade, but they're actually intended (since they're local) -->
@@ -14,7 +14,7 @@
     <PackageReference Include="revecs" Version="0.0.0-local" />
     <PackageReference Include="revecs.Generator" Version="0.0.0-local" OutputItemType="Analyzer" />
     <PackageReference Include="revghost" Version="0.0.0-local" />
-    <PackageReference Include="revghost.Shared" Version="0.0.0-local" />
+    <PackageReference Include="revghost.Shared" Version="2022.713.1503" />
     <PackageReference Include="Quadrum.Game" Version="0.0.0-local" />
   </ItemGroup>
   <PropertyGroup>

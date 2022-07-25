@@ -15,12 +15,11 @@ using revecs;
 using revecs.Core;
 using revecs.Extensions.Buffers;
 using revghost;
-using RustTest;
 
 namespace PataNext.Export.Godot;
 
 // For now it's used for getting inputs
-public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
+/*public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
 {
     public RhythmEnginePresentation(Scope scope) : base(scope)
     {
@@ -151,4 +150,4 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
     private partial struct TimeQuery : IQuery<Read<GameTime>>
     {
     }
-}
+}*/
