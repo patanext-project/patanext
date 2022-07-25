@@ -4,7 +4,7 @@
         <OutputType>exe</OutputType>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <LangVersion>preview</LangVersion>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <EnablePreviewFeatures>true</EnablePreviewFeatures>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
