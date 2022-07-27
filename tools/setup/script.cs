@@ -108,7 +108,11 @@ public static class Program
                 if (sub.GetDirectories(".git").Any())
                 {
                     Debug($"Updating {shortName} (url={dep.url})");
-                    var git = Process.Start(new ProcessStartInfo("git", "pull --no-rebase")
+                    var git = Process.Start(new ProcessStartInfo("git", "reset --hard HEAD")
+                    {
+                        WorkingDirectory = sub.FullName
+                    });
+                    git = Process.Start(new ProcessStartInfo("git", "pull --no-rebase")
                     {
                         WorkingDirectory = sub.FullName
                     });
