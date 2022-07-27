@@ -1,0 +1,11 @@
+GodotModuleRunner
+MeshInstance2D
+MeshInstance3D
+VisibleOnScreenNotifier3D
+Node3D
+VisibleOnScreenEnabler3D
+Node
+Camera3D
+RemoteTransform3D
+Position3D
+AnimationPlayer

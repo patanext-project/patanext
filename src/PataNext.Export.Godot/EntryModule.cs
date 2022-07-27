@@ -58,7 +58,6 @@ public partial class EntryModule : HostModule
                     Console.WriteLine($"{x} {y} -> {(x - size / 2) * 1.5f}, {(y - size / 2) * 1.7f}");
                 }
             }
-
             // for now create a random player entity
             var player = domain.GameWorld.CreateEntity();
             domain.GameWorld.AddComponent(player, PlayerDescription.Type.GetOrCreate(domain.GameWorld), default);

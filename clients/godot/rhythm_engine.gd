@@ -11,7 +11,6 @@ func _ready():
 
 
 func _process(_delta):	
-
 	if Input.is_action_just_pressed("drum_left"):
 		inputs.append(1)
 	if Input.is_action_just_pressed("drum_right"):
@@ -24,8 +23,6 @@ func _process(_delta):
 	$Label.text = title
 	$CurrCommand.text = curr_command
 	$Predicted.text = predicted
-	
-	# print(1 / _delta)
 
 func has_input_left():
 	return inputs.size() > 0

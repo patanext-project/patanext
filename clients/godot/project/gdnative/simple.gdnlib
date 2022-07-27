@@ -1,0 +1,18 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="godot_"
+reloadable=true
+
+[entry]
+
+OSX.64="res://gdnative/macos/libsimple.dylib"
+Windows.64="res://gdnative/win64/libsimple.dll"
+X11.64="res://gdnative/x11/libsimple.so"
+
+[dependencies]
+
+OSX.64=[  ]
+Windows.64=[  ]
+X11.64=[  ]

@@ -80,7 +80,6 @@ func _process(delta):
 	bs.give(_pointB)
 	bs.give(_pointC)
 	
-	
 	var quad = mesh as QuadMesh
 	var newSize = bs.size() * (2 + Offset + Thickness) + Vector2(Offset, Offset)
 	if newSize != prevSize: 
