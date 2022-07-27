@@ -15,7 +15,7 @@
 #include <dnne.h>
 
 // Computed from PataNext.Export.Godot.Program.GodotLoad
-DNNE_EXTERN_C DNNE_API uint8_t DNNE_CALLTYPE_CDECL lib_load(/* SUPPLY TYPE */* gdInterface, void* gdLibrary, /* SUPPLY TYPE */* gdInit);
+DNNE_EXTERN_C DNNE_API uint8_t DNNE_CALLTYPE_CDECL lib_load(void* gdInterfaceVoid, void* gdLibrary, void* gdInitVoid);
 
 #endif // __DNNE_GENERATED_HEADER_PATANEXT_EXPORT_GODOT__
 
@@ -58,15 +58,15 @@ static const char_t* t1_name = DNNE_STR("PataNext.Export.Godot.Program, PataNext
 //
 
 // Computed from PataNext.Export.Godot.Program.GodotLoad
-static uint8_t (DNNE_CALLTYPE_CDECL* lib_load_ptr)(/* SUPPLY TYPE */* gdInterface, void* gdLibrary, /* SUPPLY TYPE */* gdInit);
-DNNE_EXTERN_C DNNE_API uint8_t DNNE_CALLTYPE_CDECL lib_load(/* SUPPLY TYPE */* gdInterface, void* gdLibrary, /* SUPPLY TYPE */* gdInit)
+static uint8_t (DNNE_CALLTYPE_CDECL* lib_load_ptr)(void* gdInterfaceVoid, void* gdLibrary, void* gdInitVoid);
+DNNE_EXTERN_C DNNE_API uint8_t DNNE_CALLTYPE_CDECL lib_load(void* gdInterfaceVoid, void* gdLibrary, void* gdInitVoid)
 {
     if (lib_load_ptr == NULL)
     {
         const char_t* methodName = DNNE_STR("GodotLoad");
-        lib_load_ptr = (uint8_t(DNNE_CALLTYPE_CDECL*)(/* SUPPLY TYPE */* gdInterface, void* gdLibrary, /* SUPPLY TYPE */* gdInit))get_fast_callable_managed_function(t1_name, methodName);
+        lib_load_ptr = (uint8_t(DNNE_CALLTYPE_CDECL*)(void* gdInterfaceVoid, void* gdLibrary, void* gdInitVoid))get_fast_callable_managed_function(t1_name, methodName);
     }
-    return lib_load_ptr(gdInterface, gdLibrary, gdInit);
+    return lib_load_ptr(gdInterfaceVoid, gdLibrary, gdInitVoid);
 }
 
 #endif // DNNE_COMPILE_AS_SOURCE
