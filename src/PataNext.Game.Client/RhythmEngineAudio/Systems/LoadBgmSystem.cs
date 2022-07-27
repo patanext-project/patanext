@@ -21,9 +21,9 @@ public class LoadBgmSystem : PresentationRhythmEngineSystemBase
     
     public LoadBgmSystem(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref scheduler);
-        Dependencies.AddRef(() => ref world);
-        Dependencies.AddRef(() => ref storage);
+        Dependencies.Add(() => ref scheduler);
+        Dependencies.Add(() => ref world);
+        Dependencies.Add(() => ref storage);
     }
 
     protected override void OnUpdatePass(EngineQuery.Iteration engine, GameTime gameTime)

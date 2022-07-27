@@ -22,7 +22,7 @@ public partial class
 
     public BgmDefaultDirectorSoundtrackSystem(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref audioClient);
+        Dependencies.Add(() => ref audioClient);
     }
 
     private AudioPlayerEntity audioPlayer;

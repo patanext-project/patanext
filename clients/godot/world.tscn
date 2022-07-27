@@ -12,10 +12,11 @@ script/source = "extends Node3D
 func _ready():
 	PhysicsServer3D.set_active(false)
 	
-	var size = 10
+	return
+	var size = 100
 	for x in size:
 		for y in size:
-			var node = uberhero.instantiate() as Node3D
+			var node = uberhero.duplicate(true).instantiate() as Node3D
 			add_child(node)
 			
 			node.position = Vector3((x - size / 2) * 1.5, (y - size / 2) * 1.7, 0)
@@ -133,12 +134,13 @@ script = SubResource( "GDScript_7qeds" )
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.115548, 0.0227711, -0.293749)
-transparency = 0.31
+transparency = 0.9
 mesh = SubResource( "BoxMesh_3c30d" )
 surface_material_override/0 = SubResource( "ShaderMaterial_ii7px" )
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.455102, 0.428727, -0.368404)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.470882, 0.442666, -0.368404)
+transparency = 0.9
 mesh = SubResource( "BoxMesh_3c30d" )
 surface_material_override/0 = SubResource( "ShaderMaterial_ii7px" )
 

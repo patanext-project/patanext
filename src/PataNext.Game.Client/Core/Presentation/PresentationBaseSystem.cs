@@ -58,8 +58,8 @@ public abstract class PresentationBaseSystem : AppSystem
 
     public PresentationBaseSystem(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref gameWorld);
-        Dependencies.AddRef(() => ref updateLoop);
+        Dependencies.Add(() => ref gameWorld);
+        Dependencies.Add(() => ref updateLoop);
     }
 
     protected string SystemTypeName => GetType().FullName;

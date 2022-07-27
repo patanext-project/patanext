@@ -1,8 +1,10 @@
 using System.Diagnostics;
+using System.Runtime;
 using System.Runtime.Loader;
 using GDNative;
 using GodotCLR;
 using GodotCLR.HighLevel;
+using PataNext.Export.Godot.GodotComponents;
 using revghost;
 using revghost.Domains;
 using revghost.IO.Storage;
@@ -78,9 +80,31 @@ public class GodotModuleRunner
             }
         };
     }
+
+    private static long previousMemSize;
+    private static TimeSpan now = DateTime.Now.TimeOfDay;
     
     private static bool Loop()
     {
+        /*var mem = GC.GetTotalMemory(false);
+        var delta = mem - previousMemSize;
+        previousMemSize = mem;
+
+        if (delta != 0)
+        {
+            Console.Write("Memory Delta: ");
+            Console.Write(delta);
+            Console.Write("b");
+            Console.WriteLine();
+        }
+
+        if (DateTime.Now.TimeOfDay > now.Add(TimeSpan.FromSeconds(4)) 
+            && GCSettings.LatencyMode != GCLatencyMode.NoGCRegion)
+        {
+            Console.WriteLine("Entering No GC zone");
+            GC.TryStartNoGCRegion(int.MaxValue);
+        }*/
+
         Debug.Assert(_runner != null, "_runner != null");
         return _runner.Loop();
     }
@@ -120,6 +144,8 @@ public class GodotModuleRunner
             Variant.EType.NIL,
             GDNativeExtensionClassMethodFlags.GDNATIVE_EXTENSION_METHOD_FLAG_STATIC
         );
+
+        SplineModel.Load();
     }
 
     private static Action<string, string> _loadModuleAction;

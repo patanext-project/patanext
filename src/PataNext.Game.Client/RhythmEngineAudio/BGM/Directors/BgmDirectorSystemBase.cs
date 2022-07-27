@@ -14,7 +14,7 @@ public abstract class BgmDirectorSystemBase<TDirector, TLoader> : PresentationRh
 
     public BgmDirectorSystemBase(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref world);
+        Dependencies.Add(() => ref world);
     }
 
     private EntitySet directorSet;

@@ -11,6 +11,7 @@ func _ready():
 
 
 func _process(_delta):	
+
 	if Input.is_action_just_pressed("drum_left"):
 		inputs.append(1)
 	if Input.is_action_just_pressed("drum_right"):

@@ -15,15 +15,13 @@ public class UpdatePresentationSystems : AppSystem
 
     private World world;
     private IDomainUpdateLoopSubscriber domainUpdate;
-    private RunSystemGroupSystem simulationSystemGroup;
 
     public UpdatePresentationSystems(Scope scope) : base(scope)
     {
         this.scope = scope;
 
-        Dependencies.AddRef(() => ref world);
-        Dependencies.AddRef(() => ref domainUpdate);
-        Dependencies.AddRef(() => ref simulationSystemGroup);
+        Dependencies.Add(() => ref world);
+        Dependencies.Add(() => ref domainUpdate);
     }
 
     private PresentationLoop loop;
@@ -37,7 +35,7 @@ public class UpdatePresentationSystems : AppSystem
         Disposables.AddRange(new IDisposable[]
         {
             loop,
-            domainUpdate.Subscribe(OnUpdate, b => { b.After(simulationSystemGroup.UpdateLoopEntity); })
+            domainUpdate.Subscribe(OnUpdate, b => { b.After(typeof(RunSimulationUpdateLoopSystem)); })
         });
     }
 

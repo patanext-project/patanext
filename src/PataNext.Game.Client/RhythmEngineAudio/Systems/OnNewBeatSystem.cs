@@ -25,8 +25,8 @@ public class OnNewBeatSystem : PresentationRhythmEngineSystemBase
     
     public OnNewBeatSystem(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref _storage);
-        Dependencies.AddRef(() => ref _audio);
+        Dependencies.Add(() => ref _storage);
+        Dependencies.Add(() => ref _audio);
     }
     
     protected override void OnInit()

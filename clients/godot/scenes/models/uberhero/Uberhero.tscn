@@ -7,80 +7,32 @@
 [ext_resource type="Shader" path="res://shaders/bezier_spline.gdshader" id="4_hgbkt"]
 [ext_resource type="PackedScene" uid="uid://c0orlksflir8d" path="res://scenes/models/uberhero/__int2/LegBase.tscn" id="5_gf4kx"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_jxeqe"]
-resource_local_to_scene = true
-render_priority = 0
-shader = ExtResource( "4_hgbkt" )
-shader_param/Color = null
-shader_param/PointA = Vector2(0.5, 0.5)
-shader_param/PointB = Vector2(0.871274, 0.539104)
-shader_param/PointC = Vector2(0.569409, 0.70483)
-shader_param/Thickness = 0.326829
-shader_param/Smoothness = 0.2
-
-[sub_resource type="QuadMesh" id="QuadMesh_gku7j"]
-resource_local_to_scene = true
-material = SubResource( "ShaderMaterial_jxeqe" )
-size = Vector2(0.917911, 0.917911)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_6cw37"]
-resource_local_to_scene = true
-render_priority = 0
-shader = ExtResource( "4_hgbkt" )
-shader_param/Color = null
-shader_param/PointA = Vector2(0.5, 0.5)
-shader_param/PointB = Vector2(0.397354, 0.439347)
-shader_param/PointC = Vector2(0.119396, 0.26626)
-shader_param/Thickness = 0.259654
-shader_param/Smoothness = 0.2
-
-[sub_resource type="QuadMesh" id="QuadMesh_j7g7v"]
-resource_local_to_scene = true
-material = SubResource( "ShaderMaterial_6cw37" )
-size = Vector2(1.15539, 1.15539)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_sulue"]
-resource_local_to_scene = true
-render_priority = 0
-shader = ExtResource( "4_hgbkt" )
-shader_param/Color = null
-shader_param/PointA = Vector2(0.5, 0.5)
-shader_param/PointB = Vector2(0.5, 0.61194)
-shader_param/PointC = Vector2(0.5, 0.723881)
-shader_param/Thickness = 0.223881
-shader_param/Smoothness = 0.2
-
-[sub_resource type="QuadMesh" id="QuadMesh_f25vb"]
-resource_local_to_scene = true
-material = SubResource( "ShaderMaterial_sulue" )
-size = Vector2(1.34, 1.34)
-
 [sub_resource type="Animation" id="Animation_q1wv2"]
 length = 0.001
 tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Visual/Hips/Spine/RightShoulder/Point1:position:x")
+tracks/0/path = NodePath("Visual/RightShoulder/Point2:position:z")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"points": PackedFloat32Array(0.2, -0.25, 0, 0.25, 0, 1),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1),
 "times": PackedFloat32Array(0)
 }
 tracks/1/type = "bezier"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Visual/Hips/Spine/RightShoulder/Point1:position:y")
+tracks/1/path = NodePath("Visual/RightShoulder/Point1:position:x")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1),
+"points": PackedFloat32Array(0.2, -0.25, 0, 0.25, 0, 1),
 "times": PackedFloat32Array(0)
 }
 tracks/2/type = "bezier"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Visual/Hips/Spine/RightShoulder/Point1:position:z")
+tracks/2/path = NodePath("Visual/RightShoulder/Point2:position:y")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -90,27 +42,27 @@ tracks/2/keys = {
 tracks/3/type = "bezier"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point2:position:x")
+tracks/3/path = NodePath("Visual/RightShoulder/Point1:position:y")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"points": PackedFloat32Array(0.45, -0.25, 0, 0.25, 0, 1),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1),
 "times": PackedFloat32Array(0)
 }
 tracks/4/type = "bezier"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point2:position:y")
+tracks/4/path = NodePath("Visual/RightShoulder/Point2:position:x")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1),
+"points": PackedFloat32Array(0.45, -0.25, 0, 0.25, 0, 1),
 "times": PackedFloat32Array(0)
 }
 tracks/5/type = "bezier"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point2:position:z")
+tracks/5/path = NodePath("Visual/RightShoulder/Point1:position:z")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
@@ -120,27 +72,27 @@ tracks/5/keys = {
 tracks/6/type = "bezier"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point1:position:x")
+tracks/6/path = NodePath("Visual/LeftShoulder/Point1:position:z")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"points": PackedFloat32Array(0.2, -0.25, 0, 0.25, 0, 1),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1),
 "times": PackedFloat32Array(0)
 }
 tracks/7/type = "bezier"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point1:position:y")
+tracks/7/path = NodePath("Visual/LeftShoulder/Point2:position:x")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1),
+"points": PackedFloat32Array(0.45, -0.25, 0, 0.25, 0, 1),
 "times": PackedFloat32Array(0)
 }
 tracks/8/type = "bezier"
 tracks/8/imported = false
 tracks/8/enabled = true
-tracks/8/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point1:position:z")
+tracks/8/path = NodePath("Visual/LeftShoulder/Point1:position:y")
 tracks/8/interp = 1
 tracks/8/loop_wrap = true
 tracks/8/keys = {
@@ -150,27 +102,27 @@ tracks/8/keys = {
 tracks/9/type = "bezier"
 tracks/9/imported = false
 tracks/9/enabled = true
-tracks/9/path = NodePath("Visual/Hips/Spine/RightShoulder/Point2:position:x")
+tracks/9/path = NodePath("Visual/LeftShoulder/Point2:position:y")
 tracks/9/interp = 1
 tracks/9/loop_wrap = true
 tracks/9/keys = {
-"points": PackedFloat32Array(0.45, -0.25, 0, 0.25, 0, 1),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1),
 "times": PackedFloat32Array(0)
 }
 tracks/10/type = "bezier"
 tracks/10/imported = false
 tracks/10/enabled = true
-tracks/10/path = NodePath("Visual/Hips/Spine/RightShoulder/Point2:position:y")
+tracks/10/path = NodePath("Visual/LeftShoulder/Point1:position:x")
 tracks/10/interp = 1
 tracks/10/loop_wrap = true
 tracks/10/keys = {
-"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1),
+"points": PackedFloat32Array(0.2, -0.25, 0, 0.25, 0, 1),
 "times": PackedFloat32Array(0)
 }
 tracks/11/type = "bezier"
 tracks/11/imported = false
 tracks/11/enabled = true
-tracks/11/path = NodePath("Visual/Hips/Spine/RightShoulder/Point2:position:z")
+tracks/11/path = NodePath("Visual/LeftShoulder/Point2:position:z")
 tracks/11/interp = 1
 tracks/11/loop_wrap = true
 tracks/11/keys = {
@@ -184,57 +136,57 @@ length = 3.0
 tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Visual/Hips/Spine/RightShoulder/Point1:position:x")
+tracks/0/path = NodePath("Visual/RightShoulder/Point2:position:z")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"points": PackedFloat32Array(0.169234, -0.25, 0, 0.25, 0, 1, 0.206823, -0.25, 0, 0.25, 0, 1, 0.101023, 0, 0, 0, 0, 1, 0.206923, 0, 0, 0, 0, 1, 0.366156, 0, 0, 0, 0, 1),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1, 0, -0.25, 0, 0.25, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1),
 "times": PackedFloat32Array(0, 1, 1.6, 2, 2.6)
 }
 tracks/1/type = "bezier"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Visual/Hips/Spine/RightShoulder/Point1:position:y")
+tracks/1/path = NodePath("Visual/RightShoulder/Point1:position:x")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"points": PackedFloat32Array(0.102554, -0.25, 0, 0.25, 0, 1, 0.0684037, -0.25, 0, 0.25, 0, 1, 0.320957, 0, 0, 0, 0, 1, 0.0683824, 0, 0, 0, 0, 1, 0.092098, 0, 0, 0, 0, 1),
+"points": PackedFloat32Array(0.169234, -0.25, 0, 0.25, 0, 1, 0.206823, -0.25, 0, 0.25, 0, 1, 0.101023, 0, 0, 0, 0, 1, 0.206923, 0, 0, 0, 0, 1, 0.366156, 0, 0, 0, 0, 1),
 "times": PackedFloat32Array(0, 1, 1.6, 2, 2.6)
 }
 tracks/2/type = "bezier"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Visual/Hips/Spine/RightShoulder/Point1:position:z")
+tracks/2/path = NodePath("Visual/RightShoulder/Point2:position:y")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1, 0, -0.25, 0, 0.25, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1),
+"points": PackedFloat32Array(0.27006, -0.25, 0, 0.25, 0, 1, 0.321337, -0.25, 0, 0.25, 0, 1, 0.321337, 0, 0, 0, 0, 1, 0.321337, 0, 0, 0, 0, 1, 0.321337, 0, 0, 0, 0, 1),
 "times": PackedFloat32Array(0, 1, 1.6, 2, 2.6)
 }
 tracks/3/type = "bezier"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point2:position:x")
+tracks/3/path = NodePath("Visual/RightShoulder/Point1:position:y")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"points": PackedFloat32Array(0.0637116, -0.25, 0, 0.25, 0, 1, 0.439744, -0.25, 0, 0.25, 0, 1, 0.439744, 0, 0, 0, 0, 1, 0.439744, 0, 0, 0, 0, 1, 0.439744, 0, 0, 0, 0, 1),
+"points": PackedFloat32Array(0.102554, -0.25, 0, 0.25, 0, 1, 0.0684037, -0.25, 0, 0.25, 0, 1, 0.320957, 0, 0, 0, 0, 1, 0.0683824, 0, 0, 0, 0, 1, 0.092098, 0, 0, 0, 0, 1),
 "times": PackedFloat32Array(0, 1, 1.6, 2, 2.6)
 }
 tracks/4/type = "bezier"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point2:position:y")
+tracks/4/path = NodePath("Visual/RightShoulder/Point2:position:x")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"points": PackedFloat32Array(-0.188016, -0.25, 0, 0.25, 0, 1, -0.102555, -0.25, 0, 0.25, 0, 1, -0.102555, 0, 0, 0, 0, 1, -0.102555, 0, 0, 0, 0, 1, -0.102555, 0, 0, 0, 0, 1),
+"points": PackedFloat32Array(0.439744, -0.25, 0, 0.25, 0, 1, 0.463674, -0.25, 0, 0.25, 0, 1, 0.463674, 0, 0, 0, 0, 1, 0.463674, 0, 0, 0, 0, 1, 0.463674, 0, 0, 0, 0, 1),
 "times": PackedFloat32Array(0, 1, 1.6, 2, 2.6)
 }
 tracks/5/type = "bezier"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point2:position:z")
+tracks/5/path = NodePath("Visual/RightShoulder/Point1:position:z")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
@@ -244,57 +196,57 @@ tracks/5/keys = {
 tracks/6/type = "bezier"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point1:position:x")
+tracks/6/path = NodePath("Visual/LeftShoulder/Point1:position:z")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"points": PackedFloat32Array(0.186326, -0.25, 0, 0.25, 0, 1, 0.186326, 0, 0, 0, 0, 1, 0.186326, 0, 0, 0, 0, 1, 0.186326, 0, 0, 0, 0, 1),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1),
 "times": PackedFloat32Array(1, 1.6, 2, 2.6)
 }
 tracks/7/type = "bezier"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point1:position:y")
+tracks/7/path = NodePath("Visual/LeftShoulder/Point2:position:x")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"points": PackedFloat32Array(-0.0649511, -0.25, 0, 0.25, 0, 1, -0.0649511, 0, 0, 0, 0, 1, -0.0649511, 0, 0, 0, 0, 1, -0.0649511, 0, 0, 0, 0, 1),
-"times": PackedFloat32Array(1, 1.6, 2, 2.6)
+"points": PackedFloat32Array(0.0637116, -0.25, 0, 0.25, 0, 1, 0.439744, -0.25, 0, 0.25, 0, 1, 0.439744, 0, 0, 0, 0, 1, 0.439744, 0, 0, 0, 0, 1, 0.439744, 0, 0, 0, 0, 1),
+"times": PackedFloat32Array(0, 1, 1.6, 2, 2.6)
 }
 tracks/8/type = "bezier"
 tracks/8/imported = false
 tracks/8/enabled = true
-tracks/8/path = NodePath("Visual/Hips/Spine/LeftShoulder/Point1:position:z")
+tracks/8/path = NodePath("Visual/LeftShoulder/Point1:position:y")
 tracks/8/interp = 1
 tracks/8/loop_wrap = true
 tracks/8/keys = {
-"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1),
+"points": PackedFloat32Array(-0.0649511, -0.25, 0, 0.25, 0, 1, -0.0649511, 0, 0, 0, 0, 1, -0.0649511, 0, 0, 0, 0, 1, -0.0649511, 0, 0, 0, 0, 1),
 "times": PackedFloat32Array(1, 1.6, 2, 2.6)
 }
 tracks/9/type = "bezier"
 tracks/9/imported = false
 tracks/9/enabled = true
-tracks/9/path = NodePath("Visual/Hips/Spine/RightShoulder/Point2:position:x")
+tracks/9/path = NodePath("Visual/LeftShoulder/Point2:position:y")
 tracks/9/interp = 1
 tracks/9/loop_wrap = true
 tracks/9/keys = {
-"points": PackedFloat32Array(0.439744, -0.25, 0, 0.25, 0, 1, 0.463674, -0.25, 0, 0.25, 0, 1, 0.463674, 0, 0, 0, 0, 1, 0.463674, 0, 0, 0, 0, 1, 0.463674, 0, 0, 0, 0, 1),
+"points": PackedFloat32Array(-0.188016, -0.25, 0, 0.25, 0, 1, -0.102555, -0.25, 0, 0.25, 0, 1, -0.102555, 0, 0, 0, 0, 1, -0.102555, 0, 0, 0, 0, 1, -0.102555, 0, 0, 0, 0, 1),
 "times": PackedFloat32Array(0, 1, 1.6, 2, 2.6)
 }
 tracks/10/type = "bezier"
 tracks/10/imported = false
 tracks/10/enabled = true
-tracks/10/path = NodePath("Visual/Hips/Spine/RightShoulder/Point2:position:y")
+tracks/10/path = NodePath("Visual/LeftShoulder/Point1:position:x")
 tracks/10/interp = 1
 tracks/10/loop_wrap = true
 tracks/10/keys = {
-"points": PackedFloat32Array(0.27006, -0.25, 0, 0.25, 0, 1, 0.321337, -0.25, 0, 0.25, 0, 1, 0.321337, 0, 0, 0, 0, 1, 0.321337, 0, 0, 0, 0, 1, 0.321337, 0, 0, 0, 0, 1),
-"times": PackedFloat32Array(0, 1, 1.6, 2, 2.6)
+"points": PackedFloat32Array(0.186326, -0.25, 0, 0.25, 0, 1, 0.186326, 0, 0, 0, 0, 1, 0.186326, 0, 0, 0, 0, 1, 0.186326, 0, 0, 0, 0, 1),
+"times": PackedFloat32Array(1, 1.6, 2, 2.6)
 }
 tracks/11/type = "bezier"
 tracks/11/imported = false
 tracks/11/enabled = true
-tracks/11/path = NodePath("Visual/Hips/Spine/RightShoulder/Point2:position:z")
+tracks/11/path = NodePath("Visual/LeftShoulder/Point2:position:z")
 tracks/11/interp = 1
 tracks/11/loop_wrap = true
 tracks/11/keys = {
@@ -308,7 +260,56 @@ _data = {
 "Test": SubResource( "Animation_j6wto" )
 }
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jxeqe"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource( "4_hgbkt" )
+shader_param/Color = null
+shader_param/PointA = Vector2(0.5, 0.5)
+shader_param/PointB = Vector2(0.648305, 0.5)
+shader_param/PointC = Vector2(0.881356, 0.5)
+shader_param/Smoothness = 0.2
+shader_param/Thickness = 0.254237
+
+[sub_resource type="QuadMesh" id="QuadMesh_gku7j"]
+resource_local_to_scene = true
+material = SubResource( "ShaderMaterial_jxeqe" )
+size = Vector2(1.18, 1.18)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6cw37"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource( "4_hgbkt" )
+shader_param/Color = null
+shader_param/PointA = Vector2(0.5, 0.5)
+shader_param/PointB = Vector2(0.351695, 0.5)
+shader_param/PointC = Vector2(0.118644, 0.5)
+shader_param/Smoothness = 0.2
+shader_param/Thickness = 0.254237
+
+[sub_resource type="QuadMesh" id="QuadMesh_j7g7v"]
+resource_local_to_scene = true
+material = SubResource( "ShaderMaterial_6cw37" )
+size = Vector2(1.18, 1.18)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sulue"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource( "4_hgbkt" )
+shader_param/Color = null
+shader_param/PointA = Vector2(0.5, 0.5)
+shader_param/PointB = Vector2(0.5, 0.61194)
+shader_param/PointC = Vector2(0.5, 0.723881)
+shader_param/Smoothness = 0.2
+shader_param/Thickness = 0.223881
+
+[sub_resource type="QuadMesh" id="QuadMesh_f25vb"]
+resource_local_to_scene = true
+material = SubResource( "ShaderMaterial_sulue" )
+size = Vector2(1.34, 1.34)
+
 [node name="Spatial" type="Node3D"]
+top_level = true
 
 [node name="ScreenEnabler" type="VisibleOnScreenEnabler3D" parent="."]
 aabb = AABB(-1, -1, -1, 2, 3, 2)
@@ -317,6 +318,7 @@ enable_node_path = NodePath("../Visual")
 [node name="Visual" type="Node3D" parent="."]
 
 [node name="Hips" type="BoneAttachment3D" parent="Visual"]
+process_mode = 4
 transform = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0, 0.419, 0)
 bone_name = "Bone"
 bone_idx = 0
@@ -326,6 +328,7 @@ use_external_skeleton = true
 external_skeleton = NodePath("../Meshes/Body/BodyArmature/Skeleton3D")
 
 [node name="Spine" type="BoneAttachment3D" parent="Visual/Hips"]
+process_mode = 4
 transform = Transform3D(1, 0, -2.38419e-07, 0, 1, 0, 2.38419e-07, 0, 1, 0, 0.2, 0)
 bone_name = "Bone.001"
 bone_idx = 1
@@ -334,56 +337,12 @@ override_mode = 1
 use_external_skeleton = true
 external_skeleton = NodePath("../../Meshes/Body/BodyArmature/Skeleton3D")
 
-[node name="Neck" type="Node3D" parent="Visual/Hips/Spine"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.559369, 0)
-
-[node name="Model_Scarf0" parent="Visual/Hips/Spine/Neck" instance=ExtResource( "2_hdmvh" )]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.341902, 0)
-
-[node name="Head" parent="Visual/Hips/Spine/Neck" instance=ExtResource( "2_5py4m" )]
-
-[node name="LeftShoulder" parent="Visual/Hips/Spine" instance=ExtResource( "4_68ot1" )]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13, 0.141, 0)
-
-[node name="Spline" parent="Visual/Hips/Spine/LeftShoulder" index="0"]
-mesh = SubResource( "QuadMesh_gku7j" )
-PointB = Vector2(0.340796, -0.0358942)
-PointC = Vector2(0.0637116, -0.188016)
-
-[node name="Point1" parent="Visual/Hips/Spine/LeftShoulder" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.186326, -0.0649511, 0)
-
-[node name="Point2" parent="Visual/Hips/Spine/LeftShoulder" index="3"]
-transform = Transform3D(-0.859648, 0.510887, 0, -0.510887, -0.859648, 0, 0, 0, 1, 0.0637116, -0.188016, 0)
-
-[node name="RightShoulder" parent="Visual/Hips/Spine" instance=ExtResource( "4_68ot1" )]
-transform = Transform3D(-1, 0, 0, 0, 1, -8.74228e-08, 0, 8.74228e-08, 1, -0.13, 0.141, 0)
-
-[node name="Spline" parent="Visual/Hips/Spine/RightShoulder" index="0"]
-mesh = SubResource( "QuadMesh_j7g7v" )
-PointB = Vector2(-0.118596, 0.070078)
-PointC = Vector2(-0.439744, 0.27006)
-
-[node name="Point1" parent="Visual/Hips/Spine/RightShoulder" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.169234, 0.102554, 0)
-
-[node name="Point2" parent="Visual/Hips/Spine/RightShoulder" index="3"]
-transform = Transform3D(0.849102, -0.528229, 0, 0.528229, 0.849102, 0, 0, 0, 1, 0.439744, 0.27006, -7.10543e-15)
-
-[node name="LeftLeg" parent="Visual/Hips" instance=ExtResource( "5_gf4kx" )]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.061, 0)
-
-[node name="RightLeg" parent="Visual/Hips" instance=ExtResource( "5_gf4kx" )]
-transform = Transform3D(-1, 0, 0, 0, 1, -8.74228e-08, 0, 8.74228e-08, 1, -0.05, 0.061, 0)
-
-[node name="Spline" parent="Visual/Hips/RightLeg" index="0"]
-mesh = SubResource( "QuadMesh_f25vb" )
-
 [node name="Meshes" type="Node" parent="Visual"]
 
 [node name="Body" parent="Visual/Meshes" instance=ExtResource( "1_3hwda" )]
 
 [node name="Skeleton3D" parent="Visual/Meshes/Body/BodyArmature" index="0"]
+process_mode = 4
 bones/1/position = Vector3(0.573333, 0.256333, 0)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Visual"]
@@ -392,7 +351,39 @@ libraries = {
 "": SubResource( "AnimationLibrary_r24xr" )
 }
 
-[editable path="Visual/Hips/Spine/LeftShoulder"]
-[editable path="Visual/Hips/Spine/RightShoulder"]
-[editable path="Visual/Hips/RightLeg"]
+[node name="Neck" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.17837, 0)
+
+[node name="Model_Scarf0" parent="Visual/Neck" instance=ExtResource( "2_hdmvh" )]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.341902, 0)
+
+[node name="Head" parent="Visual/Neck" instance=ExtResource( "2_5py4m" )]
+
+[node name="LeftShoulder" parent="Visual" instance=ExtResource( "4_68ot1" )]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13, 0.76, 0)
+
+[node name="Spline" parent="Visual/LeftShoulder" index="0"]
+mesh = SubResource( "QuadMesh_gku7j" )
+
+[node name="RightShoulder" parent="Visual" instance=ExtResource( "4_68ot1" )]
+transform = Transform3D(-1, 0, 0, 0, 1, -8.74228e-08, 0, 8.74228e-08, 1, -0.13, 0.76, 0)
+
+[node name="Spline" parent="Visual/RightShoulder" index="0"]
+mesh = SubResource( "QuadMesh_j7g7v" )
+PointB = Vector2(-0.175, 0)
+PointC = Vector2(-0.45, 0)
+
+[node name="LeftLeg" parent="Visual" instance=ExtResource( "5_gf4kx" )]
+transform = Transform3D(1, 0, 2.38419e-07, 0, 1, 0, -2.38419e-07, 0, 1, 0.05, 0.48, -1.1921e-08)
+
+[node name="RightLeg" parent="Visual" instance=ExtResource( "5_gf4kx" )]
+transform = Transform3D(-1, 2.08433e-14, 2.38419e-07, 0, 1, -8.74228e-08, 2.38419e-07, 8.74228e-08, 1, -0.05, 0.48, 1.1921e-08)
+
+[node name="Spline" parent="Visual/RightLeg" index="0"]
+mesh = SubResource( "QuadMesh_f25vb" )
+PointA = Vector2(0, 0)
+
 [editable path="Visual/Meshes/Body"]
+[editable path="Visual/LeftShoulder"]
+[editable path="Visual/RightShoulder"]
+[editable path="Visual/RightLeg"]

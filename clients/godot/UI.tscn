@@ -1,8 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=3 format=3 uid="uid://cbvrd1n3xmxg3"]
 
-[ext_resource path="res://singletons/revghost.tscn" type="PackedScene" id=2]
+[ext_resource type="PackedScene" path="res://singletons/revghost.tscn" id="2"]
 
-[sub_resource type="GDScript" id=1]
+[sub_resource type="GDScript" id="1"]
 script/source = "extends Control
 
 func _on_Button_pressed():
@@ -24,35 +24,16 @@ func _process(delta):
 [node name="main" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = SubResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+script = SubResource( "1" )
 
 [node name="Button" type="Button" parent="."]
-margin_left = 748.336
-margin_top = 510.499
-margin_right = 994.336
-margin_bottom = 566.499
-rect_rotation = -20.0
 text = "Party Toggle"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Label" type="Label" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -245.816
-margin_top = 6.04539
-margin_right = -8.81641
-margin_bottom = 63.0454
 size_flags_vertical = 0
-align = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="revghost" parent="." instance=ExtResource( 2 )]
+[node name="revghost" parent="." instance=ExtResource( "2" )]
 
 [connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]

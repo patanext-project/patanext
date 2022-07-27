@@ -13,20 +13,21 @@ shader_param/Color = null
 shader_param/PointA = Vector2(0.5, 0.5)
 shader_param/PointB = Vector2(0.648305, 0.5)
 shader_param/PointC = Vector2(0.881356, 0.5)
-shader_param/Thickness = 0.254237
 shader_param/Smoothness = 0.2
+shader_param/Thickness = 0.254237
 
 [sub_resource type="QuadMesh" id="QuadMesh_wlhby"]
 resource_local_to_scene = true
 material = SubResource( "ShaderMaterial_mymxy" )
 size = Vector2(1.18, 1.18)
 
-[node name="LeftShoulder" type="Node3D"]
+[node name="LeftShoulder" type="SplineModel"]
 script = ExtResource( "2_pdway" )
 
 [node name="Spline" parent="." instance=ExtResource( "2_tggkl" )]
 cast_shadow = 0
 mesh = SubResource( "QuadMesh_wlhby" )
+PointA = Vector2(0, 0)
 PointB = Vector2(0.175, 0)
 PointC = Vector2(0.45, 0)
 Offset = 0.1

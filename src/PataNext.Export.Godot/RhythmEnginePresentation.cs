@@ -15,6 +15,7 @@ using revecs;
 using revecs.Core;
 using revecs.Extensions.Buffers;
 using revghost;
+using revtask.Core;
 
 namespace PataNext.Export.Godot;
 
@@ -49,14 +50,9 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
         return true;
     }
 
-    protected override bool OnSetPresentation(in UEntitySafe entity, out GD.Node node)
+    protected override bool OnSetPresentation(in UEntitySafe entity, out JobRequest jobRequest)
     {
-        Console.WriteLine($"PackedScene: {new Variant {Type = Variant.EType.OBJECT, Object = _packedScene.Pointer}}");
-        node = _packedScene.Instantiate();
-
-        var root = new GD.Node(GD.SceneTree.GetCurrentScene(GD.Engine.GetMainLoop()));
-        root.AddChild(node);
-        
+        jobRequest = NewInstantiateJob(entity, _packedScene);
         return true;
     }
 
@@ -86,10 +82,11 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
             throw new InvalidOperationException("null player");
 
         var time = timeQuery.First().GameTime;
-        
         foreach (var entity in QueryWithPresentation)
         {
-            var node = GameWorld.GetComponentData(entity, GenericType);
+            if (!TryGetNode(entity, out var node))
+                continue;
+
             while (node.Call("has_input_left", default).Bool)
             {
                 var lastInput = (int) node.Call("get_last_input", default).Int;

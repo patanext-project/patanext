@@ -17,7 +17,6 @@ config/name="PataNext GDExtension"
 config/description="PataNext"
 run/main_scene="res://world.tscn"
 config/features=PackedStringArray("4.0")
-run/low_processor_mode=true
 boot_splash/bg_color=Color(0, 0, 0, 1)
 config/icon="res://icon.png"
 
@@ -79,6 +78,7 @@ multithread/thread_rid_pool_prealloc=60
 
 [rendering]
 
+driver/threads/thread_model=0
 driver/depth_prepass/enable=false
 scaling_3d/mode=1
 anti_aliasing/quality/msaa=1

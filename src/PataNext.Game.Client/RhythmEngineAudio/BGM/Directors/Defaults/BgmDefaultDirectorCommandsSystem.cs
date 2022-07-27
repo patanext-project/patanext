@@ -18,8 +18,8 @@ public partial class BgmDefaultDirectorCommandsSystem : BgmDirectorSystemBase<Bg
 
     public BgmDefaultDirectorCommandsSystem(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref audioClient);
-        Dependencies.AddRef(() => ref storage);
+        Dependencies.Add(() => ref audioClient);
+        Dependencies.Add(() => ref storage);
     }
 
     private AudioClips clips;
