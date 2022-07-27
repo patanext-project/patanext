@@ -17,9 +17,13 @@ public unsafe class Program
     private static GDNativeInterface* _interface;
     private static void* _library;
     
-    [UnmanagedCallersOnly(EntryPoint = "lib_load", CallConvs = new[] {typeof(CallConvCdecl)})]
-    public static byte GodotLoad(GDNativeInterface* gdInterface, void* gdLibrary, GDNativeInitialization* gdInit)
+    [UnmanagedCallersOnly(EntryPoint = "my_lib_init", CallConvs = new []{typeof(CallConvCdecl)})]
+    // the compiler on windows is racist and don't want to compile if we put the struct names instead of void*
+    public static byte GodotLoad(void* gdInterfaceVoid, void* gdLibrary, void* gdInitVoid)
     {
+        var gdInterface = (GDNativeInterface*) gdInterfaceVoid;
+        var gdInit = (GDNativeInitialization*) gdInitVoid;
+
         gdInit->initialize = &InitializeLevel;
         gdInit->deinitialize = &DeinitializeLevel;
         gdInit->minimum_initialization_level = GDNativeInitializationLevel.GDNATIVE_INITIALIZATION_SCENE;
