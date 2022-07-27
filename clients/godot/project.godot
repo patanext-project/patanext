@@ -77,6 +77,7 @@ multithread/thread_rid_pool_prealloc=60
 3d/run_on_separate_thread=true
 
 [rendering]
+
 driver/threads/thread_model=0
 driver/depth_prepass/enable=false
 scaling_3d/mode=1
