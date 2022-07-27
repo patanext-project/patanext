@@ -11,10 +11,6 @@
 length = 0.001
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_r24xr"]
-_data = {
-"RESET": SubResource( "Animation_q1wv2" ),
-"Test": SubResource( "Animation_j6wto" )
-}
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jxeqe"]
 resource_local_to_scene = true
