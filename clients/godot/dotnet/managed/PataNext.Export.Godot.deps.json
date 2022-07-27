@@ -332,7 +332,7 @@
           "revtask": "2022.1.29.1945"
         },
         "runtime": {
-          "lib/net6.0/revecs.dll": {
+          "lib/net7.0/revecs.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
           }
@@ -693,7 +693,7 @@
     "GodotCLR/0.0.0-local": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-7bd/uC/KpuYOkFLgrUpvRdahgJ2qm5vFKXnsHIKO3wovKqDISII/JU9ckAZDFBUwl6GpGAFvM38XaIQguN15RA==",
+      "sha512": "sha512-wdRLfngTIOAUSyJcX5p576deo3nHsIZsqzq6DASgLU/Ez6noqDsAioNJ8auZQfPweqmprThspEy1xzrckyownA==",
       "path": "godotclr/0.0.0-local",
       "hashPath": "godotclr.0.0.0-local.nupkg.sha512"
     },
@@ -763,42 +763,42 @@
     "Quadrum.Game/0.0.0-local": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-xovXOLic42IqzKAzT5KYXcY8gLEHCnuKpN4TXorduOhlfFE42B+Ez/+uvqo870/PcIQTYfVkprW3LeJEVeSYsQ==",
+      "sha512": "sha512-Ob7q5cyLB0uA1AV7cn5JoLJfsQZCHc8cV95uC/IiVfFy7znap4OYUp2l2sKi7wY4LAeAOFuM20Io2e9WveqU1Q==",
       "path": "quadrum.game/0.0.0-local",
       "hashPath": "quadrum.game.0.0.0-local.nupkg.sha512"
     },
     "revecs/0.0.0-local": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-by0Xklqc8E9mi2UyhCaiObjigTQHXPHfXEMeJIsovnUTHw3rxW6Jckq87T3+VuNaKlOhtTKySlPvNFZp2VqffA==",
+      "sha512": "sha512-mBYG82xnUS2bnAea78DGkTXngE4JciKhks+kybFVa7/Uxim++uLcINTiWZpmz48NZxUwvLmajJho16ZWd1fWrw==",
       "path": "revecs/0.0.0-local",
       "hashPath": "revecs.0.0.0-local.nupkg.sha512"
     },
     "revecs.Generator/0.0.0-local": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-uMKcqZJBCTLf4BO2ZdS6sicLDokrvuIrIamdJR8QlgNJfUUM6GF71qD+tWtNa5kv9iCxXE6vvGcaXyrYyCGRIQ==",
+      "sha512": "sha512-vBB3hQX9iTkUHRvMQCvMmZ/FPkUGrD8RtmfQTJ8sJJphQDLWyLRWTkOvl4PmdqgiG06hoGd3ut/ZlXxsrU4NGw==",
       "path": "revecs.generator/0.0.0-local",
       "hashPath": "revecs.generator.0.0.0-local.nupkg.sha512"
     },
     "revghost/0.0.0-local": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-p1sBlgVOaD9DLDbO5Ytd/UPFXdO14y7bfsywGFxSNy/8Eo17KxaXs/eBoNtxc9RLQIr0dQ2h1hMeLcquFEIIow==",
+      "sha512": "sha512-M/RbrPlQZ29RwvDtlkk5Dqfh5F8VdwAHNd0F9WbDjTYJH6jXGxYB8ePX10uA9WyFfkWEjdOkJ+hUH2Jsqucm7w==",
       "path": "revghost/0.0.0-local",
       "hashPath": "revghost.0.0.0-local.nupkg.sha512"
     },
     "revghost.Shared/2022.713.1503": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-tsyOIGSgbZvsukiQd6vFpxL4wckSgkIZlHrUrDl7BgI9SyfvFpKopAl5QMmKACayhkEODGy/yKJhme42t1duZA==",
+      "sha512": "sha512-y5TYz7l5Mo+qiIp4CGgZxaq6qqGgbOTge47IOBLZCW3Lr8UyrqaGuuw8NFsLRIgzzErdT49VFqV8NRVh0kJitw==",
       "path": "revghost.shared/2022.713.1503",
       "hashPath": "revghost.shared.2022.713.1503.nupkg.sha512"
     },
     "revtask/2022.1.29.1945": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-gSBhAYi4Ggb8qdsmhih6YLV3TX4n1dQe0p61nG0ST8il4iyNqgNWILADLnyU+RpKm6cim1s4gOxrABuEVQMAUQ==",
+      "sha512": "sha512-CGlnklRJOv/sUSk2SrZRHLIXnGgs7Y3uBDgQK8ZI4nUI10T7qxqds5N5lnwepMe1vHNs0pUzBTxr+sHTxdehdQ==",
       "path": "revtask/2022.1.29.1945",
       "hashPath": "revtask.2022.1.29.1945.nupkg.sha512"
     },
