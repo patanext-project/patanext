@@ -18,8 +18,8 @@ public partial class BgmDefaultDirectorCommandsSystem : BgmDirectorSystemBase<Bg
 
     public BgmDefaultDirectorCommandsSystem(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref audioClient);
-        Dependencies.AddRef(() => ref storage);
+        Dependencies.Add(() => ref audioClient);
+        Dependencies.Add(() => ref storage);
     }
 
     private AudioClips clips;
@@ -115,7 +115,8 @@ public partial class BgmDefaultDirectorCommandsSystem : BgmDirectorSystemBase<Bg
                     if (audioHandle != default)
                     {
                         audioPlayer.SetAudio(audioHandle);
-                        audioPlayer.PlayDelayed(engine.CommandState.StartTime - engine.State.Elapsed);
+                        audioPlayer.PlayDelayed(gameTime.Total +
+                                                (engine.CommandState.StartTime - engine.State.Elapsed));
                     }
                 }
             } else audioPlayer.Stop(); // ewwwww

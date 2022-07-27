@@ -15,14 +15,19 @@ using revecs;
 using revecs.Core;
 using revecs.Extensions.Buffers;
 using revghost;
+using revtask.Core;
 
 namespace PataNext.Export.Godot;
 
 // For now it's used for getting inputs
-/*public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
+public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
 {
+    private GD.PackedScene _packedScene;
+    
     public RhythmEnginePresentation(Scope scope) : base(scope)
     {
+        _packedScene = GD.ResourceLoader.Load("res://rhythm_engine.tscn")
+            .To<GD.PackedScene>();
     }
 
     private EngineQuery engineQuery;
@@ -45,13 +50,13 @@ namespace PataNext.Export.Godot;
         return true;
     }
 
-    protected override bool OnSetPresentation(in UEntitySafe entity, out NodeProxy node)
+    protected override bool OnSetPresentation(in UEntitySafe entity, out JobRequest jobRequest)
     {
-        node = new NodeProxy("Rhythm Engine", "res://rhythm_engine.tscn");
+        jobRequest = NewInstantiateJob(entity, _packedScene);
         return true;
     }
 
-    protected override bool OnRemovePresentation(in UEntitySafe entity, in NodeProxy node)
+    protected override bool OnRemovePresentation(in UEntitySafe entity, in GD.Node node)
     {
         return true;
     }
@@ -77,14 +82,15 @@ namespace PataNext.Export.Godot;
             throw new InvalidOperationException("null player");
 
         var time = timeQuery.First().GameTime;
-        
         foreach (var entity in QueryWithPresentation)
         {
-            var node = GameWorld.GetComponentData(entity, GenericType);
-            while (node.Call("has_input_left").AsBool())
+            if (!TryGetNode(entity, out var node))
+                continue;
+
+            while (node.Call("has_input_left", default).Bool)
             {
-                var lastInput = (int) node.Call("get_last_input").AsInt();
-                GodotCLR.Godot.Print($"Input: {(DefaultCommandKeys) lastInput}");
+                var lastInput = (int) node.Call("get_last_input", default).Int;
+                UtilityFunctions.Print($"Input: {(DefaultCommandKeys) lastInput}");
                 
                 // TODO: should be before the simulation update
                 // HACK: (see todo) + 1 since the rhythm systems will receive the input on next frame
@@ -122,13 +128,10 @@ namespace PataNext.Export.Godot;
                         predicted += "\n";
                 }
             }
-
-            Variant.New(title, out var titleVariant);
-            Variant.New(currCommand, out var currCommandVariant);
-            Variant.New(predicted, out var predictedVariant);
-            node.SetProperty("title", ref titleVariant);
-            node.SetProperty("curr_command", ref currCommandVariant);
-            node.SetProperty("predicted", ref predictedVariant);
+            
+            node.SetProperty("title", new Variant(title));
+            node.SetProperty("curr_command", new Variant(currCommand));
+            node.SetProperty("predicted", new Variant(predicted));
         }
     }
 
@@ -150,4 +153,4 @@ namespace PataNext.Export.Godot;
     private partial struct TimeQuery : IQuery<Read<GameTime>>
     {
     }
-}*/
+}

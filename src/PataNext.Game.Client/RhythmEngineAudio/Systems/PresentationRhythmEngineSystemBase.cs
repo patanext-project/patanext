@@ -1,3 +1,4 @@
+using PataNext.Export.Godot.Presentation;
 using Quadrum.Game.Modules.Simulation.Application;
 using Quadrum.Game.Modules.Simulation.RhythmEngine.Components;
 using revecs;
@@ -17,12 +18,12 @@ public abstract partial class PresentationRhythmEngineSystemBase : AppSystem
     private EngineQuery engineQuery;
     private TimeQuery timeQuery;
     
-    private IDomainUpdateLoopSubscriber updateLoop;
+    private IPresentationLoop updateLoop;
     
     protected PresentationRhythmEngineSystemBase(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref GameWorld!);
-        Dependencies.AddRef(() => ref updateLoop);
+        Dependencies.Add(() => ref GameWorld!);
+        Dependencies.Add(() => ref updateLoop);
     }
 
     protected override void OnInit()
@@ -33,13 +34,13 @@ public abstract partial class PresentationRhythmEngineSystemBase : AppSystem
         Disposables.Add(updateLoop.Subscribe(OnUpdate));
     }
 
-    private void OnUpdate(WorldTime worldTime)
+    private void OnUpdate()
     {
         if (!engineQuery.Any())
             return;
         if (!timeQuery.Any())
             return;
-        
+
         // TODO: Once there will be multiplayer support (or any future need for multiple engines)
         //       update to only get the engine of the client player.
         OnUpdatePass(engineQuery.First(), timeQuery.First().GameTime);

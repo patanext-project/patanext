@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace PataNext.Game.Client.RhythmEngineAudio.BGM.Directors;
 
 public class TaskMap<TKey, TValue>
@@ -37,9 +39,17 @@ public class TaskMap<TKey, TValue>
             return false;
         }
 
-        map[key] = Task.Run(() => onTask(key));
-
+        AddTask(key);
         value = default;
         return false;
+    }
+    
+    // this .NET version seems to allocate the lambda even if this section never get executed
+    // so scope it into a method so that the JIT or the compiler or whatever will not do that.
+    // TODO: check it in later versions if this get fixed
+    [MethodImpl(MethodImplOptions.NoOptimization)]
+    private void AddTask(TKey key)
+    {
+        map[key] = Task.Run(() => onTask(key));
     }
 }

@@ -6,6 +6,7 @@ using Quadrum.Game.Modules.Simulation.Application;
 using Quadrum.Game.Modules.Simulation.Common.Transform;
 using Quadrum.Game.Modules.Simulation.Players;
 using Quadrum.Game.Modules.Simulation.RhythmEngine.Components;
+using Quadrum.Game.Modules.Simulation.Units;
 using revecs;
 using revecs.Core;
 using revecs.Extensions.Generator.Commands;
@@ -36,8 +37,27 @@ public partial class EntryModule : HostModule
 
         TrackDomain((SimulationDomain domain) =>
         {
-            //new RhythmEnginePresentation(domain.Scope);
-            
+            new RhythmEnginePresentation(domain.Scope);
+            new UnitPresentation(domain.Scope);
+
+            var size = 0;
+            for (var x = 0; x < size; x++)
+            {
+                for (var y = 0; y < size; y++)
+                {
+                    var unit = domain.GameWorld.CreateEntity();
+                    domain.GameWorld.AddComponent(unit, UnitDescription.Type.GetOrCreate(domain.GameWorld), default);
+                    domain.GameWorld.AddPositionComponent(unit, new(
+                        (x - size / 2) * 1.5f,
+                        (y - size / 2) * 1.7f
+                    ));
+                    domain.GameWorld.GetPositionComponent(unit).Value = new Vector2(
+                        (x - size / 2) * 1.5f,
+                        (y - size / 2) * 1.7f
+                    );
+                    Console.WriteLine($"{x} {y} -> {(x - size / 2) * 1.5f}, {(y - size / 2) * 1.7f}");
+                }
+            }
             // for now create a random player entity
             var player = domain.GameWorld.CreateEntity();
             domain.GameWorld.AddComponent(player, PlayerDescription.Type.GetOrCreate(domain.GameWorld), default);

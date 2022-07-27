@@ -2,9 +2,30 @@
 
 extends MeshInstance3D
 
-@export var PointA : Vector2
-@export var PointB : Vector2
-@export var PointC : Vector2
+var _pointA : Vector2 = Vector2()
+var _pointB : Vector2 = Vector2()
+var _pointC : Vector2 = Vector2()
+
+var _dirty : bool = false
+
+@export var PointA : Vector2:
+	get:
+		return _pointA
+	set(value):
+		if _pointA != value: _dirty = true
+		_pointA = value
+@export var PointB : Vector2:
+	get:
+		return _pointB
+	set(value):
+		if _pointB != value: _dirty = true
+		_pointB = value
+@export var PointC : Vector2:
+	get:
+		return _pointC
+	set(value):
+		if _pointC != value: _dirty = true
+		_pointC = value
 
 @export_range(0., 10., 0.01) var Thickness : float = 0.3
 @export_range(0., 1., 0.01) var Offset : float = 0.5
@@ -48,11 +69,16 @@ var prevSize: Vector2
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	if (!_dirty):
+		return;
+	
+	_dirty = false
+	
 	bs.lb = Vector2()
 	bs.rt = Vector2()
-	bs.give(PointA)
-	bs.give(PointB)
-	bs.give(PointC)
+	bs.give(_pointA)
+	bs.give(_pointB)
+	bs.give(_pointC)
 	
 	var quad = mesh as QuadMesh
 	var newSize = bs.size() * (2 + Offset + Thickness) + Vector2(Offset, Offset)
@@ -69,7 +95,7 @@ func _process(delta):
 	invB.y = 1 - invB.y
 	var invC = PointC  / quad.size + center
 	invC.y = 1 - invC.y
-	
+
 	quad.material.set_shader_param("PointA", invA)
 	quad.material.set_shader_param("PointB", invB)
 	quad.material.set_shader_param("PointC", invC)

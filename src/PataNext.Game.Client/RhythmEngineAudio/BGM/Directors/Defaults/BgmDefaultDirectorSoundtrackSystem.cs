@@ -22,7 +22,7 @@ public partial class
 
     public BgmDefaultDirectorSoundtrackSystem(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref audioClient);
+        Dependencies.Add(() => ref audioClient);
     }
 
     private AudioPlayerEntity audioPlayer;
@@ -46,10 +46,14 @@ public partial class
     private BgmFeverState feverState;
     private int nextLoopTrigger; // used for looping on the same clip (mostly for the "before" key)
 
+    private TimeSpan _time;
+    
     protected override void OnUpdatePass(EngineQuery.Iteration engine, GameTime gameTime,
         BgmDefaultDirector director,
         BgmDefaultSamplesLoader loader)
     {
+        _time = gameTime.Total;
+        
         LoadBgmFiles(loader);
         if (mappedAudioResources.Count == 0)
             return;
@@ -172,9 +176,9 @@ public partial class
         else
         {
             audioPlayer.SetAudio(targetAudio);
-            audioPlayer.PlayDelayed(delay);
+            audioPlayer.PlayDelayed(_time + delay);
             
-            HostLogger.Output.Info($"Play {targetAudio} in {delay.TotalSeconds:F3}s");
+            HostLogger.Output.Info($"Play {targetAudio} at {(_time + delay).TotalSeconds:F3}s");
 
             hasSwitched = true;
         }

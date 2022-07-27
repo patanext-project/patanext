@@ -22,8 +22,8 @@ public partial class ShoutDrumSystem : PresentationRhythmEngineSystemBase
     
     public ShoutDrumSystem(Scope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref client);
-        Dependencies.AddRef(() => ref storage);
+        Dependencies.Add(() => ref client);
+        Dependencies.Add(() => ref storage);
     }
 
     // for now normal drum sounds (no perfect/fail)

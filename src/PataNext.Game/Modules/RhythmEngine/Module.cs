@@ -2,6 +2,7 @@ using Quadrum.Game.Modules.Simulation.Application;
 using revecs.Systems.Generator;
 using revghost;
 using revghost.Module;
+using revghost.Utility;
 
 namespace PataNext.Game.Modules.RhythmEngine;
 
@@ -21,7 +22,10 @@ public class Module : HostModule
     {
         TrackDomain((SimulationDomain domain) =>
         {
-            domain.SystemGroup.Add(new CreateCommandSystem());
+            Disposables.AddRange(new IDisposable[]
+            {
+                new CreateCommandSystem(domain.Scope)
+            });
         });
     }
 }

@@ -13,7 +13,7 @@ public class Module : HostModule
     
     public Module(HostRunnerScope scope) : base(scope)
     {
-        Dependencies.AddRef(() => ref bgmContainerStorage);
+        Dependencies.Add(() => ref bgmContainerStorage);
     }
 
     protected override void OnInit()
