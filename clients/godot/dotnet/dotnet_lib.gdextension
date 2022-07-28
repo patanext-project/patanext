@@ -5,3 +5,4 @@ entry_symbol = "lib_load"
 [libraries]
 
 linux.x86_64 = "managed/PataNext.Export.GodotNE.so"
+windows.x86_64 = "managed/PataNext.Export.GodotNE.dll"
