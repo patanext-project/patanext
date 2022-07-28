@@ -40,7 +40,7 @@ public partial class EntryModule : HostModule
             new RhythmEnginePresentation(domain.Scope);
             new UnitPresentation(domain.Scope);
 
-            var size = 0;
+            var size = 8;
             for (var x = 0; x < size; x++)
             {
                 for (var y = 0; y < size; y++)
