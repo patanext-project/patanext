@@ -112,7 +112,7 @@ public static class Program
                     {
                         WorkingDirectory = sub.FullName
                     });
-                    var git = Process.Start(new ProcessStartInfo("git", "reset --hard HEAD")
+                    git = Process.Start(new ProcessStartInfo("git", "reset --hard HEAD")
                     {
                         WorkingDirectory = sub.FullName
                     });
