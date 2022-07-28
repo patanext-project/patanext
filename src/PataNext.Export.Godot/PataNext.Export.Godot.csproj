@@ -12,13 +12,9 @@
 
         <!-- Nuget warn about packages downgrade, but they're actually intended (since they're local) -->
         <NoWarn>$(NoWarn);NU1605</NoWarn>
-
-        <!-- Required for exporting methods to C -->
-        <EnableDynamicLoading>true</EnableDynamicLoading>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DNNE" Version="1.0.32" />
         <PackageReference Include="GodotCLR" Version="0.0.0-local" />
         <PackageReference Include="revghost" Version="0.0.0-local" />
         <PackageReference Include="revecs.Generator" Version="0.0.0-local" OutputItemType="Analyzer" />
