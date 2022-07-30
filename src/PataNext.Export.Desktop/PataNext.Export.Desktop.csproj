@@ -15,7 +15,7 @@
     <Product>PataNext</Product>
     <PackageIconUrl>https://github.com/guerro323/patanext/blob/master/PataNext.Export.Desktop/game.ico</PackageIconUrl>
     <LangVersion>preview</LangVersion>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
 
     <!-- Nuget warn about packages downgrade, but they're actually intended (since they're local) -->

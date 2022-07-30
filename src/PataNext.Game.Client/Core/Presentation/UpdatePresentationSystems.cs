@@ -1,5 +1,7 @@
 using DefaultEcs;
+using Quadrum.Game.Modules.Client.Audio;
 using Quadrum.Game.Modules.Simulation.Application;
+using Quadrum.Game.Utilities;
 using revghost;
 using revghost.Domains.Time;
 using revghost.Ecs;
@@ -35,7 +37,11 @@ public class UpdatePresentationSystems : AppSystem
         Disposables.AddRange(new IDisposable[]
         {
             loop,
-            domainUpdate.Subscribe(OnUpdate, b => { b.After(typeof(RunSimulationUpdateLoopSystem)); })
+            domainUpdate.Subscribe(
+                OnUpdate,
+                b => b
+                    .AfterGroup<AudioSystemGroup>()
+            )
         });
     }
 

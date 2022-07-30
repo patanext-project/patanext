@@ -13,5 +13,6 @@ public class Module : HostModule
     {
         LoadModule(scope => new Quadrum.Game.Module(scope));
         LoadModule(scope => new Modules.RhythmEngine.Module(scope));
+        LoadModule(scope => new Modules.Abilities.Module(scope));
     }
 }

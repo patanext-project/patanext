@@ -28,6 +28,7 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
     {
         _packedScene = GD.ResourceLoader.Load("res://rhythm_engine.tscn")
             .To<GD.PackedScene>();
+        _packedScene.Reference();
     }
 
     private EngineQuery engineQuery;

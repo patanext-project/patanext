@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="revecs" Version="0.0.0-local" />
+      <PackageReference Include="revecs.Generator" Version="0.0.0-local" OutputItemType="Analyzer" />
+      <PackageReference Include="revghost" Version="0.0.0-local" />
+      <PackageReference Include="Quadrum.Game" Version="0.0.0-local" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PataNext.Game\PataNext.Game.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <EmbeddedResource Include="Abilities\**\*" />
+    </ItemGroup>
+    
+</Project>

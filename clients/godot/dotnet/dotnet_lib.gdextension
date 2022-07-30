@@ -6,3 +6,7 @@ entry_symbol = "lib_load"
 
 linux.x86_64 = "managed/PataNext.Export.GodotNE.so"
 windows.x86_64 = "managed/PataNext.Export.GodotNE.dll"
+
+
+linux.release.64 = "res://dotnet/managed/PataNext.Export.GodotNE.so"
+windows.release.64 = "res://dotnet/managed/PataNext.Export.GodotNE.dll"
