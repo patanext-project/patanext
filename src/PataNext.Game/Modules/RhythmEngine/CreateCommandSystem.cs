@@ -34,6 +34,7 @@ public partial class CreateCommandSystem : SimulationSystem
         March(cmd, group);
         Attack(cmd, group);
         Defend(cmd, group);
+        Jump(cmd, group);
         Party(cmd, group);
         Summon(cmd, group);
 
@@ -50,7 +51,7 @@ public partial class CreateCommandSystem : SimulationSystem
         static void Attack(Commands cmd, UEntityHandle group)
         {
             var (ent, buffer) = Create(cmd, group, "attack");
-            cmd.AddMarchCommand(ent);
+            cmd.AddAttackCommand(ent);
             buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Right));
             buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Right));
             buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Left));
@@ -60,17 +61,27 @@ public partial class CreateCommandSystem : SimulationSystem
         static void Defend(Commands cmd, UEntityHandle group)
         {
             var (ent, buffer) = Create(cmd, group, "defend");
-            cmd.AddMarchCommand(ent);
+            cmd.AddDefendCommand(ent);
             buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Up));
             buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Up));
             buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Left));
             buffer.Add(RhythmCommandAction.With(3, (int) DefaultCommandKeys.Right));
         }
         
+        static void Jump(Commands cmd, UEntityHandle group)
+        {
+            var (ent, buffer) = Create(cmd, group, "jump");
+            cmd.AddJumpCommand(ent);
+            buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Down));
+            buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Down));
+            buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Up));
+            buffer.Add(RhythmCommandAction.With(3, (int) DefaultCommandKeys.Up));
+        }
+        
         static void Party(Commands cmd, UEntityHandle group)
         {
             var (ent, buffer) = Create(cmd, group, "party");
-            cmd.AddMarchCommand(ent);
+            cmd.AddPartyCommand(ent);
             buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Left));
             buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Right));
             buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Down));
@@ -109,6 +120,10 @@ public partial class CreateCommandSystem : SimulationSystem
         CommandIdentifier.Cmd.IAdmin,
 
         MarchCommand.Cmd.IAdmin,
+        AttackCommand.Cmd.IAdmin,
+        DefendCommand.Cmd.IAdmin,
+        JumpCommand.Cmd.IAdmin,
+        PartyCommand.Cmd.IAdmin,
         SummonCommand.Cmd.IAdmin,
         // required for factory
         CommandActions.Cmd.IAdmin,

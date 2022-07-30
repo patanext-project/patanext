@@ -10,6 +10,7 @@ script/source = "extends Node3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	PhysicsServer2D.set_active(false)
 	PhysicsServer3D.set_active(false)
 	
 	return
@@ -21,13 +22,6 @@ func _ready():
 			
 			node.position = Vector3((x - size / 2) * 1.5, (y - size / 2) * 1.7, 0)
 	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	PhysicsServer3D.set_active(false)
-	PhysicsServer2D.set_active(false)
-	pass
 "
 
 [sub_resource type="GDScript" id="GDScript_7qeds"]
@@ -121,28 +115,28 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ii7px"]
 render_priority = 0
-shader = SubResource( "Shader_8f03r" )
+shader = SubResource("Shader_8f03r")
 
 [node name="Node2D" type="Node3D"]
-script = SubResource( "GDScript_m7ten" )
+script = SubResource("GDScript_m7ten")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.493)
 projection = 1
 size = 10.0
-script = SubResource( "GDScript_7qeds" )
+script = SubResource("GDScript_7qeds")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.115548, 0.0227711, -0.293749)
 transparency = 0.9
-mesh = SubResource( "BoxMesh_3c30d" )
-surface_material_override/0 = SubResource( "ShaderMaterial_ii7px" )
+mesh = SubResource("BoxMesh_3c30d")
+surface_material_override/0 = SubResource("ShaderMaterial_ii7px")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.470882, 0.442666, -0.368404)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.37425, -0.368)
 transparency = 0.9
-mesh = SubResource( "BoxMesh_3c30d" )
-surface_material_override/0 = SubResource( "ShaderMaterial_ii7px" )
+mesh = SubResource("BoxMesh_3c30d")
+surface_material_override/0 = SubResource("ShaderMaterial_ii7px")
 
-[node name="ModuleRunner" type="Node" parent="."]
-script = ExtResource( "1_fv0bx" )
+[node name="ModuleRunner" type="GodotModuleRunner" parent="."]
+script = ExtResource("1_fv0bx")

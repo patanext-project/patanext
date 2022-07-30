@@ -108,10 +108,8 @@ public abstract class PresentationGodotBaseSystem : PresentationBaseSystem
             
             entitiesToProxies.Add(entity, result);
             GameWorld.GetComponentData(entity.Handle, GenericType).Node = result;
-
-            Console.WriteLine("add before");
+            
             root.AddChild(result);
-            Console.WriteLine("add after");
         }
         
         base.OnPresentationLoop();
@@ -155,13 +153,12 @@ public abstract class PresentationGodotBaseSystem : PresentationBaseSystem
 
         public void Execute(IJobRunner runner, JobExecuteInfo info)
         {
-            Console.WriteLine("0.");
             if (Duplicate)
                 Scene = Scene.Duplicate();
-            Console.WriteLine("1.");
 
+            Scene.Reference();
+            
             var node = Scene.Instantiate();
-            Console.WriteLine("2.");
             System.jobQueue.Add((Caller, node));
         }
 

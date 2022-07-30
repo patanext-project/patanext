@@ -9,7 +9,7 @@ namespace PataNext.Export.Desktop
         {
             using var ghost = GhostInit.Launch(
                 scope => {},
-                scope => new PataNext.Game.Module(scope)
+                scope => new EntryModule(scope)
                 
                 
                 

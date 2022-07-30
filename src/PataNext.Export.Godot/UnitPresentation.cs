@@ -41,20 +41,9 @@ public class UnitPresentation : PresentationGodotBaseSystem
     {
         return true;
     }
-
-    private bool didSet = false;
-
-    static void Ok<T>()
-        where T : struct
-    {
-        
-    }
-
+    
     protected override void OnPresentationLoop()
     {
-        if (didSet)
-            return;
-        
         base.OnPresentationLoop();
 
         var posAccessor = GameWorld.AccessSparseSet(PositionComponent.Type.GetOrCreate(GameWorld));
@@ -68,10 +57,9 @@ public class UnitPresentation : PresentationGodotBaseSystem
                 Type = Variant.EType.VECTOR3,
                 Vector3 = new Vector3(posAccessor[entity].Value, 0)
             });*/
+            //Console.WriteLine($"{posAccessor[entity].Value}");
             node.To<GD.Node3D>()
                 .SetPosition(new Vector3(posAccessor[entity].Value, 0));
-
-            didSet = true;
         }
     }
 }

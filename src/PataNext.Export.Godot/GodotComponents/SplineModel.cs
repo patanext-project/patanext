@@ -27,7 +27,8 @@ public struct SplineModel
             new GD.OnMethodCall<SplineModel>(OnUpdate),
             new[]
             {
-                (Variant.EType.BOOL, "ModifyRotation")
+                (Variant.EType.BOOL, "ModifyRotation"),
+                (Variant.EType.BOOL, "InvertScaleX")
             },
             Variant.EType.NIL,
             GDNativeExtensionClassMethodFlags.GDNATIVE_EXTENSION_METHOD_FLAG_NORMAL
@@ -53,8 +54,7 @@ public struct SplineModel
                 return default;
             }
         }
-
-        UtilityFunctions.Print("Initialized");
+        
         instance.initialized = true;
         
         i = 0;
@@ -67,9 +67,9 @@ public struct SplineModel
         return default;
     }
 
-    private static float angle(Vector2 a, Vector2 b)
+    private static float angle(Vector2 a)
     {
-        return MathF.Atan2(b.Y - a.Y, b.X - a.X);
+        return MathF.Atan2(a.Y, a.X);
     }
 
     private static Vector2 bzPos(float t, Vector2 a, Vector2 b, Vector2 c)
@@ -109,26 +109,33 @@ public struct SplineModel
             instance.PointC.SetProperty("rotation", new Variant
             {
                 Type = Variant.EType.VECTOR3,
-                Vector3 = new Vector3(0, 0, angle(p1 - p0, Vector2.UnitX))
+                Vector3 = new Vector3(0, 0, angle(p1 - p0))
             });
         }
 
+        var scaleFactor = new Vector2(1f);
+        // [1] == invert_scale_x == global_transform.basis.get_scale().x < 0.
+        if (args[1].Bool)
+        {
+            scaleFactor.X = -1f;
+        }
+        
         if (instance.oldA != posA)
         {
             instance.oldA = posA;
-            instance.Spline.SetProperty(nameof(PointA), new Variant {Type = Variant.EType.VECTOR2, Vector2 = posA});
+            instance.Spline.SetProperty(nameof(PointA), new Variant {Type = Variant.EType.VECTOR2, Vector2 = posA * scaleFactor});
         }
         
         if (instance.oldB != posB)
         {
             instance.oldB = posB;
-            instance.Spline.SetProperty(nameof(PointB), new Variant {Type = Variant.EType.VECTOR2, Vector2 = correctedB});
+            instance.Spline.SetProperty(nameof(PointB), new Variant {Type = Variant.EType.VECTOR2, Vector2 = correctedB * scaleFactor});
         }
         
         if (instance.oldC != posC)
         {
             instance.oldC = posC;
-            instance.Spline.SetProperty(nameof(PointC), new Variant {Type = Variant.EType.VECTOR2, Vector2 = posC});
+            instance.Spline.SetProperty(nameof(PointC), new Variant {Type = Variant.EType.VECTOR2, Vector2 = posC * scaleFactor});
         }
         return default;
     }

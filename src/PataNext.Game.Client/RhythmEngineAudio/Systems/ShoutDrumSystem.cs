@@ -76,7 +76,7 @@ public partial class ShoutDrumSystem : PresentationRhythmEngineSystemBase
 
         var score = 0;
         // TODO: 0.16f is a magic value for now, but it's the threshold for perfect pressures
-        if (Math.Abs(RhythmUtility.GetScore(engine.State, engine.Settings)) >= 0.16f)
+        if (Math.Abs(RhythmUtility.GetScore(engine.State, engine.Settings)) > 0.16f)
         {
             score = 1;
         }
