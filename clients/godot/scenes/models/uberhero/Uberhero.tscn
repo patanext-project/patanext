@@ -1,9 +1,58 @@
-[gd_scene load_steps=8 format=3 uid="uid://0sua35j3e7k4"]
+[gd_scene load_steps=19 format=3 uid="uid://0sua35j3e7k4"]
 
+[ext_resource type="PackedScene" uid="uid://rgeay23e302h" path="res://scenes/models/uberhero/__int/Scarf.tscn" id="1_myaol"]
 [ext_resource type="PackedScene" uid="uid://bmbvxkvy4kukb" path="res://scenes/models/uberhero/__int/Model_Head.glb" id="2_5py4m"]
-[ext_resource type="PackedScene" uid="uid://i2x8x77xwsgs" path="res://scenes/models/uberhero/__int/Model_Scarf0.glb" id="2_hdmvh"]
+[ext_resource type="PackedScene" uid="uid://btwt0jnx4re4o" path="res://scenes/models/uberhero/__int2/ScarfBase.tscn" id="3_snoph"]
+[ext_resource type="Texture2D" uid="uid://b5gweopfoh8i6" path="res://scenes/models/uberhero/__int2/scarf_size.png" id="4_5ahq3"]
 [ext_resource type="PackedScene" uid="uid://c1x8qnl6etcto" path="res://scenes/models/uberhero/__int2/ShoulderBase.tscn" id="4_68ot1"]
+[ext_resource type="Shader" path="res://shaders/bezier_spline.gdshader" id="4_tleqm"]
+[ext_resource type="PackedScene" uid="uid://cqjdyr5vaolel" path="res://scenes/models/uberhero/__int2/Body.tscn" id="5_5u0xv"]
 [ext_resource type="PackedScene" uid="uid://c0orlksflir8d" path="res://scenes/models/uberhero/__int2/LegBase.tscn" id="5_gf4kx"]
+[ext_resource type="Shader" path="res://shaders/scarf_spline.gdshader" id="5_kxy2g"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_bn3b6"]
+frequency = 0.03
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture" id="NoiseTexture_fqs50"]
+width = 128
+height = 128
+seamless = true
+noise = SubResource("FastNoiseLite_bn3b6")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_t05vu"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("5_kxy2g")
+Color = Color(1, 0.309804, 0.278431, 1)
+NoiseY = SubResource("NoiseTexture_fqs50")
+PointA = Vector2(0.5, 0.5)
+PointB = Vector2(0.402913, 0.478142)
+PointC = Vector2(0.305825, 0.519203)
+Smoothness = 0.2
+Texture = ExtResource("4_5ahq3")
+Thickness = 0.291262
+
+[sub_resource type="QuadMesh" id="QuadMesh_ascam"]
+resource_local_to_scene = true
+material = SubResource("ShaderMaterial_t05vu")
+size = Vector2(10.3, 10.3)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bcjxf"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("4_tleqm")
+Color = null
+PointA = Vector2(0.5, 0.5)
+PointB = Vector2(0.354237, 0.497458)
+PointC = Vector2(0.118644, 0.5)
+Smoothness = 0.2
+Thickness = 0.254237
+
+[sub_resource type="QuadMesh" id="QuadMesh_p820j"]
+resource_local_to_scene = true
+material = SubResource("ShaderMaterial_bcjxf")
+size = Vector2(1.18, 1.18)
 
 [sub_resource type="Animation" id="Animation_q1wv2"]
 length = 0.001
@@ -275,16 +324,38 @@ transform = Transform3D(1, 0, -2.38419e-07, 0, 1, 0, 2.38419e-07, 0, 1, 0, 0.2, 
 [node name="Neck" type="Node3D" parent="Visual/Hips/Spine"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.559369, 0)
 
-[node name="Model_Scarf0" parent="Visual/Hips/Spine/Neck" instance=ExtResource("2_hdmvh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.341902, 0)
+[node name="Model_Scarf0" parent="Visual/Hips/Spine/Neck" instance=ExtResource("1_myaol")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.342416, 0)
 
 [node name="Head" parent="Visual/Hips/Spine/Neck" instance=ExtResource("2_5py4m")]
+
+[node name="Scarf" parent="Visual/Hips/Spine/Neck" instance=ExtResource("3_snoph")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.00244892, -0.354775, 0)
+
+[node name="Spline" parent="Visual/Hips/Spine/Neck/Scarf" index="0"]
+mesh = SubResource("QuadMesh_ascam")
+PointB = Vector2(-1, 0.22514)
+PointC = Vector2(-2, -0.197794)
+
+[node name="Point1" parent="Visual/Hips/Spine/Neck/Scarf" index="2"]
+transform = Transform3D(0.998862, -0.0476992, 0, 0.0476992, 0.998862, 0, 0, 0, 1, 1, 0.0631216, 0.227019)
 
 [node name="LeftShoulder" parent="Visual/Hips/Spine" instance=ExtResource("4_68ot1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13, 0.141, 0)
 
 [node name="RightShoulder" parent="Visual/Hips/Spine" instance=ExtResource("4_68ot1")]
-transform = Transform3D(-1, 0, 0, 0, 1, -8.74228e-08, 0, 8.74228e-08, 1, -0.13, 0.141, 0)
+transform = Transform3D(-1, 0, 0, 0, -1, 1.50996e-07, 0, -1.50996e-07, -1, -0.13, 0.141, 0)
+
+[node name="Spline" parent="Visual/Hips/Spine/RightShoulder" index="0"]
+mesh = SubResource("QuadMesh_p820j")
+PointB = Vector2(-0.172, 0.003)
+PointC = Vector2(-0.45, 0)
+
+[node name="Point1" parent="Visual/Hips/Spine/RightShoulder" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0, 0)
+
+[node name="Point2" parent="Visual/Hips/Spine/RightShoulder" index="3"]
+transform = Transform3D(0.999999, 0, 0, 0, 0.999999, 0, 0, 0, 1, 0.45, 0, 0)
 
 [node name="LeftLeg" parent="Visual/Hips" instance=ExtResource("5_gf4kx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.061, 0)
@@ -292,8 +363,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.061, 0)
 [node name="RightLeg" parent="Visual/Hips" instance=ExtResource("5_gf4kx")]
 transform = Transform3D(-1, 0, 0, 0, 1, -1.50996e-07, 0, 1.50996e-07, 1, -0.05, 0.061, 0)
 
+[node name="Body" parent="Visual" instance=ExtResource("5_5u0xv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Visual"]
 root_node = NodePath("../..")
 libraries = {
 "": SubResource("AnimationLibrary_r24xr")
 }
+
+[editable path="Visual/Hips/Spine/Neck/Scarf"]
+[editable path="Visual/Hips/Spine/RightShoulder"]

@@ -95,7 +95,7 @@ func _process(delta):
 	invB.y = 1 - invB.y
 	var invC = PointC  / quad.size + center
 	invC.y = 1 - invC.y
-
+	
 	quad.material.set_shader_param("PointA", invA)
 	quad.material.set_shader_param("PointB", invB)
 	quad.material.set_shader_param("PointC", invC)

@@ -3,7 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://i2x8x77xwsgs"
+uid="uid://gcd0qy07kyqy"
 path="res://.godot/imported/Model_Scarf0.glb-2aede7db0381f73df3fcab9a407d73cf.scn"
 
 [deps]
@@ -25,4 +25,11 @@ skins/use_named_skins=true
 animation/import=true
 animation/fps=15
 import_script/path=""
-_subresources={}
+_subresources={
+"materials": {
+"Scarf": {
+"use_external/enabled": true,
+"use_external/path": "res://scenes/models/uberhero/__int/Scarf.material"
+}
+}
+}

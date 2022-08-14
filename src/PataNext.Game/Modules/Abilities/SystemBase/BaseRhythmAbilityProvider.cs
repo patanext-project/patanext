@@ -7,6 +7,7 @@ using Quadrum.Game.Modules.Simulation.Abilities.Components.Conditions;
 using Quadrum.Game.Modules.Simulation.Common.SystemBase;
 using revecs.Core;
 using revecs.Extensions.Generator.Components;
+using revecs.Utility;
 using revghost;
 using revghost.Injection;
 using revghost.Injection.Dependencies;
@@ -115,10 +116,9 @@ public abstract class BaseRhythmAbilityProvider<TAbility> : BaseRhythmAbilityPro
 
         if (_comboComponentTypes.Length > 0)
         {
-            Simulation.AddComponent(
+            Simulation.AddComboAbilityCondition(
                 ability,
-                ComboAbilityCondition.Type.GetOrCreate(Simulation),
-                _comboComponentTypes.AsSpan()
+                _comboComponentTypes.AsSpan().UnsafeCast<ComponentType, ComboAbilityCondition>()
             );
         }
 
