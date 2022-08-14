@@ -2,24 +2,24 @@
 
 [ext_resource type="PackedScene" uid="uid://b62j0u4yupiuj" path="res://scenes/models/uberhero/__int/Model_Body.glb" id="1_3hwda"]
 [ext_resource type="PackedScene" uid="uid://bmbvxkvy4kukb" path="res://scenes/models/uberhero/__int/Model_Head.glb" id="2_5py4m"]
-[ext_resource type="PackedScene" uid="uid://i2x8x77xwsgs" path="res://scenes/models/uberhero/__int/Model_Scarf0.glb" id="2_hdmvh"]
+[ext_resource type="PackedScene" uid="uid://gcd0qy07kyqy" path="res://scenes/models/uberhero/__int/Model_Scarf0.glb" id="2_hdmvh"]
 [ext_resource type="PackedScene" uid="uid://cpxxeowk3e4jm" path="res://scenes/models/uberhero/__int/Model_Hand.glb" id="3_h3rom"]
 [ext_resource type="Shader" path="res://shaders/bezier_spline.gdshader" id="4_hgbkt"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jxeqe"]
 resource_local_to_scene = true
 render_priority = 0
-shader = ExtResource( "4_hgbkt" )
-shader_param/Color = null
-shader_param/PointA = Vector2(0.5, 0.5)
-shader_param/PointB = Vector2(0.648305, 0.5)
-shader_param/PointC = Vector2(0.881356, 0.5)
-shader_param/Smoothness = 0.2
-shader_param/Thickness = 0.254237
+shader = ExtResource("4_hgbkt")
+Color = null
+PointA = Vector2(0.5, 0.5)
+PointB = Vector2(0.648305, 0.5)
+PointC = Vector2(0.881356, 0.5)
+Smoothness = 0.2
+Thickness = 0.254237
 
 [sub_resource type="QuadMesh" id="QuadMesh_gku7j"]
 resource_local_to_scene = true
-material = SubResource( "ShaderMaterial_jxeqe" )
+material = SubResource("ShaderMaterial_jxeqe")
 size = Vector2(1.18, 1.18)
 
 [sub_resource type="Animation" id="Animation_q1wv2"]
@@ -151,8 +151,8 @@ tracks/5/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_r24xr"]
 _data = {
-"RESET": SubResource( "Animation_q1wv2" ),
-"Test": SubResource( "Animation_j6wto" )
+"RESET": SubResource("Animation_q1wv2"),
+"Test": SubResource("Animation_j6wto")
 }
 
 [node name="Spatial" type="Node3D"]
@@ -184,17 +184,17 @@ external_skeleton = NodePath("../../Meshes/Body/BodyArmature/Skeleton3D")
 [node name="Neck" type="Node3D" parent="Visual/Hips/Spine"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.559369, 0)
 
-[node name="Model_Scarf0" parent="Visual/Hips/Spine/Neck" instance=ExtResource( "2_hdmvh" )]
+[node name="Model_Scarf0" parent="Visual/Hips/Spine/Neck" instance=ExtResource("2_hdmvh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.341902, 0)
 
-[node name="Head" parent="Visual/Hips/Spine/Neck" instance=ExtResource( "2_5py4m" )]
+[node name="Head" parent="Visual/Hips/Spine/Neck" instance=ExtResource("2_5py4m")]
 
 [node name="LeftShoulder" type="Node3D" parent="Visual/Hips/Spine"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13, 0.141, 0)
 
 [node name="Spline" type="MeshInstance3D" parent="Visual/Hips/Spine/LeftShoulder"]
 cast_shadow = 0
-mesh = SubResource( "QuadMesh_gku7j" )
+mesh = SubResource("QuadMesh_gku7j")
 
 [node name="Point0" type="Position3D" parent="Visual/Hips/Spine/LeftShoulder"]
 
@@ -204,12 +204,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0, 0)
 [node name="Point2" type="Position3D" parent="Visual/Hips/Spine/LeftShoulder"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0)
 
-[node name="Model_Hand" parent="Visual/Hips/Spine/LeftShoulder/Point2" instance=ExtResource( "3_h3rom" )]
+[node name="Model_Hand" parent="Visual/Hips/Spine/LeftShoulder/Point2" instance=ExtResource("3_h3rom")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.008, 0, 0)
 
 [node name="Meshes" type="Node" parent="Visual"]
 
-[node name="Body" parent="Visual/Meshes" instance=ExtResource( "1_3hwda" )]
+[node name="Body" parent="Visual/Meshes" instance=ExtResource("1_3hwda")]
 
 [node name="Skeleton3D" parent="Visual/Meshes/Body/BodyArmature" index="0"]
 bones/1/position = Vector3(0.573333, 0.256333, 0)
@@ -217,7 +217,7 @@ bones/1/position = Vector3(0.573333, 0.256333, 0)
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Visual"]
 root_node = NodePath("../..")
 libraries = {
-"": SubResource( "AnimationLibrary_r24xr" )
+"": SubResource("AnimationLibrary_r24xr")
 }
 
 [editable path="Visual/Meshes/Body"]

@@ -28,7 +28,8 @@ public struct SplineModel
             new[]
             {
                 (Variant.EType.BOOL, "ModifyRotation"),
-                (Variant.EType.BOOL, "InvertScaleX")
+                (Variant.EType.BOOL, "InvertScaleX"),
+                (Variant.EType.VECTOR3, "GlobalPosition"),
             },
             Variant.EType.NIL,
             GDNativeExtensionClassMethodFlags.GDNATIVE_EXTENSION_METHOD_FLAG_NORMAL
@@ -88,10 +89,24 @@ public struct SplineModel
     {
         if (!instance.initialized)
             return default;
+
+        if (instance.PointA.Pointer == IntPtr.Zero)
+            return default;
+
+
+        var globalPosition = args[2].Vector3;
         
-        var posA = instance.PointA.GetPosition().XY();
-        var posB = instance.PointB.GetPosition().XY();
-        var posC = instance.PointC.GetPosition().XY();
+        Vector2 position(GD.Node3D node)
+        {
+            return (node.SetProperty("global_position").Vector3 - globalPosition).XY();
+        }
+        
+        // var posA = instance.PointA.GetPosition().XY();
+        // var posB = instance.PointB.GetPosition().XY();
+        // var posC = instance.PointC.GetPosition().XY();
+        var posA = position(instance.PointA);
+        var posB = position(instance.PointB);
+        var posC = position(instance.PointC);
 
         if (instance.oldA == posA && instance.oldB == posB && instance.oldC == posC)
         {
@@ -99,43 +114,42 @@ public struct SplineModel
         }
         
         var correctedB = (4f * posB - posA - posC) / 2f;
-
+        if ((Vector2.Normalize(posA - correctedB) - Vector2.Normalize(posA - posC)).Length() < 0.01f)
+        {
+            correctedB += Vector2.One * 0.003f;
+        }
+        
         // [0] == modify_rotation
         if (args[0].Bool)
         {
             var p0 = bzPos(0.9f, posA, correctedB, posC);
             var p1 = bzPos(1.0f, posA, correctedB, posC);
+            p0 = instance.PointA.GetPosition().XY();
+            p1 = instance.PointA.GetPosition().XY();
 
             instance.PointC.SetProperty("rotation", new Variant
             {
                 Type = Variant.EType.VECTOR3,
-                Vector3 = new Vector3(0, 0, angle(p1 - p0))
+                Vector3 = new Vector3(0, /*args[1].Bool ? MathF.PI : */0, angle(p1 - p0))
             });
         }
 
-        var scaleFactor = new Vector2(1f);
-        // [1] == invert_scale_x == global_transform.basis.get_scale().x < 0.
-        if (args[1].Bool)
-        {
-            scaleFactor.X = -1f;
-        }
-        
         if (instance.oldA != posA)
         {
             instance.oldA = posA;
-            instance.Spline.SetProperty(nameof(PointA), new Variant {Type = Variant.EType.VECTOR2, Vector2 = posA * scaleFactor});
+            instance.Spline.SetProperty(nameof(PointA), new Variant {Type = Variant.EType.VECTOR2, Vector2 = posA});
         }
         
         if (instance.oldB != posB)
         {
             instance.oldB = posB;
-            instance.Spline.SetProperty(nameof(PointB), new Variant {Type = Variant.EType.VECTOR2, Vector2 = correctedB * scaleFactor});
+            instance.Spline.SetProperty(nameof(PointB), new Variant {Type = Variant.EType.VECTOR2, Vector2 = correctedB});
         }
         
         if (instance.oldC != posC)
         {
             instance.oldC = posC;
-            instance.Spline.SetProperty(nameof(PointC), new Variant {Type = Variant.EType.VECTOR2, Vector2 = posC * scaleFactor});
+            instance.Spline.SetProperty(nameof(PointC), new Variant {Type = Variant.EType.VECTOR2, Vector2 = posC});
         }
         return default;
     }

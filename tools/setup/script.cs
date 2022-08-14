@@ -200,6 +200,13 @@ public static class Program
 
             void Pack()
             {
+                var config = string.Empty;
+                if (Environment.GetCommandLineArgs().Contains("--release"))
+                {
+                    config = "-c Release";
+                    Debug("Packing in Release configuration");
+                }
+
                 foreach (var (shortName, dep) in DEPENDENCIES)
                 {
                     // Create a fake nuget folder for dependency sub-dependencies
@@ -208,7 +215,7 @@ public static class Program
                     Debug($"Building {shortName}");
                     var process = Process.Start(new ProcessStartInfo(
                         "dotnet", 
-                        $"pack {dep.Path}/ -o ./dependencies/.nuget/ /p:Version=0.0.0-local"
+                        $"pack {dep.Path}/ -o ./dependencies/.nuget/ /p:Version=0.0.0-local {config}"
                     ));
                     process.WaitForExit();
                 }

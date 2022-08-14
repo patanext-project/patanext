@@ -3,6 +3,8 @@ shader_type spatial;
 render_mode unshaded, cull_disabled;
 
 uniform vec4 Color : source_color = vec4(0., 0., 0., 1.);
+uniform sampler2D Texture;
+uniform sampler2D NoiseY;
 
 uniform vec2 PointA = vec2(0., 0.);
 uniform vec2 PointB = vec2(0.5, 0.5);
@@ -34,28 +36,6 @@ vec2 solveCubic2(vec3 a)
 	return vec2(m+m,-n-m) * sqrt(-p/3.) - a.x/3.;
 }
 
-float cro( in vec2 a, in vec2 b ) { return a.x*b.y - a.y*b.x; }
-
-/*vec2 sdBezierUV(vec2 v0, vec2 v1, vec2 v2, vec2 p) {
-		vec2 i = v0 - v2;
-    vec2 j = v2 - v1;
-    vec2 k = v1 - v0;
-    vec2 w = j-k;
-
-	v0-= p; v1-= p; v2-= p;
-    
-	float x = cro(v0, v2);
-    float y = cro(v1, v0);
-    float z = cro(v2, v1);
-
-	vec2 s = 2.0*(y*j+z*k)-x*i;
-
-    float r =  (y*z-x*x*0.25)/dd(s);
-    float t = clamp( (0.5*x+y+r*dot(s,w))/(x+y+z),0.0,1.0);
-    
-	return vec2(t);
-}*/
-
 vec2 sdBezierUV(vec2 A, vec2 B, vec2 C, vec2 p) {
     // This is to prevent 3 colinear points, but there should be better solution to it.
     B = mix(B + vec2(1e-4), B, abs(sign(B * 2.0 - A - C)));
@@ -86,34 +66,34 @@ vec2 sdBezierUV(vec2 A, vec2 B, vec2 C, vec2 p) {
 
 void vertex() {
 	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
-}
-
-float circle(vec2 samplePosition, float radius) {
-    return length(samplePosition) - radius;
+	//VERTEX.z -= 10.;
 }
 
 void fragment() {
 	float d = sdBezier(PointA, PointB, PointC, UV);
 	
 	ALBEDO = Color.xyz;
-	if (false) {
-		ALBEDO = sdBezierUV(PointA, PointB, PointC, UV).yyy;
+	
+	float thickness = Thickness;
+	vec2 ret = sdBezierUV(PointA, PointB, PointC, UV).yy;
+	thickness *= texture(Texture, ret).r;
+	if (ret.x <= 0.01 || ret.x >= 0.99) {
+		thickness = 0.;
 	}
-	float a = smoothstep(Thickness * 0.1 - Smoothness * 0.1, Thickness * 0.1 + Smoothness * 0.1, d);
-	float ok = a;
-	//float pwidth = fwidth(a);
+	
+	vec4 wrld_vertex = VIEW_MATRIX * vec4(VERTEX, 1.0) * 0.2;
+		
+	d += cos(sin(TIME * 2.)) * texture(Texture, ret).r * 0.003;
+	
+	ret *= 0.1;
+	d += texture(NoiseY, wrld_vertex.yy + TIME * 0.1).r * 0.03 * ret.x;
+	d += texture(NoiseY, wrld_vertex.xy + TIME * 0.1).r * 0.005 * (1. - ret.x) * ret.x;
+	// ALBEDO = sdBezierUV(PointA, PointB, PointC, UV).yyy;
+	
+	float a = smoothstep(thickness * 0.1 - Smoothness * 0.1, thickness * 0.1 + Smoothness * 0.1, d);
 	float pwidth = length(vec2(dFdx(a), dFdy(a))); 
 	
 	a = clamp((0.5 - a) / pwidth, 0., 1.);
-	//a = smoothstep(0.5, 0.5 - pwidth * 1.5, a);
-	
-	ALPHA = a * Color.w;
-	/*ALPHA = 1. - smoothstep(0., 0.1, d);
 
-	d = 1.0;
-	d = min(d, circle(PointA - UV, 0.01));
-	d = min(d, circle(PointB - UV, 0.01));
-	d = min(d, circle(PointC - UV, 0.01));
-	
-	ALBEDO = vec3(d);*/
+	ALPHA = a * Color.w;
 }

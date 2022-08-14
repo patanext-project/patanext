@@ -21,4 +21,4 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	update(ModifyRotation, global_transform.basis.get_scale().x < 0.)
+	update(ModifyRotation, global_transform.basis.get_scale().x < 0, global_position)

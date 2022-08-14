@@ -68,8 +68,8 @@ public partial class EntryModule : HostModule
             // Create a random player entity
             //  . It contains the input for the rhythm engine
             var player = domain.GameWorld.CreateEntity();
-            domain.GameWorld.AddComponent(player, PlayerDescription.Type.GetOrCreate(domain.GameWorld), default);
-            domain.GameWorld.AddComponent(player, GameRhythmInput.Type.GetOrCreate(domain.GameWorld), default);
+            domain.GameWorld.AddPlayerDescription(player);
+            domain.GameWorld.AddGameRhythmInput(player);
 
             // Create a random rhythm engine
             //  . Start in 2 seconds
@@ -113,19 +113,15 @@ public partial class EntryModule : HostModule
                 RequiredScoreStep = 0.5f
             };
 
-            domain.GameWorld.AddComponent(
-                engine,
-                PlayerDescription.Relative.Type.GetOrCreate(domain.GameWorld),
-                player
-            );
+            domain.GameWorld.AddPlayerDescriptionRelative(engine, player);
 
             // Create the cursor entity
             // # The cursor could be considered as an invisible Hatapon
             // # It controls the default target of an unit (an ability can ignore it)
             var cursor = domain.GameWorld.CreateEntity();
-            domain.GameWorld.AddComponent(cursor, CursorLayout.ToComponentType(domain.GameWorld), default);
+            domain.GameWorld.AddComponent(cursor, CursorLayout.ToComponentType(domain.GameWorld));
             
-            for (var i = 0; i < 1; i++)
+            for (var i = 0; i < 16; i++)
             {
                 // Create an unit
                 //  . We give it relations to the player, engine and cursor entities
@@ -135,19 +131,17 @@ public partial class EntryModule : HostModule
                 //  . The first unit will control the cursor
                 //  . Then we add some abilities to it
                 var unit = domain.GameWorld.CreateEntity();
-                domain.GameWorld.AddComponent(unit, PlayableUnitLayout.ToComponentType(domain.GameWorld), default);
-                domain.GameWorld.AddComponent(unit, PlayerDescription.Relative.ToComponentType(domain.GameWorld),
-                    player);
-                domain.GameWorld.AddComponent(unit, RhythmEngineDescription.Relative.ToComponentType(domain.GameWorld),
-                    engine);
-                domain.GameWorld.AddComponent(unit, CursorDescription.Relative.ToComponentType(domain.GameWorld),
-                    cursor);
-                domain.GameWorld.AddComponent(unit, OwnerActiveAbility.ToComponentType(domain.GameWorld), default);
+                domain.GameWorld.AddComponent(unit, PlayableUnitLayout.ToComponentType(domain.GameWorld));
+                domain.GameWorld.AddPlayerDescriptionRelative(unit, player);
+                domain.GameWorld.AddRhythmEngineDescriptionRelative(unit, engine);
+                domain.GameWorld.AddCursorDescriptionRelative(unit, cursor);
+                domain.GameWorld.AddOwnerActiveAbility(unit);
 
                 domain.GameWorld.GetPositionComponent(unit).X = i * 1.5f;
                 domain.GameWorld.GetUnitPlayState(unit) = new UnitPlayState
                 {
                     MovementSpeed = 1.2f,
+                    MovementAttackSpeed = 1f,
                     MovementReturnSpeed = 1,
                     Weight = 10,
                 };
@@ -155,7 +149,7 @@ public partial class EntryModule : HostModule
 
                 // The first unit control the cursor
                 if (i == 0)
-                    domain.GameWorld.AddComponent(unit, CursorControlTag.ToComponentType(domain.GameWorld));
+                    domain.GameWorld.AddCursorControlTag(unit);
 
                 domain.TaskScheduler.StartUnwrap(async () =>
                 {

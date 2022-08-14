@@ -8,6 +8,7 @@ using revghost;
 using revghost.Injection.Dependencies;
 using revghost.Shared;
 using revghost.Shared.Collections.Concurrent;
+using revghost.Threading.V2.Apps;
 using revtask.Core;
 using revtask.Helpers;
 using NodeProxy = GodotCLR.GD.Node;
@@ -19,10 +20,13 @@ namespace PataNext.Export.Godot.Presentation;
 public abstract class PresentationGodotBaseSystem : PresentationBaseSystem
 {
     protected IJobRunner runner;
+
+    private IReadOnlyDomainWorker _worker;
     
     protected PresentationGodotBaseSystem(Scope scope) : base(scope)
     {
         Dependencies.Add(() => ref runner!);
+        Dependencies.Add(() => ref _worker!);
     }
 
     private Dictionary<UEntitySafe, NodeProxy> entitiesToProxies = new();
