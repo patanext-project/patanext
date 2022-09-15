@@ -20,16 +20,14 @@ public partial struct DefaultMarchAbility : ISparseComponent
             componentTypes.Add(MarchCommand.ToComponentType(Simulation));
         }
 
-        public override UEntityHandle SpawnEntity(CreateAbility data)
+        public override void SetEntityData(ref UEntityHandle handle, CreateAbility data)
         {
-            var ability = base.SpawnEntity(data);
-            Simulation.AddMarchAbilityAspect(ability, new MarchAbilityAspect
+            base.SetEntityData(ref handle, data);
+            Simulation.AddMarchAbilityAspect(handle, new MarchAbilityAspect
             {
                 AccelerationFactor = 1,
                 Target = MarchAbilityAspect.ETarget.All
             });
-
-            return ability;
         }
     }
 }

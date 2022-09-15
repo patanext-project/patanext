@@ -330,7 +330,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.342416, 0)
 [node name="Head" parent="Visual/Hips/Spine/Neck" instance=ExtResource("2_5py4m")]
 
 [node name="Scarf" parent="Visual/Hips/Spine/Neck" instance=ExtResource("3_snoph")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.00244892, -0.354775, 0)
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.00244892, -0.354775, -0.143715)
 
 [node name="Spline" parent="Visual/Hips/Spine/Neck/Scarf" index="0"]
 mesh = SubResource("QuadMesh_ascam")
@@ -339,6 +339,9 @@ PointC = Vector2(-2, -0.197794)
 
 [node name="Point1" parent="Visual/Hips/Spine/Neck/Scarf" index="2"]
 transform = Transform3D(0.998862, -0.0476992, 0, 0.0476992, 0.998862, 0, 0, 0, 1, 1, 0.0631216, 0.227019)
+
+[node name="Point2" parent="Visual/Hips/Spine/Neck/Scarf" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.197794, 4.89886e-15)
 
 [node name="LeftShoulder" parent="Visual/Hips/Spine" instance=ExtResource("4_68ot1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13, 0.141, 0)

@@ -12,7 +12,6 @@
       <PackageReference Include="revecs" Version="0.0.0-local" />
       <PackageReference Include="revecs.Generator" Version="0.0.0-local" OutputItemType="Analyzer" />
       <PackageReference Include="revghost" Version="0.0.0-local" />
-      <PackageReference Include="Quadrum.Game" Version="0.0.0-local" />
     </ItemGroup>
 
     <ItemGroup>

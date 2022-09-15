@@ -70,6 +70,8 @@ void vertex() {
 }
 
 void fragment() {
+	DEPTH = 0.5;
+	
 	float d = sdBezier(PointA, PointB, PointC, UV);
 	
 	ALBEDO = Color.xyz;

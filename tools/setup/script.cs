@@ -11,6 +11,7 @@ public static class Program
     class Dependency
     {
         public string url { get; set; }
+        public bool package { get; set; }
         public string Path;
     }
     
@@ -86,19 +87,35 @@ public static class Program
             {
                 var sub = directory.CreateSubdirectory(shortName);
 
-                var overrides = sub.GetFiles("PATH").FirstOrDefault();
-                if (overrides != null)
+                string pathOverride;
                 {
-                    var path = File.ReadAllText(overrides.FullName);
-                    if (!Directory.Exists(path))
+                    var pathFile = sub.GetFiles("PATH").FirstOrDefault();
+                    if (pathFile != null)
                     {
-                        Error($"Dependency {shortName} has an override, but doesn't point to a correct directory. (target={path})");
+                        if (dep.package)
+                            throw new InvalidOperationException(
+                                $"Can't package on folder {shortName}/ with a PATH file"
+                            );
+
+                        pathOverride = File.ReadAllText(pathFile.FullName);
+                    }
+                    else
+                    {
+                        pathOverride = sub.LinkTarget;
+                    }
+                }
+
+                if (pathOverride != null)
+                {
+                    if (!Directory.Exists(pathOverride))
+                    {
+                        Error($"Dependency {shortName} has an override, but doesn't point to a correct directory. (target={pathOverride})");
                         return;
                     }
                     
-                    dep.Path = path;
+                    dep.Path = pathOverride;
 
-                    Debug($"Dependency {shortName} has an override (target={path})', skipping.");
+                    Debug($"Dependency {shortName} has an override (target={pathOverride})', skipping.");
                     continue;
                 }
                 
@@ -209,6 +226,12 @@ public static class Program
 
                 foreach (var (shortName, dep) in DEPENDENCIES)
                 {
+                    if (!dep.package)
+                    {
+                        Debug($"Skipped package generation for {shortName}, it was disabled.");
+                        continue;
+                    }
+
                     // Create a fake nuget folder for dependency sub-dependencies
                     Directory.CreateDirectory($"{dep.Path}/dependencies/.nuget");
                 

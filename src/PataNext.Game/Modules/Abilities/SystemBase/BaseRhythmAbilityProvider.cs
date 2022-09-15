@@ -7,6 +7,7 @@ using Quadrum.Game.Modules.Simulation.Abilities.Components.Conditions;
 using Quadrum.Game.Modules.Simulation.Common.SystemBase;
 using revecs.Core;
 using revecs.Extensions.Generator.Components;
+using revecs.Querying;
 using revecs.Utility;
 using revghost;
 using revghost.Injection;
@@ -79,7 +80,7 @@ public abstract class BaseRhythmAbilityProvider<TAbility> : BaseRhythmAbilityPro
     protected virtual string FilePath => $"{FolderPath}\\{typeof(TAbility).Name.Replace("Ability", string.Empty)}";
 
     private AbilitySpawner _spawner;
-    
+
     protected BaseRhythmAbilityProvider(Scope scope) : base(scope)
     {
         Dependencies.Add(() => ref _spawner);
@@ -89,7 +90,7 @@ public abstract class BaseRhythmAbilityProvider<TAbility> : BaseRhythmAbilityPro
 
     private ComponentType[] _comboComponentTypes;
     private ComponentType _abilityType;
-    
+
     protected override void OnInit()
     {
         using var list = new PooledList<ComponentType>();
@@ -101,23 +102,22 @@ public abstract class BaseRhythmAbilityProvider<TAbility> : BaseRhythmAbilityPro
         _spawner.Register(_abilityType, this);
     }
 
-    public override UEntityHandle SpawnEntity(CreateAbility data)
+    public override void SetEntityData(ref UEntityHandle handle, CreateAbility data)
     {
         if (!Simulation.Exists(data.Target))
             throw new InvalidOperationException($"Simulation Entity '{data.Target}' does not exist");
         
-        var ability = Simulation.CreateEntity();
-        Simulation.AddComponent(ability, AbilityLayout.ToComponentType(Simulation));
-        Simulation.AddComponent(ability, _abilityType);
-        Simulation.AddAbilityType(ability, new AbilityType(_abilityType));
+        Simulation.AddComponent(handle, AbilityLayout.ToComponentType(Simulation));
+        Simulation.AddComponent(handle, _abilityType);
+        Simulation.AddAbilityType(handle, new AbilityType(_abilityType));
         // don't pass data.Target directly (since Relative components only accept UEntityHandle and not UEntitySafe)
         // TODO: in future Relative component should also add extension methods to RevolutionWorld to not have this problem
-        Simulation.AddComponent(ability, AbilityOwnerDescription.Relative.ToComponentType(Simulation), data.Target.Handle);
+        Simulation.AddComponent(handle, AbilityOwnerDescription.Relative.ToComponentType(Simulation), data.Target.Handle);
 
         if (_comboComponentTypes.Length > 0)
         {
             Simulation.AddComboAbilityCondition(
-                ability,
+                handle,
                 _comboComponentTypes.AsSpan().UnsafeCast<ComponentType, ComboAbilityCondition>()
             );
         }
@@ -140,9 +140,7 @@ public abstract class BaseRhythmAbilityProvider<TAbility> : BaseRhythmAbilityPro
             TryGet("perfect", out component.PerfectModifier);
             TryGet("charge", out component.ChargeModifier);
             
-            Simulation.AddComponent(ability, AbilityModifyStatsOnChaining.ToComponentType(Simulation), component);
+            Simulation.AddComponent(handle, AbilityModifyStatsOnChaining.ToComponentType(Simulation), component);
         }
-
-        return ability;
     }
 }

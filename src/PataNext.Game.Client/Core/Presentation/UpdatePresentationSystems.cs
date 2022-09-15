@@ -40,7 +40,7 @@ public class UpdatePresentationSystems : AppSystem
             domainUpdate.Subscribe(
                 OnUpdate,
                 b => b
-                    .AfterGroup<AudioSystemGroup>()
+                    .BeforeGroup<AudioSystemGroup>()
             )
         });
     }

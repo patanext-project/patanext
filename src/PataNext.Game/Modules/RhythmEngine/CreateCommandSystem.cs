@@ -125,6 +125,7 @@ public partial class CreateCommandSystem : SimulationSystem
         JumpCommand.Cmd.IAdmin,
         PartyCommand.Cmd.IAdmin,
         SummonCommand.Cmd.IAdmin,
+        
         // required for factory
         CommandActions.Cmd.IAdmin,
         CommandDuration.Cmd.IAdmin;

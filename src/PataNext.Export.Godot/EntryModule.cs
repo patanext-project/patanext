@@ -3,6 +3,7 @@ using GodotCLR;
 using PataNext.Export.Godot.Presentation;
 using PataNext.Game.Client.Core.Inputs;
 using PataNext.Game.Modules.Abilities;
+using PataNext.Game.Modules.GameModes.Yarida64;
 using PataNext.Game.Modules.RhythmEngine.Commands;
 using PataNext.Module.Abilities.Providers.Defaults;
 using PataNext.Module.Abilities.Scripts.Defaults;
@@ -63,8 +64,12 @@ public partial class EntryModule : HostModule
             new RhythmEnginePresentation(domain.Scope);
             new UnitPresentation(domain.Scope);
             new DefaultMarchScript(domain.Scope);
+            new Yarida64GameModeSystem(domain.Scope);
 
+            var gm = domain.GameWorld.CreateEntity();
+            domain.GameWorld.AddYarida64GameMode(gm, new Yarida64GameMode {YaridaCount = 64});
 
+/*
             // Create a random player entity
             //  . It contains the input for the rhythm engine
             var player = domain.GameWorld.CreateEntity();
@@ -121,7 +126,7 @@ public partial class EntryModule : HostModule
             var cursor = domain.GameWorld.CreateEntity();
             domain.GameWorld.AddComponent(cursor, CursorLayout.ToComponentType(domain.GameWorld));
             
-            for (var i = 0; i < 16; i++)
+            for (var i = 0; i < 1; i++)
             {
                 // Create an unit
                 //  . We give it relations to the player, engine and cursor entities
@@ -169,8 +174,10 @@ public partial class EntryModule : HostModule
 
                     SpawnAbility<DefaultMarchAbility>();
                     SpawnAbility<DefaultJumpAbility>();
+                    //<
                 });
             }
+*/
         });
 
     }

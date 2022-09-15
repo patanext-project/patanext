@@ -1,22 +1,27 @@
 {
     "revghost":
     {
-        "url": "https://github.com/guerro323/GameHost"
+        "url": "https://github.com/guerro323/GameHost",
+        "package": true
     },
     "revtask":
     {
-        "url": "https://github.com/guerro323/revtask"
+        "url": "https://github.com/guerro323/revtask",
+        "package": true
     },
     "revecs":
     {
-        "url": "https://github.com/guerro323/revecs"
+        "url": "https://github.com/guerro323/revecs",
+        "package": false
     },
     "GodotCLR":
     {
-        "url": "https://github.com/guerro323/GodotProxy"
+        "url": "https://github.com/guerro323/GodotProxy",
+        "package": false
     },
     "Quadrum":
     {
-        "url": "https://github.com/guerro323/that-rhythm-project"
+        "url": "https://github.com/guerro323/that-rhythm-project",
+        "package": false
     }
 }

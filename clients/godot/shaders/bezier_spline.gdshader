@@ -14,27 +14,27 @@ uniform float Smoothness : hint_range(0.0, 1.0, 0.01) = 0.2;
 #include "res://shaders/includes/sd_bezier.gdshaderinc"
 
 // Solve cubic equation for roots
-vec2 solveCubic2(vec3 a)
+lowp vec2 solveCubic2(vec3 a)
 {
-	float p  = a.y - a.x*a.x/3.,
+	lowp float p  = a.y - a.x*a.x/3.,
 	      p3 = p*p*p,
 	      q  = a.x* ( 2.*a.x*a.x - 9.*a.y ) /27. + a.z,
 	      d  = q*q + 4.*p3/27.;
     
 	if(d>0.) {
-		vec2 x = ( vec2(1,-1)*sqrt(d) -q ) *.5;
+		lowp vec2 x = ( vec2(1,-1)*sqrt(d) -q ) *.5;
         x = sign(x) * pow( abs(x) , vec2(1./3.) );
   		return vec2( x.x+x.y -a.x/3. );
   	}
     
- 	float v = acos( -sqrt(-27./p3)*q*.5 ) / 3.,
+ 	lowp float v = acos( -sqrt(-27./p3)*q*.5 ) / 3.,
  	      m = cos(v),
  	      n = sin(v)*sqrt(3.);
 
 	return vec2(m+m,-n-m) * sqrt(-p/3.) - a.x/3.;
 }
 
-float cro( in vec2 a, in vec2 b ) { return a.x*b.y - a.y*b.x; }
+lowp float cro( in vec2 a, in vec2 b ) { return a.x*b.y - a.y*b.x; }
 
 /*vec2 sdBezierUV(vec2 v0, vec2 v1, vec2 v2, vec2 p) {
 		vec2 i = v0 - v2;

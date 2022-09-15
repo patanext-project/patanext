@@ -1,4 +1,4 @@
-vec3 solveCubic(float a, float b, float c)
+lowp vec3 solveCubic(float a, float b, float c)
 {
     float p = b - a*a / 3.0, p3 = p*p*p;
     float q = a * (2.0*a*a - 9.0*b) / 27.0 + c;
@@ -64,7 +64,7 @@ float sdBezier2(in vec2 A, in vec2 B, in vec2 C, in vec2 pos)
         h = sqrt(h);
         vec2 x = (vec2(h,-h)-q)/2.0;
 
-        #if 0
+        /*#if 0
         // When p≈0 and p<0, h-q has catastrophic cancelation. So, we do
         // h=√(q²+4p³)=q·√(1+4p³/q²)=q·√(1+w) instead. Now we approximate
         // √ by a linear Taylor expansion into h≈q(1+½w) so that the q's
@@ -77,7 +77,7 @@ float sdBezier2(in vec2 A, in vec2 B, in vec2 C, in vec2 pos)
           //float k = (1.0-p3/q2)*p3/q;  // quadratic approx 
             x = vec2(k,-k-q);  
         }
-        #endif
+        #endif*/
 
         vec2 uv = sign(x)*pow(abs(x), vec2(1.0/3.0));
         float t = clamp( uv.x+uv.y-kx, 0.0, 1.0 );

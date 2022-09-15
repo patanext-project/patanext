@@ -39,6 +39,8 @@ public class Module : HostModule
                 
                 new DefaultJumpAbility.Provider(scope),
                 new DefaultJumpScript(scope)
+                
+                //< here
             });
         });
     }

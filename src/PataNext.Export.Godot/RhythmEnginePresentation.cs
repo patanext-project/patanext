@@ -80,7 +80,7 @@ public partial class RhythmEnginePresentation : PresentationGodotBaseSystem
 
         var player = playerQuery.First();
         if (player.Handle.Equals(default))
-            throw new InvalidOperationException("null player");
+            return;
 
         var time = timeQuery.First().GameTime;
         foreach (var entity in QueryWithPresentation)
