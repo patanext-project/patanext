@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://5rb8flyee5sb"]
+
+[ext_resource type="Shader" path="res://assets/shaders/uberhero/legarm_spline.gdshader" id="1_tfqxf"]
+[ext_resource type="Script" path="res://models/scripts/Spline.cs" id="2_x8t00"]
+[ext_resource type="PackedScene" uid="uid://b1b08324d8teg" path="res://models/units/uberhero/__int/Model_Hand.glb" id="3_ej4bv"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_sjnng"]
+subdivide_width = 15
+subdivide_depth = 1
+orientation = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rvb0b"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("1_tfqxf")
+shader_parameter/Color = null
+shader_parameter/Points = PackedVector3Array(0, 0, 0, 0.175, 0, 2.32831e-10, 0.45, 0, -4.65661e-10)
+shader_parameter/Width = 0.03
+
+[node name="RightShoulder" type="MeshInstance3D"]
+mesh = SubResource("PlaneMesh_sjnng")
+surface_material_override/0 = SubResource("ShaderMaterial_rvb0b")
+script = ExtResource("2_x8t00")
+Points = [NodePath("0!"), NodePath("1!"), NodePath("2!")]
+ModifyFinalRotation = true
+
+[node name="0!" type="Node3D" parent="."]
+
+[node name="1!" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0, 0)
+
+[node name="2!" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, -4.65661e-10)
+
+[node name="Model_Hand" parent="2!" instance=ExtResource("3_ej4bv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.008, 0, 0)

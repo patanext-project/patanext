@@ -1,5 +1,9 @@
+using System;
 using System.Threading;
+using System.Threading.Tasks;
 using revghost;
+using revghost.Shared.Threading.Tasks;
+using revghost.Threading;
 
 namespace PataNext.Export.Desktop
 {
@@ -20,6 +24,29 @@ namespace PataNext.Export.Desktop
                 
                 
             );
+
+            Console.WriteLine($"Ver={Environment.Version}");
+            var taskScheduler = new ConstrainedTaskScheduler();
+            taskScheduler.StartUnwrap(async () =>
+            {
+                Console.WriteLine($"0 Scheduler={TaskScheduler.Current}");
+                await Task.Yield();
+                Console.WriteLine($"1 Scheduler={TaskScheduler.Current}");
+                await Task.Delay(100);
+                Console.WriteLine($"2 Scheduler={TaskScheduler.Current}");
+                while (true)
+                {
+                    Console.WriteLine($"loop before Scheduler={TaskScheduler.Current}");
+                    await Task.Delay(100);
+                    Console.WriteLine($"loop after Scheduler={TaskScheduler.Current}");
+                    await Task.Yield();
+                }
+            });
+            
+            while (true)
+            {
+                taskScheduler.Execute();
+            }
 
             while (ghost.Loop())
             {

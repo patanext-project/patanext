@@ -31,12 +31,32 @@ public partial class CreateCommandSystem : SimulationSystem
         var group = cmd.CreateEntity();
         cmd.AddDefaultCommandGroup(group);
         
+        SwapStance(cmd, group);
+        QuickSwapStance(cmd, group);
         March(cmd, group);
         Attack(cmd, group);
         Defend(cmd, group);
         Jump(cmd, group);
         Party(cmd, group);
         Summon(cmd, group);
+        
+        static void SwapStance(Commands cmd, UEntityHandle group)
+        {
+            var (ent, buffer) = Create(cmd, group, "swapstance");
+            //cmd.AddSwapStance(ent);
+            buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Right));
+            buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Right));
+            buffer.Add(RhythmCommandAction.With(2, (int) DefaultCommandKeys.Up));
+            buffer.Add(RhythmCommandAction.With(3, (int) DefaultCommandKeys.Right));
+        }
+        
+        static void QuickSwapStance(Commands cmd, UEntityHandle group)
+        {
+            var (ent, buffer) = Create(cmd, group, "swapstance");
+            //cmd.AddSwapStance(ent);
+            buffer.Add(RhythmCommandAction.With(0, (int) DefaultCommandKeys.Right));
+            buffer.Add(RhythmCommandAction.With(1, (int) DefaultCommandKeys.Up));
+        }
 
         static void March(Commands cmd, UEntityHandle group)
         {

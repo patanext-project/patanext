@@ -1,0 +1,16 @@
+<Project Sdk="Godot.NET.Sdk/4.0.0-beta2">
+  <!-- WARNING: This project file will be renamed (*.old) if the godot editor sdk version don't match with this project sdk version -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PataNext.Game.Client.Resources\PataNext.Game.Client.Resources.csproj" />
+    <ProjectReference Include="..\..\src\PataNext.Game.Client\PataNext.Game.Client.csproj" />
+    <ProjectReference Include="..\..\src\PataNext.Game\PataNext.Game.csproj" />
+    <ProjectReference Include="..\..\src\PataNext.Module.Abilities\PataNext.Module.Abilities.csproj" />
+  </ItemGroup>
+</Project>

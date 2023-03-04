@@ -1,0 +1,16 @@
+res://assets/uberhero/masks/charibasa/black.tres::368ed80c7e717772f0b6274e3ebcc246::1664543794::res://.godot/exported/133200997/export-30897ed3de468d6886fd51e2e3d7d2ee-black.res
+res://assets/uberhero/masks/charibasa/crystal.tres::09cfbf479c32874e4eb038b36f2c974c::1664543794::res://.godot/exported/133200997/export-24aa14a54b50a72437c0bbc3089f536f-crystal.res
+res://assets/uberhero/masks/charibasa/prismarine_layer_0.tres::7ecc927d586508d82f3618c77f972eeb::1664543794::res://.godot/exported/133200997/export-4ebde11b26ae3fcd3c366593887567bf-prismarine_layer_0.res
+res://assets/uberhero/masks/charibasa/prismarine_layer_1.tres::aae25105a603b1ba7b9ac9a351eb8736::1664543794::res://.godot/exported/133200997/export-3592a55a7ed6fffa137ac0734f2ea1af-prismarine_layer_1.res
+res://assets/uberhero/masks/charibasa/prismarine_layer_2.tres::af18259ae7c9213bf3c2d059e9015276::1664543794::res://.godot/exported/133200997/export-8d481d4e8bd58c04f5859c44be8688eb-prismarine_layer_2.res
+res://models/units/equipments/masks/charibasa.tscn::d254d23a5ad3876e5d100f5a8bb0abc4::1664467874::res://.godot/exported/133200997/export-2b9057bf2abb13edb675cc9f7217033a-charibasa.scn
+res://models/units/materials/cap_mat.tres::826d3ee527284aa3e9e5d016df49101d::1664207035::res://.godot/exported/133200997/export-d5d0dac024f0514050ceee51efeac3c3-cap_mat.res
+res://models/units/materials/toon.tres::3c059d0f3cc435e3d17f01891874bb59::1664543794::res://.godot/exported/133200997/export-cdcc4ecec4fbf9b68e6beab380028162-toon.res
+res://models/units/uberhero/animations/yarida/idle_lib.tres::a601f8681e167dbabf93b0dbdf8071af::1664544012::res://.godot/exported/133200997/export-e6db4a3f1cc2cc89a03a409b7bf14b1f-idle_lib.res
+res://models/units/uberhero/leg.tscn::d3e4537218c046c6a92a98c9d2c75b44::1664467874::res://.godot/exported/133200997/export-75c857580d0a8b9d8ff50ed44403537f-leg.scn
+res://models/units/uberhero/shoulder.tscn::66e7ad598da536558405673dba63e98d::1664543800::res://.godot/exported/133200997/export-9f41a9f340dfba45f4b5834819326726-shoulder.scn
+res://models/units/test.tscn::45a94f2f9bbd73c406673b0bfff6d0cf::1664467874::res://.godot/exported/133200997/export-d96fb55baac77564f72ffd7c8bc37d52-test.scn
+res://models/units/uberhero_base.tscn::8d7b026c5d3effb40c3b9b3a60aff1f8::1664544012::res://.godot/exported/133200997/export-4b38e9a4f750d19141dcbba158f98a2c-uberhero_base.scn
+res://tests/anim01/anim_lib.tres::cec1168769778375c2988630d4164706::1664543794::res://.godot/exported/133200997/export-4cfd9fe4268a87d84afb077cac50d6c9-anim_lib.res
+res://tests/anim01/test_anim_tree.tscn::fba28a6a0eb04bdc414646940caac53e::1664467874::res://.godot/exported/133200997/export-627e6e6ae3f9c50602f990b94f5e39bc-test_anim_tree.scn
+res://test.tscn::27491a0362074fa44923cb50412b3e2c::1665244376::res://.godot/exported/133200997/export-f0a4ea32b72b64218d23e48a955cbc61-test.scn

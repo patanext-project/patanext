@@ -1,0 +1,56 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://bpjoe58xy2v0m"
+path="res://.godot/imported/charibasa_left.glb-31099c7c95db718d5e9a419ab0b5354a.scn"
+
+[deps]
+
+source_file="res://assets/uberhero/masks/charibasa_left.glb"
+dest_files=["res://.godot/imported/charibasa_left.glb-31099c7c95db718d5e9a419ab0b5354a.scn"]
+
+[params]
+
+nodes/root_type="Node3D"
+nodes/root_name="Scene Root"
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+import_script/path=""
+_subresources={
+"materials": {
+"Black": {
+"use_external/enabled": true,
+"use_external/path": "res://assets/uberhero/masks/charibasa/black.tres"
+},
+"BlackGlossy": {
+"use_external/enabled": true,
+"use_external/path": "res://assets/uberhero/masks/charibasa/black.tres"
+},
+"Cristal": {
+"use_external/enabled": true,
+"use_external/path": "res://assets/uberhero/masks/charibasa/crystal.tres"
+},
+"PrismarineLayer0": {
+"use_external/enabled": true,
+"use_external/path": "res://assets/uberhero/masks/charibasa/prismarine_layer_0.tres"
+},
+"PrismeLayer1": {
+"use_external/enabled": true,
+"use_external/path": "res://assets/uberhero/masks/charibasa/prismarine_layer_1.tres"
+},
+"PrismeLayer2": {
+"use_external/enabled": true,
+"use_external/path": "res://assets/uberhero/masks/charibasa/prismarine_layer_2.tres"
+}
+}
+}

@@ -1,0 +1,11 @@
+AnimationPlayer
+Label
+CheckButton
+VSlider
+Control
+Camera3D
+MeshInstance3D
+AnimationTree
+Node3D
+VisibleOnScreenEnabler3D
+Node

@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://irljps6wr47a"]
+
+[ext_resource type="Script" path="res://code/ModuleLoader.cs" id="1_v5ks3"]
+[ext_resource type="PackedScene" uid="uid://byyfufyvqfn5u" path="res://assets/line.glb" id="2_xanuv"]
+[ext_resource type="ArrayMesh" uid="uid://byvw4g30tq6lp" path="res://assets/line_mesh.res" id="3_7degx"]
+[ext_resource type="Shader" path="res://assets/shaders/uberhero/body_spline.gdshader" id="4_jkp32"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4855h"]
+render_priority = 0
+shader = ExtResource("4_jkp32")
+shader_parameter/Color = null
+shader_parameter/Points = PackedVector3Array(0, 0, 0, 0.31, -1, 0, 0, -2, 0)
+shader_parameter/Width = null
+shader_parameter/body_direction = null
+
+[node name="Oui" type="Node3D"]
+
+[node name="Node" type="Node" parent="."]
+script = ExtResource("1_v5ks3")
+ModuleName = "TestServer"
+ModuleGroup = "PataNext"
+
+[node name="Camera3d" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.902525, 0.430637, 0, -0.430637, 0.902525, -0.0587859, 3.28286, 4.28775)
+size = 5.0
+
+[node name="line2" parent="." instance=ExtResource("2_xanuv")]
+transform = Transform3D(1, 0, 0, 0, 0.264563, -0.964368, 0, 0.964368, 0.264563, -14.666, 3.99398, 1949.4)
+
+[node name="LineMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.05, 2.782, 0)
+mesh = ExtResource("3_7degx")
+surface_material_override/0 = SubResource("ShaderMaterial_4855h")
+
+[node name="LineMesh2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.92, 2.876, 0)
+mesh = ExtResource("3_7degx")
+
+[editable path="line2"]

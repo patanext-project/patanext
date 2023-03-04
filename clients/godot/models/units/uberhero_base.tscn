@@ -1,0 +1,652 @@
+[gd_scene load_steps=27 format=3 uid="uid://vtjnyc616ohs"]
+
+[ext_resource type="Script" path="res://models/units/scripts/UberheroModel.cs" id="1_24xpp"]
+[ext_resource type="ArrayMesh" uid="uid://dpkv5g1rayhlu" path="res://assets/uberhero/head_circle_mesh.res" id="1_j7kws"]
+[ext_resource type="Script" path="res://code/Presentations/TestUnitPresentation.cs" id="1_kkynr"]
+[ext_resource type="Shader" path="res://assets/shaders/uberhero/goofy_eye.gdshader" id="2_kyxyw"]
+[ext_resource type="ArrayMesh" uid="uid://byvw4g30tq6lp" path="res://assets/line_mesh.res" id="2_n5nd6"]
+[ext_resource type="Shader" path="res://assets/shaders/uberhero/body_spline.gdshader" id="3_jhe1g"]
+[ext_resource type="Script" path="res://models/units/scripts/UberheroBody.cs" id="5_j7vdg"]
+[ext_resource type="Script" path="res://models/units/scripts/UberheroEye.cs" id="6_wyhp7"]
+[ext_resource type="Shader" path="res://assets/shaders/uberhero/legarm_spline.gdshader" id="8_3lukg"]
+[ext_resource type="PackedScene" uid="uid://5rb8flyee5sb" path="res://models/units/uberhero/shoulder.tscn" id="8_ff5vj"]
+[ext_resource type="PackedScene" uid="uid://oh7sxjmfwugr" path="res://models/units/equipments/masks/charibasa.tscn" id="9_2d8r5"]
+[ext_resource type="PackedScene" uid="uid://b0i16s2mgj0ne" path="res://models/units/uberhero/leg.tscn" id="10_15tel"]
+[ext_resource type="PackedScene" uid="uid://c0rhmempgj2ei" path="res://assets/uberhero/def_hairstyle.glb" id="10_emytr"]
+[ext_resource type="Material" uid="uid://b5mtws60bnefb" path="res://models/units/materials/cap_mat.tres" id="11_3t4ft"]
+[ext_resource type="AnimationLibrary" uid="uid://cujhqej66h0x4" path="res://models/units/uberhero/animations/yarida/idle_lib.tres" id="15_g80ay"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dgfc4"]
+render_priority = 0
+shader = ExtResource("3_jhe1g")
+shader_parameter/Color = null
+shader_parameter/Points = PackedVector3Array(0, 0, 0, 0.0265815, 0.132433, 0.034218, -0.0444268, 0.334965, -0.0571901)
+shader_parameter/Width = null
+shader_parameter/body_direction = Vector2(-0.420455, -0.136443)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_m32gm"]
+render_priority = 0
+shader = ExtResource("2_kyxyw")
+shader_parameter/body_color = Color(0, 0, 0, 1)
+shader_parameter/body_direction = Vector2(-0.420455, 0.0470553)
+shader_parameter/eye_color = Color(1, 1, 1, 1)
+shader_parameter/eye_direction = Vector2(-0.420455, 0.0470553)
+shader_parameter/eye_roundness = Vector3(1, 1, 1)
+shader_parameter/eye_size = 0.36
+shader_parameter/iris_color = Color(0, 0, 0, 1)
+shader_parameter/iris_roundness = Vector3(1, 1, 1)
+shader_parameter/iris_size = 0.25
+
+[sub_resource type="SphereMesh" id="SphereMesh_jhbut"]
+radius = 0.162
+height = 0.324
+radial_segments = 16
+rings = 16
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wsn6x"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("8_3lukg")
+shader_parameter/Color = null
+shader_parameter/Points = PackedVector3Array(-0.0352461, 0.115181, 1.22935e-07, -0.368974, -0.0563897, 0.107358, -0.0506013, -0.139536, 0.276063)
+shader_parameter/Width = 0.03
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8crje"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("8_3lukg")
+shader_parameter/Color = null
+shader_parameter/Points = PackedVector3Array(0.00863555, 0.100749, 0, 0.132444, 0.0388601, -0.107358, 0.392794, -0.0863563, -0.276062)
+shader_parameter/Width = 0.03
+
+[sub_resource type="Shader" id="Shader_sf771"]
+code = "shader_type spatial;
+
+render_mode unshaded, cull_disabled;
+
+uniform vec4 Color : source_color = vec4(0., 0., 0., 1.);
+uniform vec3[3] Points;
+uniform float Width : hint_range(0.0, 1.0, 0.001) = 0.16;
+
+#include \"assets/shaders/incls/spline_utils.gdshaderinc\"
+
+void vertex() {
+	int vid = VERTEX_ID / 2;
+	
+	//VERTEX = vec3(VERTEX.x, VERTEX.y + float(vid) * 0.05, VERTEX.z);
+	
+	vec3 points[4] = vec3[4](
+		vec3(-3., 0.0, 1.5),
+		vec3(0.5, 0.2, 0.),
+		vec3(3., -0.8, -0.1),
+		vec3(4., 0.5, 0.1)
+	);
+
+	float t = UV.x;
+	
+	vec3 pos = bezier3Curve(Points[0], Points[1], Points[2], t);
+	vec3 norm = normalize(pos - bezier3Curve(Points[0], Points[1], Points[2], t - 0.01));
+	norm = flatNormal(norm);
+	//norm = bezier3Normal(Points[0], Points[1], Points[2], t);
+	
+	pos += norm * Width * (VERTEX_ID % 2 == 1 ? -1. : +1.);
+	VERTEX = pos;
+	
+	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+}
+
+void fragment() {
+	// Place fragment code here.
+	ALBEDO = Color.xyz;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0327h"]
+resource_local_to_scene = true
+render_priority = 0
+shader = SubResource("Shader_sf771")
+shader_parameter/Color = null
+shader_parameter/Points = PackedVector3Array(0, 0, 0, -0.133852, -0.15, 1.31134e-08, -0.227405, -0.3, 2.62268e-08)
+shader_parameter/Width = 0.03
+
+[sub_resource type="Shader" id="Shader_3hvdx"]
+code = "shader_type spatial;
+
+render_mode unshaded, cull_disabled;
+
+uniform vec4 Color : source_color = vec4(0., 0., 0., 1.);
+uniform vec3[3] Points;
+uniform float Width : hint_range(0.0, 1.0, 0.001) = 0.16;
+
+#include \"assets/shaders/incls/spline_utils.gdshaderinc\"
+
+void vertex() {
+	int vid = VERTEX_ID / 2;
+	
+	//VERTEX = vec3(VERTEX.x, VERTEX.y + float(vid) * 0.05, VERTEX.z);
+	
+	vec3 points[4] = vec3[4](
+		vec3(-3., 0.0, 1.5),
+		vec3(0.5, 0.2, 0.),
+		vec3(3., -0.8, -0.1),
+		vec3(4., 0.5, 0.1)
+	);
+
+	float t = UV.x;
+	
+	vec3 pos = bezier3Curve(Points[0], Points[1], Points[2], t);
+	vec3 norm = normalize(pos - bezier3Curve(Points[0], Points[1], Points[2], t - 0.01));
+	norm = flatNormal(norm);
+	//norm = bezier3Normal(Points[0], Points[1], Points[2], t);
+	
+	pos += norm * Width * (VERTEX_ID % 2 == 1 ? -1. : +1.);
+	VERTEX = pos;
+	
+	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+}
+
+void fragment() {
+	// Place fragment code here.
+	ALBEDO = Color.xyz;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mv7j0"]
+resource_local_to_scene = true
+render_priority = 0
+shader = SubResource("Shader_3hvdx")
+shader_parameter/Color = null
+shader_parameter/Points = PackedVector3Array(0.0316639, 0.0143927, 0, 0.00719643, -0.16871, 0, 0, -0.3, 0)
+shader_parameter/Width = 0.03
+
+[sub_resource type="Animation" id="Animation_5fja5"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Hips/RightLeg/2!:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hips/RightLeg/2!:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.3, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hips/RightLeg/2!:position:z")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hips/RightLeg/2!:rotation:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hips/RightLeg/2!:rotation:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-1.5708, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hips/RightLeg/2!:rotation:z")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Hips/RightLeg/1!:position:x")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.0115142, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/7/type = "bezier"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Hips/RightLeg/1!:position:y")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.155757, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/8/type = "bezier"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Hips/RightLeg/1!:position:z")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/9/type = "bezier"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Hips/RightLeg/0!:position:x")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.0316639, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/10/type = "bezier"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Hips/RightLeg/0!:position:y")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.0143927, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Hips/RightLeg/0!:position:z")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Hips/LeftLeg/2!:position:x")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.227405, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("Hips/LeftLeg/2!:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.3, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Hips/LeftLeg/2!:position:z")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("Hips/LeftLeg/2!:rotation:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1.69407e-21, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("Hips/LeftLeg/2!:rotation:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1.5708, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("Hips/LeftLeg/2!:rotation:z")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1.74846e-07, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/18/type = "bezier"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("Hips/LeftLeg/1!:position:x")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.123777, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/19/type = "bezier"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("Hips/LeftLeg/1!:position:y")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.15, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/20/type = "bezier"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("Hips/LeftLeg/1!:position:z")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/21/type = "bezier"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("Hips/LeftLeg/0!:position:x")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/22/type = "bezier"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("Hips/LeftLeg/0!:position:y")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/23/type = "bezier"
+tracks/23/imported = false
+tracks/23/enabled = true
+tracks/23/path = NodePath("Hips/LeftLeg/0!:position:z")
+tracks/23/interp = 1
+tracks/23/loop_wrap = true
+tracks/23/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/24/type = "bezier"
+tracks/24/imported = false
+tracks/24/enabled = true
+tracks/24/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/2!:position:x")
+tracks/24/interp = 1
+tracks/24/loop_wrap = true
+tracks/24/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.479552, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/25/type = "bezier"
+tracks/25/imported = false
+tracks/25/enabled = true
+tracks/25/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/2!:position:y")
+tracks/25/interp = 1
+tracks/25/loop_wrap = true
+tracks/25/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.0886034, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/26/type = "bezier"
+tracks/26/imported = false
+tracks/26/enabled = true
+tracks/26/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/2!:position:z")
+tracks/26/interp = 1
+tracks/26/loop_wrap = true
+tracks/26/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.0115703, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/27/type = "bezier"
+tracks/27/imported = false
+tracks/27/enabled = true
+tracks/27/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/1!:position:x")
+tracks/27/interp = 1
+tracks/27/loop_wrap = true
+tracks/27/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.20682, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/28/type = "bezier"
+tracks/28/imported = false
+tracks/28/enabled = true
+tracks/28/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/1!:position:y")
+tracks/28/interp = 1
+tracks/28/loop_wrap = true
+tracks/28/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.0192891, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/29/type = "bezier"
+tracks/29/imported = false
+tracks/29/enabled = true
+tracks/29/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/1!:position:z")
+tracks/29/interp = 1
+tracks/29/loop_wrap = true
+tracks/29/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.0136491, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/30/type = "bezier"
+tracks/30/imported = false
+tracks/30/enabled = true
+tracks/30/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/0!:position:x")
+tracks/30/interp = 1
+tracks/30/loop_wrap = true
+tracks/30/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.00681964, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/31/type = "bezier"
+tracks/31/imported = false
+tracks/31/enabled = true
+tracks/31/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/0!:position:y")
+tracks/31/interp = 1
+tracks/31/loop_wrap = true
+tracks/31/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.0911834, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/32/type = "bezier"
+tracks/32/imported = false
+tracks/32/enabled = true
+tracks/32/path = NodePath("Hips/Spine/0!Base/1!Stomach/RightShoulder/0!:position:z")
+tracks/32/interp = 1
+tracks/32/loop_wrap = true
+tracks/32/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.0431742, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_36y3x"]
+_data = {
+"RESET": SubResource("Animation_5fja5")
+}
+
+[node name="uberhero_base" type="Node3D"]
+script = ExtResource("1_kkynr")
+
+[node name="VisibleOnScreenEnabler3d" type="VisibleOnScreenEnabler3D" parent="."]
+aabb = AABB(-1, -1, -1, 2, 3, 2)
+
+[node name="Visual" type="Node3D" parent="."]
+script = ExtResource("1_24xpp")
+
+[node name="Hips" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.419, 0)
+
+[node name="Spine" type="Node3D" parent="Visual/Hips"]
+transform = Transform3D(0.789716, 0.0145603, 0.613299, -3.72529e-09, 0.999718, -0.0237342, -0.613472, 0.0187433, 0.789494, 0, 0.17015, 0)
+
+[node name="_body" type="MeshInstance3D" parent="Visual/Hips/Spine"]
+mesh = ExtResource("2_n5nd6")
+skeleton = NodePath("../../..")
+surface_material_override/0 = SubResource("ShaderMaterial_dgfc4")
+script = ExtResource("5_j7vdg")
+NeckNodePath = NodePath("../0!Base/1!Stomach")
+Points = [NodePath("../0!Base"), NodePath("../0!Base/1!Stomach"), NodePath("../0!Base/1!Stomach/2!Neck")]
+
+[node name="0!Base" type="Node3D" parent="Visual/Hips/Spine"]
+
+[node name="1!Stomach" type="Node3D" parent="Visual/Hips/Spine/0!Base"]
+transform = Transform3D(1, 5.14988e-09, -3.02848e-08, 7.45058e-09, 0.915754, 0.40174, 2.98023e-08, -0.40174, 0.915754, -3.46825e-09, 0.15, -1.49012e-08)
+
+[node name="2!Neck" type="Node3D" parent="Visual/Hips/Spine/0!Base/1!Stomach"]
+transform = Transform3D(1, 1.41645e-08, -4.62747e-09, -1.49012e-08, 0.950559, -0.310544, -5.77316e-15, 0.310544, 0.950559, -2.45636e-08, 0.200001, 1.11759e-07)
+
+[node name="_eye" type="MeshInstance3D" parent="Visual/Hips/Spine/0!Base/1!Stomach/2!Neck"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000164349, 0.278, 5.68122e-08)
+mesh = ExtResource("1_j7kws")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("ShaderMaterial_m32gm")
+script = ExtResource("6_wyhp7")
+
+[node name="_cap" type="MeshInstance3D" parent="Visual/Hips/Spine/0!Base/1!Stomach/2!Neck"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5.96046e-08, 0)
+mesh = SubResource("SphereMesh_jhbut")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("11_3t4ft")
+
+[node name="def_hairstyle" parent="Visual/Hips/Spine/0!Base/1!Stomach/2!Neck" instance=ExtResource("10_emytr")]
+transform = Transform3D(1, -1.02445e-08, 2.98023e-08, -4.65661e-09, 1, -3.72529e-09, 2.98023e-08, -1.11759e-08, 1, -3.72529e-09, 0.553489, -1.49012e-08)
+
+[node name="Mask" type="Node3D" parent="Visual/Hips/Spine/0!Base/1!Stomach/2!Neck"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.278, 0.3)
+
+[node name="Charibasa" parent="Visual/Hips/Spine/0!Base/1!Stomach/2!Neck/Mask" instance=ExtResource("9_2d8r5")]
+
+[node name="LeftShoulder" parent="Visual/Hips/Spine/0!Base/1!Stomach" instance=ExtResource("8_ff5vj")]
+transform = Transform3D(-1, 0, 0, 0, -1, 0, 0, 0, -1, -0.13, 0.091, 0)
+surface_material_override/0 = SubResource("ShaderMaterial_wsn6x")
+
+[node name="0!" parent="Visual/Hips/Spine/0!Base/1!Stomach/LeftShoulder" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, -5.96046e-08, 0, 0, 1, 0.0278345, -0.11476, -0.0237549)
+
+[node name="1!" parent="Visual/Hips/Spine/0!Base/1!Stomach/LeftShoulder" index="1"]
+transform = Transform3D(1, 1.49012e-08, 0, 2.98023e-08, 1, -8.9407e-08, 0, 2.98023e-08, 1, 0.237911, 0.0205258, 0.0402662)
+
+[node name="2!" parent="Visual/Hips/Spine/0!Base/1!Stomach/LeftShoulder" index="2"]
+transform = Transform3D(0.956119, 0.292983, 0, -0.292983, 0.956118, 0, 0, 0, 1, 0.209318, 0.200104, -0.119943)
+
+[node name="Model_Hand" parent="Visual/Hips/Spine/0!Base/1!Stomach/LeftShoulder/2!" index="0"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.008, 0, 0)
+
+[node name="RightShoulder" parent="Visual/Hips/Spine/0!Base/1!Stomach" instance=ExtResource("8_ff5vj")]
+transform = Transform3D(1, 0, 0, -2.98023e-08, 1, 2.98023e-08, 0, 0, 1, 0.13, 0.091, -2.98023e-08)
+surface_material_override/0 = SubResource("ShaderMaterial_8crje")
+
+[node name="0!" parent="Visual/Hips/Spine/0!Base/1!Stomach/RightShoulder" index="0"]
+transform = Transform3D(1, 1.49012e-08, 0, -1.49012e-08, 1, 5.96046e-08, 0, 2.98023e-08, 1, 0.00681964, 0.0911834, 0.0431742)
+
+[node name="1!" parent="Visual/Hips/Spine/0!Base/1!Stomach/RightShoulder" index="1"]
+transform = Transform3D(1, 0, 0, -1.49012e-08, 1, 1.19209e-07, 0, 7.45058e-08, 1, 0.20682, 0.0192891, 0.0136491)
+
+[node name="2!" parent="Visual/Hips/Spine/0!Base/1!Stomach/RightShoulder" index="2"]
+transform = Transform3D(0.901025, 0.433769, 0, -0.433769, 0.901025, 0, 0, 0, 1, 0.479552, -0.0886034, -0.0115703)
+
+[node name="_cap" type="MeshInstance3D" parent="Visual/Hips/Spine/0!Base"]
+transform = Transform3D(-1, 0, 0, 0, -1, 0, 0, 0, -1, 0, -5.96046e-08, 0)
+mesh = SubResource("SphereMesh_jhbut")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("11_3t4ft")
+
+[node name="LeftLeg" parent="Visual/Hips" instance=ExtResource("10_15tel")]
+transform = Transform3D(-1, 0, 0, 0, 1, 8.74228e-08, 0, -8.74228e-08, 1, -0.05, 0.061, 0)
+surface_material_override/0 = SubResource("ShaderMaterial_0327h")
+
+[node name="1!" parent="Visual/Hips/LeftLeg" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.123777, -0.15, 0)
+
+[node name="2!" parent="Visual/Hips/LeftLeg" index="2"]
+transform = Transform3D(-4.37114e-08, 7.64275e-15, 1, 1.74846e-07, 1, -1.69407e-21, -1, 1.74846e-07, -4.37114e-08, 0.227405, -0.3, 0)
+
+[node name="RightLeg" parent="Visual/Hips" instance=ExtResource("10_15tel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.061, 0)
+surface_material_override/0 = SubResource("ShaderMaterial_mv7j0")
+
+[node name="0!" parent="Visual/Hips/RightLeg" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0316639, 0.0143927, 0)
+
+[node name="1!" parent="Visual/Hips/RightLeg" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0115142, -0.155757, 0)
+
+[node name="2!" parent="Visual/Hips/RightLeg" index="2"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, -0.3, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Visual"]
+libraries = {
+"": SubResource("AnimationLibrary_36y3x"),
+"idle_lib": ExtResource("15_g80ay")
+}
+
+[editable path="Visual/Hips/Spine/0!Base/1!Stomach/LeftShoulder"]
+[editable path="Visual/Hips/Spine/0!Base/1!Stomach/RightShoulder"]
+[editable path="Visual/Hips/LeftLeg"]
+[editable path="Visual/Hips/RightLeg"]

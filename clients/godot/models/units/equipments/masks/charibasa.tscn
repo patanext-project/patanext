@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://oh7sxjmfwugr"]
+
+[ext_resource type="PackedScene" uid="uid://bpjoe58xy2v0m" path="res://assets/uberhero/masks/charibasa_left.glb" id="1_s0qfi"]
+
+[node name="Charibasa" type="Node3D"]
+
+[node name="charibasa_left" parent="." instance=ExtResource("1_s0qfi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37249, 0)
+
+[node name="charibasa_left2" parent="." instance=ExtResource("1_s0qfi")]
+transform = Transform3D(-1, 0, 0, 0, 1, -8.74228e-08, 0, 8.74228e-08, 1, 0, -0.37249, -3.25641e-08)

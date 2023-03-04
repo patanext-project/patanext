@@ -1,0 +1,177 @@
+[gd_scene load_steps=8 format=3 uid="uid://jo174dtgij8a"]
+
+[ext_resource type="Script" path="res://tests/anim01/test_anim_tree.cs" id="1_e2na3"]
+[ext_resource type="AnimationLibrary" uid="uid://ccwcxcq2c5dmq" path="res://tests/anim01/anim_lib.tres" id="2_eobii"]
+[ext_resource type="PackedScene" uid="uid://vtjnyc616ohs" path="res://models/units/uberhero_base.tscn" id="3_msm2o"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_kgfg7"]
+graph_offset = Vector2(-585.714, -24.6037)
+
+[sub_resource type="Animation" id="Animation_d3no6"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("uberhero_base:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("uberhero_base:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("uberhero_base:position:z")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("uberhero_base:rotation:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("uberhero_base:rotation:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("uberhero_base:rotation:z")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_0iplj"]
+_data = {
+"RESET": SubResource("Animation_d3no6")
+}
+
+[sub_resource type="LabelSettings" id="LabelSettings_0llwf"]
+outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 1)
+
+[node name="test_anim_tree" type="Node3D"]
+script = ExtResource("1_e2na3")
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("AnimationNodeBlendTree_kgfg7")
+anim_player = NodePath("../AnimationPlayer")
+active = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_0iplj"),
+"anim_lib": ExtResource("2_eobii")
+}
+
+[node name="uberhero_base" parent="." instance=ExtResource("3_msm2o")]
+
+[node name="Camera3d" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.401, 10)
+projection = 1
+size = 5.0
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="left" type="VSlider" parent="Control"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -78.0
+offset_top = -296.0
+offset_right = -62.0
+offset_bottom = -15.0
+grow_horizontal = 0
+grow_vertical = 0
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="right" type="VSlider" parent="Control"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -296.0
+offset_right = -24.0
+offset_bottom = -15.0
+grow_horizontal = 0
+grow_vertical = 0
+max_value = 1.0
+step = 0.01
+
+[node name="CheckButton" type="CheckButton" parent="Control"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -133.0
+offset_top = -38.0
+offset_right = -89.0
+offset_bottom = -14.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Label" type="Label" parent="Control"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -229.0
+offset_top = -38.0
+offset_right = -139.0
+offset_bottom = -12.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Normalized"
+label_settings = SubResource("LabelSettings_0llwf")
+horizontal_alignment = 2
