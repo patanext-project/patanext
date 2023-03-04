@@ -1,6 +1,0 @@
-# The managed folder shouldn't be included in the repository since it's something that is built by the user
-managed/*
-
-# Include header binaries
-!managed/PataNext.Export.GodotNE.dll
-!managed/PataNext.Export.GodotNE.so
