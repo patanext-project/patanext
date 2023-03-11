@@ -16,7 +16,9 @@
     <PackageReference Include="revecs.Generator" Version="0.0.0-local" OutputItemType="Analyzer" />
     <PackageReference Include="revghost" Version="0.0.0-local" />
     <PackageReference Include="revghost.Shared" Version="2022.713.1503" />
-    <PackageReference Include="Quadrum.Game" Version="0.0.0-local" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\dependencies\Quadrum\src\Quadrum.Game\Quadrum.Game.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
